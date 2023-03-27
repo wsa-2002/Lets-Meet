@@ -1,1 +1,4 @@
 node_module/
+.idea/
+db_data/
+
