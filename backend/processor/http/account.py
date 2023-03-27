@@ -53,7 +53,7 @@ class LoginOutput:
     token: str
 
 
-@router.post('/alogin')
+@router.post('/login')
 @enveloped
 async def login(data: LoginInput) -> LoginOutput:
     try:
