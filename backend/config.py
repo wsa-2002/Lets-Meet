@@ -10,10 +10,6 @@ env_values = {
     **os.environ,
 }
 
-class GoogleConfig:
-    GOOGLE_CLIENT_ID = env_values.get('GOOGLE_CLIENT_ID')
-    GOOGLE_CLIENT_SECRET = env_values.get('GOOGLE_CLIENT_SECRET')
-
 
 class DBConfig:
     host = env_values.get('PG_HOST')
@@ -55,7 +51,7 @@ class ServiceConfig:
         port_postfix = f':{self.port}' if self.port else ''
         return f"{protocol}://{self.domain}{port_postfix}"
 
-google_config = GoogleConfig()
+
 db_config = DBConfig()
 app_config = AppConfig()
 jwt_config = JWTConfig()
