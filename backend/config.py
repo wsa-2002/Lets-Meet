@@ -9,6 +9,7 @@ env_values = {
     **os.environ,
 }
 
+
 class GoogleConfig:
     GOOGLE_CLIENT_ID = env_values.get('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET = env_values.get('GOOGLE_CLIENT_SECRET')
@@ -50,6 +51,7 @@ class S3Config:
     endpoint = env_values.get('S3_ENDPOINT')
     access_key = env_values.get('S3_ACCESS_KEY')
     secret_key = env_values.get('S3_SECRET_KEY')
+
 
 google_config = GoogleConfig()
 db_config = DBConfig()
