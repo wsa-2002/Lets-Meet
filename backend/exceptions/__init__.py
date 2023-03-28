@@ -50,3 +50,9 @@ class IllegalInput(Exception):
     """
     Input is not legal
     """
+
+
+class IllegalCharacter(Exception):
+    """
+    Input contains illegal character
+    """
