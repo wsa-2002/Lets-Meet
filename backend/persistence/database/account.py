@@ -89,5 +89,3 @@ async def reset_password(code: str, pass_hash: str) -> None:
         pass_hash, account_id,
     )
     await pool_handler.pool.release(conn)
-
-

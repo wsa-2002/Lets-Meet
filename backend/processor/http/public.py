@@ -23,6 +23,7 @@ async def default_page():
 async def email_verification(code: UUID):
     await db.email_verification.verify_email(code=code)
 
+
 class ForgetPasswordInput(BaseModel):
     email: str
 

@@ -35,12 +35,9 @@ class SMTPHandler(metaclass=mcs.Singleton):
                 aiosmtplib.smtp.Union[float, aiosmtplib.smtp.Default]] = aiosmtplib.smtp._default,
     ):
         client = await self.get_client()
-        print('asdf')
-        print(message, sender, recipients, mail_options, rcpt_options, timeout)
         responses, data_log = await client.send_message(message=message, sender=sender, recipients=recipients,
                                                         mail_options=mail_options, rcpt_options=rcpt_options,
                                                         timeout=timeout)
-        print('jfdkjfkd')
         for address, (code, resp) in responses.items():
             if code != 200:
                 print(f'{address=} failed with {code=} {resp=}')  # experimental, info level only

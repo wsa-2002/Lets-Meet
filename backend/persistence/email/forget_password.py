@@ -12,6 +12,6 @@ async def send(to: str, code: str, subject="Let's meet Email Verification"):
     message.set_content(fr"""
 Please click on the following link to reset your password:
 {service_config.url}/reset-password?code={code}
-""") # link to FE reset password page, not BE
+""")  # link to FE reset password page, not BE
 
     await smtp_handler.send_message(message)
