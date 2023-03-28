@@ -9,10 +9,6 @@ env_values = {
     **os.environ,
 }
 
-class GoogleConfig:
-    GOOGLE_CLIENT_ID = env_values.get('GOOGLE_CLIENT_ID')
-    GOOGLE_CLIENT_SECRET = env_values.get('GOOGLE_CLIENT_SECRET')
-
 
 class DBConfig:
     host = env_values.get('PG_HOST')
@@ -51,7 +47,7 @@ class S3Config:
     access_key = env_values.get('S3_ACCESS_KEY')
     secret_key = env_values.get('S3_SECRET_KEY')
 
-google_config = GoogleConfig()
+
 db_config = DBConfig()
 app_config = AppConfig()
 jwt_config = JWTConfig()

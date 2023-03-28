@@ -16,14 +16,14 @@ router = APIRouter(
     dependencies=[Depends(get_auth_token)]
 )
 
-# js 裡面的req.body之類的 input要這樣
+
 class AddAccountInput(BaseModel):
     username: str
     password: str
     real_name: str
     student_id: str
 
-#res的感覺
+
 @dataclass
 class AddAccountOutput:
     id: int
@@ -32,13 +32,12 @@ class AddAccountOutput:
 @router.post('/account')
 @enveloped
 async def add_account(data: AddAccountInput) -> AddAccountOutput:
-    #db.account是db資料夾裡面的account.py
     if await db.account.is_duplicate_student_id(student_id=data.student_id):
         raise exc.DuplicateStudentId
 
     account_id = await db.account.add(username=data.username,
                                       pass_hash=hash_password(data.password))
-    #寄信動作
+
     return AddAccountOutput(id=account_id)
 
 
@@ -53,7 +52,7 @@ class LoginOutput:
     token: str
 
 
-@router.post('/alogin')
+@router.post('/login')
 @enveloped
 async def login(data: LoginInput) -> LoginOutput:
     try:
@@ -66,4 +65,3 @@ async def login(data: LoginInput) -> LoginOutput:
 
     token = encode_jwt(account_id=account_id, role=role)
     return LoginOutput(account_id=account_id, token=token)
-
