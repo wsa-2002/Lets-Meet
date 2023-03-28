@@ -21,6 +21,7 @@ router = APIRouter(
 USERNAME_PROHIBITED_CHARS = r'`#$%&*\/?'
 
 
+
 class AddAccountInput(BaseModel):
     username: str
     password: str
@@ -70,3 +71,4 @@ async def login(data: LoginInput) -> LoginOutput:
 
     token = encode_jwt(account_id=account_id)
     return LoginOutput(account_id=account_id, token=token)
+
