@@ -30,12 +30,18 @@ async def app_startup():
     from persistence.database import pool_handler
     await pool_handler.initialize(db_config=db_config)
 
+    from config import smtp_config
+    from persistence.email import smtp_handler
+    await smtp_handler.initialize(smtp_config=smtp_config)
 
 
 @app.on_event('shutdown')
 async def app_shutdown():
     from persistence.database import pool_handler
     await pool_handler.close()
+
+    from persistence.email import smtp_handler
+    await smtp_handler.close()
 
 
 import middleware.auth
