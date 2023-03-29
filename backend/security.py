@@ -13,17 +13,15 @@ _jwt_encoder = partial(jwt.encode, key=jwt_config.jwt_secret, algorithm=jwt_conf
 _jwt_decoder = partial(jwt.decode, key=jwt_config.jwt_secret, algorithms=[jwt_config.jwt_encode_algorithm])
 
 
-def encode_jwt(account_id: int, role: enums.RoleType, expire: timedelta = jwt_config.login_expire) -> str:
+def encode_jwt(account_id: int, expire: timedelta = jwt_config.login_expire) -> str:
     return _jwt_encoder({
         'account_id': account_id,
-        'role': role.value,
         'expire': (datetime.now() + expire).isoformat(),
     })
 
 
 class AuthedAccount(NamedTuple):
     id: int
-    role: enums.RoleType
     time: datetime
 
 
@@ -39,7 +37,7 @@ def decode_jwt(encoded: str, time: datetime) -> AuthedAccount:
 
     account_id = decoded['account_id']
     role = decoded['role']
-    return AuthedAccount(id=account_id, role=enums.RoleType(role), time=time)
+    return AuthedAccount(id=account_id, time=time)
 
 
 def hash_password(password: str) -> str:

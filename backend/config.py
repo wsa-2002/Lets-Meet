@@ -1,3 +1,4 @@
+from distutils.util import strtobool
 import enum
 from datetime import timedelta
 import os
@@ -31,25 +32,28 @@ class JWTConfig:
     login_expire = timedelta(days=float(env_values.get('LOGIN_EXPIRE', '7')))
 
 
-class AMQPConfig:
-    host = env_values.get('AMQP_HOST')
-    port = env_values.get('AMQP_PORT')
-    username = env_values.get('AMQP_USERNAME')
-    password = env_values.get('AMQP_PASSWORD')
+class SMTPConfig:
+    host = env_values.get('SMTP_HOST')
+    port = env_values.get('SMTP_PORT')
+    username = env_values.get('SMTP_USERNAME')
+    password = env_values.get('SMTP_PASSWORD')
+    use_tls = strtobool(env_values.get('SMTP_USE_TLS'))
 
 
-AMQP_PUBLISH_QUEUE = env_values.get('AMQP_PUBLISH_QUEUE')
-AMQP_CONSUME_QUEUE = env_values.get('AMQP_CONSUME_QUEUE')
+class ServiceConfig:
+    domain = env_values.get('SERVICE_DOMAIN')
+    port = env_values.get('SERVICE_PORT')
+    use_https = bool(strtobool(env_values.get('SERVICE_USE_HTTPS', 'false')))
 
-
-class S3Config:
-    endpoint = env_values.get('S3_ENDPOINT')
-    access_key = env_values.get('S3_ACCESS_KEY')
-    secret_key = env_values.get('S3_SECRET_KEY')
+    @property
+    def url(self) -> str:
+        protocol = 'https' if self.use_https else 'http'
+        port_postfix = f':{self.port}' if self.port else ''
+        return f"{protocol}://{self.domain}{port_postfix}"
 
 
 db_config = DBConfig()
 app_config = AppConfig()
 jwt_config = JWTConfig()
-amqp_config = AMQPConfig()
-s3_config = S3Config()
+smtp_config = SMTPConfig()
+service_config = ServiceConfig()

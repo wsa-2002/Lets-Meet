@@ -14,7 +14,7 @@ from config import DBConfig
 
 class PoolHandler(metaclass=mcs.Singleton):
     def __init__(self):
-        self._pool: asyncpg.pool.Pool = None  # Need to be init/closed manually
+        self._pool: asyncpg.pool.Pool = None  # Need to be init/closed manually # noqa
 
     async def initialize(self, db_config: DBConfig):
         if self._pool is None:
@@ -42,5 +42,5 @@ pool_handler = PoolHandler()
 # For import usage
 from . import (
     account,
-    s3_file,
+    email_verification,
 )
