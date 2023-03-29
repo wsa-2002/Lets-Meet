@@ -1,16 +1,15 @@
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
-
 from fastapi import APIRouter, Depends, Request, responses
 from dataclasses import dataclass
-from security import encode_jwt, verify_password, hash_password
+from security import encode_jwt
 from middleware.envelope import enveloped
 from middleware.headers import get_auth_token
 import persistence.database as db
 import exceptions as exc
-
+from uuid import uuid4
+import os
 from config import google_config
-
 
 router = APIRouter(
     tags=['Google'],
@@ -18,8 +17,13 @@ router = APIRouter(
     dependencies=[Depends(get_auth_token)]
 )
 
-config = Config('.bb')
-print(config)
+os.environ['GOOGLE_CLIENT_ID'] = google_config.GOOGLE_CLIENT_ID
+os.environ['GOOGLE_CLIENT_SECRET'] = google_config.GOOGLE_CLIENT_SECRET
+
+config = Config()
+google_client_id = config('GOOGLE_CLIENT_ID')
+google_client_secret = config('GOOGLE_CLIENT_SECRET')
+
 oauth = OAuth(config)
 oauth.register(
     name='google',
@@ -34,25 +38,23 @@ class LoginOutput:
     account_id: int
     token: str
 
-@router.post('/glogin')
+@router.post('/google-login')
 @enveloped
 async def login(request: Request):
     redirect_uri = request.url_for('auth')
-    print('auth_url',redirect_uri)
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 @router.get('/auth')
 @enveloped
 async def auth(request: Request):
-    token = await oauth.google.authorize_access_token(request)
-    user = await oauth.google.parse_id_token(request, token)
-    username, email = user.name, user.email
-    # account_id, pass_hash, role = await db.account.read_by_username(username)
-    # if(account_id):
-    #      token = encode_jwt(account_id=account_id, role=role)
-    #      return LoginOutput(account_id=account_id, token=token)
-    # else:
-    #     account_id = await db.account.add(username=username,
-    #                                       pass_hash=user.at_hash)
-    # print(user)
-    return user
+    token_google = await oauth.google.authorize_access_token(request)
+    user = await oauth.google.parse_id_token(request, token_google)
+    result = await db.account.read_by_email(user.email)
+    if(type(result) != str):
+         account_id = result.id
+         token = encode_jwt(account_id=account_id)
+    else:
+        account_id = await db.account.add(username=str(uuid4()), email=user.email)
+        await db.account.update_email_or_username(account_id=account_id, username='用戶_'+str(account_id), email=user.email)
+        token = encode_jwt(account_id=account_id)
+    return LoginOutput(account_id=account_id, token=token)

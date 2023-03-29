@@ -7,7 +7,8 @@ def register_routers(app: fastapi.FastAPI):
         public,
         google,
     )
+
     app.include_router(public.router)
     app.include_router(account.router)
-    app.add_middleware(SessionMiddleware, secret_key="secret-string")
+    app.add_middleware(SessionMiddleware, secret_key="sdm-group4")
     app.include_router(google.router)
