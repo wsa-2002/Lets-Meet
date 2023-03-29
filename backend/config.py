@@ -56,6 +56,12 @@ class GoogleConfig:
     GOOGLE_CLIENT_SECRET = env_values.get('GOOGLE_CLIENT_SECRET')
 
 
+class S3Config:
+    endpoint = env_values.get('S3_ENDPOINT')
+    access_key = env_values.get('S3_ACCESS_KEY')
+    secret_key = env_values.get('S3_SECRET_KEY')
+
+
 db_config = DBConfig()
 app_config = AppConfig()
 jwt_config = JWTConfig()
