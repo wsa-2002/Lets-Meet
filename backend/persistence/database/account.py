@@ -33,14 +33,6 @@ async def update_email_or_username(account_id: int, email: str = None, username:
     )
     await pool_handler.pool.execute(sql, *params)
 
-# async def update_username(account_id: int, username: str) -> None:
-#     sql, params = pyformat2psql(
-#         sql=fr"UPDATE account"
-#             fr"   SET username = %(username)s"
-#             fr" WHERE id = %(account_id)s",
-#         username=username, account_id=account_id,
-#     )
-#     await pool_handler.pool.execute(sql, *params)
 
 async def read_by_email(email: str) -> do.Account:
     sql, params = pyformat2psql(

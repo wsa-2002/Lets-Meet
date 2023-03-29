@@ -2,7 +2,6 @@ from distutils.util import strtobool
 import enum
 from datetime import timedelta
 import os
-
 from dotenv import dotenv_values
 
 env_values = {
@@ -68,3 +67,4 @@ jwt_config = JWTConfig()
 smtp_config = SMTPConfig()
 service_config = ServiceConfig()
 google_config = GoogleConfig()
+s3_config = S3Config()
