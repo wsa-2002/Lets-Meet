@@ -51,6 +51,7 @@ async def login(request: Request):
 @enveloped
 async def auth(request: Request):
     token_google = await oauth.google.authorize_access_token(request)
+    print(token_google)
     user = await oauth.google.parse_id_token(request, token_google)
     try:
         result = await db.account.read_by_email(user.email)
