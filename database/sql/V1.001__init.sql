@@ -1,7 +1,8 @@
 CREATE TYPE status_type AS ENUM (
     'VOTING',
     'WAITING_FOR_CONFIRM',
-    'CONFIRMED'
+    'CONFIRMED',
+    'FINISHED'
 );
 
 CREATE TYPE week_day_type AS ENUM (
