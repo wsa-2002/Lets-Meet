@@ -3,6 +3,5 @@ node_module/
 git.js
 package.json
 yarn.lock
-.gitignore
 .idea/
 db_data/
