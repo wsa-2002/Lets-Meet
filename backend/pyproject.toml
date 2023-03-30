@@ -23,8 +23,8 @@ aioboto3 = "^10.2.0"
 python-multipart = "^0.0.5"
 aiosmtplib = "^2.0.1"
 Authlib = "^1.2.0"
-httpx = "^0.23.3"
 starlette-session = "^0.4.3"
+httpx = "^0.23.3"
 
 
 [build-system]

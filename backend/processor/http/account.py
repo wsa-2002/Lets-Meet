@@ -64,8 +64,7 @@ async def login(data: LoginInput) -> LoginOutput:
         account_id, pass_hash = await db.account.read_by_username_or_email(identifier=data.user_identifier)
     except TypeError:
         raise exc.LoginFailed
-
-    if not verify_password(data.password, pass_hash):
+    if not pass_hash or not verify_password(data.password, pass_hash):
         raise exc.LoginFailed
 
     token = encode_jwt(account_id=account_id)

@@ -51,13 +51,13 @@ async def login(request: Request):
 @enveloped
 async def auth(request: Request):
     token_google = await oauth.google.authorize_access_token(request)
-    user = await oauth.google.parse_id_token(request, token_google)
+    user_email = token_google['userinfo']['email']
     try:
-        result = await db.account.read_by_email(user.email)
+        result = await db.account.read_by_email(user_email)
         account_id = result.id
         token = encode_jwt(account_id=account_id)
     except exc.NotFound:
-        account_id = await db.account.add(username=str(uuid4()), email=user.email)
+        account_id = await db.account.add(username=str(uuid4()), email=user_email)
         await db.account.update_username(account_id=account_id, username='用戶_'+str(account_id))
         token = encode_jwt(account_id=account_id)
     return LoginOutput(account_id=account_id, token=token)

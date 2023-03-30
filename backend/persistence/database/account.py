@@ -69,7 +69,7 @@ async def read_by_username_or_email(identifier: str) -> Tuple[int, str]:
     try:
         id_, pass_hash = await pool_handler.pool.fetchrow(sql, *params)
     except TypeError:
-        raise not exc
+        raise exc.NotFound
     return id_, pass_hash
 
 
