@@ -54,5 +54,5 @@ import processor.http
 processor.http.register_routers(app)
 
 from starlette.middleware.sessions import SessionMiddleware
-from config import key_config
-app.add_middleware(SessionMiddleware, secret_key=key_config)
+from config import session_config
+app.add_middleware(SessionMiddleware, secret_key=session_config)
