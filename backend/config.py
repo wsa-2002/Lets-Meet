@@ -38,7 +38,6 @@ class SMTPConfig:
     password = env_values.get('SMTP_PASSWORD')
     use_tls = strtobool(env_values.get('SMTP_USE_TLS'))
 
-
 class ServiceConfig:
     domain = env_values.get('SERVICE_DOMAIN')
     port = env_values.get('SERVICE_PORT')
