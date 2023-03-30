@@ -38,6 +38,7 @@ class SMTPConfig:
     password = env_values.get('SMTP_PASSWORD')
     use_tls = strtobool(env_values.get('SMTP_USE_TLS'))
 
+
 class ServiceConfig:
     domain = env_values.get('SERVICE_DOMAIN')
     port = env_values.get('SERVICE_PORT')
@@ -49,10 +50,10 @@ class ServiceConfig:
         port_postfix = f':{self.port}' if self.port else ''
         return f"{protocol}://{self.domain}{port_postfix}"
 
+
 class GoogleConfig:
     GOOGLE_CLIENT_ID = env_values.get('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET = env_values.get('GOOGLE_CLIENT_SECRET')
-
 
 
 db_config = DBConfig()

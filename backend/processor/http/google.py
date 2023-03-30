@@ -6,7 +6,7 @@ from security import encode_jwt
 from middleware.envelope import enveloped
 from middleware.headers import get_auth_token
 import persistence.database as db
-import exceptions as exc
+import exceptions as exc  # noqa
 from uuid import uuid4
 import os
 from config import google_config
@@ -33,16 +33,19 @@ oauth.register(
     }
 )
 
+
 @dataclass
 class LoginOutput:
     account_id: int
     token: str
+
 
 @router.post('/google-login')
 @enveloped
 async def login(request: Request):
     redirect_uri = request.url_for('auth')
     return await oauth.google.authorize_redirect(request, redirect_uri)
+
 
 @router.get('/auth')
 @enveloped

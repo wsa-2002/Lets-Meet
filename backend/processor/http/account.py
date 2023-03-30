@@ -21,7 +21,6 @@ router = APIRouter(
 USERNAME_PROHIBITED_CHARS = r'`#$%&*\/?'
 
 
-
 class AddAccountInput(BaseModel):
     username: str
     password: str
