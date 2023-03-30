@@ -25,8 +25,6 @@ class AddAccountInput(BaseModel):
     password: str
     email: str
 
-
-#res的感覺
 @dataclass
 class AddAccountOutput:
     id: int

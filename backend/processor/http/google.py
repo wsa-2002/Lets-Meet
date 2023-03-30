@@ -49,11 +49,11 @@ async def login(request: Request):
 async def auth(request: Request):
     token_google = await oauth.google.authorize_access_token(request)
     user = await oauth.google.parse_id_token(request, token_google)
-    result = await db.account.read_by_email(user.email)
-    if(type(result) != str):
-         account_id = result.id
-         token = encode_jwt(account_id=account_id)
-    else:
+    try:
+        result = await db.account.read_by_email(user.email)
+        account_id = result.id
+        token = encode_jwt(account_id=account_id)
+    except:
         account_id = await db.account.add(username=str(uuid4()), email=user.email)
         await db.account.update_email_or_username(account_id=account_id, username='用戶_'+str(account_id), email=user.email)
         token = encode_jwt(account_id=account_id)

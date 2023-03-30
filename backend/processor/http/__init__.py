@@ -1,5 +1,4 @@
 import fastapi
-from starlette.middleware.sessions import SessionMiddleware
 
 def register_routers(app: fastapi.FastAPI):
     from . import (
@@ -10,5 +9,4 @@ def register_routers(app: fastapi.FastAPI):
 
     app.include_router(public.router)
     app.include_router(account.router)
-    app.add_middleware(SessionMiddleware, secret_key="sdm-group4")
     app.include_router(google.router)

@@ -23,14 +23,21 @@ async def add(username: str, pass_hash: str = None, notification_preference: str
     return id_
 
 
-async def update_email_or_username(account_id: int, email: str = None, username: str = None) -> None:
-    sql, params = pyformat2psql(
-        sql=fr"UPDATE account"
-            fr"   SET email = %(email)s,"
-            fr"       username = %(username)s"
-            fr" WHERE id = %(account_id)s",
-        email=email, username=username, account_id=account_id,
-    )
+async def update_email_or_username(account_id: int, email: str = None , username: str = None ) -> None:
+    if(username):
+        sql, params = pyformat2psql(
+            sql=fr"UPDATE account"
+                fr"   SET username = %(username)s"
+                fr" WHERE id = %(account_id)s",
+            username=username,account_id=account_id, 
+        )
+    if(email):
+        sql, params = pyformat2psql(
+            sql=fr"UPDATE account"
+                fr"   SET email = %(email)s"
+                fr" WHERE id = %(account_id)s",
+            email=email, account_id=account_id,
+        )
     await pool_handler.pool.execute(sql, *params)
 
 
@@ -45,7 +52,7 @@ async def read_by_email(email: str) -> do.Account:
         id_, email, username, line_token, google_token, notification_preference = \
             await pool_handler.pool.fetchrow(sql, *params)
     except TypeError:
-        return "email not found"
+        raise exc.NotFound
     return do.Account(id=id_, email=email, username=username, line_token=line_token,
                       google_token=google_token, notification_preference=notification_preference)
 
