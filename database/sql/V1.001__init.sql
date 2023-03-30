@@ -23,7 +23,7 @@ CREATE TABLE account (
     id                       SERIAL  PRIMARY KEY,
     email                    VARCHAR UNIQUE,
     username                 VARCHAR NOT NULL UNIQUE,   -- require username?
-    pass_hash                VARCHAR NOT NULL,
+    pass_hash                VARCHAR,
     line_token               VARCHAR,                   -- TBD?
     google_token             VARCHAR,                    -- TBD?
     notification_preference  notification_preference NOT NULL

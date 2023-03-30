@@ -17,3 +17,6 @@ aiosmtplib # smtp
 aioboto3 # s3
 
 python-multipart # required for fastapi UploadFile
+
+starlette-session
+authlib
