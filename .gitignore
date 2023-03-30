@@ -1,4 +1,7 @@
+node_modules/
 node_module/
+git.js
+package.json
+yarn.lock
 .idea/
 db_data/
-
