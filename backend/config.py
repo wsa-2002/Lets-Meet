@@ -54,6 +54,9 @@ class ServiceConfig:
 class GoogleConfig:
     GOOGLE_CLIENT_ID = env_values.get('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET = env_values.get('GOOGLE_CLIENT_SECRET')
+    
+class KeyConfig:
+    secret_key=env_values.get('secret_key')
 
 
 db_config = DBConfig()
@@ -62,4 +65,5 @@ jwt_config = JWTConfig()
 smtp_config = SMTPConfig()
 service_config = ServiceConfig()
 google_config = GoogleConfig()
+key_config = KeyConfig()
 

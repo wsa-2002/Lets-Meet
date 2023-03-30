@@ -56,8 +56,8 @@ async def auth(request: Request):
         result = await db.account.read_by_email(user.email)
         account_id = result.id
         token = encode_jwt(account_id=account_id)
-    except:
+    except exc.NotFound:
         account_id = await db.account.add(username=str(uuid4()), email=user.email)
-        await db.account.update_email_or_username(account_id=account_id, username='用戶_'+str(account_id), email=user.email)
+        await db.account.update_username(account_id=account_id, username='用戶_'+str(account_id))
         token = encode_jwt(account_id=account_id)
     return LoginOutput(account_id=account_id, token=token)
