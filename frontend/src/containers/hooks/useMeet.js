@@ -7,7 +7,8 @@ const WS_URL =
 const client = new WebSocket(WS_URL);
 
 const MeetContext = createContext({
-    user: "",
+    username: "",
+    password: "",
     eventRange: [],
     eventName: "",
     eventList: [],
@@ -17,7 +18,8 @@ const MeetContext = createContext({
 });
 
 const MeetProvider = (props) => {
-    const [user, setUser] = useState("");
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const [eventRange, setEventRange] = useState([]);
     const [eventName, setEventName] = useState("");
     const [eventList, setEventList] = useState([]);
@@ -122,7 +124,7 @@ const MeetProvider = (props) => {
     return (
         <MeetContext.Provider
             value={{
-                user, setUser, eventRange, setEventRange, eventName, setEventName, eventList, setEventList, changeEvent,
+                username, setUsername, password, setPassword, eventRange, setEventRange, eventName, setEventName, eventList, setEventList, changeEvent,
                 homepage, createEvent, joinEvent, editEvent, submitEvent, routineSchedule, showList, setShowList,
                 showId, setShowId, roSchedule, setRoSchedule
             }}

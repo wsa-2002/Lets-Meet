@@ -1,13 +1,12 @@
 import styled from "styled-components";
 import "@fontsource/roboto/500.css";
-import "../css/Login.css";
+import "../css/ResetPassword.css";
 import { Input, Button, Typography, Divider } from "antd";
 import { useNavigate } from "react-router-dom";
-import Background from "../components/MainBackground";
 
 const { Text, Link } = Typography;
 
-const LogIn = () => {
+const ResetPassword = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
@@ -16,10 +15,6 @@ const LogIn = () => {
 
   const handleSignUp = () => {
     navigate('/signup');
-  }
-
-  const handleReset = () => {
-    navigate('/reset');
   }
 
   function parseJwt (token) {
@@ -62,10 +57,10 @@ const LogIn = () => {
         <p className="title">Let's Meet!</p>
       </div>
       <div className="rightContainer">
-        <div className="loginContainer">
-          <h1>Welcome</h1>
+        <div className="resetContainer">
+          <h1>Reset Password</h1>
           <Input
-            placeholder="Username/Email"
+            placeholder="Email"
             style={{
               width: "100%",
               height: "45px",
@@ -73,20 +68,6 @@ const LogIn = () => {
               marginBottom: "30px",
             }}
           />
-          <Input
-            placeholder="Password"
-            style={{
-              width: "100%",
-              height: "45px",
-              borderRadius: "15px",
-              // marginBttom: "30px",
-            }}
-          />
-          <div
-            style={{
-              marginLeft: "50%",
-              marginBottom: "30px",
-            }}><Link onClick={handleReset}>Forget Password?</Link></div>
           <Button
             size={"large"}
             style={{
@@ -95,18 +76,7 @@ const LogIn = () => {
               // position: "relative",
               // left: "50%",
               // transform: "translate(-50%, 0)",
-            }} onClick={handleLogin}>Login</Button>
-          <Divider>or</Divider>
-          <div id="buttonDiv" style={{marginBottom:"30px",}}></div> 
-          <Text
-            type="secondary"
-            style={{
-              // marginTop: "30px",
-            }}
-            >New to Let's Meet? <Link onClick={handleSignUp}>
-            Sign Up</Link>
-          </Text>
-          {/* <Button onClick={onSignout}>temp</Button> */}
+            }} onClick={handleLogin}>Send Verification</Button>
         </div>
       </div>
       <div className="leftFooter">
@@ -119,4 +89,4 @@ const LogIn = () => {
   );
 }
 
-export default LogIn;
+export default ResetPassword;

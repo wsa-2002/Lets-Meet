@@ -9,8 +9,8 @@ const { Text, Link } = Typography;
 const LogIn = () => {
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    navigate('/mainPage');
+  const handleSignUp = () => {
+    navigate('/Login');
   }
 
   function parseJwt (token) {
@@ -99,7 +99,7 @@ const LogIn = () => {
               // position: "relative",
               // left: "50%",
               // transform: "translate(-50%, 0)",
-            }}>Sign Up</Button>
+            }} onClick={handleSignUp}>Sign Up</Button>
           <Divider>or</Divider>
           <div id="buttonDiv" style={{marginBottom:"30px",}}></div> 
         </div>
