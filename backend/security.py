@@ -36,7 +36,7 @@ def decode_jwt(encoded: str, time: datetime) -> AuthedAccount:
         raise exc.LoginExpired
 
     account_id = decoded['account_id']
-    role = decoded['role']
+    # role = decoded['role']
     return AuthedAccount(id=account_id, time=time)
 
 
