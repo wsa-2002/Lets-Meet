@@ -1,20 +1,29 @@
-import styled from "styled-components";
+import React, { useRef } from "react";
 import "@fontsource/roboto/500.css";
 import "../css/ResetPassword.css";
-import { Input, Button, Typography, Divider } from "antd";
+import { Input, Button, Typography, Divider, notification, Space } from "antd";
 import { useNavigate } from "react-router-dom";
-
+import { CheckCircleFilled } from "@ant-design/icons";
 const { Text, Link } = Typography;
 
 const ResetPassword = () => {
+  const EmailRef = useRef(null);
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    navigate("/");
+  const [api, contextHolder] = notification.useNotification();
+  const openNotification = (placement) => {
+    api.info({
+      message: `Verification mail sent`,
+      description: "please check your mailbox",
+      placement,
+      duration: 1.5,
+      icon: <CheckCircleFilled style={{ color: "green" }} />,
+    });
   };
 
-  const handleSignUp = () => {
-    navigate("/signup");
+  const handleVerifyClick = () => {
+    openNotification("top");
+    console.log(EmailRef.current.input.value);
   };
 
   function parseJwt(token) {
@@ -59,6 +68,7 @@ const ResetPassword = () => {
 
   return (
     <div className="mainContainer">
+      {contextHolder}
       <div className="leftContainer">
         <p className="title">Let's Meet!</p>
       </div>
@@ -73,6 +83,7 @@ const ResetPassword = () => {
               borderRadius: "15px",
               marginBottom: "30px",
             }}
+            ref={EmailRef}
           />
           <Button
             size={"large"}
@@ -83,7 +94,7 @@ const ResetPassword = () => {
               // left: "50%",
               // transform: "translate(-50%, 0)",
             }}
-            onClick={handleLogin}
+            onClick={handleVerifyClick}
           >
             Send Verification
           </Button>
