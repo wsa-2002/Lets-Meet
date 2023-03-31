@@ -8,13 +8,13 @@ from .util import pyformat2psql
 from . import pool_handler
 
 
-async def add(username: str, pass_hash: str, notification_preference: str = 'email') -> int:
+async def add(username: str, pass_hash: str = None, notification_preference: str = 'email', email: str = None) -> int:
     sql, params = pyformat2psql(
         sql=fr'INSERT INTO account'
-            fr'            (username, pass_hash, notification_preference)'
-            fr'     VALUES (%(username)s, %(pass_hash)s, %(notification_preference)s)'
+            fr'            (username, pass_hash, notification_preference, email)'
+            fr'     VALUES (%(username)s, %(pass_hash)s, %(notification_preference)s, %(email)s)'
             fr'  RETURNING id',
-        username=username, pass_hash=pass_hash, notification_preference=notification_preference,
+        username=username, pass_hash=pass_hash, notification_preference=notification_preference, email=email
     )
     try:
         id_, = await pool_handler.pool.fetchrow(sql, *params)
@@ -23,12 +23,21 @@ async def add(username: str, pass_hash: str, notification_preference: str = 'ema
     return id_
 
 
-async def update_email(account_id: int, email: str) -> None:
+async def update_email(account_id: int, email: str ) -> None:
     sql, params = pyformat2psql(
         sql=fr"UPDATE account"
             fr"   SET email = %(email)s"
             fr" WHERE id = %(account_id)s",
         email=email, account_id=account_id,
+    )
+    await pool_handler.pool.execute(sql, *params)
+    
+async def update_username(account_id: int, username: str ) -> None:
+    sql, params = pyformat2psql(
+        sql=fr"UPDATE account"
+            fr"   SET username = %(username)s"
+            fr" WHERE id = %(account_id)s",
+        username=username, account_id=account_id,
     )
     await pool_handler.pool.execute(sql, *params)
 
@@ -60,7 +69,7 @@ async def read_by_username_or_email(identifier: str) -> Tuple[int, str]:
     try:
         id_, pass_hash = await pool_handler.pool.fetchrow(sql, *params)
     except TypeError:
-        raise not exc
+        raise exc.NotFound
     return id_, pass_hash
 
 

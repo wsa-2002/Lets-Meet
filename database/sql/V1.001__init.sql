@@ -1,7 +1,8 @@
 CREATE TYPE status_type AS ENUM (
     'VOTING',
     'WAITING_FOR_CONFIRM',
-    'CONFIRMED'
+    'CONFIRMED',
+    'FINISHED'
 );
 
 CREATE TYPE week_day_type AS ENUM (
@@ -23,7 +24,7 @@ CREATE TABLE account (
     id                       SERIAL  PRIMARY KEY,
     email                    VARCHAR UNIQUE,
     username                 VARCHAR NOT NULL UNIQUE,   -- require username?
-    pass_hash                VARCHAR NOT NULL,
+    pass_hash                VARCHAR,
     line_token               VARCHAR,                   -- TBD?
     google_token             VARCHAR,                    -- TBD?
     notification_preference  notification_preference NOT NULL
