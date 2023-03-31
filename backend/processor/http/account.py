@@ -41,13 +41,14 @@ async def add_account(data: AddAccountInput) -> AddAccountOutput:
     try:
         if await db.account.read_by_email(data.email):
             raise exc.EmailExist
+    except exc.NotFound:
+        pass
 
+    try:
         account_id = await db.account.add(username=data.username,
                                           pass_hash=hash_password(data.password))
     except exc.UniqueViolationError:
         raise exc.UsernameExists
-    except exc.NotFound:
-        pass
 
     verification_code = str(uuid4())
     await db.email_verification.add(code=verification_code, account_id=account_id, email=data.email) # noqa
