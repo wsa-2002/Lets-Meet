@@ -38,10 +38,19 @@ async def add_account(data: AddAccountInput) -> AddAccountOutput:
     if any(char in data.username for char in USERNAME_PROHIBITED_CHARS):
         raise exc.IllegalCharacter
 
-    account_id = await db.account.add(username=data.username,
-                                      pass_hash=hash_password(data.password))
+    try:
+        if await db.account.read_by_email(data.email):
+            raise exc.EmailExist
+
+        account_id = await db.account.add(username=data.username,
+                                          pass_hash=hash_password(data.password))
+    except exc.UniqueViolationError:
+        raise exc.UsernameExists
+    except exc.NotFound:
+        pass
+
     verification_code = str(uuid4())
-    await db.email_verification.add(code=verification_code, account_id=account_id, email=data.email)
+    await db.email_verification.add(code=verification_code, account_id=account_id, email=data.email) # noqa
     await verification.send(to=data.email, code=verification_code, username=data.username)
     return AddAccountOutput(id=account_id)
 

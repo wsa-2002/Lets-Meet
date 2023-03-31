@@ -56,3 +56,9 @@ class IllegalCharacter(Exception):
     """
     Input contains illegal character
     """
+
+
+class EmailExist(Exception):
+    """
+    Email is duplicate
+    """
