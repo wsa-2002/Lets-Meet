@@ -54,7 +54,7 @@ async def get_routine():
     except exc.NotFound:
         pass
     
-    routines.sort(key=lambda x: getWeekdayValue(x.weekday)) # sort by weekday (mon to sun)
+    routines.sort(key=lambda x: (getWeekdayValue(x.weekday), x.time_slot_id)) # sort by weekday (mon to sun) then sort by time_slot_id
     return [Routine(weekday=routine.weekday, time_slot_id=routine.time_slot_id) for routine in routines]
     
     
