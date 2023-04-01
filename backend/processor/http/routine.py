@@ -18,6 +18,20 @@ class Routine(BaseModel):
     weekday: WeekDayType
     time_slot_id: int
 
+def getWeekdayValue(weekday: str):
+    if(weekday == 'MON'):
+      return 1
+    elif(weekday == 'TUE'):
+      return 2
+    elif(weekday == 'WED'):
+      return 3
+    elif(weekday == 'THU'):
+      return 4
+    elif(weekday == 'FRI'):
+      return 5
+    elif(weekday == 'SAT'):
+      return 6
+    else: return 7
 
 @router.post('/routine')
 @enveloped
@@ -31,3 +45,17 @@ async def delete_routine(data: Routine):
     account_id = request.account.id
     await db.routine.delete(account_id=account_id, weekday=data.weekday, time_slot_id=data.time_slot_id)
     
+@router.get('/routine')
+@enveloped
+async def get_routine():
+    account_id = request.account.id
+    try: 
+      routines = await db.routine.get(account_id=account_id)
+    except exc.NotFound:
+        pass
+    
+    routines.sort(key=lambda x: getWeekdayValue(x.weekday)) # sort by weekday (mon to sun)
+    return [Routine(weekday=routine.weekday, time_slot_id=routine.time_slot_id) for routine in routines]
+    
+    
+

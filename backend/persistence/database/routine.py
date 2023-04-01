@@ -3,6 +3,7 @@ from base.enums import WeekDayType
 from .util import pyformat2psql
 from . import pool_handler
 from base import do
+import asyncpg
 
 async def add(account_id: int, weekday: WeekDayType, time_slot_id: int):
     sql, params = pyformat2psql(
@@ -21,4 +22,20 @@ async def delete(account_id: int, weekday: WeekDayType, time_slot_id: int):
         account_id=account_id, weekday=weekday, time_slot_id=time_slot_id,
     )
     await pool_handler.pool.execute(sql, *params)
+
+async def get(account_id: int):
+    conn: asyncpg.connection.Connection = await pool_handler.pool.acquire()
+    sql, params = pyformat2psql(
+        sql=fr"SELECT *" 
+            fr"  FROM routine"
+            fr" WHERE account_id = %(account_id)s",
+        account_id=account_id,
+    )
+    
+    try:
+        rows = await conn.fetch(sql, *params)
+    except TypeError:
+      raise exc.NotFound
+    return [do.Routine(account_id=row[0], weekday=row[1], time_slot_id=row[2]) for row in rows]
+
     
