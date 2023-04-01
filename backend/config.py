@@ -58,6 +58,9 @@ class GoogleConfig:
 class SessionConfig:
     SESSION_KEY=env_values.get('SESSION_KEY')
 
+class LoginURLConfig:
+    LOGIN_URL=env_values.get('LOGIN_URL')
+
 
 db_config = DBConfig()
 app_config = AppConfig()
@@ -66,4 +69,5 @@ smtp_config = SMTPConfig()
 service_config = ServiceConfig()
 google_config = GoogleConfig()
 session_config = SessionConfig()
+login_url_config = LoginURLConfig()
 
