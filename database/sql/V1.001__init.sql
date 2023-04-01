@@ -78,11 +78,13 @@ CREATE TABLE time_slot (
 CREATE TABLE meet_member_available_time (
     meet_member_id INTEGER REFERENCES meet_member (id),
     date           DATE    NOT NULL,
-    time_slot_id   INTEGER NOT NULL REFERENCES time_slot (id)
+    time_slot_id   INTEGER NOT NULL REFERENCES time_slot (id),
+    PRIMARY KEY (meet_member_id, date, time_slot_id)
 );
 
 CREATE TABLE routine (
     account_id   INTEGER REFERENCES account (id),
     weekday      week_day_type NOT NULL,
-    time_slot_id INTEGER REFERENCES time_slot (id)
+    time_slot_id INTEGER REFERENCES time_slot (id),
+    PRIMARY KEY (account_id, weekday, time_slot_id)
 );
