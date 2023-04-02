@@ -46,8 +46,6 @@ async def auth(request: Request):
     user_email = token_google['userinfo']['email']
     try:
         result = await db.account.read_by_email(user_email)
-        if not result.is_google_login:
-            return RedirectResponse(url=f"{service_config.url}/login?success=false&error_message=EmailExists")
         account_id = result.id
         token = encode_jwt(account_id=account_id)
     except exc.NotFound:
