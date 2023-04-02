@@ -17,8 +17,8 @@ async def default_page():
     return "<a href=\"/docs\">/docs</a>"
 
 
-@router.get('/email-verification', tags=['Account', 'Student Card'])
-@router.post('/email-verification', tags=['Account', 'Student Card'])
+@router.get('/email-verification', tags=['Account'])
+@router.post('/email-verification', tags=['Account'])
 @enveloped
 async def email_verification(code: UUID):
     await db.email_verification.verify_email(code=code)

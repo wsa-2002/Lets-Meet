@@ -52,3 +52,7 @@ app.add_middleware(starlette_context.middleware.RawContextMiddleware)
 
 import processor.http
 processor.http.register_routers(app)
+
+from starlette.middleware.sessions import SessionMiddleware
+from config import session_config
+app.add_middleware(SessionMiddleware, secret_key=session_config)

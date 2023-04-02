@@ -2,7 +2,6 @@ from distutils.util import strtobool
 import enum
 from datetime import timedelta
 import os
-
 from dotenv import dotenv_values
 
 env_values = {
@@ -52,8 +51,19 @@ class ServiceConfig:
         return f"{protocol}://{self.domain}{port_postfix}"
 
 
+class GoogleConfig:
+    GOOGLE_CLIENT_ID = env_values.get('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = env_values.get('GOOGLE_CLIENT_SECRET')
+
+
+class SessionConfig:
+    SESSION_KEY = env_values.get('SESSION_KEY')
+
+
 db_config = DBConfig()
 app_config = AppConfig()
 jwt_config = JWTConfig()
 smtp_config = SMTPConfig()
 service_config = ServiceConfig()
+google_config = GoogleConfig()
+session_config = SessionConfig()
