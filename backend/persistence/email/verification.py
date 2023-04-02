@@ -12,7 +12,7 @@ async def send(to: str, code: str, username: str, subject="Let's meet Email Veri
     print(code)
     message.set_content(fr"""
 Please verify your email with the following url:
-{service_config.url}/email-verification?code={code}
+{service_config.url}/login?code={code}
 
 Your username: {username}
 """)
