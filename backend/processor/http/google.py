@@ -55,6 +55,6 @@ async def auth(request: Request):
         await db.account.update_username(account_id=account_id, username='用戶_'+str(account_id))
         token = encode_jwt(account_id=account_id)
     response = RedirectResponse(url=f"{service_config.url}/login")
-    response.set_cookie(key="account_id", value=str(account_id), httponly=True)
-    response.set_cookie(key="token", value=str(token), httponly=True)
+    response.set_cookie(key="account_id", value=str(account_id))
+    response.set_cookie(key="token", value=str(token))
     return response
