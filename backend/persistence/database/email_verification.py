@@ -42,5 +42,3 @@ async def verify_email(code: UUID):
         email, account_id,
     )
     await pool_handler.pool.release(conn)
-
-

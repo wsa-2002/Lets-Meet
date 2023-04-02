@@ -27,7 +27,8 @@ CREATE TABLE account (
     pass_hash                VARCHAR,
     line_token               VARCHAR,                   -- TBD?
     google_token             VARCHAR,                    -- TBD?
-    notification_preference  notification_preference NOT NULL
+    notification_preference  notification_preference NOT NULL,
+    is_google_login          BOOLEAN  DEFAULT FALSE
 );
 
 CREATE TABLE email_verification (

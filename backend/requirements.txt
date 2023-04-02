@@ -20,3 +20,4 @@ python-multipart # required for fastapi UploadFile
 
 starlette-session
 authlib
+httpx
