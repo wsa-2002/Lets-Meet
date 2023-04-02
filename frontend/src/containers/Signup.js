@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "@fontsource/roboto/500.css";
 import "../css/Login.css";
+import "../css/Background.css";
 import { Input, Button, Typography, Divider } from "antd";
 import { useNavigate } from "react-router-dom";
 import * as AXIOS from "../middleware";
