@@ -1,11 +1,12 @@
 import styled from "styled-components";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import { Input, Button, Typography, Divider } from "antd";
 import { useNavigate } from "react-router-dom";
 import Background from "../components/MainBackground";
 import * as AXIOS from "../middleware";
+import { useMeet } from "./hooks/useMeet";
 const { Text, Link } = Typography;
 
 const LogIn = () => {
@@ -13,26 +14,29 @@ const LogIn = () => {
     user_identifier: "",
     password: "",
   });
-
+  const { login, GLOBAL_LOGIN } = useMeet();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (login) navigate("/");
+  }, [login]);
+
   const handleLoginClick = async () => {
-    // try {
-    //   console.log(loginData);
-    //   const result = await AXIOS.login(loginData);
-    //   if (result.error) {
-    //     alert("登入失敗");
-    //   } else {
-    //     console.log(result);
-    //     navigate("/");
-    //   }
-    // } catch (e) {
-    //   alert(e);
-    //   console.log(e);
-    // }
-    const result = await AXIOS.googleLogin();
-    // console.log(Object.keys(result));
-    window.location.assign(result.data._headers.location);
+    try {
+      console.log(loginData);
+      const result = await AXIOS.login(loginData);
+      if (result.error) {
+        alert("登入失敗");
+      } else {
+        console.log(result);
+        GLOBAL_LOGIN(result.data.token);
+      }
+    } catch (e) {
+      alert(e);
+      console.log(e);
+    }
+    // window.open("http://localhost:8000/google-login", "_self", "popup");
+    // window.location.assign(result.data._headers.location);
   };
 
   const handleLoginChange = (e) => {
