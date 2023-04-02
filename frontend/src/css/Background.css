@@ -1,0 +1,85 @@
+.mainContainer {
+    /* border: 1px solid blue; */
+    width:100%;
+    height:100vh;
+    min-width: 1120px;
+    min-height: 900px;
+    display:grid;
+    grid-template-columns:[line1] 35% [line2] 65% [line3];
+    grid-template-rows:[row1] 5% [row2] 90% [row3] 5% [row4];
+    margin: auto;
+}
+
+.header {
+    /* border: 1px solid #D8D8D8; */
+    grid-row: 1/2;
+    grid-column: 1/3;
+    background: white;
+    z-index: 1;
+    position: relative;
+}
+
+.leftContainer {
+    grid-column: 1/2;
+    grid-row: 1/3;
+    background: #fefcef;
+    position: relative;
+}
+
+.rightContainer {
+    grid-column: 2/3;
+    grid-row: 1/3;
+    position: relative;
+    /* display: grid;
+    grid-template-columns:[line1] 30% [line2] 40% [line3] 30% [line4];
+    grid-template-rows:[row1] 20% [row2] 60% [row3] 20% [row4]; */
+}
+
+.leftFooter {
+    grid-column: 1/2;
+    grid-row: 3/4;
+    background: #fefcef;
+}
+
+.rightFooter {
+    grid-column: 2/3;
+    grid-row: 3/4;
+}
+
+.leftFooter > div {
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 22px;
+    color: #808080;
+    margin-left: 5%;
+}
+
+.rightFooter > div {
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 22px;
+    color: #808080;
+    /* margin-left: 90%; */
+    float: right;
+    margin-right: 5%;
+}
+
+.title {
+    width: 100%;
+    position: absolute;
+    /* left: 20%; */
+    top: 70%;
+    display: flex;
+    justify-content: center;
+    /* border: 1px solid #D8D8D8; */
+    font-family: "Roboto";
+    font-style: normal;
+    font-weight: 500;
+    font-size: 80px;
+    line-height: 46px;
+    color: #ffa601;
+}

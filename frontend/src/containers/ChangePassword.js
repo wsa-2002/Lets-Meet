@@ -7,11 +7,15 @@ import { useNavigate } from "react-router-dom";
 
 const { Text, Link } = Typography;
 
-const ResetPassword = () => {
+const ChangePassword = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
     navigate('/');
+  }
+
+  const handleSave = () => {
+    navigate('/login');
   }
 
   return (
@@ -23,7 +27,16 @@ const ResetPassword = () => {
         <div className="resetContainer">
           <h1>Reset Password</h1>
           <Input
-            placeholder="Email"
+            placeholder="New Password"
+            style={{
+              width: "100%",
+              height: "45px",
+              borderRadius: "15px",
+              marginBottom: "30px",
+            }}
+          />
+          <Input
+            placeholder="Confirm New Password"
             style={{
               width: "100%",
               height: "45px",
@@ -39,7 +52,7 @@ const ResetPassword = () => {
               // position: "relative",
               // left: "50%",
               // transform: "translate(-50%, 0)",
-            }} onClick={handleLogin}>Send Verification</Button>
+            }} onClick={handleSave}>Save</Button>
         </div>
       </div>
       <div className="leftFooter">
@@ -52,4 +65,4 @@ const ResetPassword = () => {
   );
 }
 
-export default ResetPassword;
+export default ChangePassword;
