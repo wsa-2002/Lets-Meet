@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from fastapi import APIRouter, responses, Depends
+from fastapi import APIRouter, responses, Depends, Response
 from pydantic import BaseModel
 
 from security import encode_jwt, verify_password, hash_password
@@ -39,7 +39,9 @@ async def add_account(data: AddAccountInput) -> AddAccountOutput:
         raise exc.IllegalCharacter
 
     try:
-        if await db.account.read_by_email(data.email):
+        if account := await db.account.read_by_email(data.email):
+            if account.is_google_login:
+                raise exc.EmailRegisteredByGoogle
             raise exc.EmailExist
     except exc.NotFound:
         pass
@@ -51,7 +53,7 @@ async def add_account(data: AddAccountInput) -> AddAccountOutput:
         raise exc.UsernameExists
 
     verification_code = str(uuid4())
-    await db.email_verification.add(code=verification_code, account_id=account_id, email=data.email) # noqa
+    await db.email_verification.add(code=verification_code, account_id=account_id, email=data.email)
     await verification.send(to=data.email, code=verification_code, username=data.username)
     return AddAccountOutput(id=account_id)
 
@@ -69,13 +71,20 @@ class LoginOutput:
 
 @router.post('/login')
 @enveloped
-async def login(data: LoginInput) -> LoginOutput:
+async def login(data: LoginInput, response: Response) -> LoginOutput:
     try:
-        account_id, pass_hash = await db.account.read_by_username_or_email(identifier=data.user_identifier)
+        account_id, pass_hash, is_google_login = await db.account.read_by_username_or_email(
+            identifier=data.user_identifier)
     except TypeError:
         raise exc.LoginFailed
-    if not pass_hash or not verify_password(data.password, pass_hash):
+
+    if is_google_login:
+        raise exc.EmailRegisteredByGoogle
+
+    if not verify_password(data.password, pass_hash):
         raise exc.LoginFailed
 
     token = encode_jwt(account_id=account_id)
+    response.set_cookie(key="account_id", value=str(account_id), httponly=True)
+    response.set_cookie(key="token", value=str(token), httponly=True)
     return LoginOutput(account_id=account_id, token=token)

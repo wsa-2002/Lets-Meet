@@ -62,3 +62,9 @@ class EmailExist(Exception):
     """
     Email is duplicate
     """
+
+
+class EmailRegisteredByGoogle(Exception):
+    """
+    User has already used the email for Google login
+    """

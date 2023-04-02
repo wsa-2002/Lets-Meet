@@ -9,7 +9,7 @@ import persistence.database as db
 import exceptions as exc  # noqa
 from uuid import uuid4
 import os
-from config import google_config, login_url_config
+from config import google_config, service_config
 
 router = APIRouter(
     tags=['Google'],
@@ -33,6 +33,7 @@ oauth.register(
     }
 )
 
+
 @router.post('/google-login')
 @enveloped
 async def login(request: Request):
@@ -47,14 +48,15 @@ async def auth(request: Request):
     user_email = token_google['userinfo']['email']
     try:
         result = await db.account.read_by_email(user_email)
+        if not result.is_google_login:
+            return RedirectResponse(url=f"{service_config.url}/login?success=false&error_message=EmailExists")
         account_id = result.id
         token = encode_jwt(account_id=account_id)
     except exc.NotFound:
-        account_id = await db.account.add(username=str(uuid4()), email=user_email)
+        account_id = await db.account.add(username=str(uuid4()), email=user_email, is_google_login=True)
         await db.account.update_username(account_id=account_id, username='用戶_'+str(account_id))
-        token = encode_jwt(account_id=account_id) 
-    response = RedirectResponse(url=login_url_config.LOGIN_URL)
+        token = encode_jwt(account_id=account_id)
+    response = RedirectResponse(url=f"{service_config.url}/login")
     response.set_cookie(key="account_id", value=str(account_id), httponly=True)
     response.set_cookie(key="token", value=str(token), httponly=True)
     return response
-

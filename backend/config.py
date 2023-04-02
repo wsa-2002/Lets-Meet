@@ -54,12 +54,10 @@ class ServiceConfig:
 class GoogleConfig:
     GOOGLE_CLIENT_ID = env_values.get('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET = env_values.get('GOOGLE_CLIENT_SECRET')
-    
-class SessionConfig:
-    SESSION_KEY=env_values.get('SESSION_KEY')
 
-class LoginURLConfig:
-    LOGIN_URL=env_values.get('LOGIN_URL')
+
+class SessionConfig:
+    SESSION_KEY = env_values.get('SESSION_KEY')
 
 
 db_config = DBConfig()
@@ -69,5 +67,3 @@ smtp_config = SMTPConfig()
 service_config = ServiceConfig()
 google_config = GoogleConfig()
 session_config = SessionConfig()
-login_url_config = LoginURLConfig()
-
