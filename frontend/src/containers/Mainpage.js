@@ -44,7 +44,7 @@ const CreateContent = styled.div`
 
 const Mainpage = () => {
   const [votingButton, setVotingButton] = useState("hidden");
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(false); // 如果login會顯示header，沒有的話會顯示login
   const navigate = useNavigate();
 
   const handleLogin = () => {
