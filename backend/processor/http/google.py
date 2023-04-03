@@ -35,21 +35,17 @@ oauth.register(
 
 
 @router.post('/google-login')
-@enveloped
 async def login(request: Request):
     redirect_uri = request.url_for('auth')
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
 @router.get('/auth')
-@enveloped
 async def auth(request: Request):
     token_google = await oauth.google.authorize_access_token(request)
     user_email = token_google['userinfo']['email']
     try:
         result = await db.account.read_by_email(user_email)
-        if not result.is_google_login:
-            return RedirectResponse(url=f"{service_config.url}/login?success=false&error_message=EmailExists")
         account_id = result.id
         token = encode_jwt(account_id=account_id)
     except exc.NotFound:
@@ -57,6 +53,6 @@ async def auth(request: Request):
         await db.account.update_username(account_id=account_id, username='用戶_'+str(account_id))
         token = encode_jwt(account_id=account_id)
     response = RedirectResponse(url=f"{service_config.url}/login")
-    response.set_cookie(key="account_id", value=str(account_id), httponly=True)
-    response.set_cookie(key="token", value=str(token), httponly=True)
+    response.set_cookie(key="account_id", value=str(account_id))
+    response.set_cookie(key="token", value=str(token))
     return response
