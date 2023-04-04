@@ -5,7 +5,6 @@ from middleware.headers import get_auth_token
 from middleware.envelope import enveloped
 from middleware.context import request
 import persistence.database as db
-import exceptions as exc  # noqa
 from base.enums import WeekDayType
 
 router = APIRouter(
@@ -44,11 +43,8 @@ async def delete_routine(data: Routine):
 @router.get('/routine/account/{account_id}')
 @enveloped
 async def get_routine(account_id: int):
-    try: 
-      routines = await db.routine.get(account_id=account_id)
-    except exc.NotFound:
-        pass
-    
+    routines = await db.routine.get(account_id=account_id)
+
     routines.sort(key=lambda x: (weekdayValue[x.weekday], x.time_slot_id)) # sort by weekday (mon to sun) then sort by time_slot_id
     return [Routine(weekday=routine.weekday, time_slot_id=routine.time_slot_id) for routine in routines]
     
