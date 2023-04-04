@@ -3,6 +3,9 @@ import enum
 
 T = typing.TypeVar("T")
 
+class StrEnum(str, enum.Enum):
+    pass
+
 
 class StatusType(enum.Enum):
     voting = 'VOTING'
@@ -10,7 +13,7 @@ class StatusType(enum.Enum):
     confirmed = 'CONFIRMED'
 
 
-class WeekDayType(enum.Enum):
+class WeekDayType(StrEnum):
     mon = 'MON'
     tue = 'TUE'
     wed = 'WED'
