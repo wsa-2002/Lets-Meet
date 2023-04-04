@@ -16,8 +16,8 @@ CREATE TYPE week_day_type AS ENUM (
 );
 
 CREATE TYPE notification_preference AS ENUM (
-    'email',
-    'line'
+    'EMAIL',
+    'LINE'
 );
 
 CREATE TABLE account (
@@ -49,6 +49,7 @@ CREATE TABLE meet (
     title                 VARCHAR     NOT NULL,
     description           TEXT,
     invite_code           VARCHAR     UNIQUE  NOT NULL,  -- https://host/invite_code
+    gen_meet_url          BOOLEAN     DEFAULT FALSE,
     meet_url              VARCHAR,
     finalized_start_time  TIMESTAMP,
     finalized_end_time    TIMESTAMP,
@@ -64,7 +65,7 @@ CREATE TABLE event (
 
 CREATE TABLE meet_member (
     id        SERIAL  PRIMARY KEY,
-    name      VARCHAR NOT NULL, -- TBD, a little bit weird?
+    name      VARCHAR, -- TBD, a little bit weird?
     member_id INTEGER REFERENCES account (id),
     meet_id   INTEGER NOT NULL REFERENCES meet (id),
     is_host   BOOLEAN DEFAULT FALSE

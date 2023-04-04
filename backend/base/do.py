@@ -1,7 +1,7 @@
 """
 data objects
 """
-import datetime
+from datetime import datetime, date, time
 from dataclasses import dataclass
 from typing import Optional
 from uuid import UUID
@@ -30,15 +30,16 @@ class Event:
 class Meet:
     id: int
     status: enums.StatusType
-    start_date: datetime.date
-    end_date: datetime.date
-    start_time: datetime.time
-    end_time: datetime.time
+    start_date: date
+    end_date: date
+    start_time: time
+    end_time: time
     voting_end_time: datetime
     title: str
     invite_code: str
-    finalized_start_time: datetime
-    finalized_end_time: datetime
+    gen_meet_url: bool
+    finalized_start_time: Optional[datetime] = None
+    finalized_end_time: Optional[datetime] = None
     meet_url: Optional[str] = None
     description: Optional[str] = None
 
