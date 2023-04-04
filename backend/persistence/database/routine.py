@@ -25,7 +25,7 @@ async def delete(account_id: int, weekday: WeekDayType, time_slot_id: int):
 
 async def get(account_id: int):
     sql, params = pyformat2psql(
-        sql=fr"SELECT *" 
+        sql=fr"SELECT account_id, weekday, time_slot_id" 
             fr"  FROM routine"
             fr" WHERE account_id = %(account_id)s",
         account_id=account_id,
@@ -35,6 +35,6 @@ async def get(account_id: int):
         rows = await pool_handler.pool.fetch(sql, *params)
     except TypeError:
       raise exc.NotFound
-    return [do.Routine(account_id=row[0], weekday=row[1], time_slot_id=row[2]) for row in rows]
+    return [do.Routine(account_id=row['account_id'], weekday=row['weekday'], time_slot_id=row['time_slot_id']) for row in rows]
 
     
