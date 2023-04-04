@@ -3,6 +3,7 @@ const URL = {
   login: "/login",
   signup: "/account",
   forgetPassword: "/forget-password",
+  resetPassword: "/reset-password",
 };
 
 export default Object.keys(URL).reduce((acc, curr) => {

@@ -36,18 +36,13 @@ const LogIn = () => {
   const handleSignUpClick = async () => {
     if (signupData.Password !== signupData["Confirm Password"]) {
       console.log("請輸入相同密碼");
-    } else if (
-      !signupData.Username ||
-      !signupData.Password ||
-      !signupData.Email
-    ) {
+    } else if (signupData.Username && signupData.Password && signupData.Email) {
       try {
         await AXIOS.signup({
           username: signupData.Username,
           password: signupData.Password,
           email: signupData.Email,
         });
-        navigate("/Login");
       } catch (e) {
         alert(e);
       }

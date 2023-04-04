@@ -21,7 +21,6 @@ const JoinMeet = styled.div`
   row-gap: 20px;
 `;
 
-
 const CreateMeet = styled.div`
   width: 60%;
   height: 60%;
@@ -48,48 +47,65 @@ const Mainpage = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    navigate('/login');
-  }
+    navigate("/login");
+  };
 
   const showDate = () => {
-    if(votingButton === "hidden")
-      setVotingButton("visible");
-    else
-      setVotingButton("hidden");
-  }
+    if (votingButton === "hidden") setVotingButton("visible");
+    else setVotingButton("hidden");
+  };
 
   const CONTENTMENU = {
     "Event Name*": <Input style={{ borderRadius: "5px", width: "60%" }} />,
-    "Voting Period*": <RangePicker style={{ width: "60%" }}/>,
-    "Meet Time Period*": <TimePicker.RangePicker  style={{ width: "60%" }}/>,
-    "Description": <TextArea
-                    style={{
-                      height: "120px",
-                      width: "60%",
-                    }}
-                  />,
-    "Member": <div><Input style={{ borderRadius: "5px", width: "80%" }} />
-                <Button style={{ background: "#5A8EA4", color: "white" }}>+</Button></div>,
-    "Voting Deadline": <div style={{ columnGap: "10%"}}><Switch onChange={showDate}/>
-                        <DatePicker style={{visibility: votingButton}}/>
-                        <TimePicker style={{visibility: votingButton}}/></div>,
-    "Google Meet URL": <Switch disabled={true}/>
+    "Voting Period*": <RangePicker style={{ width: "60%" }} />,
+    "Meet Time Period*": <TimePicker.RangePicker style={{ width: "60%" }} />,
+    Description: (
+      <TextArea
+        style={{
+          height: "120px",
+          width: "60%",
+        }}
+      />
+    ),
+    Member: (
+      <div>
+        <Input style={{ borderRadius: "5px", width: "80%" }} />
+        <Button style={{ background: "#5A8EA4", color: "white" }}>+</Button>
+      </div>
+    ),
+    "Voting Deadline": (
+      <div style={{ columnGap: "10%" }}>
+        <Switch onChange={showDate} />
+        <DatePicker style={{ visibility: votingButton }} />
+        <TimePicker style={{ visibility: votingButton }} />
+      </div>
+    ),
+    "Google Meet URL": <Switch disabled={true} />,
   };
 
   return (
     <div className="mainContainer">
-      {isLogin ? <div className="header">
-        <Button type="link" style={{fontSize: "28px", marginRight: "10%"}}>Let's Meet</Button>
-        <Space size="large" style={{fontSize: "24px", fontFamily: "Nunito", color: "#808080"}}>
-          <Button type="link">Meets</Button>
-          <Button type="link">Routine</Button>
-          <Button type="link">Calender</Button>
-        </Space>
-        <Space size="large" style={{position: "absolute", left: "85%"}}>
-          <Button type="link">Setting</Button>
-          <Button type="link">Logout</Button>
-        </Space>
-      </div>: <></>}
+      {isLogin ? (
+        <div className="header">
+          <Button type="link" style={{ fontSize: "28px", marginRight: "10%" }}>
+            Let's Meet
+          </Button>
+          <Space
+            size="large"
+            style={{ fontSize: "24px", fontFamily: "Nunito", color: "#808080" }}
+          >
+            <Button type="link">Meets</Button>
+            <Button type="link">Routine</Button>
+            <Button type="link">Calender</Button>
+          </Space>
+          <Space size="large" style={{ position: "absolute", left: "85%" }}>
+            <Button type="link">Setting</Button>
+            <Button type="link">Logout</Button>
+          </Space>
+        </div>
+      ) : (
+        <></>
+      )}
       <div className="leftContainer">
         <JoinMeet>
           <div
@@ -127,8 +143,23 @@ const Mainpage = () => {
         <p className="title">Let's Meet!</p>
       </div>
       <div className="rightContainer">
-        {!isLogin ? <Button style={{position: "absolutive", left: "90%", top: "3%", borderRadius: "15px",
-             borderColor: "#FFA601", color: "#FFA601"}} onClick={handleLogin}>Login</Button> : <></>}
+        {!isLogin ? (
+          <Button
+            style={{
+              position: "absolutive",
+              left: "90%",
+              top: "3%",
+              borderRadius: "15px",
+              borderColor: "#FFA601",
+              color: "#FFA601",
+            }}
+            onClick={handleLogin}
+          >
+            Login
+          </Button>
+        ) : (
+          <></>
+        )}
         <CreateMeet>
           <div
             style={{
@@ -149,7 +180,8 @@ const Mainpage = () => {
             style={{ display: "flex", flexDirection: "column", rowGap: "20px" }}
           >
             {Object.keys(CONTENTMENU).map((c, index) => (
-              <div key={index}
+              <div
+                key={index}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -162,8 +194,19 @@ const Mainpage = () => {
             ))}
           </div>
           <CreateContent></CreateContent>
-          <Button style={{position: "absolutive", left: "50%", top: "30px", borderRadius: "15px",
-              background: "#B3DEE5", transform: "translate(-50%, 0)"}} size="large">Create</Button>
+          <Button
+            style={{
+              position: "absolutive",
+              left: "50%",
+              top: "30px",
+              borderRadius: "15px",
+              background: "#B3DEE5",
+              transform: "translate(-50%, 0)",
+            }}
+            size="large"
+          >
+            Create
+          </Button>
         </CreateMeet>
       </div>
       <div className="leftFooter">
@@ -174,6 +217,6 @@ const Mainpage = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Mainpage;

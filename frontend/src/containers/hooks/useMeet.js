@@ -15,22 +15,11 @@ const MeetProvider = (props) => {
     setLogin(true);
   };
 
-  // useEffect(() => {
-  //   const Render = async () => {
-  //     try {
-  //       const newItem = await CRUD(
-  //         "R",
-  //         "/basket"
-  //       )({ customer_id: cookies.customer_id });
-  //       setCartNumber(newItem && newItem.length);
-  //     } catch (err) {
-  //       console.log("有問題");
-  //     }
-  //   };
-  //   if (cookies.customer_id) {
-  //     Render();
-  //   }
-  // }, [cookies.customer_id]);
+  useEffect(() => {
+    if (cookies.token) {
+      setLogin(true);
+    }
+  }, [cookies]);
 
   return (
     <MeetContext.Provider
