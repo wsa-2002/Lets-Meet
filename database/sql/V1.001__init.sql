@@ -20,6 +20,14 @@ CREATE TYPE notification_preference AS ENUM (
     'LINE'
 );
 
+
+CREATE TABLE time_slot (
+    id         SERIAL PRIMARY KEY,
+    start_time TIME NOT NULL,
+    end_time   TIME NOT NULL
+);
+
+
 CREATE TABLE account (
     id                       SERIAL  PRIMARY KEY,
     email                    VARCHAR UNIQUE,
@@ -43,8 +51,8 @@ CREATE TABLE meet (
     status                status_type NOT NULL,
     start_date            DATE        NOT NULL,
     end_date              DATE        NOT NULL,
-    start_time            TIME        NOT NULL, -- meet 可供選擇的時間
-    end_time              TIME        NOT NULL, -- meet 可供選擇的時間
+    start_time_slot_id    INTEGER     NOT NULL  REFERENCES time_slot(id), -- meet 可供選擇的時間
+    end_time_slot_id      INTEGER     NOT NULL  REFERENCES time_slot(id), -- meet 可供選擇的時間
     voting_end_time       TIMESTAMP,
     title                 VARCHAR     NOT NULL,
     description           TEXT,
@@ -71,11 +79,7 @@ CREATE TABLE meet_member (
     is_host   BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE time_slot (
-    id         SERIAL PRIMARY KEY,
-    start_time TIME NOT NULL,
-    end_time   TIME NOT NULL
-);
+
 
 CREATE TABLE meet_member_available_time (
     meet_member_id INTEGER REFERENCES meet_member (id),

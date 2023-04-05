@@ -11,7 +11,7 @@ from . import pool_handler
 
 async def add(title: str, invite_code: str,
               start_date: date, end_date: date,
-              start_time: time, end_time: time,
+              start_time_slot_id: int, end_time_slot_id: int,
               gen_meet_url: bool, voting_end_time: Optional[datetime] = None,
               status: enums.StatusType = enums.StatusType.voting,
               host_member_id: int = None, member_ids: Sequence[int] = None) -> int:
@@ -19,11 +19,12 @@ async def add(title: str, invite_code: str,
     try:
         meet_id, = await conn.fetchrow(
             r"INSERT INTO meet "
-            r"            (title, invite_code, start_date,end_date, start_time, end_time,"
+            r"            (title, invite_code, start_date,end_date, start_time_slot_id, end_time_slot_id,"
             r"            voting_end_time, gen_meet_url, status)"
             r"     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
             r"  RETURNING id",
-            title, invite_code, start_date, end_date, start_time, end_time, voting_end_time, gen_meet_url, status
+            title, invite_code, start_date, end_date, start_time_slot_id, end_time_slot_id, voting_end_time,
+            gen_meet_url, status
         )
         if member_ids:
             await conn.executemany(
@@ -46,7 +47,7 @@ async def add(title: str, invite_code: str,
 
 async def read_meet_by_code(invite_code: str, include_deleted: bool = False) -> do.Meet:
     sql, params = pyformat2psql(
-        sql=fr"SELECT id, status, start_date, end_date, start_time, end_time,"
+        sql=fr"SELECT id, status, start_date, end_date, start_time_slot_id, end_time_slot_id,"
             fr"       voting_end_time, title, invite_code, gen_meet_url,"
             fr"       finalized_start_time, finalized_end_time,"
             fr"       meet_url, description"
@@ -55,11 +56,11 @@ async def read_meet_by_code(invite_code: str, include_deleted: bool = False) -> 
             fr" {'AND NOT is_deleted' if not include_deleted else ''}",
         invite_code=invite_code
     )
-    id_, status, start_date, end_date, start_time, end_time, \
+    id_, status, start_date, end_date, start_time_slot_id, end_time_slot_id, \
     voting_end_time, title, invite_code, gen_meet_url, \
     finalized_start_time, finalized_end_time, meet_url, description = await pool_handler.pool.fetchrow(sql, *params)
     return do.Meet(id=id_, status=enums.StatusType(status), start_date=start_date, end_date=end_date,
-                   start_time=start_time, end_time=end_time, voting_end_time=voting_end_time,
+                   start_time_slot_id=start_time_slot_id, end_time_slot_id=end_time_slot_id, voting_end_time=voting_end_time,
                    title=title, invite_code=invite_code, gen_meet_url=gen_meet_url,
                    finalized_start_time=finalized_start_time, finalized_end_time=finalized_end_time,
                    meet_url=meet_url, description=description)
@@ -67,7 +68,7 @@ async def read_meet_by_code(invite_code: str, include_deleted: bool = False) -> 
 
 async def read(meet_id: int, include_deleted: bool = False) -> do.Meet:
     sql, params = pyformat2psql(
-        sql=fr"SELECT id, status, start_date, end_date, start_time, end_time,"
+        sql=fr"SELECT id, status, start_date, end_date, start_time_slot_id, end_time_slot_id,"
             fr"       voting_end_time, title, invite_code, gen_meet_url,"
             fr"       finalized_start_time, finalized_end_time,"
             fr"       meet_url, description"
@@ -76,11 +77,12 @@ async def read(meet_id: int, include_deleted: bool = False) -> do.Meet:
             fr" {'AND NOT is_deleted' if not include_deleted else ''}",
         meet_id=meet_id,
     )
-    id_, status, start_date, end_date, start_time, end_time, \
+    id_, status, start_date, end_date, start_time_slot_id, end_time_slot_id, \
     voting_end_time, title, invite_code, gen_meet_url, \
     finalized_start_time, finalized_end_time, meet_url, description = await pool_handler.pool.fetchrow(sql, *params)
     return do.Meet(id=id_, status=enums.StatusType(status), start_date=start_date, end_date=end_date,
-                   start_time=start_time, end_time=end_time, voting_end_time=voting_end_time,
+                   start_time_slot_id=start_time_slot_id, end_time_slot_id=end_time_slot_id,
+                   voting_end_time=voting_end_time,
                    title=title, invite_code=invite_code, gen_meet_url=gen_meet_url,
                    finalized_start_time=finalized_start_time, finalized_end_time=finalized_end_time,
                    meet_url=meet_url, description=description)
@@ -149,7 +151,7 @@ async def leave(meet_id: int, account_id: int) -> None:
 async def edit(meet_id: int,
                title: Optional[str] = None,
                start_date: Optional[date] = None, end_date: Optional[date] = None,
-               start_time: Optional[time] = None, end_time: Optional[time] = None,
+               start_time_slot_id: Optional[int] = None, end_time_slot_id: Optional[int] = None,
                description: Optional[str] = None, voting_end_time: Optional[datetime] = None,
                gen_meet_url: Optional[bool] = False) -> None:
     update_params = {'gen_meet_url': gen_meet_url}
@@ -159,10 +161,10 @@ async def edit(meet_id: int,
         update_params['start_date'] = start_date
     if end_date:
         update_params['end_date'] = end_date
-    if start_time:
-        update_params['start_time'] = start_time
-    if end_time:
-        update_params['end_time'] = end_time
+    if start_time_slot_id:
+        update_params['start_time_slot_id'] = start_time_slot_id
+    if end_time_slot_id:
+        update_params['end_time_slot_id'] = end_time_slot_id
     if description:
         update_params['description'] = description
     if voting_end_time:
