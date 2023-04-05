@@ -1,9 +1,9 @@
-from datetime import datetime
+import datetime
 
 import pydantic
 
 
-def timezone_validate(time: datetime) -> datetime:
+def timezone_validate(time: datetime.datetime) -> datetime.datetime:
     converted = pydantic.datetime_parse.parse_datetime(time)
 
     if converted.tzinfo is not None:

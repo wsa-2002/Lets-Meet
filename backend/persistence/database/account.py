@@ -1,5 +1,5 @@
-from base import do
-from typing import Tuple
+from base import do, enums
+from typing import Tuple, Sequence
 import exceptions as exc  # noqa
 
 import asyncpg
@@ -8,7 +8,7 @@ from .util import pyformat2psql
 from . import pool_handler
 
 
-async def add(username: str, pass_hash: str = None, notification_preference: str = 'email',
+async def add(username: str, pass_hash: str = None, notification_preference: str = enums.NotificationPreference.email,
               email: str = None, is_google_login: bool = False) -> int:
     sql, params = pyformat2psql(
         sql=fr'INSERT INTO account'
@@ -102,3 +102,21 @@ async def reset_password(code: str, pass_hash: str) -> None:
         pass_hash, account_id,
     )
     await pool_handler.pool.release(conn)
+
+
+async def search(identifier: str) -> Sequence[do.Account]:
+    like_sql = f"%{identifier}%"
+    sql, params = pyformat2psql(
+        sql=fr"SELECT id, username, email, notification_preference, is_google_login,"
+            fr"       line_token, google_token"
+            fr"  FROM account"
+            fr" WHERE username LIKE %(like_sql)s"
+            fr" ORDER BY id",
+        like_sql=like_sql,
+    )
+    records = await pool_handler.pool.fetch(sql, *params)
+    return [do.Account(id=id_, username=username, email=email,
+                       notification_preference=enums.NotificationPreference(notification_preference),
+                       is_google_login=is_google_login, line_token=line_token, google_token=google_token)
+            for id_, username, email, notification_preference,
+            is_google_login, line_token, google_token in records]

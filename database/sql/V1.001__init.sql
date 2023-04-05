@@ -16,9 +16,17 @@ CREATE TYPE week_day_type AS ENUM (
 );
 
 CREATE TYPE notification_preference AS ENUM (
-    'email',
-    'line'
+    'EMAIL',
+    'LINE'
 );
+
+
+CREATE TABLE time_slot (
+    id         SERIAL PRIMARY KEY,
+    start_time TIME NOT NULL,
+    end_time   TIME NOT NULL
+);
+
 
 CREATE TABLE account (
     id                       SERIAL  PRIMARY KEY,
@@ -43,12 +51,13 @@ CREATE TABLE meet (
     status                status_type NOT NULL,
     start_date            DATE        NOT NULL,
     end_date              DATE        NOT NULL,
-    start_time            TIME        NOT NULL, -- meet 可供選擇的時間
-    end_time              TIME        NOT NULL, -- meet 可供選擇的時間
+    start_time_slot_id    INTEGER     NOT NULL  REFERENCES time_slot(id), -- meet 可供選擇的時間
+    end_time_slot_id      INTEGER     NOT NULL  REFERENCES time_slot(id), -- meet 可供選擇的時間
     voting_end_time       TIMESTAMP,
     title                 VARCHAR     NOT NULL,
     description           TEXT,
     invite_code           VARCHAR     UNIQUE  NOT NULL,  -- https://host/invite_code
+    gen_meet_url          BOOLEAN     DEFAULT FALSE,
     meet_url              VARCHAR,
     finalized_start_time  TIMESTAMP,
     finalized_end_time    TIMESTAMP,
@@ -64,26 +73,24 @@ CREATE TABLE event (
 
 CREATE TABLE meet_member (
     id        SERIAL  PRIMARY KEY,
-    name      VARCHAR NOT NULL, -- TBD, a little bit weird?
+    name      VARCHAR, -- TBD, a little bit weird?
     member_id INTEGER REFERENCES account (id),
     meet_id   INTEGER NOT NULL REFERENCES meet (id),
     is_host   BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE time_slot (
-    id         SERIAL PRIMARY KEY,
-    start_time TIME NOT NULL,
-    end_time   TIME NOT NULL
-);
+
 
 CREATE TABLE meet_member_available_time (
     meet_member_id INTEGER REFERENCES meet_member (id),
     date           DATE    NOT NULL,
-    time_slot_id   INTEGER NOT NULL REFERENCES time_slot (id)
+    time_slot_id   INTEGER NOT NULL REFERENCES time_slot (id),
+    PRIMARY KEY (meet_member_id, date, time_slot_id)
 );
 
 CREATE TABLE routine (
     account_id   INTEGER REFERENCES account (id),
     weekday      week_day_type NOT NULL,
-    time_slot_id INTEGER REFERENCES time_slot (id)
+    time_slot_id INTEGER REFERENCES time_slot (id),
+    PRIMARY KEY (account_id, weekday, time_slot_id)
 );
