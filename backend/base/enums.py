@@ -3,11 +3,12 @@ import enum
 
 T = typing.TypeVar("T")
 
+
 class StrEnum(str, enum.Enum):
     pass
 
 
-class StatusType(enum.Enum):
+class StatusType(StrEnum):
     voting = 'VOTING'
     waiting_for_confirm = 'WAITING_FOR_CONFIRM'
     confirmed = 'CONFIRMED'
@@ -23,6 +24,6 @@ class WeekDayType(StrEnum):
     sun = 'SUN'
 
 
-class NotificationPreference(enum.Enum):
+class NotificationPreference(StrEnum):
     email = 'EMAIL'
     line = 'LINE'

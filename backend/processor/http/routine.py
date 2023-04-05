@@ -13,9 +13,11 @@ router = APIRouter(
     dependencies=[Depends(get_auth_token)]
 )
 
+
 class Routine(BaseModel):
     weekday: WeekDayType
     time_slot_id: int
+
 
 weekdayValue = {
     'MON': 1,
@@ -33,13 +35,15 @@ weekdayValue = {
 async def add_routine(data: Routine):
     account_id = request.account.id
     await db.routine.add(account_id=account_id, weekday=data.weekday, time_slot_id=data.time_slot_id)
-    
+
+
 @router.delete('/routine')
 @enveloped
 async def delete_routine(data: Routine):
     account_id = request.account.id
     await db.routine.delete(account_id=account_id, weekday=data.weekday, time_slot_id=data.time_slot_id)
-    
+
+
 @router.get('/routine/account/{account_id}')
 @enveloped
 async def get_routine(account_id: int):

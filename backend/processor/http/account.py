@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Sequence
 from uuid import uuid4
 
 from fastapi import APIRouter, responses, Depends, Response
@@ -88,3 +89,22 @@ async def login(data: LoginInput, response: Response) -> LoginOutput:
     response.set_cookie(key="account_id", value=str(account_id), httponly=True)
     response.set_cookie(key="token", value=str(token), httponly=True)
     return LoginOutput(account_id=account_id, token=token)
+
+
+class AccountInfo(BaseModel):
+    id: int
+    username: str
+    email: str
+
+
+class SearchAccountOutput(BaseModel):
+    accounts: Sequence[AccountInfo]
+
+
+@router.get('/account/search')
+@enveloped
+async def search_account(identifier: str) -> SearchAccountOutput:
+    accounts = await db.account.search(identifier=identifier)
+    return SearchAccountOutput(
+        accounts=[AccountInfo(id=account.id, username=account.username, email=account.email)
+                  for account in accounts])
