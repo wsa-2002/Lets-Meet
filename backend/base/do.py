@@ -32,8 +32,8 @@ class Meet:
     status: enums.StatusType
     start_date: date
     end_date: date
-    start_time: time
-    end_time: time
+    start_time_slot_id: int
+    end_time_slot_id: int
     voting_end_time: datetime
     title: str
     invite_code: str
@@ -70,8 +70,8 @@ class Routine:
 @dataclass
 class TimeSlot:
     id: int
-    start_time: datetime.time
-    end_time: datetime.time
+    start_time: time
+    end_time: time
 
 
 @dataclass

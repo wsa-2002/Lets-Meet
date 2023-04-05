@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime, date, time
 import random
 from typing import Optional, Sequence
@@ -28,8 +27,8 @@ class AddMeetInput(BaseModel):
     meet_name: str
     start_date: date
     end_date: date
-    start_time: time
-    end_time: time
+    start_time_slot_id: int
+    end_time_slot_id: int
     gen_meet_url: bool
     voting_end_time: Optional[datetime] = None
     description: Optional[str] = None
@@ -48,14 +47,14 @@ async def add_meet(data: AddMeetInput) -> AddMeetOutput:
         host_account_id = request.account.id
     except AttributeError:
         host_account_id = None
-    invite_code = ''.join(random.choice(const.AVAILABLE_CODE_CHAR) for i in range(const.INVITE_CODE_LENGTH))
+    invite_code = ''.join(random.choice(const.AVAILABLE_CODE_CHAR) for _ in range(const.INVITE_CODE_LENGTH))
     meet_id = await db.meet.add(
         title=data.meet_name,
         invite_code=invite_code,
         start_date=data.start_date,
         end_date=data.end_date,
-        start_time=data.start_time,
-        end_time=data.end_time,
+        start_time_slot_id=data.start_time_slot_id,
+        end_time_slot_id=data.end_time_slot_id,
         voting_end_time=timezone_validate(data.voting_end_time),
         gen_meet_url=data.gen_meet_url,
         host_member_id=host_account_id,
@@ -70,8 +69,8 @@ class ReadMeetOutput(BaseModel):
     status: enums.StatusType
     start_date: date
     end_date: date
-    start_time: time
-    end_time: time
+    start_time_slot_id: int
+    end_time_slot_id: int
     meet_name: str
     invite_code: str
     gen_meet_url: bool
@@ -105,8 +104,8 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
         status=meet.status,
         start_date=meet.start_date,
         end_date=meet.end_date,
-        start_time=meet.start_time,
-        end_time=meet.end_time,
+        start_time_slot_id=meet.start_time_slot_id,
+        end_time_slot_id=meet.end_time_slot_id,
         voting_end_time=meet.voting_end_time,
         meet_name=meet.title,
         invite_code=meet.invite_code,
@@ -139,8 +138,8 @@ class EditMeetInput(BaseModel):
     title: Optional[str] = None
     start_date: Optional[date] = None
     end_date: Optional[date] = None
-    start_time: Optional[time] = None
-    end_time: Optional[time] = None
+    start_time_slot_id: Optional[int] = None
+    end_time_slot_id: Optional[int] = None
     description: Optional[str] = None
     voting_end_time: Optional[datetime] = None
     gen_meet_url: Optional[bool] = False
@@ -156,10 +155,9 @@ async def edit_meet(meet_id: int, data: EditMeetInput) -> None:
         title=data.title,
         start_date=data.start_date,
         end_date=data.end_date,
-        start_time=data.start_time,
-        end_time=data.end_time,
+        start_time_slot_id=data.start_time_slot_id,
+        end_time_slot_id=data.end_time_slot_id,
         description=data.description,
         voting_end_time=data.voting_end_time,
         gen_meet_url=data.gen_meet_url,
     )
-
