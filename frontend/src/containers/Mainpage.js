@@ -1,10 +1,11 @@
 import styled from "styled-components";
 import "@fontsource/roboto/500.css";
 import { Input, Button, DatePicker, TimePicker, Switch, Space } from "antd";
-import { ArrowRightOutlined } from "@ant-design/icons";
+import { ArrowRightOutlined, LogoutOutlined } from "@ant-design/icons";
 import "../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import {Header} from "../components/Header";
 import { useMeet } from "./hooks/useMeet";
 import moment from "moment";
 import * as AXIOS from "../middleware";
@@ -184,27 +185,7 @@ const Mainpage = () => {
 
   return (
     <div className="mainContainer">
-      {login ? (
-        <div className="header">
-          <Button type="link" style={{ fontSize: "28px", marginRight: "10%" }}>
-            Let's Meet
-          </Button>
-          <Space
-            size="large"
-            style={{ fontSize: "24px", fontFamily: "Nunito", color: "#808080" }}
-          >
-            <Button type="link">Meets</Button>
-            <Button type="link">Routine</Button>
-            <Button type="link">Calender</Button>
-          </Space>
-          <Space size="large" style={{ position: "absolute", left: "85%" }}>
-            <Button type="link">Setting</Button>
-            <Button type="link">Logout</Button>
-          </Space>
-        </div>
-      ) : (
-        <></>
-      )}
+      {login ? <Header/>: <></>}
       <div className="leftContainer">
         <JoinMeet>
           <div
