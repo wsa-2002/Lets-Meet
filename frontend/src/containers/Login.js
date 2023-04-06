@@ -5,7 +5,6 @@ import "../css/Login.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider, notification } from "antd";
 import { useNavigate } from "react-router-dom";
-import Background from "../components/MainBackground";
 import * as AXIOS from "../middleware";
 const { Text, Link } = Typography;
 

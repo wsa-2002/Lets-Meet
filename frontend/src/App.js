@@ -5,6 +5,7 @@ import Login from "./containers/Login";
 import Signup from "./containers/Signup";
 import Reset from "./containers/ResetPassword";
 import Change from "./containers/ChangePassword";
+import Meets from "./containers/Meets";
 
 function App() {
   return (
@@ -12,11 +13,12 @@ function App() {
       {/* <CssBaseline /> */}
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Main />}></Route>
+          <Route element={<Main />} path="/"></Route>
           <Route element={<Login />} path="/login"></Route>
           <Route element={<Signup />} path="/signup"></Route>
           <Route element={<Reset />} path="/reset"></Route>
           <Route element={<Change />} path="/change"></Route>
+          <Route element={<Meets />} path="/meets"></Route>
         </Routes>
       </BrowserRouter>
     </>
