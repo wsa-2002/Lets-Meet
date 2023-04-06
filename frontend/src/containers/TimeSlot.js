@@ -37,17 +37,13 @@ const data = [
 
 const tagMap = {"Voted": "#FFA601", "unVoted": "#D8D8D8", "Comfirming": "#D8D8D8", "Comfirmed": "#FFA601"};
 
-const Meets = () => {
+const TimeSlot = () => {
   const [isLogin, setIsLogin] = useState(true); // 如果login會顯示header，沒有的話會顯示login
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    navigate('/login');
-  }
-
   return (
     <div className="mainContainer">
-        {isLogin ? <Header location="meet"/>: <Header2/>}
+        {isLogin ? <Header/>: <Header2/>}
         <div className="wholeContainer">
             <Table dataSource={data} className="meetTable">
             {/* <Table dataSource={data} className="meetTable" rowClassName={(record, index) => index === 0 ? 'table-row-light' :  'table-row-dark'}></Table> */}
@@ -97,4 +93,4 @@ const Meets = () => {
   );
 }
 
-export default Meets;
+export default TimeSlot;
