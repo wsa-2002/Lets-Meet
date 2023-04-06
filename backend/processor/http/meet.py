@@ -1,11 +1,12 @@
-from datetime import datetime, date, time
+from datetime import datetime, date
+from functools import partial
 import random
 from typing import Optional, Sequence
 
 from fastapi import APIRouter, responses, Depends
 from pydantic import BaseModel
 
-from base import enums
+from base import enums, model, vo
 import const
 from middleware.envelope import enveloped
 from middleware.headers import get_auth_token
@@ -14,7 +15,7 @@ import persistence.database as db
 import exceptions as exc  # noqa
 
 
-from .util import timezone_validate
+from .util import parse_filter, parse_sorter, time_to_time_slot, timezone_validate
 
 router = APIRouter(
     tags=['Meet'],
@@ -47,6 +48,13 @@ async def add_meet(data: AddMeetInput) -> AddMeetOutput:
         host_account_id = request.account.id
     except AttributeError:
         host_account_id = None
+
+    if data.start_date > data.end_date or data.start_time_slot_id > data.end_time_slot_id:
+        raise exc.IllegalInput
+
+    if data.voting_end_time < datetime.now():
+        raise exc.IllegalInput
+
     invite_code = ''.join(random.choice(const.AVAILABLE_CODE_CHAR) for _ in range(const.INVITE_CODE_LENGTH))
     meet_id = await db.meet.add(
         title=data.meet_name,
@@ -90,7 +98,12 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
         raise exc.NoPermission
     elif not await db.meet.is_authed(meet_id, request.account.id):
         raise exc.NoPermission
+
     meet = await db.meet.read(meet_id=meet_id)
+    if meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
+        await db.meet.update_status(meet.id, enums.StatusType.waiting_for_confirm)
+        meet.status = enums.StatusType.waiting_for_confirm
+
     member_auth = await db.meet.get_member_id_and_auth(meet_id)
     host_id = None
     member_ids = []
@@ -99,6 +112,7 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
             host_id = k
         else:
             member_ids.append(k)
+
     return ReadMeetOutput(
         id=meet.id,
         status=meet.status,
@@ -158,6 +172,38 @@ async def edit_meet(meet_id: int, data: EditMeetInput) -> None:
         start_time_slot_id=data.start_time_slot_id,
         end_time_slot_id=data.end_time_slot_id,
         description=data.description,
-        voting_end_time=data.voting_end_time,
+        voting_end_time=timezone_validate(data.voting_end_time),
         gen_meet_url=data.gen_meet_url,
     )
+
+
+BROWSE_MEET_COLUMNS = {
+    'name': str,
+    'host': str,
+    'status': enums.StatusType,
+    'start_date': date,
+    'end_date': date,
+    'voting_end_time': datetime,
+}
+
+
+@router.get('/meet')
+@enveloped
+async def browse_meet(filters: Sequence[model.Filter] = Depends(partial(parse_filter, column_types=BROWSE_MEET_COLUMNS)),
+                      sorters: Sequence[model.Sorter] = Depends(partial(parse_sorter, column_types=BROWSE_MEET_COLUMNS)))\
+        -> Sequence[vo.BrowseMeetByAccount]:
+
+    meets = await db.meet.browse_by_account_id(account_id=request.account.id, filters=filters, sorters=sorters)
+    now = request.time
+    for i, meet in enumerate(meets):
+        if now <= meet.voting_end_time:
+            if await db.meet.has_voted(meet.meet_id, request.account.id):
+                meet.status = enums.StatusType.voted
+            else:
+                meet.status = enums.StatusType.voting
+        elif now > meet.voting_end_time and meet.status is enums.StatusType.voting:
+            await db.meet.update_status(meet.meet_id, enums.StatusType.waiting_for_confirm)
+            meet.status = enums.StatusType.waiting_for_confirm
+        meets[i] = meet
+
+    return meets

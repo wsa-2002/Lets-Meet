@@ -1,70 +1,62 @@
-class NotFound(Exception):
+class NormalException(Exception):
+    pass
+
+
+class NotFound(NormalException):
     """
     Not found
     """
 
 
-class UniqueViolationError(Exception):
+class UniqueViolationError(NormalException):
     """
     Unique Violation Error
     """
 
 
-class LoginExpired(Exception):
+class LoginExpired(NormalException):
     """
     Login token expired
     """
 
 
-class LoginFailed(Exception):
+class LoginFailed(NormalException):
     """
     Login failed
     """
 
 
-class NoPermission(Exception):
+class NoPermission(NormalException):
     """
     No access to resource
     """
 
 
-class UsernameExists(Exception):
+class UsernameExists(NormalException):
     """
     duplicate username
     """
 
 
-class DuplicateStudentId(Exception):
-    """
-    Student Id is duplicate
-    """
-
-
-class ProblemTitleExist(Exception):
-    """
-    Problem title is duplicate
-    """
-
-
-class IllegalInput(Exception):
+class IllegalInput(NormalException):
     """
     Input is not legal
     """
 
 
-class IllegalCharacter(Exception):
+class IllegalCharacter(NormalException):
     """
     Input contains illegal character
     """
 
 
-class EmailExist(Exception):
+class EmailExist(NormalException):
     """
     Email is duplicate
     """
 
 
-class EmailRegisteredByGoogle(Exception):
+class EmailRegisteredByGoogle(NormalException):
     """
     User has already used the email for Google login
     """
