@@ -3,7 +3,6 @@ import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider } from "antd";
-import { useNavigate } from "react-router-dom";
 import * as AXIOS from "../middleware";
 const { Text, Link } = Typography;
 
@@ -14,21 +13,20 @@ const LogIn = () => {
     Password: "",
     "Confirm Password": "",
   });
-  const [validPassword, setValidPassword] = useState(true);
-
-  const navigate = useNavigate();
+  const [validName, setValidName] = useState(true);
 
   const handleSignupChange = (e) => {
     const { name, value } = e.target;
+    console.log(name);
     setSignupData((prev) => ({
       ...prev,
       [name]: value,
     }));
-    if (name === "Password") {
+    if (name === "Username") {
       if (/[#$%&\*\\\/]/.test(value)) {
-        setValidPassword(false);
+        setValidName(false);
       } else {
-        setValidPassword(true);
+        setValidName(true);
       }
     }
   };

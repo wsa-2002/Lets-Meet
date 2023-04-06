@@ -27,8 +27,7 @@ const LogIn = () => {
     if (search) {
       const code = new URLSearchParams(search).get("code");
       if (code) {
-        const message = AXIOS.emailVerification(code);
-        console.log(message);
+        AXIOS.emailVerification(code);
       }
     }
   }, [login]);
@@ -119,7 +118,15 @@ const LogIn = () => {
             Login
           </Button>
           <Divider>or</Divider>
-          <div id="buttonDiv" style={{ marginBottom: "30px" }}></div>
+          {/* <div id="buttonDiv" style={{ marginBottom: "30px" }}></div> */}
+          <button
+            style={{ marginBottom: "30px" }}
+            onClick={() => {
+              window.open("http://localhost:8000/google-login", "_self");
+            }}
+          >
+            google login
+          </button>
           <Text
             type="secondary"
             style={

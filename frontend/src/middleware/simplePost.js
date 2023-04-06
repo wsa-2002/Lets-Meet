@@ -4,6 +4,7 @@ const URL = {
   signup: "/account",
   forgetPassword: "/forget-password",
   resetPassword: "/reset-password",
+  addMeet: "/meet",
 };
 
 export default Object.keys(URL).reduce((acc, curr) => {

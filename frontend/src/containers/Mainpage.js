@@ -5,6 +5,9 @@ import { ArrowRightOutlined } from "@ant-design/icons";
 import "../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useMeet } from "./hooks/useMeet";
+import moment from "moment";
+import * as AXIOS from "../middleware";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -43,28 +46,106 @@ const CreateContent = styled.div`
 
 const Mainpage = () => {
   const [votingButton, setVotingButton] = useState("hidden");
-  const [isLogin, setIsLogin] = useState(false); // 如果login會顯示header，沒有的話會顯示login
+  const [meetData, setMeetData] = useState({
+    meet_name: "",
+    start_date: "",
+    end_date: "",
+    start_time_slot_id: 0,
+    end_time_slot_id: 0,
+    gen_meet_url: false,
+    description: "",
+    member_ids: [],
+    emails: [],
+  });
+  const { login } = useMeet();
   const navigate = useNavigate();
 
   const handleLogin = () => {
     navigate("/login");
   };
 
-  const showDate = () => {
-    if (votingButton === "hidden") setVotingButton("visible");
-    else setVotingButton("hidden");
+  const showDate = (e) => {
+    if (votingButton === "hidden") {
+      setVotingButton("visible");
+    } else {
+      setVotingButton("hidden");
+    }
+    console.log(e);
+  };
+
+  const handleInvite = (e) => {
+    if (e?.key === "Enter" || !e.key) {
+      alert("Invite");
+    }
+  };
+
+  const handleMeetDataChange =
+    (func, ...name) =>
+    (e) => {
+      if (name.length === 1) {
+        setMeetData((prev) => ({ ...prev, [name[0]]: func(e) }));
+      } else {
+        setMeetData((prev) => ({
+          ...prev,
+          [name[0]]: func(e[0]),
+          [name[1]]: func(e[1]),
+        }));
+      }
+    };
+
+  const handleMeetCreate = async () => {
+    try {
+      // console.log(meetData);
+      const result = await AXIOS.addMeet({
+        ...meetData,
+        voting_end_time: moment(
+          meetData.voting_end_date + " " + meetData.voting_end_time,
+          "YYYY-MM-DD HH-mm-ss"
+        ).toISOString(),
+      });
+      console.log(result);
+    } catch (e) {
+      alert(e);
+      console.log(e);
+    }
   };
 
   const CONTENTMENU = {
-    "Event Name*": <Input style={{ borderRadius: "5px", width: "60%" }} />,
-    "Voting Period*": <RangePicker style={{ width: "60%" }} />,
-    "Meet Time Period*": <TimePicker.RangePicker style={{ width: "60%" }} />,
+    "Event Name*": (
+      <Input
+        style={{ borderRadius: "5px", width: "60%" }}
+        onChange={handleMeetDataChange((i) => i.target.value, "meet_name")}
+      />
+    ),
+    "Voting Period*": (
+      <RangePicker
+        style={{ width: "60%" }}
+        onChange={handleMeetDataChange(
+          (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
+          "start_date",
+          "end_date"
+        )}
+      />
+    ),
+    "Meet Time Period*": (
+      <TimePicker.RangePicker
+        style={{ width: "60%" }}
+        onChange={handleMeetDataChange(
+          (i) => (i.hour() * 60 + i.minute()) / 30 + 1,
+          "start_time_slot_id",
+          "end_time_slot_id"
+        )}
+        minuteStep={30}
+        format={"HH:mm"}
+      />
+    ),
     Description: (
       <TextArea
         style={{
           height: "120px",
           width: "60%",
         }}
+        onChange={handleMeetDataChange((i) => i.target.value, "description")}
       />
     ),
     Member: (
@@ -76,16 +157,34 @@ const Mainpage = () => {
     "Voting Deadline": (
       <div style={{ columnGap: "10%" }}>
         <Switch onChange={showDate} />
-        <DatePicker style={{ visibility: votingButton }} />
-        <TimePicker style={{ visibility: votingButton }} />
+        <DatePicker
+          style={{ visibility: votingButton }}
+          onChange={handleMeetDataChange(
+            (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
+            "voting_end_date"
+          )}
+        />
+        <TimePicker
+          style={{ visibility: votingButton }}
+          // name="Voting Deadline Time"
+          onChange={handleMeetDataChange(
+            (i) => moment(i.toISOString()).format("HH-mm-ss"),
+            "voting_end_time"
+          )}
+        />
       </div>
     ),
-    "Google Meet URL": <Switch disabled={true} />,
+    "Google Meet URL": (
+      <Switch
+        disabled={!login}
+        onChange={handleMeetDataChange((i) => i, "gen_meet_url")}
+      />
+    ),
   };
 
   return (
     <div className="mainContainer">
-      {isLogin ? (
+      {login ? (
         <div className="header">
           <Button type="link" style={{ fontSize: "28px", marginRight: "10%" }}>
             Let's Meet
@@ -129,6 +228,7 @@ const Mainpage = () => {
                 height: "45px",
                 borderRadius: "15px",
               }}
+              onKeyDown={handleInvite}
             />
             <Button
               type="primary"
@@ -137,13 +237,14 @@ const Mainpage = () => {
               style={{
                 background: "#FFD466",
               }}
+              onClick={handleInvite}
             />
           </div>
         </JoinMeet>
         <p className="title">Let's Meet!</p>
       </div>
       <div className="rightContainer">
-        {!isLogin ? (
+        {!login ? (
           <Button
             style={{
               position: "absolutive",
@@ -204,6 +305,7 @@ const Mainpage = () => {
               transform: "translate(-50%, 0)",
             }}
             size="large"
+            onClick={handleMeetCreate}
           >
             Create
           </Button>

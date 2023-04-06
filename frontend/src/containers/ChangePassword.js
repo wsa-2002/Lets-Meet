@@ -3,7 +3,7 @@ import "@fontsource/roboto/500.css";
 import "../css/ResetPassword.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import * as AXIOS from "../middleware";
 const { Text, Link } = Typography;
 
@@ -12,7 +12,18 @@ const ChangePassword = () => {
     "New Password": "",
     "Confirmed New Password": "",
   });
+  const search = useLocation().search;
   const navigate = useNavigate();
+
+  // useEffect(() => {
+
+  //   if (search) {
+  //     const code = new URLSearchParams(search).get("code");
+  //     if (code) {
+  //       AXIOS.emailVerification(code);
+  //     }
+  //   }
+  // }, [login]);
 
   const handleResetChange = (e) => {
     const { name, value } = e.target;
@@ -25,21 +36,15 @@ const ChangePassword = () => {
   const handleClick = async () => {
     try {
       console.log(newPassword);
-      // const result = await AXIOS.resetPassword(newPassword);
-      // if (result.error) {
-      //   alert("登入失敗");
-      // } else {
-      //   console.log(result);
-      //   GLOBAL_LOGIN(result.data.token);
-      // }
+      const result = await AXIOS.resetPassword({
+        password: newPassword["New Password"],
+        code: new URLSearchParams(search).get("code"),
+      });
+      navigate("/login");
     } catch (e) {
       alert(e);
       console.log(e);
     }
-  };
-
-  const handleSave = () => {
-    navigate("/login");
   };
 
   return (
@@ -73,7 +78,11 @@ const ChangePassword = () => {
               // left: "50%",
               // transform: "translate(-50%, 0)",
             }}
-            onClick={handleSave}
+            disabled={
+              newPassword["Confirmed New Password"] !==
+              newPassword["New Password"]
+            }
+            onClick={handleClick}
           >
             Save
           </Button>
