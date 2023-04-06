@@ -3,7 +3,6 @@ import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider } from "antd";
-import { useNavigate } from "react-router-dom";
 import * as AXIOS from "../middleware";
 const { Text, Link } = Typography;
 
@@ -14,63 +13,38 @@ const LogIn = () => {
     Password: "",
     "Confirm Password": "",
   });
-  const navigate = useNavigate();
+  const [validName, setValidName] = useState(true);
 
   const handleSignupChange = (e) => {
     const { name, value } = e.target;
+    console.log(name);
     setSignupData((prev) => ({
       ...prev,
       [name]: value,
     }));
-  };
-
-  const handleSignUpClick = async () => {
-    try {
-      await AXIOS.signup(signupData);
-      navigate("/Login");
-    } catch (e) {
-      alert(e);
+    if (name === "Username") {
+      if (/[#$%&\*\\\/]/.test(value)) {
+        setValidName(false);
+      } else {
+        setValidName(true);
+      }
     }
   };
 
-  function parseJwt(token) {
-    var base64Url = token.split(".")[1];
-    var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-
-    var jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map(function (c) {
-          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  }
-
-  function handleCredentialResponse(response) {
-    // console.log("Encoded JWT ID token: " + response.credential);
-    const data = parseJwt(response.credential);
-    console.log(data);
-  }
-
-  function onSignout() {
-    console.log("signout");
-    window.google.accounts.id.disableAutoSelect();
-  }
-
-  window.onload = function () {
-    const google = window.google;
-    google.accounts.id.initialize({
-      client_id:
-        "436418764459-1ag0gp14atm6al44k1qrptdpf89ufc61.apps.googleusercontent.com",
-      callback: handleCredentialResponse,
-    });
-    google.accounts.id.renderButton(
-      document.getElementById("buttonDiv"),
-      { theme: "outline", size: "large", locale: "en" } // customization attributes
-    );
-    google.accounts.id.prompt(); // also display the One Tap dialog
+  const handleSignUpClick = async () => {
+    if (signupData.Password !== signupData["Confirm Password"]) {
+      console.log("請輸入相同密碼");
+    } else if (signupData.Username && signupData.Password && signupData.Email) {
+      try {
+        await AXIOS.signup({
+          username: signupData.Username,
+          password: signupData.Password,
+          email: signupData.Email,
+        });
+      } catch (e) {
+        alert(e);
+      }
+    }
   };
 
   return (
@@ -105,6 +79,12 @@ const LogIn = () => {
               // transform: "translate(-50%, 0)",
             }}
             onClick={handleSignUpClick}
+            disabled={
+              !signupData.Username ||
+              !signupData.Password ||
+              !signupData.Email ||
+              !signupData["Confirm Password"]
+            }
           >
             Sign Up
           </Button>

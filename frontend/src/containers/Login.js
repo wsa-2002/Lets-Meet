@@ -1,12 +1,13 @@
 import styled from "styled-components";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider, notification } from "antd";
 import { useNavigate } from "react-router-dom";
-import Background from "../components/MainBackground";
 import * as AXIOS from "../middleware";
+import { useMeet } from "./hooks/useMeet";
 const { Text, Link } = Typography;
 
 const LogIn = () => {
@@ -14,26 +15,39 @@ const LogIn = () => {
     user_identifier: "",
     password: "",
   });
-
+  const search = useLocation().search;
+  const { login, GLOBAL_LOGIN } = useMeet();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (login) {
+      navigate("/");
+      return;
+    }
+    if (search) {
+      const code = new URLSearchParams(search).get("code");
+      if (code) {
+        AXIOS.emailVerification(code);
+      }
+    }
+  }, [login]);
+
   const handleLoginClick = async () => {
-    // try {
-    //   console.log(loginData);
-    //   const result = await AXIOS.login(loginData);
-    //   if (result.error) {
-    //     alert("登入失敗");
-    //   } else {
-    //     console.log(result);
-    //     navigate("/");
-    //   }
-    // } catch (e) {
-    //   alert(e);
-    //   console.log(e);
-    // }
-    const result = await AXIOS.googleLogin();
-    // console.log(Object.keys(result));
-    window.location.assign(result.data._headers.location);
+    try {
+      console.log(loginData);
+      const result = await AXIOS.login(loginData);
+      if (result.error) {
+        alert("登入失敗");
+      } else {
+        console.log(result);
+        GLOBAL_LOGIN(result.data.token);
+      }
+    } catch (e) {
+      alert(e);
+      console.log(e);
+    }
+    // window.open("http://localhost:8000/google-login", "_self");
+    // window.location.assign(result.data._headers.location);
   };
 
   const handleLoginChange = (e) => {
@@ -50,45 +64,6 @@ const LogIn = () => {
 
   const handleReset = () => {
     navigate("/reset");
-  };
-
-  function parseJwt(token) {
-    var base64Url = token.split(".")[1];
-    var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    var jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map(function (c) {
-          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  }
-
-  function handleCredentialResponse(response) {
-    // console.log("Encoded JWT ID token: " + response.credential);
-    const data = parseJwt(response.credential);
-    console.log(data);
-  }
-
-  function onSignout() {
-    console.log("signout");
-    window.google.accounts.id.disableAutoSelect();
-  }
-
-  window.onload = function () {
-    const google = window.google;
-    google.accounts.id.initialize({
-      client_id:
-        "436418764459-1ag0gp14atm6al44k1qrptdpf89ufc61.apps.googleusercontent.com",
-      callback: handleCredentialResponse,
-    });
-    google.accounts.id.renderButton(
-      document.getElementById("buttonDiv"),
-      { theme: "outline", size: "large", locale: "en" } // customization attributes
-    );
-    google.accounts.id.prompt(); // also display the One Tap dialog
   };
 
   return (
@@ -143,7 +118,15 @@ const LogIn = () => {
             Login
           </Button>
           <Divider>or</Divider>
-          <div id="buttonDiv" style={{ marginBottom: "30px" }}></div>
+          {/* <div id="buttonDiv" style={{ marginBottom: "30px" }}></div> */}
+          <button
+            style={{ marginBottom: "30px" }}
+            onClick={() => {
+              window.open("http://localhost:8000/google-login", "_self");
+            }}
+          >
+            google login
+          </button>
           <Text
             type="secondary"
             style={

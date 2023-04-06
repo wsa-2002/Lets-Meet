@@ -86,8 +86,8 @@ async def login(data: LoginInput, response: Response) -> LoginOutput:
         raise exc.LoginFailed
 
     token = encode_jwt(account_id=account_id)
-    response.set_cookie(key="account_id", value=str(account_id), httponly=True)
-    response.set_cookie(key="token", value=str(token), httponly=True)
+    response.set_cookie(key="account_id", value=str(account_id))
+    response.set_cookie(key="token", value=str(token))
     return LoginOutput(account_id=account_id, token=token)
 
 

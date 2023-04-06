@@ -34,7 +34,7 @@ oauth.register(
 )
 
 
-@router.post('/google-login')
+@router.get('/google-login')
 async def login(request: Request):
     redirect_uri = request.url_for('auth')
     return await oauth.google.authorize_redirect(request, redirect_uri)
