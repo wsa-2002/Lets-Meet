@@ -5,8 +5,12 @@ def register_routers(app: fastapi.FastAPI):
         account,
         public,
         google,
+        routine,
+        meet,
     )
 
     app.include_router(public.router)
     app.include_router(account.router)
     app.include_router(google.router)
+    app.include_router(routine.router)
+    app.include_router(meet.router)

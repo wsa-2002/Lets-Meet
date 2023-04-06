@@ -43,4 +43,6 @@ pool_handler = PoolHandler()
 from . import (
     account,
     email_verification,
+    routine,
+    meet,
 )
