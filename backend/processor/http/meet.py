@@ -1,6 +1,5 @@
 import typing
 from datetime import datetime, date
-from functools import partial
 import random
 from typing import Optional, Sequence
 
@@ -16,7 +15,7 @@ import persistence.database as db
 import exceptions as exc  # noqa
 
 
-from .util import parse_filter, parse_sorter, time_to_time_slot, timezone_validate
+from .util import parse_filter, parse_sorter, timezone_validate
 
 router = APIRouter(
     tags=['Meet'],
@@ -32,6 +31,7 @@ class AddMeetInput(BaseModel):
     start_time_slot_id: int
     end_time_slot_id: int
     gen_meet_url: bool
+    guest_name: Optional[str] = None
     voting_end_time: Optional[datetime] = None
     description: Optional[str] = None
     member_ids: Optional[Sequence[int]] = None
@@ -48,12 +48,14 @@ async def add_meet(data: AddMeetInput) -> AddMeetOutput:
     try:
         host_account_id = request.account.id
     except exc.NoPermission:
+        if not data.guest_name:
+            raise exc.IllegalInput
         host_account_id = None
 
     if data.start_date > data.end_date or data.start_time_slot_id > data.end_time_slot_id:
         raise exc.IllegalInput
 
-    if data.voting_end_time < datetime.now():
+    if timezone_validate(data.voting_end_time) < datetime.now():
         raise exc.IllegalInput
 
     invite_code = ''.join(random.choice(const.AVAILABLE_CODE_CHAR) for _ in range(const.INVITE_CODE_LENGTH))
