@@ -1,10 +1,11 @@
+import typing
 from datetime import datetime, date
 from functools import partial
 import random
 from typing import Optional, Sequence
 
 from fastapi import APIRouter, responses, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Json
 
 from base import enums, model, vo
 import const
@@ -187,11 +188,20 @@ BROWSE_MEET_COLUMNS = {
 }
 
 
+async def meet_filter(filters: typing.Optional[Json] = None) -> Sequence[model.Filter]:
+    return parse_filter(BROWSE_MEET_COLUMNS, filters)
+
+
+async def meet_sorter(sorters: typing.Optional[Json] = None) -> Sequence[model.Sorter]:
+    return parse_sorter(BROWSE_MEET_COLUMNS, sorters)
+
+
 @router.get('/meet')
 @enveloped
-async def browse_meet(filters: Sequence[model.Filter] = Depends(partial(parse_filter, column_types=BROWSE_MEET_COLUMNS)),
-                      sorters: Sequence[model.Sorter] = Depends(partial(parse_sorter, column_types=BROWSE_MEET_COLUMNS)))\
+async def browse_meet(filters: Sequence[model.Filter] = Depends(meet_filter),
+                      sorters: Sequence[model.Sorter] = Depends(meet_sorter))\
         -> Sequence[vo.BrowseMeetByAccount]:
+    # TODO: find ways to use partial function in Depends
 
     meets = await db.meet.browse_by_account_id(account_id=request.account.id, filters=filters, sorters=sorters)
     now = request.time
