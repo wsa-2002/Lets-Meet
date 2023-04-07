@@ -58,6 +58,9 @@ async def add_meet(data: AddMeetInput) -> AddMeetOutput:
     if timezone_validate(data.voting_end_time) < datetime.now():
         raise exc.IllegalInput
 
+    if not 0 < data.start_time_slot_id < 49 and not 0 < data.end_time_slot_id < 49:
+        raise exc.IllegalInput
+
     invite_code = ''.join(random.choice(const.AVAILABLE_CODE_CHAR) for _ in range(const.INVITE_CODE_LENGTH))
     meet_id = await db.meet.add(
         title=data.meet_name,
