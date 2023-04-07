@@ -1,14 +1,15 @@
 import styled from "styled-components";
 import "@fontsource/roboto/500.css";
 import { Input, Button, DatePicker, TimePicker, Switch, Space } from "antd";
-import { ArrowRightOutlined, LogoutOutlined } from "@ant-design/icons";
-import "../css/Background.css";
+import { ArrowRightOutlined } from "@ant-design/icons";
+import "../../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import {Header} from "../components/Header";
-import { useMeet } from "./hooks/useMeet";
+import { useMeet } from "../hooks/useMeet";
 import moment from "moment";
-import * as AXIOS from "../middleware";
+import * as AXIOS from "../../middleware";
+import Member from "./Member";
+import { Header } from "../../components/Header";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -96,7 +97,6 @@ const Mainpage = () => {
 
   const handleMeetCreate = async () => {
     try {
-      // console.log(meetData);
       const result = await AXIOS.addMeet({
         ...meetData,
         voting_end_time: moment(
@@ -106,7 +106,6 @@ const Mainpage = () => {
       });
       console.log(result);
     } catch (e) {
-      alert(e);
       console.log(e);
     }
   };
@@ -151,7 +150,7 @@ const Mainpage = () => {
     ),
     Member: (
       <div>
-        <Input style={{ borderRadius: "5px", width: "80%" }} />
+        <Member style={{ borderRadius: "5px", width: "80%" }} />
         <Button style={{ background: "#5A8EA4", color: "white" }}>+</Button>
       </div>
     ),
@@ -185,7 +184,7 @@ const Mainpage = () => {
 
   return (
     <div className="mainContainer">
-      {login ? <Header/>: <></>}
+      {login && <Header />}
       <div className="leftContainer">
         <JoinMeet>
           <div
