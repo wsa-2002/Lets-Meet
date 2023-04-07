@@ -4,6 +4,7 @@ from starlette_context import context
 
 from security import AuthedAccount
 from base import mcs
+import exceptions as exc  # noqa
 
 
 class Request(metaclass=mcs.Singleton):
@@ -11,7 +12,10 @@ class Request(metaclass=mcs.Singleton):
 
     @property
     def account(self) -> AuthedAccount:
-        return self._context.get('account')
+        if account := self._context.get('account'):
+            return account
+        raise exc.NoPermission
+
 
     @property
     def time(self) -> datetime:
