@@ -165,6 +165,24 @@ class EditMeetInput(BaseModel):
 async def edit_meet(meet_id: int, data: EditMeetInput) -> None:
     if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
         raise exc.NoPermission
+
+    meet = await db.meet.read(meet_id=meet_id)
+    meet.start_date = data.start_date or meet.start_date
+    meet.end_date = data.end_date or meet.end_date
+    meet.start_time_slot_id = data.start_time_slot_id or meet.start_time_slot_id
+    meet.end_time_slot_id = data.end_time_slot_id
+    meet.voting_end_time = data.voting_end_time or meet.voting_end_time
+
+    if meet.start_date > meet.end_date:
+        raise exc.IllegalInput
+
+    if meet.start_time_slot_id > meet.end_time_slot_id:
+        raise exc.IllegalInput
+
+    status = enums.StatusType.voting
+    if meet.voting_end_time and meet.voting_end_time < request.time:
+        status = enums.StatusType.waiting_for_confirm
+
     await db.meet.edit(
         meet_id=meet_id,
         title=data.title,
@@ -175,6 +193,7 @@ async def edit_meet(meet_id: int, data: EditMeetInput) -> None:
         description=data.description,
         voting_end_time=timezone_validate(data.voting_end_time),
         gen_meet_url=data.gen_meet_url,
+        status=status,
     )
 
 
