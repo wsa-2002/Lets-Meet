@@ -52,7 +52,7 @@ async def add_meet(data: AddMeetInput) -> AddMeetOutput:
             raise exc.IllegalInput
         host_account_id = None
 
-    if data.start_date > data.end_date or data.start_time_slot_id > data.end_time_slot_id:
+    if data.start_date >= data.end_date or data.start_time_slot_id >= data.end_time_slot_id:
         raise exc.IllegalInput
 
     if timezone_validate(data.voting_end_time) < datetime.now():
