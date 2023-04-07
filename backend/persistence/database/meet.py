@@ -1,11 +1,12 @@
-from base import do, enums
-from datetime import datetime, date, time
-from typing import Tuple, Sequence, Optional
-import exceptions as exc  # noqa
+from datetime import datetime, date
+from typing import Sequence, Optional
 
 import asyncpg
 
-from .util import pyformat2psql
+from base import do, enums, model, vo
+import exceptions as exc  # noqa
+
+from .util import pyformat2psql, compile_filters
 from . import pool_handler
 
 
@@ -46,7 +47,7 @@ async def add(title: str, invite_code: str,
 
 
 async def read_meet_by_code(invite_code: str, include_deleted: bool = False) -> do.Meet:
-    sql, params = pyformat2psql(
+    select_sql, select_params = pyformat2psql(
         sql=fr"SELECT id, status, start_date, end_date, start_time_slot_id, end_time_slot_id,"
             fr"       voting_end_time, title, invite_code, gen_meet_url,"
             fr"       finalized_start_time, finalized_end_time,"
@@ -58,9 +59,10 @@ async def read_meet_by_code(invite_code: str, include_deleted: bool = False) -> 
     )
     id_, status, start_date, end_date, start_time_slot_id, end_time_slot_id, \
     voting_end_time, title, invite_code, gen_meet_url, \
-    finalized_start_time, finalized_end_time, meet_url, description = await pool_handler.pool.fetchrow(sql, *params)
+    finalized_start_time, finalized_end_time, meet_url, description = await pool_handler.pool.fetchrow(select_sql, *select_params)  # noqa
     return do.Meet(id=id_, status=enums.StatusType(status), start_date=start_date, end_date=end_date,
-                   start_time_slot_id=start_time_slot_id, end_time_slot_id=end_time_slot_id, voting_end_time=voting_end_time,
+                   start_time_slot_id=start_time_slot_id, end_time_slot_id=end_time_slot_id,
+                   voting_end_time=voting_end_time,
                    title=title, invite_code=invite_code, gen_meet_url=gen_meet_url,
                    finalized_start_time=finalized_start_time, finalized_end_time=finalized_end_time,
                    meet_url=meet_url, description=description)
@@ -177,5 +179,68 @@ async def edit(meet_id: int,
             fr"   SET {set_sql}"
             fr" WHERE id = %(meet_id)s",
         meet_id=meet_id, **update_params
+    )
+    await pool_handler.pool.execute(sql, *params)
+
+
+async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter], sorters: Sequence[model.Sorter]) \
+        -> list[vo.BrowseMeetByAccount]:
+    column_mapper = {
+        'name': 'meet.title',
+        'host': 'host.username',
+        'status': 'status',
+        'start_date': 'start_date',
+        'end_date': 'end_date',
+        'voting_end_time': 'voting_end_time'
+    }
+    filters = [model.Filter(field=column_mapper[f.field], op=f.op, value=f.value) for f in filters]
+    cond_sql, cond_params = compile_filters(filters=filters)
+    sort_sql = ' ,'.join(f"{sorter.field} {sorter.order}" for sorter in sorters)
+    sql, params = pyformat2psql(
+        sql=fr"SELECT meet.id, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,"
+            fr"       voting_end_time, meet_url, tbl1.member_id, "
+            fr"       host.username"
+            fr"  FROM meet"
+            fr" INNER JOIN meet_member tbl1"
+            fr"         ON meet.id = tbl1.meet_id"
+            fr"        AND tbl1.member_id = %(account_id)s"
+            fr"  LEFT JOIN meet_member tbl2"
+            fr"         ON meet.id = tbl2.meet_id"
+            fr"        AND tbl2.is_host"
+            fr"  LEFT JOIN account host"
+            fr"         ON host.id = tbl2.member_id"
+            fr"        AND NOT is_deleted"
+            fr"   {f'WHERE {cond_sql}' if cond_sql else ''}"
+            fr"   {f'ORDER BY {sort_sql}' if sort_sql else ''}",
+        **cond_params, account_id=account_id,
+    )
+    records = await pool_handler.pool.fetch(sql, *params)
+    return [vo.BrowseMeetByAccount(meet_id=meet_id, host_account_id=host_account_id, host_username=host_username,
+                                   title=title, start_date=start_date, end_date=end_date,
+                                   start_time_slot_id=start_time_slot_id, end_time_slot_id=end_time_slot_id,
+                                   status=enums.StatusType(status), voting_end_time=voting_end_time, meet_url=meet_url)
+            for meet_id, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,
+                voting_end_time, meet_url, host_account_id, host_username in records]  # noqa
+
+
+async def has_voted(meet_id: int, account_id: int) -> bool:
+    sql, params = pyformat2psql(
+        sql=fr'SELECT COUNT(*)'
+            fr'  FROM meet_member_available_time'
+            fr' INNER JOIN meet_member on meet_member_available_time.meet_member_id = meet_member.id'
+            fr' WHERE meet_id = %(meet_id)s'
+            fr'   AND meet_member.member_id = %(account_id)s',
+        meet_id=meet_id, account_id=account_id,
+    )
+    count, = await pool_handler.pool.fetchrow(sql, *params)
+    return count > 0
+
+
+async def update_status(meet_id: int, status: enums.StatusType) -> None:
+    sql, params = pyformat2psql(
+        sql=fr'UPDATE meet'
+            fr'   SET status = %(status)s'
+            fr' WHERE id = %(meet_id)s',
+        status=status, meet_id=meet_id
     )
     await pool_handler.pool.execute(sql, *params)

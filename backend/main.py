@@ -53,6 +53,9 @@ app.add_middleware(starlette_context.middleware.RawContextMiddleware)
 import processor.http
 processor.http.register_routers(app)
 
+import middleware.exception_handler
+app.middleware('http')(middleware.exception_handler.catch_exceptions_middleware)
+
 from starlette.middleware.sessions import SessionMiddleware
 from config import session_config
 app.add_middleware(SessionMiddleware, secret_key=session_config)
