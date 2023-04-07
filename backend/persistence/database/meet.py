@@ -155,7 +155,7 @@ async def edit(meet_id: int,
                start_date: Optional[date] = None, end_date: Optional[date] = None,
                start_time_slot_id: Optional[int] = None, end_time_slot_id: Optional[int] = None,
                description: Optional[str] = None, voting_end_time: Optional[datetime] = None,
-               gen_meet_url: Optional[bool] = False) -> None:
+               gen_meet_url: Optional[bool] = False, status: Optional[enums.StatusType] = None) -> None:
     update_params = {'gen_meet_url': gen_meet_url}
     if title:
         update_params['title'] = title
@@ -171,6 +171,8 @@ async def edit(meet_id: int,
         update_params['description'] = description
     if voting_end_time:
         update_params['voting_end_time'] = voting_end_time
+    if status:
+        update_params['status'] = status
 
     set_sql = ', '.join(fr"{field_name} = %({field_name})s" for field_name in update_params)
 
