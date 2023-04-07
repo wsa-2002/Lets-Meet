@@ -47,7 +47,7 @@ class AddMeetOutput(BaseModel):
 async def add_meet(data: AddMeetInput) -> AddMeetOutput:
     try:
         host_account_id = request.account.id
-    except AttributeError:
+    except exc.NoPermission:
         host_account_id = None
 
     if data.start_date > data.end_date or data.start_time_slot_id > data.end_time_slot_id:
