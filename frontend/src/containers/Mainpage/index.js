@@ -59,7 +59,7 @@ const Mainpage = () => {
     member_ids: [],
     emails: [],
   });
-  const { login } = useMeet();
+  const { login, cookies } = useMeet();
   const navigate = useNavigate();
 
   const handleLogin = () => {
@@ -72,7 +72,6 @@ const Mainpage = () => {
     } else {
       setVotingButton("hidden");
     }
-    console.log(e);
   };
 
   const handleInvite = (e) => {
@@ -89,22 +88,30 @@ const Mainpage = () => {
       } else {
         setMeetData((prev) => ({
           ...prev,
-          [name[0]]: func(e[0]),
-          [name[1]]: func(e[1]),
+          [name[0]]: func(e[0], 1),
+          [name[1]]: func(e[1], 0),
         }));
       }
     };
 
   const handleMeetCreate = async () => {
     try {
-      const result = await AXIOS.addMeet({
-        ...meetData,
-        voting_end_time: moment(
-          meetData.voting_end_date + " " + meetData.voting_end_time,
-          "YYYY-MM-DD HH-mm-ss"
-        ).toISOString(),
-      });
-      console.log(result);
+      // console.log(
+      //   moment(
+      //     meetData.voting_end_date + " " + meetData.voting_end_time,
+      //     "YYYY-MM-DD HH-mm-ss"
+      //   ).toISOString()
+      // );
+      const result = await AXIOS.addMeet(
+        {
+          ...meetData,
+          voting_end_time: moment(
+            meetData.voting_end_date + " " + meetData.voting_end_time,
+            "YYYY-MM-DD HH-mm-ss"
+          ).toISOString(),
+        },
+        cookies.token
+      );
     } catch (e) {
       console.log(e);
     }
@@ -131,7 +138,7 @@ const Mainpage = () => {
       <TimePicker.RangePicker
         style={{ width: "60%" }}
         onChange={handleMeetDataChange(
-          (i) => (i.hour() * 60 + i.minute()) / 30 + 1,
+          (i, plus) => (i.hour() * 60 + i.minute()) / 30 + plus,
           "start_time_slot_id",
           "end_time_slot_id"
         )}

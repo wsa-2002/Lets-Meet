@@ -46,8 +46,6 @@ const LogIn = () => {
       alert(e);
       console.log(e);
     }
-    // window.open("http://localhost:8000/google-login", "_self");
-    // window.location.assign(result.data._headers.location);
   };
 
   const handleLoginChange = (e) => {
