@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
-import { Input, Button, Typography, Divider } from "antd";
+import { Input, Button, Typography, Divider, Image } from "antd";
 import * as AXIOS from "../middleware";
+import googleIcon from '../resources/google.png';
+
 const { Text, Link } = Typography;
 
 const LogIn = () => {
@@ -25,6 +27,7 @@ const LogIn = () => {
     if (name === "Username") {
       if (/[#$%&\*\\\/]/.test(value)) {
         setValidName(false);
+        console.log("bad");
       } else {
         setValidName(true);
       }
@@ -89,7 +92,16 @@ const LogIn = () => {
             Sign Up
           </Button>
           <Divider>or</Divider>
-          <div id="buttonDiv" style={{ marginBottom: "30px" }}></div>
+          <Button
+            style={{ marginBottom: "30px" }}
+            // icon="../resources/google.png"
+            onClick={() => {
+              window.open("http://localhost:8000/google-login", "_self");
+            }}
+          >
+            <Image width="20px" src={googleIcon}/>
+            <Text style={{marginLeft: "20px"}}>Login with Google</Text>
+          </Button>
         </div>
       </div>
       <div className="leftFooter">

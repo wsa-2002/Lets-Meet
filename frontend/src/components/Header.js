@@ -11,7 +11,7 @@ const Header = ({ location = "none" }) => {
     <div className="header">
       <Button
         type="link"
-        stylse={{
+        style={{
           fontSize: "28px",
           fontFamily: "Lobster",
           color: "#FFA601",
