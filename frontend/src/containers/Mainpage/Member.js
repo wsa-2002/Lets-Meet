@@ -2,25 +2,55 @@ import { Mentions } from "antd";
 import debounce from "lodash/debounce";
 import { useEffect } from "react";
 import { useCallback, useRef, useState } from "react";
+import { member } from "../../middleware";
+const { Option } = Mentions;
 
 const Member = () => {
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([
+    {
+      // key: "No Result",
+      value: "No Result",
+      label: "No Result",
+      disabled: true,
+    },
+  ]);
   const ref = useRef();
 
   const loadGithubUsers = async (key) => {
     if (!key) {
-      setUsers([]);
+      setUsers([
+        {
+          // key: "No Result",
+          value: "No Result",
+          label: "No Result",
+          disabled: true,
+        },
+      ]);
       return;
     }
-    const response = await fetch(
-      `https://api.github.com/search/users?q=${key}`
-    );
-    const { items = [] } = await response.json();
-    console.log(ref.current, key);
+    const {
+      data: { accounts },
+    } = await member(key);
+    console.log(accounts);
     if (ref.current !== key) return;
     setLoading(false);
-    setUsers(items.slice(0, 10));
+    setUsers(
+      accounts.length !== 0
+        ? accounts.slice(0, 10).map((m) => ({
+            // key: m.username,
+            value: m.username,
+            label: m.username,
+          }))
+        : [
+            {
+              // key: "No Result",
+              value: "No Result",
+              label: "No Result",
+              disabled: true,
+            },
+          ]
+    );
   };
 
   const debounceLoadGithubUsers = useCallback(
@@ -32,49 +62,18 @@ const Member = () => {
     console.log("Search:", search);
     ref.current = search;
     setLoading(!!search);
-    setUsers([]);
+    setUsers([
+      {
+        // key: "No Result",
+        value: "No Result",
+        label: "No Result",
+        disabled: true,
+      },
+    ]);
     debounceLoadGithubUsers(search);
   };
-
-  return (
-    <Mentions
-      style={{
-        width: "100%",
-      }}
-      loading={loading}
-      onSearch={onSearch}
-      options={
-        users.length !== 0
-          ? users.map(({ login, avatar_url: avatar }) => ({
-              key: login,
-              value: login,
-              className: "antd-demo-dynamic-option",
-              label: (
-                <>
-                  <img
-                    src={avatar}
-                    alt={login}
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      marginRight: "8px",
-                    }}
-                  />
-                  <span>{login}</span>
-                </>
-              ),
-            }))
-          : [
-              {
-                key: "No Result",
-                value: "No Result",
-                label: "No Result",
-                disabled: true,
-              },
-            ]
-      }
-    />
-  );
+  const options = [{ value: "sample", label: "sample" }];
+  return <Mentions options={options} />;
 };
 
 export default Member;
