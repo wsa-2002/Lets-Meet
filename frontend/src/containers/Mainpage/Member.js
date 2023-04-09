@@ -38,13 +38,13 @@ const Member = () => {
     setUsers(
       accounts.length !== 0
         ? accounts.slice(0, 10).map((m) => ({
-            // key: m.username,
+            key: m.username,
             value: m.username,
             label: m.username,
           }))
         : [
             {
-              // key: "No Result",
+              key: "No Result",
               value: "No Result",
               label: "No Result",
               disabled: true,
@@ -72,8 +72,16 @@ const Member = () => {
     ]);
     debounceLoadGithubUsers(search);
   };
-  const options = [{ value: "sample", label: "sample" }];
-  return <Mentions options={options} />;
+  return (
+    <Mentions
+      style={{
+        width: "100%",
+      }}
+      loading={loading}
+      onSearch={onSearch}
+      options={users}
+    />
+  );
 };
 
 export default Member;
