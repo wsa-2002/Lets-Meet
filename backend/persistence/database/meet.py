@@ -65,9 +65,12 @@ async def read_meet_by_code(invite_code: str, include_deleted: bool = False) -> 
             fr" {'AND NOT is_deleted' if not include_deleted else ''}",
         invite_code=invite_code
     )
-    id_, status, start_date, end_date, start_time_slot_id, end_time_slot_id, \
-    voting_end_time, title, invite_code, gen_meet_url, \
-    finalized_start_time, finalized_end_time, meet_url, description = await pool_handler.pool.fetchrow(select_sql, *select_params)  # noqa
+    try:
+        id_, status, start_date, end_date, start_time_slot_id, end_time_slot_id, \
+        voting_end_time, title, invite_code, gen_meet_url, \
+        finalized_start_time, finalized_end_time, meet_url, description = await pool_handler.pool.fetchrow(select_sql, *select_params)  # noqa
+    except TypeError:
+        raise exc.NotFound
     return do.Meet(id=id_, status=enums.StatusType(status), start_date=start_date, end_date=end_date,
                    start_time_slot_id=start_time_slot_id, end_time_slot_id=end_time_slot_id,
                    voting_end_time=voting_end_time,
@@ -87,9 +90,12 @@ async def read(meet_id: int, include_deleted: bool = False) -> do.Meet:
             fr" {'AND NOT is_deleted' if not include_deleted else ''}",
         meet_id=meet_id,
     )
-    id_, status, start_date, end_date, start_time_slot_id, end_time_slot_id, \
-    voting_end_time, title, invite_code, gen_meet_url, \
-    finalized_start_time, finalized_end_time, meet_url, description = await pool_handler.pool.fetchrow(sql, *params)
+    try:
+        id_, status, start_date, end_date, start_time_slot_id, end_time_slot_id, \
+        voting_end_time, title, invite_code, gen_meet_url, \
+        finalized_start_time, finalized_end_time, meet_url, description = await pool_handler.pool.fetchrow(sql, *params)
+    except TypeError:
+        raise exc.NotFound
     return do.Meet(id=id_, status=enums.StatusType(status), start_date=start_date, end_date=end_date,
                    start_time_slot_id=start_time_slot_id, end_time_slot_id=end_time_slot_id,
                    voting_end_time=voting_end_time,
@@ -126,13 +132,13 @@ async def delete(meet_id: int) -> None:
 
 async def get_member_id_and_auth(meet_id: int) -> dict[int, bool]:
     sql, params = pyformat2psql(
-        sql=fr"SELECT member_id, is_host"
+        sql=fr"SELECT member_id, name, is_host"
             fr"  FROM meet_member"
             fr" WHERE meet_id = %(meet_id)s",
         meet_id=meet_id
     )
     record = await pool_handler.pool.fetch(sql, *params)
-    return {id_: is_host for id_, is_host in record}
+    return {(id_, name): is_host for id_, name, is_host in record}
 
 
 async def leave(meet_id: int, account_id: int) -> None:
@@ -252,5 +258,15 @@ async def update_status(meet_id: int, status: enums.StatusType) -> None:
             fr'   SET status = %(status)s'
             fr' WHERE id = %(meet_id)s',
         status=status, meet_id=meet_id
+    )
+    await pool_handler.pool.execute(sql, *params)
+
+
+async def add_member(meet_id: int, account_id: Optional[int] = None, name: Optional[str] = None) -> None:
+    sql, params = pyformat2psql(
+        sql=fr'INSERT INTO meet_member'
+            fr'            (name, member_id, meet_id)'
+            fr'     VALUES (%(name)s, %(member_id)s, %(meet_id)s)',
+        name=name, member_id=account_id, meet_id=meet_id,
     )
     await pool_handler.pool.execute(sql, *params)
