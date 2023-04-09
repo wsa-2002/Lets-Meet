@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Sequence, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, responses, Depends, Response
@@ -98,7 +98,7 @@ class AccountInfo(BaseModel):
 
 
 class SearchAccountOutput(BaseModel):
-    accounts: Sequence[AccountInfo]
+    accounts: Optional[Sequence[AccountInfo]]
 
 
 @router.get('/account/search')

@@ -110,8 +110,9 @@ async def search(identifier: str) -> Sequence[do.Account]:
         sql=fr"SELECT id, username, email, notification_preference, is_google_login,"
             fr"       line_token, google_token"
             fr"  FROM account"
-            fr" WHERE username LIKE %(like_sql)s"
-            fr"    OR email LIKE %(like_sql)s"
+            fr" WHERE (username LIKE %(like_sql)s"
+            fr"    OR email LIKE %(like_sql)s)"
+            fr"   AND email IS NOT NULL"
             fr" ORDER BY id",
         like_sql=like_sql,
     )

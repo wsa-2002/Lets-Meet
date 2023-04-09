@@ -79,6 +79,11 @@ async def add_meet(data: AddMeetInput) -> AddMeetOutput:
     return AddMeetOutput(id=meet_id)
 
 
+class MemberInfo(BaseModel):
+    member_id: Optional[int]
+    name: Optional[str]
+
+
 class ReadMeetOutput(BaseModel):
     id: int
     status: enums.StatusType
@@ -94,31 +99,31 @@ class ReadMeetOutput(BaseModel):
     finalized_end_time: Optional[datetime] = None
     meet_url: Optional[str] = None
     description: Optional[str] = None
-    host_id: Optional[int] = None
-    member_ids: Optional[Sequence[int]] = None
+    host_info: Optional[MemberInfo] = None
+    member_infos: Optional[Sequence[MemberInfo]] = None
 
 
 @router.get('/meet/{meet_id}')
 @enveloped
 async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
-    if name and not db.meet.is_authed(meet_id, name=name):
+    if name and not await db.meet.is_authed(meet_id, name=name):
         raise exc.NoPermission
-    elif not await db.meet.is_authed(meet_id, request.account.id):
+    elif not name and not await db.meet.is_authed(meet_id, request.account.id):
         raise exc.NoPermission
 
     meet = await db.meet.read(meet_id=meet_id)
-    if meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
+    if meet.voting_end_time and meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
         await db.meet.update_status(meet.id, enums.StatusType.waiting_for_confirm)
         meet.status = enums.StatusType.waiting_for_confirm
 
     member_auth = await db.meet.get_member_id_and_auth(meet_id)
-    host_id = None
-    member_ids = []
-    for k, v in member_auth.items():
+    host = None
+    member_infos = []
+    for (id_, name), v in member_auth.items():
         if v:
-            host_id = k
+            host = MemberInfo(member_id=id_, name=name)
         else:
-            member_ids.append(k)
+            member_infos.append(MemberInfo(member_id=id_, name=name))
 
     return ReadMeetOutput(
         id=meet.id,
@@ -135,8 +140,8 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
         finalized_end_time=meet.finalized_end_time,
         meet_url=meet.meet_url,
         description=meet.description,
-        host_id=host_id,
-        member_ids=member_ids,
+        host_info=host,
+        member_infos=member_infos,
     )
 
 
@@ -242,3 +247,66 @@ async def browse_meet(filters: Sequence[model.Filter] = Depends(meet_filter),
         meets[i] = meet
 
     return meets
+
+
+class JoinMeetInput(BaseModel):
+    invite_code: str
+    name: Optional[str]
+
+
+@router.post('/meet/invite')
+@enveloped
+async def join_meet_by_invite_code(data: JoinMeetInput):
+    try:
+        account_id = request.account.id
+    except exc.NoPermission:
+        if not data.name:
+            raise exc.IllegalInput
+        account_id = None
+
+    meet = await db.meet.read_meet_by_code(invite_code=data.invite_code)
+    await db.meet.add_member(meet_id=meet.id, account_id=account_id, name=data.name)
+
+
+@router.get('/meet/invite/{invite_code}')
+@enveloped
+async def read_meet_by_code(invite_code: str, name: Optional[str] = None) -> ReadMeetOutput:
+    meet = await db.meet.read_meet_by_code(invite_code=invite_code)
+    meet_id = meet.id
+    if name and not await db.meet.is_authed(meet_id, name=name):
+        raise exc.NoPermission
+    elif not name and not await db.meet.is_authed(meet_id, request.account.id):
+        raise exc.NoPermission
+
+    meet = await db.meet.read(meet_id=meet_id)
+    if meet.voting_end_time and meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
+        await db.meet.update_status(meet.id, enums.StatusType.waiting_for_confirm)
+        meet.status = enums.StatusType.waiting_for_confirm
+
+    member_auth = await db.meet.get_member_id_and_auth(meet_id)
+    host = None
+    member_infos = []
+    for (id_, name), v in member_auth.items():
+        if v:
+            host = MemberInfo(member_id=id_, name=name)
+        else:
+            member_infos.append(MemberInfo(member_id=id_, name=name))
+
+    return ReadMeetOutput(
+        id=meet.id,
+        status=meet.status,
+        start_date=meet.start_date,
+        end_date=meet.end_date,
+        start_time_slot_id=meet.start_time_slot_id,
+        end_time_slot_id=meet.end_time_slot_id,
+        voting_end_time=meet.voting_end_time,
+        meet_name=meet.title,
+        invite_code=meet.invite_code,
+        gen_meet_url=meet.gen_meet_url,
+        finalized_start_time=meet.finalized_start_time,
+        finalized_end_time=meet.finalized_end_time,
+        meet_url=meet.meet_url,
+        description=meet.description,
+        host_info=host,
+        member_infos=member_infos,
+    )

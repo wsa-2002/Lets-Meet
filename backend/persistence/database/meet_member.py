@@ -7,5 +7,3 @@ import asyncpg
 
 from .util import pyformat2psql
 from . import pool_handler
-
-
