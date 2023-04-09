@@ -1,11 +1,12 @@
-from datetime import datetime, date, time
+import typing
+from datetime import datetime, date
 import random
 from typing import Optional, Sequence
 
 from fastapi import APIRouter, responses, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Json
 
-from base import enums
+from base import enums, model, vo
 import const
 from middleware.envelope import enveloped
 from middleware.headers import get_auth_token
@@ -14,7 +15,7 @@ import persistence.database as db
 import exceptions as exc  # noqa
 
 
-from .util import timezone_validate
+from .util import parse_filter, parse_sorter, timezone_validate
 
 router = APIRouter(
     tags=['Meet'],
@@ -30,6 +31,7 @@ class AddMeetInput(BaseModel):
     start_time_slot_id: int
     end_time_slot_id: int
     gen_meet_url: bool
+    guest_name: Optional[str] = None
     voting_end_time: Optional[datetime] = None
     description: Optional[str] = None
     member_ids: Optional[Sequence[int]] = None
@@ -45,8 +47,21 @@ class AddMeetOutput(BaseModel):
 async def add_meet(data: AddMeetInput) -> AddMeetOutput:
     try:
         host_account_id = request.account.id
-    except AttributeError:
+    except exc.NoPermission:
+        if not data.guest_name:
+            raise exc.IllegalInput
         host_account_id = None
+
+    if data.start_date > data.end_date or data.start_time_slot_id > data.end_time_slot_id:
+        raise exc.IllegalInput
+
+    converted_voting_end_time = timezone_validate(data.voting_end_time) if data.voting_end_time else None
+    if converted_voting_end_time and converted_voting_end_time < datetime.now():
+        raise exc.IllegalInput
+
+    if not 0 < data.start_time_slot_id < 49 and not 0 < data.end_time_slot_id < 49:
+        raise exc.IllegalInput
+
     invite_code = ''.join(random.choice(const.AVAILABLE_CODE_CHAR) for _ in range(const.INVITE_CODE_LENGTH))
     meet_id = await db.meet.add(
         title=data.meet_name,
@@ -55,7 +70,7 @@ async def add_meet(data: AddMeetInput) -> AddMeetOutput:
         end_date=data.end_date,
         start_time_slot_id=data.start_time_slot_id,
         end_time_slot_id=data.end_time_slot_id,
-        voting_end_time=timezone_validate(data.voting_end_time),
+        voting_end_time=converted_voting_end_time,
         gen_meet_url=data.gen_meet_url,
         host_member_id=host_account_id,
         member_ids=data.member_ids,
@@ -90,7 +105,12 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
         raise exc.NoPermission
     elif not await db.meet.is_authed(meet_id, request.account.id):
         raise exc.NoPermission
+
     meet = await db.meet.read(meet_id=meet_id)
+    if meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
+        await db.meet.update_status(meet.id, enums.StatusType.waiting_for_confirm)
+        meet.status = enums.StatusType.waiting_for_confirm
+
     member_auth = await db.meet.get_member_id_and_auth(meet_id)
     host_id = None
     member_ids = []
@@ -99,6 +119,7 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
             host_id = k
         else:
             member_ids.append(k)
+
     return ReadMeetOutput(
         id=meet.id,
         status=meet.status,
@@ -150,6 +171,24 @@ class EditMeetInput(BaseModel):
 async def edit_meet(meet_id: int, data: EditMeetInput) -> None:
     if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
         raise exc.NoPermission
+
+    meet = await db.meet.read(meet_id=meet_id)
+    meet.start_date = data.start_date or meet.start_date
+    meet.end_date = data.end_date or meet.end_date
+    meet.start_time_slot_id = data.start_time_slot_id or meet.start_time_slot_id
+    meet.end_time_slot_id = data.end_time_slot_id
+    meet.voting_end_time = data.voting_end_time or meet.voting_end_time
+
+    if meet.start_date > meet.end_date:
+        raise exc.IllegalInput
+
+    if meet.start_time_slot_id > meet.end_time_slot_id:
+        raise exc.IllegalInput
+
+    status = enums.StatusType.voting
+    if meet.voting_end_time and meet.voting_end_time < request.time:
+        status = enums.StatusType.waiting_for_confirm
+
     await db.meet.edit(
         meet_id=meet_id,
         title=data.title,
@@ -158,6 +197,48 @@ async def edit_meet(meet_id: int, data: EditMeetInput) -> None:
         start_time_slot_id=data.start_time_slot_id,
         end_time_slot_id=data.end_time_slot_id,
         description=data.description,
-        voting_end_time=data.voting_end_time,
+        voting_end_time=timezone_validate(data.voting_end_time),
         gen_meet_url=data.gen_meet_url,
+        status=status,
     )
+
+
+BROWSE_MEET_COLUMNS = {
+    'name': str,
+    'host': str,
+    'status': enums.StatusType,
+    'start_date': date,
+    'end_date': date,
+    'voting_end_time': datetime,
+}
+
+
+async def meet_filter(filters: typing.Optional[Json] = None) -> Sequence[model.Filter]:
+    return parse_filter(BROWSE_MEET_COLUMNS, filters)
+
+
+async def meet_sorter(sorters: typing.Optional[Json] = None) -> Sequence[model.Sorter]:
+    return parse_sorter(BROWSE_MEET_COLUMNS, sorters)
+
+
+@router.get('/meet')
+@enveloped
+async def browse_meet(filters: Sequence[model.Filter] = Depends(meet_filter),
+                      sorters: Sequence[model.Sorter] = Depends(meet_sorter))\
+        -> Sequence[vo.BrowseMeetByAccount]:
+    # TODO: find ways to use partial function in Depends
+
+    meets = await db.meet.browse_by_account_id(account_id=request.account.id, filters=filters, sorters=sorters)
+    now = request.time
+    for i, meet in enumerate(meets):
+        if now <= meet.voting_end_time:
+            if await db.meet.has_voted(meet.meet_id, request.account.id):
+                meet.status = enums.StatusType.voted
+            else:
+                meet.status = enums.StatusType.voting
+        elif now > meet.voting_end_time and meet.status is enums.StatusType.voting:
+            await db.meet.update_status(meet.meet_id, enums.StatusType.waiting_for_confirm)
+            meet.status = enums.StatusType.waiting_for_confirm
+        meets[i] = meet
+
+    return meets

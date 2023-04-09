@@ -1,14 +1,15 @@
 import styled from "styled-components";
 import "@fontsource/roboto/500.css";
 import { Input, Button, DatePicker, TimePicker, Switch, Space } from "antd";
-import { ArrowRightOutlined, LogoutOutlined } from "@ant-design/icons";
-import "../css/Background.css";
+import { ArrowRightOutlined } from "@ant-design/icons";
+import "../../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import {Header} from "../components/Header";
-import { useMeet } from "./hooks/useMeet";
+import { useMeet } from "../hooks/useMeet";
 import moment from "moment";
-import * as AXIOS from "../middleware";
+import * as AXIOS from "../../middleware";
+import Member from "./Member";
+import { Header } from "../../components/Header";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -58,7 +59,7 @@ const Mainpage = () => {
     member_ids: [],
     emails: [],
   });
-  const { login } = useMeet();
+  const { login, cookies } = useMeet();
   const navigate = useNavigate();
 
   const handleLogin = () => {
@@ -71,7 +72,6 @@ const Mainpage = () => {
     } else {
       setVotingButton("hidden");
     }
-    console.log(e);
   };
 
   const handleInvite = (e) => {
@@ -88,25 +88,31 @@ const Mainpage = () => {
       } else {
         setMeetData((prev) => ({
           ...prev,
-          [name[0]]: func(e[0]),
-          [name[1]]: func(e[1]),
+          [name[0]]: func(e[0], 1),
+          [name[1]]: func(e[1], 0),
         }));
       }
     };
 
   const handleMeetCreate = async () => {
     try {
-      // console.log(meetData);
-      const result = await AXIOS.addMeet({
-        ...meetData,
-        voting_end_time: moment(
-          meetData.voting_end_date + " " + meetData.voting_end_time,
-          "YYYY-MM-DD HH-mm-ss"
-        ).toISOString(),
-      });
-      console.log(result);
+      // console.log(
+      //   moment(
+      //     meetData.voting_end_date + " " + meetData.voting_end_time,
+      //     "YYYY-MM-DD HH-mm-ss"
+      //   ).toISOString()
+      // );
+      const result = await AXIOS.addMeet(
+        {
+          ...meetData,
+          voting_end_time: moment(
+            meetData.voting_end_date + " " + meetData.voting_end_time,
+            "YYYY-MM-DD HH-mm-ss"
+          ).toISOString(),
+        },
+        cookies.token
+      );
     } catch (e) {
-      alert(e);
       console.log(e);
     }
   };
@@ -132,7 +138,7 @@ const Mainpage = () => {
       <TimePicker.RangePicker
         style={{ width: "60%" }}
         onChange={handleMeetDataChange(
-          (i) => (i.hour() * 60 + i.minute()) / 30 + 1,
+          (i, plus) => (i.hour() * 60 + i.minute()) / 30 + plus,
           "start_time_slot_id",
           "end_time_slot_id"
         )}
@@ -151,7 +157,7 @@ const Mainpage = () => {
     ),
     Member: (
       <div>
-        <Input style={{ borderRadius: "5px", width: "80%" }} />
+        <Member style={{ borderRadius: "5px", width: "80%" }} />
         <Button style={{ background: "#5A8EA4", color: "white" }}>+</Button>
       </div>
     ),
@@ -185,7 +191,7 @@ const Mainpage = () => {
 
   return (
     <div className="mainContainer">
-      {login ? <Header/>: <></>}
+      {login && <Header />}
       <div className="leftContainer">
         <JoinMeet>
           <div
