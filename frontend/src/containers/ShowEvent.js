@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import "@fontsource/roboto/500.css";
-import { Input, Button, DatePicker, TimePicker, Space, Table, Tag } from "antd";
+import { Input, Button, Modal, Form } from "antd";
 import "../css/Background.css";
 import { ArrowLeftOutlined} from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
@@ -72,11 +72,34 @@ const addHexColor = (c1, c2) => {
 
 const ShowEvent = () => {
     const [isLogin, setIsLogin] = useState(true); // 如果login會顯示header，沒有的話會顯示login
+    const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
+    const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
     const navigate = useNavigate();
+    const [form] = Form.useForm();
 
     const handleMeet = () => {
         navigate('/meets');
     }
+
+    const showLeaveModal = () => {
+        setIsModalLeaveOpen(true);
+    };
+    const handleLeaveOk = () => {
+        setIsModalLeaveOpen(false);
+    };
+    const handleLeaveCancel = () => {
+        setIsModalLeaveOpen(false);
+    };
+
+    const showVoteModal = () => {
+        setIsModalVoteOpen(true);
+    };
+    const handleVoteOk = () => {
+        setIsModalVoteOpen(false);
+    };
+    const handleVoteCancel = () => {
+        setIsModalVoteOpen(false);
+    };
 
     const handleShow = (i, j) => {
         // setAvaList(showList[i][j].availablePpl);
@@ -130,8 +153,8 @@ const ShowEvent = () => {
                     </div>
                     ))}
                 </div>
-                <Button style={{marginLeft: "65%", marginTop: "35px", marginRight: "5px"}}>Leave Meet</Button>
-                <Button style={{marginTop: "35px"}}>Vote</Button>
+                <Button style={{marginLeft: "65%", marginTop: "35px", marginRight: "5px"}} onClick={showLeaveModal}>Leave Meet</Button>
+                <Button style={{marginTop: "35px"}} onClick={showVoteModal}>Vote</Button>
             </CreateMeet>
         </div>
         <div className="rightContainer">
@@ -165,6 +188,48 @@ const ShowEvent = () => {
                     ))}
                 </div>
             </FormWrapper>
+            <Modal title="Are you sure you want to leave this meet?" style={{fontFamily: "Nunito"}}
+                open={isModalLeaveOpen} onOk={handleLeaveOk} onCancel={handleLeaveCancel} okText="Yes"
+                cancelText="No">
+            </Modal>
+            <Modal title="" style={{fontFamily: "Nunito"}}
+                open={isModalVoteOpen} onOk={handleVoteOk} onCancel={handleVoteCancel} okText="Ok"
+                cancelText="Cancel">
+                <Form form={form} layout="vertical" name="form_in_modal">
+                    <Form.Item
+                        name="name"
+                        label="Your name"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Error: Please enter your name!',
+                            },
+                        ]}
+                    >
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name="Password" label="Password(Optional)">
+                        <Input />
+                    </Form.Item>
+                </Form>
+                {/* <Input
+                    placeholder="Your name"
+                    style={{
+                    borderRadius: "15px",
+                    marginTop: "30px",
+                    marginBottom: "20px",
+                    }}
+                    name="user_identifier"
+                />
+                <Input
+                    placeholder="Password(Optional)"
+                    style={{
+                    borderRadius: "15px",
+                    // marginBttom: "30px",
+                    }}
+                    name="password"
+                /> */}
+            </Modal>
         </div>
         <div className="leftFooter" style={{background: "white"}}>
             <div>中文 | English</div>
