@@ -4,10 +4,12 @@ import { useLocation } from "react-router-dom";
 import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
-import { Input, Button, Typography, Divider, notification } from "antd";
+import { Input, Button, Typography, Divider, Image } from "antd";
 import { useNavigate } from "react-router-dom";
 import * as AXIOS from "../middleware";
 import { useMeet } from "./hooks/useMeet";
+import googleIcon from '../resources/google.png';
+
 const { Text, Link } = Typography;
 
 const LogIn = () => {
@@ -118,15 +120,17 @@ const LogIn = () => {
             Login
           </Button>
           <Divider>or</Divider>
-          {/* <div id="buttonDiv" style={{ marginBottom: "30px" }}></div> */}
-          <button
+          <Button
             style={{ marginBottom: "30px" }}
+            // icon="../resources/google.png"
             onClick={() => {
               window.open("http://localhost:8000/google-login", "_self");
             }}
           >
-            google login
-          </button>
+            <Image width="20px" src={googleIcon}/>
+            <Text style={{marginLeft: "20px"}}>Login with Google</Text>
+          </Button>
+          <br/>
           <Text
             type="secondary"
             style={

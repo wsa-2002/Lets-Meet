@@ -9,7 +9,7 @@ const Header = ({location="none"}) => { //location表示現在在哪個頁面
     return (
         <div className="header">
             <Button type="link" style={{fontSize: "28px", fontFamily: "Lobster", color: "#FFA601",
-                marginRight: "10%", height: "100%"}}>Let's Meet</Button>
+                height: "100%"}}>Let's Meet</Button>
             {location==="meet" ? <Button type="link" style={{fontSize: "24px", fontFamily: "Nunito",
                 color: "#DB8600", backgroundColor: "#FDF3D1", height: "100%"}}>Meets</Button> : <Button type="link"
                 style={{fontSize: "24px", fontFamily: "Nunito", color: "#808080", height: "100%"}}>Meets</Button>}
