@@ -12,7 +12,7 @@ import {
 import { ArrowRightOutlined } from "@ant-design/icons";
 import "../../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useMeet } from "../hooks/useMeet";
 import moment from "moment";
 import * as AXIOS from "../../middleware";
@@ -70,6 +70,7 @@ const Mainpage = () => {
   const { login, cookies } = useMeet();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+  const invite = useRef(null);
   const [form] = Form.useForm();
 
   const handleLogin = () => {
@@ -86,7 +87,7 @@ const Mainpage = () => {
 
   const handleInvite = (e) => {
     if (e?.key === "Enter" || !e.key) {
-      alert("Invite");
+      alert(invite.current.input.value);
     }
   };
 
@@ -236,6 +237,7 @@ const Mainpage = () => {
                 height: "45px",
                 borderRadius: "15px",
               }}
+              ref={invite}
               onKeyDown={handleInvite}
             />
             <Button
