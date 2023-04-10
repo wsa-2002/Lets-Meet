@@ -74,6 +74,7 @@ async def add_meet(data: AddMeetInput) -> AddMeetOutput:
         gen_meet_url=data.gen_meet_url,
         host_member_id=host_account_id,
         member_ids=data.member_ids,
+        description=data.description
     )
     # TODO: send email to members and emails
 
