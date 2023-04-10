@@ -341,13 +341,9 @@ async def join_meet_by_invite_code(data: JoinMeetInput):
 
 @router.get('/meet/invite/{invite_code}')
 @enveloped
-async def read_meet_by_code(invite_code: str, name: Optional[str] = None) -> ReadMeetOutput:
+async def read_meet_by_code(invite_code: str) -> ReadMeetOutput:
     meet = await db.meet.read_meet_by_code(invite_code=invite_code)
     meet_id = meet.id
-    if name and not await db.meet.is_authed(meet_id, name=name):
-        raise exc.NoPermission
-    elif not name and not await db.meet.is_authed(meet_id, request.account.id):
-        raise exc.NoPermission
 
     meet = await db.meet.read(meet_id=meet_id)
     if meet.voting_end_time and meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
