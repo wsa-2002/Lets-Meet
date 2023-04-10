@@ -86,6 +86,8 @@ async def add_meet(data: AddMeetInput) -> AddMeetOutput:
     host = None
     member_infos = []
     for (id_, name), v in member_auth.items():
+        if not name:
+            name = (await db.account.read(account_id=id_)).username
         if v:
             host = MemberInfo(member_id=id_, name=name)
         else:
@@ -152,6 +154,8 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
     host = None
     member_infos = []
     for (id_, name), v in member_auth.items():
+        if not name:
+            name = (await db.account.read(account_id=id_)).username
         if v:
             host = MemberInfo(member_id=id_, name=name)
         else:
@@ -307,6 +311,8 @@ async def join_meet_by_invite_code(data: JoinMeetInput):
     host = None
     member_infos = []
     for (id_, name), v in member_auth.items():
+        if not name:
+            name = (await db.account.read(account_id=id_)).username
         if v:
             host = MemberInfo(member_id=id_, name=name)
         else:
@@ -351,6 +357,8 @@ async def read_meet_by_code(invite_code: str, name: Optional[str] = None) -> Rea
     host = None
     member_infos = []
     for (id_, name), v in member_auth.items():
+        if not name:
+            name = (await db.account.read(account_id=id_)).username
         if v:
             host = MemberInfo(member_id=id_, name=name)
         else:

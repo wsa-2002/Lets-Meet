@@ -45,11 +45,12 @@ async def update_username(account_id: int, username: str) -> None:
     await pool_handler.pool.execute(sql, *params)
 
 
-async def read_by_email(email: str, is_google_login: bool = False) -> do.Account:
+async def read_by_email(email: str, is_google_login: bool = None) -> do.Account:
     sql, params = pyformat2psql(
         sql=fr"SELECT id, email, username, line_token, google_token, notification_preference, is_google_login"
             fr"  FROM account"
-            fr" WHERE email = %(email)s AND is_google_login = %(is_google_login)s",
+            fr" WHERE email = %(email)s"
+            fr" {'AND is_google_login = %(is_google_login)s' if is_google_login is not None else ''}",
         email=email, is_google_login=is_google_login,
     )
     try:
@@ -123,3 +124,20 @@ async def search(identifier: str) -> Sequence[do.Account]:
                        is_google_login=is_google_login, line_token=line_token, google_token=google_token)
             for id_, username, email, notification_preference,
             is_google_login, line_token, google_token in records]
+
+
+async def read(account_id: int) -> do.Account:
+    sql, params = pyformat2psql(
+        sql=fr"SELECT id, username, email, notification_preference, is_google_login,"
+            fr"       line_token, google_token"
+            fr"  FROM account"
+            fr" WHERE id = %(account_id)s",
+        account_id=account_id,
+    )
+    try:
+        id_, email, username, line_token, google_token, notification_preference, is_google_login = \
+            await pool_handler.pool.fetchrow(sql, *params)
+    except TypeError:
+        raise exc.NotFound
+    return do.Account(id=id_, email=email, username=username, line_token=line_token, google_token=google_token,
+                      notification_preference=notification_preference, is_google_login=is_google_login)
