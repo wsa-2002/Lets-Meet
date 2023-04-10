@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
-import { Input, Button, Typography, Divider, Image } from "antd";
+import { Input, Button, Typography, Divider, Image, notification } from "antd";
 import { useNavigate } from "react-router-dom";
 import * as AXIOS from "../middleware";
 import { useMeet } from "./hooks/useMeet";
@@ -20,6 +20,7 @@ const LogIn = () => {
   const search = useLocation().search;
   const { login, GLOBAL_LOGIN } = useMeet();
   const navigate = useNavigate();
+  const [api, contextHolder] = notification.useNotification();
 
   useEffect(() => {
     if (login) {
@@ -40,6 +41,10 @@ const LogIn = () => {
       const result = await AXIOS.login(loginData);
       if (result.error) {
         alert("登入失敗");
+        api.open({
+          message: 'Login failed',
+          description: "Username/Email has already been linked to Google. Please login with Google.",
+        });
       } else {
         console.log(result);
         GLOBAL_LOGIN(result.data.token);
@@ -47,6 +52,10 @@ const LogIn = () => {
     } catch (e) {
       alert(e);
       console.log(e);
+      api.open({
+        message: 'Login failed',
+        description: "",
+      });
     }
   };
 
