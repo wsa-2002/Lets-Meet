@@ -76,7 +76,39 @@ async def add_meet(data: AddMeetInput) -> AddMeetOutput:
         member_ids=data.member_ids,
     )
     # TODO: send email to members and emails
-    return AddMeetOutput(id=meet_id)
+
+    meet = await db.meet.read(meet_id=meet_id)
+    if meet.voting_end_time and meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
+        await db.meet.update_status(meet.id, enums.StatusType.waiting_for_confirm)
+        meet.status = enums.StatusType.waiting_for_confirm
+
+    member_auth = await db.meet.get_member_id_and_auth(meet_id)
+    host = None
+    member_infos = []
+    for (id_, name), v in member_auth.items():
+        if v:
+            host = MemberInfo(member_id=id_, name=name)
+        else:
+            member_infos.append(MemberInfo(member_id=id_, name=name))
+
+    return ReadMeetOutput(
+        id=meet.id,
+        status=meet.status,
+        start_date=meet.start_date,
+        end_date=meet.end_date,
+        start_time_slot_id=meet.start_time_slot_id,
+        end_time_slot_id=meet.end_time_slot_id,
+        voting_end_time=meet.voting_end_time,
+        meet_name=meet.title,
+        invite_code=meet.invite_code,
+        gen_meet_url=meet.gen_meet_url,
+        finalized_start_time=meet.finalized_start_time,
+        finalized_end_time=meet.finalized_end_time,
+        meet_url=meet.meet_url,
+        description=meet.description,
+        host_info=host,
+        member_infos=member_infos,
+    )
 
 
 class MemberInfo(BaseModel):
@@ -236,12 +268,12 @@ async def browse_meet(filters: Sequence[model.Filter] = Depends(meet_filter),
     meets = await db.meet.browse_by_account_id(account_id=request.account.id, filters=filters, sorters=sorters)
     now = request.time
     for i, meet in enumerate(meets):
-        if now <= meet.voting_end_time:
+        if meet.voting_end_time and now <= meet.voting_end_time:
             if await db.meet.has_voted(meet.meet_id, request.account.id):
                 meet.status = enums.StatusType.voted
             else:
                 meet.status = enums.StatusType.voting
-        elif now > meet.voting_end_time and meet.status is enums.StatusType.voting:
+        elif meet.voting_end_time and now > meet.voting_end_time and meet.status is enums.StatusType.voting:
             await db.meet.update_status(meet.meet_id, enums.StatusType.waiting_for_confirm)
             meet.status = enums.StatusType.waiting_for_confirm
         meets[i] = meet
@@ -266,6 +298,38 @@ async def join_meet_by_invite_code(data: JoinMeetInput):
 
     meet = await db.meet.read_meet_by_code(invite_code=data.invite_code)
     await db.meet.add_member(meet_id=meet.id, account_id=account_id, name=data.name)
+
+    if meet.voting_end_time and meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
+        await db.meet.update_status(meet.id, enums.StatusType.waiting_for_confirm)
+        meet.status = enums.StatusType.waiting_for_confirm
+
+    member_auth = await db.meet.get_member_id_and_auth(meet_id)
+    host = None
+    member_infos = []
+    for (id_, name), v in member_auth.items():
+        if v:
+            host = MemberInfo(member_id=id_, name=name)
+        else:
+            member_infos.append(MemberInfo(member_id=id_, name=name))
+
+    return ReadMeetOutput(
+        id=meet.id,
+        status=meet.status,
+        start_date=meet.start_date,
+        end_date=meet.end_date,
+        start_time_slot_id=meet.start_time_slot_id,
+        end_time_slot_id=meet.end_time_slot_id,
+        voting_end_time=meet.voting_end_time,
+        meet_name=meet.title,
+        invite_code=meet.invite_code,
+        gen_meet_url=meet.gen_meet_url,
+        finalized_start_time=meet.finalized_start_time,
+        finalized_end_time=meet.finalized_end_time,
+        meet_url=meet.meet_url,
+        description=meet.description,
+        host_info=host,
+        member_infos=member_infos,
+    )
 
 
 @router.get('/meet/invite/{invite_code}')
