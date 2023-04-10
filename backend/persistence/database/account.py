@@ -45,11 +45,12 @@ async def update_username(account_id: int, username: str) -> None:
     await pool_handler.pool.execute(sql, *params)
 
 
-async def read_by_email(email: str, is_google_login: bool = False) -> do.Account:
+async def read_by_email(email: str, is_google_login: bool = None) -> do.Account:
     sql, params = pyformat2psql(
         sql=fr"SELECT id, email, username, line_token, google_token, notification_preference, is_google_login"
             fr"  FROM account"
-            fr" WHERE email = %(email)s AND is_google_login = %(is_google_login)s",
+            fr" WHERE email = %(email)s"
+            fr" {'AND is_google_login = %(is_google_login)s' if is_google_login is not None else ''}",
         email=email, is_google_login=is_google_login,
     )
     try:

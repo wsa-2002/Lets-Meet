@@ -31,7 +31,7 @@ class ForgetPasswordInput(BaseModel):
 @router.post('/forget-password')
 @enveloped
 async def forget_password(data: ForgetPasswordInput) -> None:
-    account = await db.account.read_by_email(email=data.email)
+    account = await db.account.read_by_email(email=data.email, is_google_login=False)
     code = str(uuid4())
     await db.email_verification.add(code=code, account_id=account.id, email=account.email)
     await email.forget_password.send(to=account.email, code=code)
