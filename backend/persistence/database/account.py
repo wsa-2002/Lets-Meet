@@ -123,3 +123,20 @@ async def search(identifier: str) -> Sequence[do.Account]:
                        is_google_login=is_google_login, line_token=line_token, google_token=google_token)
             for id_, username, email, notification_preference,
             is_google_login, line_token, google_token in records]
+
+
+async def read(account_id: int) -> do.Account:
+    sql, params = pyformat2psql(
+        sql=fr"SELECT id, username, email, notification_preference, is_google_login,"
+            fr"       line_token, google_token"
+            fr"  FROM account"
+            fr" WHERE id = %(account_id)s",
+        account_id=account_id,
+    )
+    try:
+        id_, email, username, line_token, google_token, notification_preference, is_google_login = \
+            await pool_handler.pool.fetchrow(sql, *params)
+    except TypeError:
+        raise exc.NotFound
+    return do.Account(id=id_, email=email, username=username, line_token=line_token, google_token=google_token,
+                      notification_preference=notification_preference, is_google_login=is_google_login)
