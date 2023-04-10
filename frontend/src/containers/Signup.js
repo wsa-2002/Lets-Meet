@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
-import { Input, Button, Typography, Divider, Image, Modal } from "antd";
+import { Input, Button, Typography, Divider, Image, notification } from "antd";
 import * as AXIOS from "../middleware";
 import googleIcon from '../resources/google.png';
 
@@ -16,6 +16,8 @@ const LogIn = () => {
     "Confirm Password": "",
   });
   const [validName, setValidName] = useState(true);
+  const [description, setDescription] = useState("nothing");
+  const [api, contextHolder] = notification.useNotification();
 
   const handleSignupChange = (e) => {
     const { name, value } = e.target;
@@ -44,15 +46,42 @@ const LogIn = () => {
           password: signupData.Password,
           email: signupData.Email,
         });
+        api.open({
+          message: 'Vertification mail sent',
+          description:
+            'Please check your mailbox.',
+          style: {},
+        });
       } catch (e) {
+        setDescription("xxx");  // 這邊會設三個不同訊息，然後useeffect那邊感測到description變後就會pop出message
         alert(e);
       }
     }
   };
 
+  // const signFail = () => {
+  //   api.open({
+  //     message: 'Vertification mail sent',
+  //     description:
+  //       'Please check your mailbox.',
+  //     style: {},
+  //   });
+  // }
+
+  useEffect(() => {
+    api.open({
+      message: 'Sign up failed',
+      description:
+        description, // 總共有三個 description
+      style: {},
+    });
+  }, [description]);
+
   return (
     <div className="mainContainer">
       <div className="leftContainer">
+        {/* {contextHolder}
+        <Button onClick={signFail}>ppp</Button> */}
         <p className="title">Let's Meet!</p>
       </div>
       <div className="rightContainer">
@@ -72,6 +101,7 @@ const LogIn = () => {
               onChange={handleSignupChange}
             />
           ))}
+          {contextHolder}
           <Button
             size={"large"}
             style={{
