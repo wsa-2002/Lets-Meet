@@ -1,6 +1,14 @@
 import styled from "styled-components";
 import "@fontsource/roboto/500.css";
-import { Input, Button, DatePicker, TimePicker, Switch, Space } from "antd";
+import {
+  Input,
+  Button,
+  DatePicker,
+  TimePicker,
+  Switch,
+  Modal,
+  Form,
+} from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import "../../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -60,8 +68,10 @@ const Mainpage = () => {
     emails: [],
   });
   const { login, cookies } = useMeet();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const invite = useRef(null);
+  const [form] = Form.useForm();
 
   const handleLogin = () => {
     navigate("/login");
@@ -97,6 +107,15 @@ const Mainpage = () => {
 
   const handleMeetCreate = async () => {
     try {
+      // console.log(
+      //   moment(
+      //     meetData.voting_end_date + " " + meetData.voting_end_time,
+      //     "YYYY-MM-DD HH-mm-ss"
+      //   ).toISOString()
+      // );
+      if (!login) {
+        setIsModalOpen(true);
+      }
       const result = await AXIOS.addMeet(
         {
           ...meetData,
@@ -110,6 +129,14 @@ const Mainpage = () => {
     } catch (e) {
       console.log(e);
     }
+  };
+
+  const handleOk = () => {
+    // 你這邊再加上ok後要做的動作
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
   };
 
   const CONTENTMENU = {
@@ -293,6 +320,30 @@ const Mainpage = () => {
             Create
           </Button>
         </CreateMeet>
+        <Modal
+          title=""
+          style={{ fontFamily: "Nunito" }}
+          open={isModalOpen}
+          onOk={handleOk}
+          onCancel={handleCancel}
+          okText="Ok"
+          cancelText="Cancel"
+        >
+          <Form form={form} layout="vertical" name="form_in_modal">
+            <Form.Item
+              name="name"
+              label="Please enter your name"
+              rules={[
+                {
+                  required: true,
+                  message: "Error: Please enter your name!",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
       <div className="leftFooter">
         <div>中文 | English</div>
