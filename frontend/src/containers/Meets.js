@@ -27,7 +27,7 @@ const Meets = () => {
   };
 
   useEffect(() => {
-    async function func() {
+    (async () => {
       if (cookies.token) {
         const result = await browseMeet(cookies.token);
         console.log(result);
@@ -48,8 +48,7 @@ const Meets = () => {
       } else {
         navigate("/");
       }
-    }
-    func();
+    })();
   }, [cookies]);
 
   return (
