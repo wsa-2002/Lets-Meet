@@ -186,15 +186,20 @@ const addHexColor = (c1, c2) => {
 
 const ShowEvent = () => {
   const [isLogin, setIsLogin] = useState(true); // 如果login會顯示header，沒有的話會顯示login
+<<<<<<< Updated upstream
   const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
   const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
   const navigate = useNavigate();
   const [form] = Form.useForm();
+=======
+  const navigate = useNavigate();
+>>>>>>> Stashed changes
 
   const handleMeet = () => {
     navigate("/meets");
   };
 
+<<<<<<< Updated upstream
   const showLeaveModal = () => {
     setIsModalLeaveOpen(true);
   };
@@ -226,6 +231,19 @@ const ShowEvent = () => {
     else return addHexColor("FFF4CC", ((num - 1) * 3635).toString(16));
   };
 
+=======
+  const handleShow = (i, j) => {
+    // setAvaList(showList[i][j].availablePpl);
+    // setNotAvaList(showList[i][j].notAvailablePpl);
+  };
+
+  const chooseColor = (num) => {
+    // return addHexColor("F0F0F0", ((Math.max(num-1, 0)*3635)+984028).toString(16));
+    if (num === 0) return "f0f0f0";
+    else return addHexColor("FFF4CC", ((num - 1) * 3635).toString(16));
+  };
+
+>>>>>>> Stashed changes
   const meetInfo = {
     EventName: "SDM Class",
     Date: "2023/01/03 ~ 2023/02/03",
@@ -286,6 +304,7 @@ const ShowEvent = () => {
           </div>
           <Button
             style={{ marginLeft: "65%", marginTop: "35px", marginRight: "5px" }}
+<<<<<<< Updated upstream
             onClick={showLeaveModal}
           >
             Leave Meet
@@ -293,6 +312,12 @@ const ShowEvent = () => {
           <Button style={{ marginTop: "35px" }} onClick={showVoteModal}>
             Vote
           </Button>
+=======
+          >
+            Leave Meet
+          </Button>
+          <Button style={{ marginTop: "35px" }}>Vote</Button>
+>>>>>>> Stashed changes
         </CreateMeet>
       </div>
       <div className="rightContainer">
@@ -362,6 +387,7 @@ const ShowEvent = () => {
             ))}
           </div>
         </FormWrapper>
+<<<<<<< Updated upstream
         <Modal
           title="Are you sure you want to leave this meet?"
           style={{ fontFamily: "Nunito" }}
@@ -415,6 +441,8 @@ const ShowEvent = () => {
                     name="password"
                 /> */}
         </Modal>
+=======
+>>>>>>> Stashed changes
       </div>
       <div className="leftFooter" style={{ background: "white" }}>
         <div>中文 | English</div>
