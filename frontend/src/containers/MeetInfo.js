@@ -3,8 +3,8 @@ import "@fontsource/roboto/500.css";
 import { Input, Button, Modal, Form } from "antd";
 import "../css/Background.css";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState } from "react";
 import { Header, Header2 } from "../components/Header";
 
 let showList = [
@@ -184,11 +184,14 @@ const addHexColor = (c1, c2) => {
   return hexStr;
 };
 
-const ShowEvent = () => {
+const MeetInfo = () => {
   const [isLogin, setIsLogin] = useState(true); // 如果login會顯示header，沒有的話會顯示login
   const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
   const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
   const navigate = useNavigate();
+  const {
+    state: { meetInfo },
+  } = useLocation();
   const [form] = Form.useForm();
 
   const handleMeet = () => {
@@ -224,18 +227,6 @@ const ShowEvent = () => {
     // return addHexColor("F0F0F0", ((Math.max(num-1, 0)*3635)+984028).toString(16));
     if (num === 0) return "f0f0f0";
     else return addHexColor("FFF4CC", ((num - 1) * 3635).toString(16));
-  };
-
-  const meetInfo = {
-    EventName: "SDM Class",
-    Date: "2023/01/03 ~ 2023/02/03",
-    Time: "09:00~18:00",
-    Host: "Luisa",
-    Memeber: ["Luisa", "Tom", "Jerry"],
-    Description: "None",
-    "Voting Deadline": "None",
-    "Invitation URL": "http://xxx",
-    "Google Meet URL": "http://ppp",
   };
 
   return (
@@ -426,4 +417,4 @@ const ShowEvent = () => {
   );
 };
 
-export default ShowEvent;
+export default MeetInfo;

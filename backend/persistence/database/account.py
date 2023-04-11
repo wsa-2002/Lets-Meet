@@ -119,7 +119,8 @@ async def search(identifier: str) -> Sequence[do.Account]:
     )
     records = await pool_handler.pool.fetch(sql, *params)
     return [do.Account(id=id_, username=username, email=email,
-                       notification_preference=enums.NotificationPreference(notification_preference),
+                       notification_preference=enums.NotificationPreference(
+                           notification_preference),
                        is_google_login=is_google_login, line_token=line_token, google_token=google_token)
             for id_, username, email, notification_preference,
             is_google_login, line_token, google_token in records]

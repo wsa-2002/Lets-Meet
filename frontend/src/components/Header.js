@@ -31,6 +31,7 @@ const Header = ({ location = "none" }) => {
             backgroundColor: "#FDF3D1",
             height: "100%",
           }}
+          href="/meets"
         >
           Meets
         </Button>
@@ -43,6 +44,7 @@ const Header = ({ location = "none" }) => {
             color: "#808080",
             height: "100%",
           }}
+          href="/meets"
         >
           Meets
         </Button>

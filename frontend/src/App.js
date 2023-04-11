@@ -6,7 +6,7 @@ import Signup from "./containers/Signup";
 import Reset from "./containers/ResetPassword";
 import Change from "./containers/ChangePassword";
 import Meets from "./containers/Meets";
-import ShowEvent from "./containers/ShowEvent";
+import MeetInfo from "./containers/MeetInfo";
 import CreateEvent from "./containers/CreateEvent";
 
 function App() {
@@ -21,7 +21,7 @@ function App() {
           <Route element={<Reset />} path="/reset"></Route>
           <Route element={<Change />} path="/reset-password"></Route>
           <Route element={<Meets />} path="/meets"></Route>
-          <Route element={<ShowEvent />} path="/showevent"></Route>
+          <Route element={<MeetInfo />} path="/meets/:id"></Route>
           <Route element={<CreateEvent />} path="/createevent"></Route>
         </Routes>
       </BrowserRouter>
