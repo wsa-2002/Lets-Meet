@@ -94,7 +94,11 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
     # TODO: send email to members and emails
 
     meet = await db.meet.read(meet_id=meet_id)
-    meet.status = await update_status(meet.id, meet, request.time, request.account.id)
+    try:
+        account_id = request.account.id
+    except exc.NoPermission:
+        account_id = None
+    meet.status = await update_status(meet.id, meet, request.time, account_id)
     host, member_infos = await compose_host_and_member_info(meet_id=meet.id)
 
 
@@ -127,7 +131,11 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
         raise exc.NoPermission
 
     meet = await db.meet.read(meet_id=meet_id)
-    meet.status = await update_status(meet.id, meet, request.time, request.account.id)
+    try:
+        account_id = request.account.id
+    except exc.NoPermission:
+        account_id = None
+    meet.status = await update_status(meet.id, meet, request.time, account_id)
     host, member_infos = await compose_host_and_member_info(meet_id=meet.id)
 
 
@@ -264,8 +272,11 @@ async def join_meet_by_invite_code(data: JoinMeetInput):
 
     meet = await db.meet.read_meet_by_code(invite_code=data.invite_code)
     await db.meet.add_member(meet_id=meet.id, account_id=account_id, name=data.name)
-
-    meet.status = await update_status(meet.id, meet, request.time, request.account.id)
+    try:
+        account_id = request.account.id
+    except exc.NoPermission:
+        account_id = None
+    meet.status = await update_status(meet.id, meet, request.time, account_id)
     host, member_infos = await compose_host_and_member_info(meet_id=meet.id)
 
 
@@ -296,7 +307,11 @@ async def read_meet_by_code(invite_code: str) -> ReadMeetOutput:
     meet_id = meet.id
 
     meet = await db.meet.read(meet_id=meet_id)
-    meet.status = await update_status(meet.id, meet, request.time, request.account.id)
+    try:
+        account_id = request.account.id
+    except exc.NoPermission:
+        account_id = None
+    meet.status = await update_status(meet.id, meet, request.time, account_id)
     host, member_infos = await compose_host_and_member_info(meet_id=meet.id)
 
     return ReadMeetOutput(

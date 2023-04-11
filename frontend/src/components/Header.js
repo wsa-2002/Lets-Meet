@@ -16,7 +16,7 @@ const Header = ({ location = "none" }) => {
         style={{
           fontSize: "28px",
           color: "#FFA601",
-          marginRight: "10%",
+          marginRight: "3%",
           height: "100%",
         }}
         href="/"
@@ -30,7 +30,8 @@ const Header = ({ location = "none" }) => {
             fontSize: "24px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
-            height: "100%",
+            height: "90%",
+            fontWeight: 600,
           }}
           href="/meets"
         >
@@ -42,7 +43,7 @@ const Header = ({ location = "none" }) => {
           style={{
             fontSize: "24px",
             color: "#808080",
-            height: "100%",
+            height: "90%",
           }}
           href="/meets"
         >
@@ -56,7 +57,8 @@ const Header = ({ location = "none" }) => {
             fontSize: "24px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
-            height: "100%",
+            height: "90%",
+            fontWeight: 600,
           }}
         >
           Calendar
@@ -67,7 +69,7 @@ const Header = ({ location = "none" }) => {
           style={{
             fontSize: "24px",
             color: "#808080",
-            height: "100%",
+            height: "90%",
           }}
         >
           Calendar
@@ -80,7 +82,8 @@ const Header = ({ location = "none" }) => {
             fontSize: "24px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
-            height: "100%",
+            height: "90%",
+            fontWeight: 600,
           }}
         >
           Routine
@@ -91,7 +94,7 @@ const Header = ({ location = "none" }) => {
           style={{
             fontSize: "24px",
             color: "#808080",
-            height: "100%",
+            height: "90%",
           }}
         >
           Routine
@@ -102,12 +105,12 @@ const Header = ({ location = "none" }) => {
         style={{
           fontSize: "24px",
           color: "#808080",
-          height: "100%",
+          height: "90%",
           position: "absolute",
           left: "88%",
         }}
       >
-        Setting
+        Settings
       </Button>
       <Button
         type="link"
@@ -115,7 +118,7 @@ const Header = ({ location = "none" }) => {
         style={{
           fontSize: "24px",
           color: "#808080",
-          height: "100%",
+          height: "90%",
           position: "absolute",
           left: "95%",
         }}
