@@ -136,7 +136,9 @@ const Mainpage = () => {
         cookies.token
       );
       // console.log(data.id);
-      navigate(`/meets/${data.invite_code}`);
+      navigate(`/meets/${data.invite_code}`, {
+        state: { guestName: form.getFieldValue().name },
+      });
     } catch (error) {
       console.log(error);
     }

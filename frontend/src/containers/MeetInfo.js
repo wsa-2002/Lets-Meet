@@ -105,6 +105,7 @@ const MeetInfo = () => {
   });
   const { login, cookies } = useMeet();
   const navigate = useNavigate();
+  const location = useLocation();
   const { code } = useParams();
   const [form] = Form.useForm();
 
@@ -158,7 +159,7 @@ const MeetInfo = () => {
   };
 
   const handleVote = () => {
-    if (!login) {
+    if (!login && !location.state.guestName) {
       setIsModalVoteOpen(true);
       return;
     }
