@@ -10,5 +10,5 @@ export const {
 } = POST;
 export { googleLogin } from "./google";
 export { emailVerification } from "./emailVerification";
-export { browseMeet, meetInfo } from "./meet";
+export { browseMeet, getMeetInfo } from "./meet";
 export { searchMember } from "./member";

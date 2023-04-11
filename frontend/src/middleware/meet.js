@@ -13,10 +13,10 @@ export const browseMeet = async (token) => {
   }
 };
 
-export const meetInfo = async (meet_id, token) => {
+export const getMeetInfo = async (code, token) => {
   try {
     console.log(token);
-    const { data: result } = await instance.get(`/meet/${meet_id}`, {
+    const { data: result } = await instance.get(`/meet/invite/${code}`, {
       headers: { "auth-token": token },
     });
     console.log(result);

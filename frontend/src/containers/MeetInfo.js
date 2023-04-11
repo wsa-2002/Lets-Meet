@@ -3,10 +3,12 @@ import "@fontsource/roboto/500.css";
 import { Input, Button, Modal, Form } from "antd";
 import "../css/Background.css";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate, useLocation, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getMeetInfo, joinMeet } from "../middleware";
 import { useMeet } from "./hooks/useMeet";
 import { Header, Header2 } from "../components/Header";
+import moment from "moment";
 
 let showList = [
   "9:00",
@@ -77,14 +79,69 @@ const addHexColor = (c1, c2) => {
   return hexStr;
 };
 
+const slotIDProcessing = (start, end) => {
+  let hour = String(parseInt(((start - 1) * 30) / 60));
+  const startHour = "0".repeat(2 - hour.length) + hour;
+  const startMinute = parseInt(((start - 1) * 30) % 60) ? "30" : "00";
+  hour = String(parseInt((end * 30) / 60));
+  const endHour = "0".repeat(2 - hour.length) + hour;
+  const endMinute = parseInt((end * 30) % 60) ? "30" : "00";
+  return `${startHour}:${startMinute}~${endHour}:${endMinute}`;
+};
+
 const MeetInfo = () => {
   const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
   const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
-  const { login } = useMeet();
+  const [meetInfo, setMeetInfo] = useState({
+    EventName: "",
+    "Start / End Date": "",
+    "Start / End Time": "",
+    Host: "",
+    Member: "",
+    Description: "",
+    "Voting Deadline": "",
+    "Invitation URL": "",
+    "Google Meet URL": "",
+  });
+  const { login, cookies } = useMeet();
   const navigate = useNavigate();
-  const {
-    state: { meetInfo },
-  } = useLocation();
+  const { code } = useParams();
+
+  const handleMeetInfo = async () => {
+    try {
+      const { data } = await getMeetInfo(code, cookies.token);
+      setMeetInfo({
+        EventName: data.meet_name,
+        "Start / End Date":
+          data.start_date.replaceAll("-", "/") +
+          "~" +
+          data.end_date.replaceAll("-", "/"),
+        "Start / End Time": slotIDProcessing(
+          data.start_time_slot_id,
+          data.end_time_slot_id
+        ), //  (data.start_time_slot_id - 1) * 30 % 60
+        Host: data.host_info.name ?? data.host_info.id,
+        Member: data.member_infos.map((m) => m.name).toString(),
+        Description: data.description,
+        "Voting Deadline": data.voting_end_time
+          ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
+          : "not assigned",
+        "Invitation URL": `https://lets.meet.com?invite=${data.invite_code}`,
+        "Google Meet URL":
+          data.meet_url ?? "https://meet.google.com/vft-xolb-mog",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (code && cookies.token) {
+      handleMeetInfo();
+    }
+    // console.log(id);
+  }, [code]);
+
   const [form] = Form.useForm();
 
   const handleMeet = () => {
@@ -104,11 +161,16 @@ const MeetInfo = () => {
   const handleVote = () => {
     if (!login) {
       setIsModalVoteOpen(true);
+      return;
     }
     navigate("/voting");
   };
-  const handleVoteOk = () => {
-    setIsModalVoteOpen(false);
+
+  const handleVoteOk = async (e) => {
+    console.log(e);
+    // await joinMeet({ invite_code: code, name: "" }, cookies.token);
+    // navigate("/voting");
+    // setIsModalVoteOpen(false);
   };
   const handleVoteCancel = () => {
     setIsModalVoteOpen(false);
@@ -194,7 +256,7 @@ const MeetInfo = () => {
               transform: "translate(-50%, 0%)",
             }}
           >
-            Group Avaiability
+            Group Availability
           </div>
           <div
             style={{
@@ -205,26 +267,20 @@ const MeetInfo = () => {
             }}
           >
             <div className="cellIntroBlock">
-              {showList.length !== 0 ? (
+              {showList.length !== 0 &&
                 showList[0].map((item, j) => (
                   <div className="cellIntro" key={j}>
                     {item.date.slice(0, 6)}
                   </div>
-                ))
-              ) : (
-                <></>
-              )}
+                ))}
             </div>
             <div className="cellIntroBlock">
-              {showList.length !== 0 ? (
+              {showList.length !== 0 &&
                 showList[0].map((item, j) => (
                   <div className="cellIntro" key={j}>
                     {item.date.slice(6, 9)}
                   </div>
-                ))
-              ) : (
-                <></>
-              )}
+                ))}
             </div>
             {showList.map((items, i) => (
               <div key={"row" + i} id={"row" + i} style={{ display: "flex" }}>
