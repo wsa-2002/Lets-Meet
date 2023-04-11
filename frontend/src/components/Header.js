@@ -18,6 +18,7 @@ const Header = ({ location = "none" }) => {
           color: "#FFA601",
           marginRight: "3%",
           height: "100%",
+          fontFamily: "Lobster",
         }}
         href="/"
       >
@@ -147,6 +148,7 @@ const Header2 = () => {
           color: "#FFA601",
           marginRight: "10%",
           height: "100%",
+          fontFamily: "Lobster",
         }}
         href="/"
       >

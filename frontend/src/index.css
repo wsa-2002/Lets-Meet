@@ -3,6 +3,11 @@
   src: local('Nunito'), url(./font/static/Nunito-Regular.ttf) format('truetype');
 }
 
+@font-face {
+  font-family: 'Lobster';
+  src: local('Lobster'), url(./font/static/Lobster-Regular.ttf) format('truetype');
+}
+
 /* @font-face {
   font-family: 'Nunito';
   font-weight: 300;
