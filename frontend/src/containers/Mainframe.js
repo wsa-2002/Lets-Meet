@@ -14,7 +14,11 @@ const AppFrame = () => {
       <Outlet />
       <div
         className="leftFooter"
-        style={{ backgroundColor: location.pathname === "/" && "#fefcef" }}
+        style={{
+          backgroundColor:
+            (location.pathname === "/" || location.pathname === "/signup") &&
+            "#fefcef",
+        }}
       >
         <div>中文 | English</div>
       </div>
