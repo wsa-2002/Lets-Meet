@@ -5,150 +5,43 @@ import "../css/Background.css";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useMeet } from "./hooks/useMeet";
 import { Header, Header2 } from "../components/Header";
 
 let showList = [
+  "9:00",
+  "9:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "12:00",
+  "12:30",
+  "13:00",
+  "13:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+].map((m) =>
   [
-    { date: "May 19Wed", time: "9:00", availableNum: 0 },
-    { date: "12/8", time: "9:00", availableNum: 0 },
-    { date: "12/9", time: "9:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "9:30", availableNum: 0 },
-    { date: "12/8", time: "9:30", availableNum: 0 },
-    { date: "12/9", time: "9:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "10:00", availableNum: 0 },
-    { date: "12/8", time: "10:00", availableNum: 0 },
-    { date: "12/9", time: "10:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "10:30", availableNum: 1 },
-    { date: "12/8", time: "10:30", availableNum: 0 },
-    { date: "12/9", time: "10:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "11:00", availableNum: 1 },
-    { date: "12/8", time: "11:00", availableNum: 0 },
-    { date: "12/9", time: "11:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "11:30", availableNum: 1 },
-    { date: "12/8", time: "11:30", availableNum: 0 },
-    { date: "12/9", time: "11:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "12:00", availableNum: 1 },
-    { date: "12/8", time: "12:00", availableNum: 2 },
-    { date: "12/9", time: "12:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "12:30", availableNum: 0 },
-    { date: "12/8", time: "12:30", availableNum: 2 },
-    { date: "12/9", time: "12:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "13:00", availableNum: 0 },
-    { date: "12/8", time: "13:00", availableNum: 2 },
-    { date: "12/9", time: "13:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "13:30", availableNum: 0 },
-    { date: "12/8", time: "13:30", availableNum: 2 },
-    { date: "12/9", time: "13:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "14:00", availableNum: 0 },
-    { date: "12/8", time: "14:00", availableNum: 3 },
-    { date: "12/9", time: "14:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "14:30", availableNum: 0 },
-    { date: "12/8", time: "14:30", availableNum: 3 },
-    { date: "12/9", time: "14:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "15:00", availableNum: 0 },
-    { date: "12/8", time: "15:00", availableNum: 3 },
-    { date: "12/9", time: "15:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "15:30", availableNum: 0 },
-    { date: "12/8", time: "15:30", availableNum: 1 },
-    { date: "12/9", time: "15:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "16:00", availableNum: 0 },
-    { date: "12/8", time: "16:00", availableNum: 1 },
-    { date: "12/9", time: "16:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "16:30", availableNum: 0 },
-    { date: "12/8", time: "16:30", availableNum: 0 },
-    { date: "12/9", time: "16:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "17:00", availableNum: 0 },
-    { date: "12/8", time: "17:00", availableNum: 0 },
-    { date: "12/9", time: "17:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "17:30", availableNum: 0 },
-    { date: "12/8", time: "17:30", availableNum: 0 },
-    { date: "12/9", time: "17:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "18:00", availableNum: 0 },
-    { date: "12/8", time: "18:00", availableNum: 0 },
-    { date: "12/9", time: "18:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "18:30", availableNum: 0 },
-    { date: "12/8", time: "18:30", availableNum: 0 },
-    { date: "12/9", time: "18:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "19:00", availableNum: 0 },
-    { date: "12/8", time: "19:00", availableNum: 0 },
-    { date: "12/9", time: "19:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "19:30", availableNum: 0 },
-    { date: "12/8", time: "19:30", availableNum: 0 },
-    { date: "12/9", time: "19:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "20:00", availableNum: 0 },
-    { date: "12/8", time: "20:00", availableNum: 1 },
-    { date: "12/9", time: "20:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "20:30", availableNum: 1 },
-    { date: "12/8", time: "20:30", availableNum: 1 },
-    { date: "12/9", time: "20:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "21:00", availableNum: 1 },
-    { date: "12/8", time: "21:00", availableNum: 0 },
-    { date: "12/9", time: "21:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "21:30", availableNum: 0 },
-    { date: "12/8", time: "21:30", availableNum: 2 },
-    { date: "12/9", time: "21:30", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "22:00", availableNum: 0 },
-    { date: "12/8", time: "22:00", availableNum: 0 },
-    { date: "12/9", time: "22:00", availableNum: 0 },
-  ],
-  [
-    { date: "12/7", time: "22:30", availableNum: 0 },
-    { date: "12/8", time: "22:30", availableNum: 0 },
-    { date: "12/9", time: "22:30", availableNum: 0 },
-  ],
-];
+    "May 19Wed",
+    "May 20Wed",
+    "May 21Wed",
+    "May 22Wed",
+    "May 23Wed",
+    "May 24Wed",
+    "May 25Wed",
+  ].map((d) => ({
+    date: d,
+    time: m,
+    availableNum: Math.floor(Math.random() * 3),
+  }))
+);
 
 const CreateMeet = styled.div`
   width: 70%;
@@ -188,6 +81,7 @@ const MeetInfo = () => {
   const [isLogin, setIsLogin] = useState(true); // 如果login會顯示header，沒有的話會顯示login
   const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
   const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
+  const { login } = useMeet();
   const navigate = useNavigate();
   const {
     state: { meetInfo },
@@ -208,8 +102,11 @@ const MeetInfo = () => {
     setIsModalLeaveOpen(false);
   };
 
-  const showVoteModal = () => {
-    setIsModalVoteOpen(true);
+  const handleVote = () => {
+    if (!login) {
+      setIsModalVoteOpen(true);
+    }
+    navigate("/createevent");
   };
   const handleVoteOk = () => {
     setIsModalVoteOpen(false);
@@ -281,7 +178,7 @@ const MeetInfo = () => {
           >
             Leave Meet
           </Button>
-          <Button style={{ marginTop: "35px" }} onClick={showVoteModal}>
+          <Button style={{ marginTop: "35px" }} onClick={handleVote}>
             Vote
           </Button>
         </CreateMeet>
