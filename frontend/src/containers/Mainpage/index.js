@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import "@fontsource/roboto/500.css";
 import {
   Input,
   Button,
@@ -313,7 +312,6 @@ const Mainpage = () => {
         <JoinMeet>
           <div
             style={{
-              fontFamily: "Roboto",
               fontStyle: "normal",
               fontWeight: 500,
               fontSize: "30px",
@@ -371,7 +369,6 @@ const Mainpage = () => {
             style={{
               top: 0,
               left: 0,
-              fontFamily: "Roboto",
               fontStyle: "normal",
               fontWeight: "500",
               fontSize: "30px",
@@ -417,19 +414,13 @@ const Mainpage = () => {
         </CreateMeet>
         <Modal
           title=""
-          style={{ fontFamily: "Nunito" }}
           open={isModalOpen}
           onOk={handleOk}
           onCancel={handleCancel}
           okText="Ok"
           cancelText="Cancel"
         >
-          <Form
-            form={form}
-            layout="vertical"
-            name="form_in_modal"
-            // onFinish={handleOk}
-          >
+          <Form form={form} layout="vertical" name="form_in_modal">
             <Form.Item
               name="name"
               label="Please enter your name"

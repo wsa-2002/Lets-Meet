@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "@fontsource/roboto/500.css";
 import "../css/ResetPassword.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider } from "antd";

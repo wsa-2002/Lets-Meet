@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider, Image, notification } from "antd";
