@@ -78,7 +78,6 @@ const addHexColor = (c1, c2) => {
 };
 
 const MeetInfo = () => {
-  const [isLogin, setIsLogin] = useState(true); // 如果login會顯示header，沒有的話會顯示login
   const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
   const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
   const { login } = useMeet();
@@ -128,7 +127,7 @@ const MeetInfo = () => {
 
   return (
     <>
-      {isLogin ? <Header location="timeslot" /> : <Header2 />}
+      {login ? <Header location="timeslot" /> : <Header2 />}
       <div className="leftContainer" style={{ background: "white" }}>
         <CreateMeet>
           <Button

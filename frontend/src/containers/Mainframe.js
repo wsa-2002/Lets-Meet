@@ -1,6 +1,14 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
+const coloredBackground = [
+  "/signup",
+  "/login",
+  "/",
+  "/reset",
+  "reset-password",
+];
+
 const AppFrame = () => {
   const location = useLocation();
   console.log(location.pathname);
@@ -16,8 +24,7 @@ const AppFrame = () => {
         className="leftFooter"
         style={{
           backgroundColor:
-            (location.pathname === "/" || location.pathname === "/signup") &&
-            "#fefcef",
+            coloredBackground.find((m) => m === location.pathname) && "#fefcef",
         }}
       >
         <div>中文 | English</div>
