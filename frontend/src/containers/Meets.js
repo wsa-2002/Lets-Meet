@@ -41,9 +41,9 @@ const Meets = () => {
             Host: data.host_info.name ?? data.host_info.id,
             Memeber: data.member_infos,
             Description: data.description,
-            "Voting Deadline":data.voting_end_time ? moment(data.voting_end_time).format(
-              "YYYY/MM/DD HH:mm:ss"
-            ):"not assigned",
+            "Voting Deadline": data.voting_end_time
+              ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
+              : "not assigned",
             "Invitation URL": data.invite_code,
             "Google Meet URL": data.meet_url ?? "temp",
           },
@@ -90,7 +90,7 @@ const Meets = () => {
   }, [cookies]);
 
   return (
-    <div className="mainContainer">
+    <>
       {login ? <Header location="meet" /> : <Header2 />}
       <div className="wholeContainer">
         {data && (
@@ -160,13 +160,7 @@ const Meets = () => {
           </Table>
         )}
       </div>
-      <div className="leftFooter" style={{ background: "white" }}>
-        <div>中文 | English</div>
-      </div>
-      <div className="rightFooter">
-        <div>Copyright 2023</div>
-      </div>
-    </div>
+    </>
   );
 };
 

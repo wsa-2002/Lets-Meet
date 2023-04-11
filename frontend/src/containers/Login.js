@@ -76,7 +76,7 @@ const LogIn = () => {
   };
 
   return (
-    <div className="mainContainer">
+    <>
       <div className="leftContainer">
         <p className="title">Let's Meet!</p>
       </div>
@@ -151,13 +151,7 @@ const LogIn = () => {
           {/* <Button onClick={onSignout}>temp</Button> */}
         </div>
       </div>
-      <div className="leftFooter">
-        <div>中文 | English</div>
-      </div>
-      <div className="rightFooter">
-        <div>Copyright 2023</div>
-      </div>
-    </div>
+    </>
   );
 };
 

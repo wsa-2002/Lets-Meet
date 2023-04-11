@@ -89,7 +89,7 @@ const LogIn = () => {
   }, [description]);
 
   return (
-    <div className="mainContainer">
+    <>
       <div className="leftContainer">
         {/* {contextHolder}
         <Button onClick={signFail}>ppp</Button> */}
@@ -145,13 +145,7 @@ const LogIn = () => {
           </Button>
         </div>
       </div>
-      <div className="leftFooter">
-        <div>中文 | English</div>
-      </div>
-      <div className="rightFooter">
-        <div>Copyright 2023</div>
-      </div>
-    </div>
+    </>
   );
 };
 

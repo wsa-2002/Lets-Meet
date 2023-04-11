@@ -306,7 +306,7 @@ const Mainpage = () => {
   };
 
   return (
-    <div className="mainContainer">
+    <>
       {login && <Header />}
       <div className="leftContainer">
         <JoinMeet>
@@ -436,13 +436,7 @@ const Mainpage = () => {
           </Form>
         </Modal>
       </div>
-      <div className="leftFooter">
-        <div>中文 | English</div>
-      </div>
-      <div className="rightFooter">
-        <div>Copyright 2023</div>
-      </div>
-    </div>
+    </>
   );
 };
 
