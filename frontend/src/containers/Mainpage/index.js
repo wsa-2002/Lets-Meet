@@ -215,7 +215,7 @@ const Mainpage = () => {
 							data.start_time_slot_id,
 							data.end_time_slot_id
 						), //  (data.start_time_slot_id - 1) * 30 % 60
-						Host: data.host_info.name ?? data.host_info.id,
+						Host: data.host_info?.name ?? data.host_info?.id ?? "Guest",
 						Memeber: data.member_infos,
 						Description: data.description,
 						"Voting Deadline": data.voting_end_time
