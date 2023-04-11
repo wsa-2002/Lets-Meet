@@ -124,7 +124,7 @@ const Meets = () => {
           url: d.meet_url ?? "temp",
         }))
         setData(data);
-        setShowData(data)
+        setShowData(data.filter((ele) => ele.status.includes("ote"))); // default display voting
       } else {
         navigate("/");
       }
