@@ -1,6 +1,14 @@
 import styled from "styled-components";
-import "@fontsource/roboto/500.css";
-import { Input, Button, DatePicker, TimePicker, Switch, Modal, Form } from "antd";
+// import "@fontsource/roboto/500.css";
+import {
+  Input,
+  Button,
+  DatePicker,
+  TimePicker,
+  Switch,
+  Modal,
+  Form,
+} from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import "../../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
@@ -104,7 +112,7 @@ const Mainpage = () => {
       //     "YYYY-MM-DD HH-mm-ss"
       //   ).toISOString()
       // );
-      if(!login){
+      if (!login) {
         setIsModalOpen(true);
       }
       const result = await AXIOS.addMeet(
@@ -122,11 +130,12 @@ const Mainpage = () => {
     }
   };
 
-  const handleOk = () => {  // 你這邊再加上ok後要做的動作
-      setIsModalOpen(false);
+  const handleOk = () => {
+    // 你這邊再加上ok後要做的動作
+    setIsModalOpen(false);
   };
   const handleCancel = () => {
-      setIsModalOpen(false);
+    setIsModalOpen(false);
   };
 
   const CONTENTMENU = {
@@ -208,7 +217,6 @@ const Mainpage = () => {
         <JoinMeet>
           <div
             style={{
-              fontFamily: "Roboto",
               fontStyle: "normal",
               fontWeight: 500,
               fontSize: "30px",
@@ -265,7 +273,6 @@ const Mainpage = () => {
             style={{
               top: 0,
               left: 0,
-              fontFamily: "Roboto",
               fontStyle: "normal",
               fontWeight: "500",
               fontSize: "30px",
@@ -309,23 +316,28 @@ const Mainpage = () => {
             Create
           </Button>
         </CreateMeet>
-        <Modal title="" style={{fontFamily: "Nunito"}}
-            open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText="Ok"
-            cancelText="Cancel">
-            <Form form={form} layout="vertical" name="form_in_modal">
-                <Form.Item
-                    name="name"
-                    label="Please enter your name"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Error: Please enter your name!',
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
-            </Form>
+        <Modal
+          title=""
+          open={isModalOpen}
+          onOk={handleOk}
+          onCancel={handleCancel}
+          okText="Ok"
+          cancelText="Cancel"
+        >
+          <Form form={form} layout="vertical" name="form_in_modal">
+            <Form.Item
+              name="name"
+              label="Please enter your name"
+              rules={[
+                {
+                  required: true,
+                  message: "Error: Please enter your name!",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </Form>
         </Modal>
       </div>
       <div className="leftFooter">
