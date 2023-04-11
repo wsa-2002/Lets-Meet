@@ -73,9 +73,11 @@ class LoginOutput:
 @router.post('/login')
 @enveloped
 async def login(data: LoginInput, response: Response) -> LoginOutput:
-    account_id, pass_hash, is_google_login = await db.account.read_by_username_or_email(
-        identifier=data.user_identifier)
-
+    try:
+        account_id, pass_hash, is_google_login = await db.account.read_by_username_or_email(
+            identifier=data.user_identifier)
+    except exc.NotFound:
+        raise exc.LoginFailed
     if is_google_login:
         raise exc.EmailRegisteredByGoogle
 
