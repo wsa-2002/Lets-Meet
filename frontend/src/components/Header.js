@@ -5,6 +5,7 @@ import { LogoutOutlined } from "@ant-design/icons";
 import "../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
 
+
 const Header = ({ location = "none" }) => {
   //location表示現在在哪個頁面
   return (

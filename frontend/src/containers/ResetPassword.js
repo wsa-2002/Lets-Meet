@@ -47,13 +47,16 @@ const ResetPassword = () => {
       </div>
       <div className="rightContainer">
         <div className="resetContainer">
-          <h1>Reset Password</h1>
+          <div style={{textAlign: 'left'}}>
+            <h1>Reset Password</h1>
+          </div>
           <Input
             placeholder="Email"
             style={{
               width: "100%",
               height: "45px",
-              borderRadius: "15px",
+              marginTop: "10px",
+              borderRadius: "10px",
               marginBottom: "30px",
             }}
             ref={EmailRef}
