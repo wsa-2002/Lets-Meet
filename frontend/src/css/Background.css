@@ -85,18 +85,18 @@
 }
 
 .title {
-  width: 100%;
-  position: absolute;
-  /* left: 20%; */
-  top: 70%;
-  display: flex;
-  justify-content: center;
-  /* border: 1px solid #D8D8D8; */
-  font-style: normal;
-  font-weight: 500;
-  font-size: 80px;
-  line-height: 46px;
-  color: #ffa601;
+    width: 100%;
+    position: absolute;
+    left: 10%;
+    top: 70%;
+    /* display: flex;
+    justify-content: center; */
+    /* border: 1px solid #D8D8D8; */
+    font-style: normal;
+    font-weight: 500;
+    font-size: 80px;
+    line-height: 46px;
+    color: #ffa601;
 }
 
 .meetTable {
