@@ -111,8 +111,7 @@ const Meets = () => {
     (async () => {
       if (cookies.token) {
         const result = await browseMeet(cookies.token);
-        console.log(result);
-        setData(
+        setShowData(
           result.data.map((d) => ({
             key: d.meet_id,
             name: d.title,
@@ -131,6 +130,7 @@ const Meets = () => {
       }
     })();
   }, [cookies]);
+
 
     const columns = [
         {
