@@ -220,7 +220,13 @@ const Meets = () => {
           >
             Ended Votes
           </Button>
-          <Button style={{ float: "right", backgroundColor: isVoting ? "#5A8EA4" : "white", color: isVoting ? "white" : "#5A8EA4"}} onClick={handleIsVote}>Voting</Button>
+          <Button 
+            style={{ 
+              float: "right", 
+              backgroundColor: isVoting ? "#5A8EA4" : "white", 
+              color: isVoting ? "white" : "#5A8EA4"
+            }} 
+            onClick={handleIsVote}>Voting</Button>
         </div>
         {(
           <Table
