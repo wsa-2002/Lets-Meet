@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMeet } from "../containers/hooks/useMeet";
 
 const Header = ({ location = "none" }) => {
-  const { removeCookie } = useMeet();
+  const { removeCookie, setLogin } = useMeet();
   //location表示現在在哪個頁面
   return (
     <div className="header">
@@ -20,6 +20,7 @@ const Header = ({ location = "none" }) => {
           marginRight: "10%",
           height: "100%",
         }}
+        href="/"
       >
         Let's Meet
       </Button>
@@ -129,6 +130,7 @@ const Header = ({ location = "none" }) => {
         }}
         onClick={() => {
           removeCookie("token");
+          setLogin(false);
         }}
       />
     </div>

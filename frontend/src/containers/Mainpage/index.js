@@ -85,9 +85,38 @@ const Mainpage = () => {
     }
   };
 
-  const handleInvite = (e) => {
+  const handleInvite = async (e) => {
     if (e?.key === "Enter" || !e.key) {
-      alert("Invite");
+      if (cookies.token) {
+        const { data, error } = await AXIOS.joinMeet(
+          { invite_code: invite.current.input.value },
+          cookies.token
+        );
+        // console.log(result);
+        navigate(`/meets/${data.id}`, {
+          state: {
+            meetInfo: {
+              EventName: data.meet_name,
+              Date:
+                data.start_date.replaceAll("-", "/") +
+                "~" +
+                data.end_date.replaceAll("-", "/"),
+              Time: slotIDProcessing(
+                data.start_time_slot_id,
+                data.end_time_slot_id
+              ), //  (data.start_time_slot_id - 1) * 30 % 60
+              Host: data.host_info.name ?? data.host_info.id,
+              Memeber: data.member_infos,
+              Description: data.description,
+              "Voting Deadline": data.voting_end_time
+                ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
+                : "not assigned",
+              "Invitation URL": data.invite_code,
+              "Google Meet URL": data.meet_url ?? "temp",
+            },
+          },
+        });
+      }
     }
   };
 
