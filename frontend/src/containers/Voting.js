@@ -31,12 +31,12 @@ let createList = [
 ].map((m) =>
   [
     "May 19Wed",
-    "May 20Wed",
-    "May 21Wed",
-    "May 22Wed",
-    "May 23Wed",
-    "May 24Wed",
-    "May 25Wed",
+    "May 20Thu",
+    "May 21Fri",
+    "May 22Sat",
+    "May 23Sun",
+    "May 24Mon",
+    "May 25Tue",
   ].map((d) => ({
     date: d,
     time: m,

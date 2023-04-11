@@ -3,7 +3,7 @@ import "@fontsource/roboto/500.css";
 import { Input, Button, Modal, Form } from "antd";
 import "../css/Background.css";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Link, useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getMeetInfo, joinMeet } from "../middleware";
 import { useMeet } from "./hooks/useMeet";
@@ -122,7 +122,10 @@ const MeetInfo = () => {
           data.start_time_slot_id,
           data.end_time_slot_id
         ), //  (data.start_time_slot_id - 1) * 30 % 60
-        Host: data.host_info?.name ?? data.host_info?.id ?? "Guest",
+        Host:
+          data.host_info?.name ??
+          data.host_info?.id ??
+          location.state.guestName,
         Member: data.member_infos.map((m) => m.name).join(", "),
         Description: data.description,
         "Voting Deadline": data.voting_end_time
