@@ -1,4 +1,4 @@
-import { Mentions } from "antd";
+import { Mentions, Button, Tag } from "antd";
 import debounce from "lodash/debounce";
 import { useEffect } from "react";
 import { useCallback, useRef, useState } from "react";
@@ -16,6 +16,13 @@ const Member = () => {
 		},
 	]);
 	const ref = useRef();
+	const [showMemberArea, setShowMemberArea] = useState(false);
+
+	useEffect(() => {
+		if (users[0].key !== "No Result") {
+			setShowMemberArea(true);
+		}
+	}, [users]);
 
 	const loadGithubUsers = async (key) => {
 		if (!key) {
@@ -73,14 +80,29 @@ const Member = () => {
 		debounceLoadGithubUsers(search);
 	};
 	return (
-		<Mentions
-			style={{
-				width: "350px",
-			}}
-			loading={loading}
-			onSearch={onSearch}
-			options={users}
-		/>
+		<div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+			<div style={{ display: "flex", flexDirection: "row" }}>
+				<Mentions
+					style={{
+						width: "350px",
+					}}
+					loading={loading}
+					onSearch={onSearch}
+					options={users}
+				/>
+				<Button
+					style={{ background: "#5A8EA4", color: "white", marginLeft: "10px" }}
+				>
+					+
+				</Button>
+			</div>
+			{showMemberArea && (
+				<div style={{ width: "400px" }}>
+					{users[0].key !== "No Result" &&
+						users.map((item) => <Tag closable>{item}</Tag>)}
+				</div>
+			)}
+		</div>
 	);
 };
 

@@ -262,16 +262,7 @@ const Mainpage = () => {
 				format={"HH:mm"}
 			/>
 		),
-		Member: (
-			<div style={{ display: "flex", flexDirection: "row" }}>
-				<Member style={{ borderRadius: "5px" }} />
-				<Button
-					style={{ background: "#5A8EA4", color: "white", marginLeft: "10px" }}
-				>
-					+
-				</Button>
-			</div>
-		),
+		Member: <Member style={{ borderRadius: "5px" }} />,
 		Description: (
 			<TextArea
 				style={{
