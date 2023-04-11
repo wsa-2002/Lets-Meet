@@ -194,8 +194,6 @@ const Meets = () => {
         },
     ]
 
-  console.log(isVoting)
-
   return (
     <>
       {login ? <Header location="meet" /> : <Header2 />}
