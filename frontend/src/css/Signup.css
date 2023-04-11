@@ -1,8 +1,7 @@
 .loginContainer {
     /* grid-column: 2/3;
     grid-row: 2/3; */
-    width: 40%;
-    height: 60%;
+    width: 20%;
     min-width: 300px;
     min-height: 400px;
     position: relative;
@@ -11,7 +10,7 @@
     transform: translate(-50%, -50%);
     border: 1px solid #D8D8D8;
     border-radius: 5%;
-    padding: 10% 10%;
+    padding: 5% 5%;
     text-align: center;
 }
 

@@ -134,14 +134,24 @@ const LogIn = () => {
           </Button>
           <Divider>or</Divider>
           <Button
-            style={{ marginBottom: "30px" }}
+            style={{
+              width: "350px",
+              height: "70px",
+              background: "white",
+              border: "0.5px solid #808080",
+              borderRadius: "15px",
+            }}
             // icon="../resources/google.png"
             onClick={() => {
               window.open("http://localhost:8000/google-login", "_self");
             }}
           >
-            <Image width="20px" src={googleIcon} />
-            <Text style={{ marginLeft: "20px" }}>Login with Google</Text>
+            <Image width="30px" src={googleIcon} />
+            <span
+              style={{ marginLeft: "30px", fontSize: "20px", fontWeight: 500 }}
+            >
+              Login with Google
+            </span>
           </Button>
         </div>
       </div>
