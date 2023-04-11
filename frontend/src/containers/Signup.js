@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider, Image, notification } from "antd";
 import * as AXIOS from "../middleware";
-import googleIcon from '../resources/google.png';
+import googleIcon from "../resources/google.png";
 
 const { Text, Link } = Typography;
 
@@ -16,7 +15,7 @@ const LogIn = () => {
     "Confirm Password": "",
   });
   const [validName, setValidName] = useState(true);
-  const [description, setDescription] = useState("nothing");
+  const [description, setDescription] = useState("");
   const [api, contextHolder] = notification.useNotification();
 
   const handleSignupChange = (e) => {
@@ -41,19 +40,30 @@ const LogIn = () => {
       console.log("請輸入相同密碼");
     } else if (signupData.Username && signupData.Password && signupData.Email) {
       try {
-        await AXIOS.signup({
+        const { data, error } = await AXIOS.signup({
           username: signupData.Username,
           password: signupData.Password,
           email: signupData.Email,
         });
-        api.open({
-          message: 'Vertification mail sent',
-          description:
-            'Please check your mailbox.',
-          style: {},
-        });
+        if (error) {
+          switch (error) {
+            case "UsernameExists":
+              setDescription("Username has already been registered.");
+              break;
+            case "EmailExist":
+              setDescription("Email has already been registered.");
+              break;
+            default:
+              break;
+          }
+        } else {
+          api.open({
+            message: "Vertification mail sent",
+            description: "Please check your mailbox.",
+            style: {},
+          });
+        }
       } catch (e) {
-        setDescription("xxx");  // 這邊會設三個不同訊息，然後useeffect那邊感測到description變後就會pop出message
         alert(e);
       }
     }
@@ -69,16 +79,17 @@ const LogIn = () => {
   // }
 
   useEffect(() => {
-    api.open({
-      message: 'Sign up failed',
-      description:
+    if (description) {
+      api.open({
+        message: "Sign up failed",
         description, // 總共有三個 description
-      style: {},
-    });
+        style: {},
+      });
+    }
   }, [description]);
 
   return (
-    <div className="mainContainer">
+    <>
       <div className="leftContainer">
         {/* {contextHolder}
         <Button onClick={signFail}>ppp</Button> */}
@@ -123,24 +134,28 @@ const LogIn = () => {
           </Button>
           <Divider>or</Divider>
           <Button
-            style={{ marginBottom: "30px" }}
+            style={{
+              width: "350px",
+              height: "70px",
+              background: "white",
+              border: "0.5px solid #808080",
+              borderRadius: "15px",
+            }}
             // icon="../resources/google.png"
             onClick={() => {
               window.open("http://localhost:8000/google-login", "_self");
             }}
           >
-            <Image width="20px" src={googleIcon}/>
-            <Text style={{marginLeft: "20px"}}>Login with Google</Text>
+            <Image width="30px" src={googleIcon} />
+            <span
+              style={{ marginLeft: "30px", fontSize: "20px", fontWeight: 500 }}
+            >
+              Login with Google
+            </span>
           </Button>
         </div>
       </div>
-      <div className="leftFooter">
-        <div>中文 | English</div>
-      </div>
-      <div className="rightFooter">
-        <div>Copyright 2023</div>
-      </div>
-    </div>
+    </>
   );
 };
 

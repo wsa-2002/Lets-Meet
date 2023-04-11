@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import "@fontsource/roboto/500.css";
 import "../css/ResetPassword.css";
 import { Input, Button, Typography, Divider, notification, Space } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -40,20 +39,23 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="mainContainer">
+    <>
       {contextHolder}
       <div className="leftContainer">
         <p className="title">Let's Meet!</p>
       </div>
       <div className="rightContainer">
         <div className="resetContainer">
-          <h1>Reset Password</h1>
+          <div style={{textAlign: 'left'}}>
+            <h1>Reset Password</h1>
+          </div>
           <Input
             placeholder="Email"
             style={{
               width: "100%",
               height: "45px",
-              borderRadius: "15px",
+              marginTop: "10px",
+              borderRadius: "10px",
               marginBottom: "30px",
             }}
             ref={EmailRef}
@@ -73,13 +75,7 @@ const ResetPassword = () => {
           </Button>
         </div>
       </div>
-      <div className="leftFooter">
-        <div>中文 | English</div>
-      </div>
-      <div className="rightFooter">
-        <div>Copyright 2023</div>
-      </div>
-    </div>
+    </>
   );
 };
 

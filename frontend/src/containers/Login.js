@@ -1,14 +1,13 @@
 import styled from "styled-components";
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider, Image, notification } from "antd";
 import { useNavigate } from "react-router-dom";
 import * as AXIOS from "../middleware";
 import { useMeet } from "./hooks/useMeet";
-import googleIcon from '../resources/google.png';
+import googleIcon from "../resources/google.png";
 
 const { Text, Link } = Typography;
 
@@ -42,8 +41,9 @@ const LogIn = () => {
       if (result.error) {
         alert("登入失敗");
         api.open({
-          message: 'Login failed',
-          description: "Username/Email has already been linked to Google. Please login with Google.",
+          message: "Login failed",
+          description:
+            "Username/Email has already been linked to Google. Please login with Google.",
         });
       } else {
         console.log(result);
@@ -53,7 +53,7 @@ const LogIn = () => {
       alert(e);
       console.log(e);
       api.open({
-        message: 'Login failed',
+        message: "Login failed",
         description: "",
       });
     }
@@ -76,13 +76,15 @@ const LogIn = () => {
   };
 
   return (
-    <div className="mainContainer">
+    <>
       <div className="leftContainer">
         <p className="title">Let's Meet!</p>
       </div>
       <div className="rightContainer">
         <div className="loginContainer">
-          <h1>Welcome</h1>
+          <div style={{textAlign: 'left'}}>
+            <h1 style={{fontWeight: 700}}>Welcome</h1>
+          </div>
           <Input
             placeholder="Username/Email"
             style={{
@@ -90,6 +92,7 @@ const LogIn = () => {
               height: "45px",
               borderRadius: "15px",
               marginBottom: "30px",
+              borderColor: "#808080",
             }}
             name="user_identifier"
             onChange={handleLoginChange}
@@ -100,6 +103,7 @@ const LogIn = () => {
               width: "100%",
               height: "45px",
               borderRadius: "15px",
+              borderColor: "#808080",
               // marginBttom: "30px",
             }}
             name="password"
@@ -108,16 +112,18 @@ const LogIn = () => {
           <div
             style={{
               marginLeft: "50%",
-              marginBottom: "30px",
+              marginBottom: "10px",
+              textAlign: 'right'
             }}
           >
-            <Link onClick={handleReset}>Forget Password?</Link>
+            <Link onClick={handleReset} style={{color: "#B76A00"}}>Forgot Password</Link>
           </div>
           <Button
             size={"large"}
             style={{
               background: "#B3DEE5",
               borderRadius: "15px",
+              borderColor: "#B3DEE5",
               // position: "relative",
               // left: "50%",
               // transform: "translate(-50%, 0)",
@@ -126,18 +132,29 @@ const LogIn = () => {
           >
             Login
           </Button>
-          <Divider>or</Divider>
+          <Divider style={{borderColor: "#808080", color: "#808080"}}>or</Divider>
           <Button
-            style={{ marginBottom: "30px" }}
+            style={{
+              width: "300px",
+              height: "60px",
+              background: "white",
+              border: "0.5px solid #808080",
+              borderRadius: "15px",
+              marginBottom: "30px"
+            }}
             // icon="../resources/google.png"
             onClick={() => {
               window.open("http://localhost:8000/google-login", "_self");
             }}
           >
-            <Image width="20px" src={googleIcon}/>
-            <Text style={{marginLeft: "20px"}}>Login with Google</Text>
+            <Image width="30px" src={googleIcon} />
+            <span
+              style={{ marginLeft: "30px", fontSize: "20px", fontWeight: 500 }}
+            >
+              Login with Google
+            </span>
           </Button>
-          <br/>
+          <br />
           <Text
             type="secondary"
             style={
@@ -146,18 +163,12 @@ const LogIn = () => {
               }
             }
           >
-            New to Let's Meet? <Link onClick={handleSignUp}>Sign Up</Link>
+            New to Let's Meet? <Link onClick={handleSignUp} style={{color: "#B76A00"}}>Sign Up</Link>
           </Text>
           {/* <Button onClick={onSignout}>temp</Button> */}
         </div>
       </div>
-      <div className="leftFooter">
-        <div>中文 | English</div>
-      </div>
-      <div className="rightFooter">
-        <div>Copyright 2023</div>
-      </div>
-    </div>
+    </>
   );
 };
 

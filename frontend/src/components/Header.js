@@ -1,11 +1,13 @@
 import styled from "styled-components";
-import "@fontsource/roboto/500.css";
 import { Button, Space } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
 import "../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
+import { useMeet } from "../containers/hooks/useMeet";
+
 
 const Header = ({ location = "none" }) => {
+  const { removeCookie, setLogin } = useMeet();
   //location表示現在在哪個頁面
   return (
     <div className="header">
@@ -13,11 +15,11 @@ const Header = ({ location = "none" }) => {
         type="link"
         style={{
           fontSize: "28px",
-          fontFamily: "Lobster",
           color: "#FFA601",
           marginRight: "10%",
           height: "100%",
         }}
+        href="/"
       >
         Let's Meet
       </Button>
@@ -26,11 +28,11 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
             height: "100%",
           }}
+          href="/meets"
         >
           Meets
         </Button>
@@ -39,10 +41,10 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#808080",
             height: "100%",
           }}
+          href="/meets"
         >
           Meets
         </Button>
@@ -52,7 +54,6 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
             height: "100%",
@@ -65,7 +66,6 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#808080",
             height: "100%",
           }}
@@ -78,7 +78,6 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
             height: "100%",
@@ -91,7 +90,6 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#808080",
             height: "100%",
           }}
@@ -103,7 +101,6 @@ const Header = ({ location = "none" }) => {
         type="link"
         style={{
           fontSize: "24px",
-          fontFamily: "Nunito",
           color: "#808080",
           height: "100%",
           position: "absolute",
@@ -117,11 +114,14 @@ const Header = ({ location = "none" }) => {
         icon={<LogoutOutlined />}
         style={{
           fontSize: "24px",
-          fontFamily: "Nunito",
           color: "#808080",
           height: "100%",
           position: "absolute",
           left: "95%",
+        }}
+        onClick={() => {
+          removeCookie("token");
+          setLogin(false);
         }}
       />
     </div>
@@ -137,6 +137,18 @@ const Header2 = () => {
 
   return (
     <div className="header">
+    <Button
+        type="link"
+        style={{
+          fontSize: "28px",
+          color: "#FFA601",
+          marginRight: "10%",
+          height: "100%",
+        }}
+        href="/"
+      >
+        Let's Meet
+      </Button>
       <Button
         style={{
           position: "absolute",

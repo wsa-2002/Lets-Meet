@@ -16,17 +16,17 @@ async def add(title: str, invite_code: str,
               gen_meet_url: bool, voting_end_time: Optional[datetime] = None,
               status: enums.StatusType = enums.StatusType.voting,
               host_member_id: int = None, member_ids: Sequence[int] = None,
-              guest_name: Optional[str] = None) -> int:
+              guest_name: Optional[str] = None, description: Optional[str] = None) -> int:
     conn: asyncpg.connection.Connection = await pool_handler.pool.acquire()
     try:
         meet_id, = await conn.fetchrow(
             r"INSERT INTO meet "
             r"            (title, invite_code, start_date,end_date, start_time_slot_id, end_time_slot_id,"
-            r"            voting_end_time, gen_meet_url, status)"
-            r"     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
+            r"            voting_end_time, gen_meet_url, status, description)"
+            r"     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
             r"  RETURNING id",
             title, invite_code, start_date, end_date, start_time_slot_id, end_time_slot_id, voting_end_time,
-            gen_meet_url, status
+            gen_meet_url, status, description,
         )
         if member_ids:
             await conn.executemany(
