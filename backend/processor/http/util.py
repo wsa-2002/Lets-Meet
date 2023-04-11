@@ -1,12 +1,18 @@
 import datetime
 import typing
-from typing import Tuple, Any
+from typing import Tuple, Any, Optional
 
 import pydantic
 
-from base import model
+from base import model, enums
 from base.enums import FilterOperator, SortOrder
+import persistence.database as db
 import exceptions as exc  # noqa
+
+
+class MemberInfo(pydantic.BaseModel):
+    member_id: Optional[int]
+    name: Optional[str]
 
 
 def timezone_validate(time: datetime.datetime) -> datetime.datetime:
@@ -63,3 +69,43 @@ def parse_sorter(column_types: dict[str, type], sorters: typing.Optional[pydanti
         raise exc.IllegalInput
 
     return sorters
+
+
+MEET_STATUS_MAPPING = {
+    enums.StatusType.voting: 'Unvoted',
+    enums.StatusType.voted: 'Voted',
+    enums.StatusType.need_confirm: 'Need Confirmation',
+    enums.StatusType.waiting_for_confirm: 'Confirming',
+    enums.StatusType.confirmed: 'Confirmed',
+}
+
+
+async def update_status(meet_id: int, meet, now: datetime.datetime, account_id: int) -> str:
+    if meet.voting_end_time and now <= meet.voting_end_time:
+        if await db.meet.has_voted(meet_id, account_id):
+            meet.status = enums.StatusType.voted
+        else:
+            meet.status = enums.StatusType.voting
+    elif meet.voting_end_time and now > meet.voting_end_time and meet.status is enums.StatusType.voting:
+        await db.meet.update_status(meet_id, enums.StatusType.waiting_for_confirm)
+        meet.status = enums.StatusType.waiting_for_confirm
+    if meet.status is enums.StatusType.waiting_for_confirm and await db.meet.is_authed(meet_id=meet_id,
+                                                                                       member_id=account_id,
+                                                                                       only_host=True):
+        meet.status = enums.StatusType.need_confirm
+    return MEET_STATUS_MAPPING[meet.status]
+
+
+async def compose_host_and_member_info(meet_id: int) -> Tuple[MemberInfo, typing.Sequence[MemberInfo]]:
+    member_auth = await db.meet.get_member_id_and_auth(meet_id)
+    host = None
+    member_infos = []
+    for (id_, name), v in member_auth.items():
+        if not name:
+            name = (await db.account.read(account_id=id_)).username
+        if v:
+            host = MemberInfo(member_id=id_, name=name)
+        else:
+            member_infos.append(MemberInfo(member_id=id_, name=name))
+
+    return host, member_infos
