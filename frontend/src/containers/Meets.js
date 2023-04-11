@@ -64,36 +64,44 @@ const Meets = () => {
     return `${startHour}:${startMinute}~${endHour}:${endMinute}`;
   };
 
-  useEffect(() => {
-    (async () => {
-      if (cookies.token) {
-        const result = await browseMeet(cookies.token);
-        console.log(result);
-        setData(
-          result.data.map((d) => ({
-            key: d.meet_id,
-            name: d.title,
-            host: d.host_username,
-            votingPeriod: `${d.start_date.replaceAll(
-              "-",
-              "/"
-            )}-${d.end_date.replaceAll("-", "/")}`,
-            status: [d.status],
-            meetingTime: "xx/xx/xx",
-            url: d.meet_url ?? "temp",
-          }))
-        );
-      } else {
-        navigate("/");
-      }
-    })();
-  }, [cookies]);
+//   useEffect(() => {
+//     (async () => {
+//       if (cookies.token) {
+//         const result = await browseMeet(cookies.token);
+//         console.log(result);
+//         setData(
+//           result.data.map((d) => ({
+//             key: d.meet_id,
+//             name: d.title,
+//             host: d.host_username,
+//             votingPeriod: `${d.start_date.replaceAll(
+//               "-",
+//               "/"
+//             )}-${d.end_date.replaceAll("-", "/")}`,
+//             status: [d.status],
+//             meetingTime: "xx/xx/xx",
+//             url: d.meet_url ?? "temp",
+//           }))
+//         );
+//       } else {
+//         navigate("/");
+//       }
+//     })();
+//   }, [cookies]);
 
   return (
     <>
       {login ? <Header location="meet" /> : <Header2 />}
       <div className="wholeContainer">
-        {data && (
+        <div className="meetTableHeader">
+            <div style={{
+                    fontFamily: "Roboto", fontStyle: "normal", fontWeight: "500",
+                    fontSize: "30px", float: "left"
+                }}>My Meets</div>
+            <Button style={{float: "right", marginLeft: "10px", backgroundColor: "#5A8EA4", color: "white"}}>Ended Votes</Button>
+            <Button style={{float: "right", color: "#5A8EA4"}}>Voting</Button>
+        </div>
+        {(
           <Table
             dataSource={data}
             className="meetTable"
@@ -126,9 +134,9 @@ const Meets = () => {
               )}
             />
             <Column
-              title="Meeting Time"
-              dataIndex="meetingTime"
-              key="meetingTime"
+              title="Voting Deadline"
+              dataIndex="votingDeadline"
+              key="votingDeadline"
             />
             <Column
               title="Google Meet URL"

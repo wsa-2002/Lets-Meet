@@ -173,7 +173,7 @@ const Voting = () => {
   return (
     <>
       {isLogin ? <Header location="timeslot" /> : <Header2 />}
-      <div className="leftContainer" style={{ background: "white" }}>
+      <div className="leftContainer2" style={{ background: "white" }}>
         <FormWrapper>
           <Button
             icon={<ArrowLeftOutlined />}
@@ -258,7 +258,7 @@ const Voting = () => {
           </div>
         </FormWrapper>
       </div>
-      <div className="rightContainer">
+      <div className="rightContainer2">
         <FormWrapper>
           <div
             style={{
