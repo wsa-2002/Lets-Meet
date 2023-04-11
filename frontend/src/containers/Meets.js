@@ -111,20 +111,20 @@ const Meets = () => {
     (async () => {
       if (cookies.token) {
         const result = await browseMeet(cookies.token);
-        setShowData(
-          result.data.map((d) => ({
-            key: d.meet_id,
-            name: d.title,
-            host: d.host_username,
-            votingPeriod: `${d.start_date.replaceAll(
-              "-",
-              "/"
-            )}-${d.end_date.replaceAll("-", "/")}`,
-            status: d.status,
-            meetingTime: "xx/xx/xx",
-            url: d.meet_url ?? "temp",
-          }))
-        );
+        const data = result.data.map((d) => ({
+          key: d.meet_id,
+          name: d.title,
+          host: d.host_username,
+          votingPeriod: `${d.start_date.replaceAll(
+            "-",
+            "/"
+          )}-${d.end_date.replaceAll("-", "/")}`,
+          status: d.status,
+          meetingTime: "xx/xx/xx",
+          url: d.meet_url ?? "temp",
+        }))
+        setData(data);
+        setShowData(data)
       } else {
         navigate("/");
       }
