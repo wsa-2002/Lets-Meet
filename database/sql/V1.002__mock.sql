@@ -46,3 +46,18 @@ INSERT INTO time_slot VALUES (45, '22:00:00', '22:30:00');
 INSERT INTO time_slot VALUES (46, '22:30:00', '23:00:00');
 INSERT INTO time_slot VALUES (47, '23:00:00', '23:30:00');
 INSERT INTO time_slot VALUES (48, '23:30:00', '00:00:00');
+
+
+INSERT INTO account (email, username, pass_hash, notification_preference) VALUES ('a@gmail.com', 'a', '$argon2id$v=19$m=65536,t=3,p=4$9n5vrRUCgHAOofQeY6y1Ng$Lu4uhE4EQaGifUNMThhLUQs1JfUq2iSw99DtWx5lSug', 'EMAIL');
+INSERT INTO account (email, username, pass_hash, notification_preference) VALUES ('b@gmail.com', 'b', '$argon2id$v=19$m=65536,t=3,p=4$9n5vrRUCgHAOofQeY6y1Ng$Lu4uhE4EQaGifUNMThhLUQs1JfUq2iSw99DtWx5lSug', 'EMAIL');
+INSERT INTO account (email, username, pass_hash, notification_preference) VALUES ('c@gmail.com', 'c', '$argon2id$v=19$m=65536,t=3,p=4$9n5vrRUCgHAOofQeY6y1Ng$Lu4uhE4EQaGifUNMThhLUQs1JfUq2iSw99DtWx5lSug', 'EMAIL');
+
+INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status) VALUES ('2023-01-01', '2023-01-07', 1, 24, 'title1', 'qweras', 'CONFIRMED');
+INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status, voting_end_time) VALUES ('2023-04-08', '2023-04-15', 1, 24, 'title2', 'dfzxcv', 'VOTING', '2023-04-11 06:06:06');
+INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status, voting_end_time) VALUES ('2023-04-01', '2023-04-07', 1, 24, 'title3', 'tyuiop', 'VOTING', '2023-04-06 05:05:05');
+
+INSERT INTO meet_member (meet_id, member_id, is_host) VALUES (1, 1, true);
+INSERT INTO meet_member (meet_id, member_id, is_host) VALUES (2, 1, true);
+INSERT INTO meet_member (meet_id, member_id, is_host) VALUES (3, 1, true);
+
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (2, '2023-04-09', 3);
