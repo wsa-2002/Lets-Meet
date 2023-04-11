@@ -33,7 +33,7 @@ class AddAccountOutput:
     id: int
 
 
-@router.post('/account')
+@router.post('/account', response_model=AddAccountOutput)
 @enveloped
 async def add_account(data: AddAccountInput) -> AddAccountOutput:
     if any(char in data.username for char in USERNAME_PROHIBITED_CHARS):
@@ -70,7 +70,7 @@ class LoginOutput:
     token: str
 
 
-@router.post('/login')
+@router.post('/login', response_model=LoginOutput)
 @enveloped
 async def login(data: LoginInput, response: Response) -> LoginOutput:
     try:
@@ -100,7 +100,7 @@ class SearchAccountOutput(BaseModel):
     accounts: Optional[Sequence[AccountInfo]]
 
 
-@router.get('/account/search')
+@router.get('/account/search', response_model=SearchAccountOutput)
 @enveloped
 async def search_account(identifier: str) -> SearchAccountOutput:
     accounts = await db.account.search(identifier=identifier)
