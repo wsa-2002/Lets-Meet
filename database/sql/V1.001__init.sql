@@ -77,7 +77,7 @@ CREATE TABLE meet_member (
     member_id INTEGER REFERENCES account (id),
     meet_id   INTEGER NOT NULL REFERENCES meet (id),
     is_host   BOOLEAN DEFAULT FALSE,
-    UNIQUE (name, member_id, meet_id)
+    UNIQUE (member_id, meet_id)
 );
 
 
