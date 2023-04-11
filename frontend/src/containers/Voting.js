@@ -6,6 +6,7 @@ import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Header, Header2 } from "../components/Header";
+import { useMeet } from "./hooks/useMeet";
 
 // createList 形式：{date: "May 19Wed", time: "9:00", available: false} 之後會加一格routine
 let createList = [
@@ -115,9 +116,9 @@ const addHexColor = (c1, c2) => {
 };
 
 const Voting = () => {
-  const [isLogin, setIsLogin] = useState(true); // 如果login會顯示header，沒有的話會顯示login
   const [block, setBlock] = useState(createList); // 每個timeblock存的資訊
   const navigate = useNavigate();
+  const { login } = useMeet();
 
   const handleMeet = () => {
     navigate("/meets");
@@ -172,7 +173,7 @@ const Voting = () => {
 
   return (
     <>
-      {isLogin ? <Header location="timeslot" /> : <Header2 />}
+      {login ? <Header location="timeslot" /> : <Header2 />}
       <div className="leftContainer" style={{ background: "white" }}>
         <FormWrapper>
           <Button
