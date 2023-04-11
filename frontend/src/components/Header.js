@@ -16,7 +16,8 @@ const Header = ({ location = "none" }) => {
         style={{
           fontSize: "28px",
           color: "#FFA601",
-          marginRight: "3%",
+          marginLeft: "1%",
+          marginRight: "2%",
           height: "100%",
           fontFamily: "Lobster",
         }}
@@ -28,7 +29,7 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
             height: "90%",
@@ -42,7 +43,7 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#808080",
             height: "90%",
           }}
@@ -55,7 +56,7 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
             height: "90%",
@@ -68,7 +69,7 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#808080",
             height: "90%",
           }}
@@ -80,7 +81,7 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
             height: "90%",
@@ -93,7 +94,7 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#808080",
             height: "90%",
           }}
@@ -104,7 +105,7 @@ const Header = ({ location = "none" }) => {
       <Button
         type="link"
         style={{
-          fontSize: "24px",
+          fontSize: "22px",
           color: "#808080",
           height: "90%",
           position: "absolute",
@@ -117,7 +118,7 @@ const Header = ({ location = "none" }) => {
         type="link"
         icon={<LogoutOutlined />}
         style={{
-          fontSize: "24px",
+          fontSize: "22px",
           color: "#808080",
           height: "90%",
           position: "absolute",
