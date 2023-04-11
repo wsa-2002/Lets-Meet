@@ -17,10 +17,40 @@ const tagMap = {
   Comfirmed: "#FFA601",
 };
 
+// const tempData = [
+//     {
+//         name: "SDM",
+//         host: "Luisa",
+//         votingPeriod: "2023/03/24-2023/04/01",
+//         status: "Voted",
+//         votingDeadline: "xx/xx/xx",
+//         url: "https://meet.google.com/rcb-ffqt-xbn",
+//     },
+//     {
+//         name: "SDM",
+//         host: "Lisa",
+//         votingPeriod: "2023/03/24-2023/04/01",
+//         status: "Unvoted",
+//         votingDeadline: "xx/xx/xx",
+//         url: "https://meet.google.com/rcb-ffqt-xbn",
+//     },
+//     {
+//         name: "SDM",
+//         host: "Luisa",
+//         votingPeriod: "2023/03/24-2023/04/01",
+//         status: "Comfirmed",
+//         meetingTime: "xx/xx/xx",
+//         url: "https://meet.google.com/rcb-ffqt-xbn",
+//         filterd: true,
+//     },
+// ];
+
 const Meets = () => {
   const navigate = useNavigate();
   const { cookies, login } = useMeet();
   const [data, setData] = useState("");
+  const [isVoting, setIsVoting] = useState(true);
+  const [showData, setShowData] = useState(data);
 
   const handleMeetInfoClick = (meet_id) => async () => {
     try {
@@ -64,6 +94,18 @@ const Meets = () => {
     return `${startHour}:${startMinute}~${endHour}:${endMinute}`;
   };
 
+    const handleIsVote = () => {
+        setIsVoting(true);
+        const temp = data.filter((ele) => ele.status.includes("ote"));
+        setShowData(temp);
+    }
+
+    const handleEndVote = () => {
+        setIsVoting(false);
+        const temp = data.filter((ele) => ele.status.includes("omfirm"));
+        setShowData(temp);
+    }
+
 //   useEffect(() => {
 //     (async () => {
 //       if (cookies.token) {
@@ -78,7 +120,7 @@ const Meets = () => {
 //               "-",
 //               "/"
 //             )}-${d.end_date.replaceAll("-", "/")}`,
-//             status: [d.status],
+//             status: d.status,
 //             meetingTime: "xx/xx/xx",
 //             url: d.meet_url ?? "temp",
 //           }))
@@ -89,6 +131,68 @@ const Meets = () => {
 //     })();
 //   }, [cookies]);
 
+    const columns = [
+        {
+            title: "Name",
+            dataIndex:"name",
+            key: "name"
+        },
+        {
+            title: "Host",
+            dataIndex:"host",
+            key: "host"
+        },
+        {
+            title: "Voting Period",
+            dataIndex:"votingPeriod",
+            key: "votingPeriod"
+        },
+        {
+            title: "Status",
+            dataIndex:"status",
+            key: "status",
+            render: (tag) => (
+                <>
+                    <Tag color={tagMap[tag]} key={tag}>
+                      {tag}
+                    </Tag>
+                </>
+            ),
+        },
+        {
+            title: isVoting ? "Voting Deadline" : "Meeting Time",
+            dataIndex:isVoting ? "votingDeadline" : "meetingTime",
+            key: isVoting ? "votingDeadline" : "meetingTime"
+        },
+        {
+            title: "Google Meet URL",
+            dataIndex:"url",
+            key: "url",
+            render: (tag) => (
+                <Link
+                  type="link"
+                  href={tag}
+                  target="_blank"
+                  style={{ color: "black" }}
+                >
+                  {tag}
+                </Link> // 跳轉到新的頁面
+            ),
+        },
+        {
+            title: "",
+            dataIndex:"action",
+            render: (_, record) => (
+                <Button
+                  type="link"
+                  icon={<ArrowRightOutlined />}
+                  style={{ color: "#D8D8D8" }}
+                  // onClick={handleMeetInfoClick}
+                />
+            ),
+        },
+    ]
+
   return (
     <>
       {login ? <Header location="meet" /> : <Header2 />}
@@ -98,73 +202,21 @@ const Meets = () => {
                     fontFamily: "Roboto", fontStyle: "normal", fontWeight: "500",
                     fontSize: "30px", float: "left"
                 }}>My Meets</div>
-            <Button style={{float: "right", marginLeft: "10px", backgroundColor: "#5A8EA4", color: "white"}}>Ended Votes</Button>
-            <Button style={{float: "right", color: "#5A8EA4"}}>Voting</Button>
+            <Button style={{float: "right", marginLeft: "10px", backgroundColor: "#5A8EA4",
+             color: "white"}} onClick={handleEndVote}>Ended Votes</Button>
+            <Button style={{float: "right", color: "#5A8EA4"}} onClick={handleIsVote}>Voting</Button>
         </div>
         {(
           <Table
-            dataSource={data}
+            dataSource={showData}
             className="meetTable"
+            columns={columns}
             onRow={(record) => {
               return {
                 onClick: handleMeetInfoClick(record.key),
               };
             }}
           >
-            {/* <Table dataSource={data} className="meetTable" rowClassName={(record, index) => index === 0 ? 'table-row-light' :  'table-row-dark'}></Table> */}
-            <Column title="Name" dataIndex="name" key="name" />
-            <Column title="Host" dataIndex="host" key="host" />
-            <Column
-              title="Voting Period"
-              dataIndex="votingPeriod"
-              key="votingPeroid"
-            />
-            <Column
-              title="Status"
-              dataIndex="status"
-              key="status"
-              render={(tags) => (
-                <>
-                  {tags.map((tag) => (
-                    <Tag color={tagMap[tag]} key={tag}>
-                      {tag}
-                    </Tag>
-                  ))}
-                </>
-              )}
-            />
-            <Column
-              title="Voting Deadline"
-              dataIndex="votingDeadline"
-              key="votingDeadline"
-            />
-            <Column
-              title="Google Meet URL"
-              dataIndex="url"
-              key="url"
-              render={(tag) => (
-                <Link
-                  type="link"
-                  href={tag}
-                  target="_blank"
-                  style={{ color: "black" }}
-                >
-                  {tag}
-                </Link> // 跳轉到新的頁面
-              )}
-            />
-            <Column
-              title=""
-              key="action"
-              render={(_, record) => (
-                <Button
-                  type="link"
-                  icon={<ArrowRightOutlined />}
-                  style={{ color: "#D8D8D8" }}
-                  // onClick={handleMeetInfoClick}
-                />
-              )}
-            />
           </Table>
         )}
       </div>
