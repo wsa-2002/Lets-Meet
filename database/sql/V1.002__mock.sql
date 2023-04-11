@@ -54,7 +54,7 @@ INSERT INTO account (email, username, pass_hash, notification_preference) VALUES
 
 INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status) VALUES ('2023-01-01', '2023-01-07', 1, 24, 'SDM meeting', 'qweras', 'CONFIRMED');
 INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status, voting_end_time) VALUES ('2023-04-08', '2023-04-15', 1, 24, 'Comebuy Meeting', 'dfzxcv', 'WAITING_FOR_CONFIRM', '2023-04-11 06:06:06');
-INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status, voting_end_time) VALUES ('2023-04-01', '2023-04-07', 1, 24, 'Final Project first discussion', 'tyuiop', 'VOTING', '2023-04-06 05:05:05');
+INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status, voting_end_time) VALUES ('2023-04-01', '2023-04-07', 1, 24, 'Final Project first discussion', 'tyuiop', 'VOTING', '2023-04-15 05:05:05');
 INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status, voting_end_time) VALUES ('2023-04-01', '2023-04-13', 1, 24, 'Final Project second discussion', 'jifhjr', 'VOTING', '2023-04-15 05:05:05');
 
 INSERT INTO meet_member (meet_id, member_id, is_host) VALUES (1, 1, true);
@@ -67,4 +67,18 @@ INSERT INTO meet_member (meet_id, member_id, is_host) VALUES (3, 3, false);
 INSERT INTO meet_member (meet_id, member_id, is_host) VALUES (4, 1, true);
 INSERT INTO meet_member (meet_id, member_id, is_host) VALUES (4, 2, false);
 
-INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (2, '2023-04-09', 3);
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (6, '2023-04-06', 3);
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (6, '2023-04-06', 4);
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (6, '2023-04-06', 5);
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (6, '2023-04-06', 6);
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (6, '2023-04-06', 7);
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (6, '2023-04-06', 11);
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (7, '2023-04-05', 4);
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (7, '2023-04-05', 8);
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (7, '2023-04-05', 12);
+-- INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (8, '2023-04-09', 5);
+-- INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (8, '2023-04-09', 9);
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (9, '2023-04-09', 6);
+INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (9, '2023-04-09', 10);
+
+
