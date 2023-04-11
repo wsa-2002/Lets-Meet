@@ -57,7 +57,7 @@ class ReadMeetOutput(BaseModel):
     member_infos: Optional[Sequence[MemberInfo]] = None
 
 
-@router.post('/meet', response_model=ReadMeetOutput)
+@router.post('/meet')
 @enveloped
 async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
     try:
@@ -118,7 +118,7 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
     )
 
 
-@router.get('/meet/{meet_id}', response_model=ReadMeetOutput)
+@router.get('/meet/{meet_id}')
 @enveloped
 async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
     if name and not await db.meet.is_authed(meet_id, name=name):
@@ -151,7 +151,7 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
     )
 
 
-@router.delete('/meet/{meet_id}', response_model=None)
+@router.delete('/meet/{meet_id}')
 @enveloped
 async def delete_meet(meet_id: int) -> None:
     meet_members = await db.meet.get_member_id_and_auth(meet_id=meet_id)
@@ -177,7 +177,7 @@ class EditMeetInput(BaseModel):
     gen_meet_url: Optional[bool] = False
 
 
-@router.patch('/meet/[meet_id}', response_model=None)
+@router.patch('/meet/[meet_id}')
 @enveloped
 async def edit_meet(meet_id: int, data: EditMeetInput) -> None:
     if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
@@ -232,7 +232,7 @@ async def meet_sorter(sorters: typing.Optional[Json] = None) -> Sequence[model.S
     return parse_sorter(BROWSE_MEET_COLUMNS, sorters)
 
 
-@router.get('/meet', response_model=Sequence[vo.BrowseMeetByAccount])
+@router.get('/meet')
 @enveloped
 async def browse_meet(filters: Sequence[model.Filter] = Depends(meet_filter),
                       sorters: Sequence[model.Sorter] = Depends(meet_sorter))\
@@ -252,9 +252,9 @@ class JoinMeetInput(BaseModel):
     name: Optional[str]
 
 
-@router.post('/meet/invite', response_model=ReadMeetOutput)
+@router.post('/meet/invite')
 @enveloped
-async def join_meet_by_invite_code(data: JoinMeetInput) -> ReadMeetOutput:
+async def join_meet_by_invite_code(data: JoinMeetInput):
     try:
         account_id = request.account.id
     except exc.NoPermission:
@@ -289,7 +289,7 @@ async def join_meet_by_invite_code(data: JoinMeetInput) -> ReadMeetOutput:
     )
 
 
-@router.get('/meet/invite/{invite_code}', response_model=ReadMeetOutput)
+@router.get('/meet/invite/{invite_code}')
 @enveloped
 async def read_meet_by_code(invite_code: str) -> ReadMeetOutput:
     meet = await db.meet.read_meet_by_code(invite_code=invite_code)
