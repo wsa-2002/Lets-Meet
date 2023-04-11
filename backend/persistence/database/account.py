@@ -135,7 +135,7 @@ async def read(account_id: int) -> do.Account:
         account_id=account_id,
     )
     try:
-        id_, email, username, line_token, google_token, notification_preference, is_google_login = \
+        id_, username, email, notification_preference, is_google_login, line_token, google_token = \
             await pool_handler.pool.fetchrow(sql, *params)
     except TypeError:
         raise exc.NotFound
