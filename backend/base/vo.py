@@ -8,6 +8,7 @@ from base import enums
 @dataclass
 class BrowseMeetByAccount:
     meet_id: int
+    invite_code: str
     host_account_id: Optional[int]
     host_username: Optional[str]
     title: str
