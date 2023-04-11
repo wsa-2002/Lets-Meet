@@ -1,7 +1,7 @@
 import typing
 from datetime import datetime, date
 import random
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Union
 
 from fastapi import APIRouter, responses, Depends
 from pydantic import BaseModel, Json
@@ -40,7 +40,7 @@ class AddMeetInput(BaseModel):
 
 class ReadMeetOutput(BaseModel):
     id: int
-    status: enums.StatusType | str
+    status: Union[enums.StatusType, str]
     start_date: date
     end_date: date
     start_time_slot_id: int
