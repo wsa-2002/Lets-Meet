@@ -40,7 +40,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="mainContainer">
+    <>
       {contextHolder}
       <div className="leftContainer">
         <p className="title">Let's Meet!</p>
@@ -73,13 +73,7 @@ const ResetPassword = () => {
           </Button>
         </div>
       </div>
-      <div className="leftFooter">
-        <div>中文 | English</div>
-      </div>
-      <div className="rightFooter">
-        <div>Copyright 2023</div>
-      </div>
-    </div>
+    </>
   );
 };
 
