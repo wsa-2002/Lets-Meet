@@ -194,6 +194,8 @@ const Meets = () => {
         },
     ]
 
+  console.log(isVoting)
+
   return (
     <>
       {login ? <Header location="meet" /> : <Header2 />}
@@ -211,17 +213,17 @@ const Meets = () => {
             My Meets
           </div>
           <Button
-            style={{
+            style= {{
               float: "right",
               marginLeft: "10px",
-              backgroundColor: "#5A8EA4",
-              color: "white",
+              backgroundColor: isVoting ? "white": "#5A8EA4",
+              color: isVoting ? "#5A8EA4" : "white",
             }}
             onClick={handleEndVote}
           >
             Ended Votes
           </Button>
-          <Button style={{ float: "right", color: "#5A8EA4" }} onClick={handleIsVote}>Voting</Button>
+          <Button style={{ float: "right", backgroundColor: isVoting ? "#5A8EA4" : "white", color: isVoting ? "white" : "#5A8EA4"}} onClick={handleIsVote}>Voting</Button>
         </div>
         {(
           <Table
