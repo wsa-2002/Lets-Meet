@@ -7,7 +7,7 @@
     display:grid;
     grid-template-columns:[line1] 35% [line2] 65% [line3];
     grid-template-rows:[row1] 5% [row2] 90% [row3] 5% [row4];
-    margin: auto;
+    /* margin: auto; */
 }
 
 .meetMainContainer {
@@ -90,10 +90,10 @@
 .title {
     width: 100%;
     position: absolute;
-    /* left: 20%; */
+    left: 10%;
     top: 70%;
-    display: flex;
-    justify-content: center;
+    /* display: flex;
+    justify-content: center; */
     /* border: 1px solid #D8D8D8; */
     font-family: "Roboto";
     font-style: normal;
