@@ -45,7 +45,7 @@ async def auth(request: Request):
     token_google = await oauth.google.authorize_access_token(request)
     user_email = token_google['userinfo']['email']
     try:
-        result = await db.account.read_by_email(user_email)
+        result = await db.account.read_by_email(user_email, is_google_login=True)
         account_id = result.id
         token = encode_jwt(account_id=account_id)
     except exc.NotFound:

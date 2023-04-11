@@ -9,7 +9,7 @@ const Member = () => {
 	const [loading, setLoading] = useState(false);
 	const [users, setUsers] = useState([
 		{
-			// key: "No Result",
+			key: "No Result",
 			value: "No Result",
 			label: "No Result",
 			disabled: true,
@@ -21,7 +21,7 @@ const Member = () => {
 		if (!key) {
 			setUsers([
 				{
-					// key: "No Result",
+					key: "No Result",
 					value: "No Result",
 					label: "No Result",
 					disabled: true,
@@ -64,7 +64,7 @@ const Member = () => {
 		setLoading(!!search);
 		setUsers([
 			{
-				// key: "No Result",
+				key: "No Result",
 				value: "No Result",
 				label: "No Result",
 				disabled: true,

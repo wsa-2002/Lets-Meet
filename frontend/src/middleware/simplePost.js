@@ -5,6 +5,7 @@ const URL = {
   forgetPassword: "/forget-password",
   resetPassword: "/reset-password",
   addMeet: "/meet",
+  joinMeet: "/meet/invite",
 };
 
 export default Object.keys(URL).reduce((acc, curr) => {
@@ -20,6 +21,7 @@ export default Object.keys(URL).reduce((acc, curr) => {
       console.log("res", result);
       return result;
     } catch (error) {
+      console.log(error);
       throw error;
     }
   };

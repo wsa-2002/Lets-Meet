@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import "@fontsource/roboto/500.css";
 import {
 	Input,
 	Button,
@@ -12,7 +11,7 @@ import {
 import { ArrowRightOutlined } from "@ant-design/icons";
 import "../../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useMeet } from "../hooks/useMeet";
 import moment from "moment";
 import * as AXIOS from "../../middleware";
@@ -70,6 +69,7 @@ const Mainpage = () => {
 	const { login, cookies } = useMeet();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const navigate = useNavigate();
+	const invite = useRef(null);
 	const [form] = Form.useForm();
 
 	const handleLogin = () => {
@@ -84,9 +84,38 @@ const Mainpage = () => {
 		}
 	};
 
-	const handleInvite = (e) => {
+	const handleInvite = async (e) => {
 		if (e?.key === "Enter" || !e.key) {
-			alert("Invite");
+			if (cookies.token) {
+				const { data, error } = await AXIOS.joinMeet(
+					{ invite_code: invite.current.input.value },
+					cookies.token
+				);
+				// console.log(result);
+				navigate(`/meets/${data.id}`, {
+					state: {
+						meetInfo: {
+							EventName: data.meet_name,
+							Date:
+								data.start_date.replaceAll("-", "/") +
+								"~" +
+								data.end_date.replaceAll("-", "/"),
+							Time: slotIDProcessing(
+								data.start_time_slot_id,
+								data.end_time_slot_id
+							), //  (data.start_time_slot_id - 1) * 30 % 60
+							Host: data.host_info.name ?? data.host_info.id,
+							Memeber: data.member_infos,
+							Description: data.description,
+							"Voting Deadline": data.voting_end_time
+								? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
+								: "not assigned",
+							"Invitation URL": data.invite_code,
+							"Google Meet URL": data.meet_url ?? "temp",
+						},
+					},
+				});
+			}
 		}
 	};
 
@@ -104,18 +133,23 @@ const Mainpage = () => {
 			}
 		};
 
+	const slotIDProcessing = (start, end) => {
+		let hour = String(parseInt(((start - 1) * 30) / 60));
+		const startHour = "0".repeat(2 - hour.length) + hour;
+		const startMinute = parseInt(((start - 1) * 30) % 60) ? "30" : "00";
+		hour = String(parseInt((end * 30) / 60));
+		const endHour = "0".repeat(2 - hour.length) + hour;
+		const endMinute = parseInt((end * 30) % 60) ? "30" : "00";
+		return `${startHour}:${startMinute}~${endHour}:${endMinute}`;
+	};
+
 	const handleMeetCreate = async () => {
 		try {
-			// console.log(
-			//   moment(
-			//     meetData.voting_end_date + " " + meetData.voting_end_time,
-			//     "YYYY-MM-DD HH-mm-ss"
-			//   ).toISOString()
-			// );
 			if (!login) {
 				setIsModalOpen(true);
+				return;
 			}
-			const result = await AXIOS.addMeet(
+			const { data } = await AXIOS.addMeet(
 				{
 					...meetData,
 					voting_end_time: moment(
@@ -125,14 +159,75 @@ const Mainpage = () => {
 				},
 				cookies.token
 			);
+			navigate(`/meets/${data.id}`, {
+				state: {
+					meetInfo: {
+						EventName: data.meet_name,
+						Date:
+							data.start_date.replaceAll("-", "/") +
+							"~" +
+							data.end_date.replaceAll("-", "/"),
+						Time: slotIDProcessing(
+							data.start_time_slot_id,
+							data.end_time_slot_id
+						), //  (data.start_time_slot_id - 1) * 30 % 60
+						Host: data.host_info.name ?? data.host_info.id,
+						Memeber: data.member_infos,
+						Description: data.description,
+						"Voting Deadline": data.voting_end_time
+							? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
+							: "not assigned",
+						"Invitation URL": data.invite_code,
+						"Google Meet URL": data.meet_url ?? "temp",
+					},
+				},
+			});
 		} catch (e) {
 			console.log(e);
 		}
 	};
 
-	const handleOk = () => {
+	const handleOk = async () => {
 		// 你這邊再加上ok後要做的動作
-		setIsModalOpen(false);
+		try {
+			if (!form.getFieldValue().name) return;
+			const { data } = await AXIOS.addMeet(
+				{
+					...meetData,
+					guest_name: form.getFieldValue().name,
+					voting_end_time: moment(
+						meetData.voting_end_date + " " + meetData.voting_end_time,
+						"YYYY-MM-DD HH-mm-ss"
+					).toISOString(),
+				},
+				cookies.token
+			);
+			navigate(`/meets/${data.id}`, {
+				state: {
+					meetInfo: {
+						EventName: data.meet_name,
+						Date:
+							data.start_date.replaceAll("-", "/") +
+							"~" +
+							data.end_date.replaceAll("-", "/"),
+						Time: slotIDProcessing(
+							data.start_time_slot_id,
+							data.end_time_slot_id
+						), //  (data.start_time_slot_id - 1) * 30 % 60
+						Host: data.host_info.name ?? data.host_info.id,
+						Memeber: data.member_infos,
+						Description: data.description,
+						"Voting Deadline": data.voting_end_time
+							? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
+							: "not assigned",
+						"Invitation URL": data.invite_code,
+						"Google Meet URL": data.meet_url ?? "temp",
+					},
+				},
+			});
+		} catch (error) {}
+
+		// setIsModalOpen(false);
 	};
 	const handleCancel = () => {
 		setIsModalOpen(false);
@@ -215,13 +310,12 @@ const Mainpage = () => {
 	};
 
 	return (
-		<div className="mainContainer">
+		<>
 			{login && <Header />}
 			<div className="leftContainer">
 				<JoinMeet>
 					<div
 						style={{
-							fontFamily: "Roboto",
 							fontStyle: "normal",
 							fontWeight: 500,
 							fontSize: "30px",
@@ -240,6 +334,7 @@ const Mainpage = () => {
 								height: "45px",
 								borderRadius: "15px",
 							}}
+							ref={invite}
 							onKeyDown={handleInvite}
 						/>
 						<Button
@@ -259,8 +354,9 @@ const Mainpage = () => {
 				{!login && (
 					<Button
 						style={{
-							position: "absolute",
-							left: "90%",
+							gridColumn: "2/3",
+							float: "right",
+							marginRight: "5%",
 							top: "3%",
 							borderRadius: "15px",
 							borderColor: "#FFA601",
@@ -276,7 +372,6 @@ const Mainpage = () => {
 						style={{
 							// top: 0,
 							// left: 0,
-							fontFamily: "Roboto",
 							fontStyle: "normal",
 							fontWeight: "500",
 							fontSize: "30px",
@@ -321,7 +416,6 @@ const Mainpage = () => {
 				</CreateMeet>
 				<Modal
 					title=""
-					style={{ fontFamily: "Nunito" }}
 					open={isModalOpen}
 					onOk={handleOk}
 					onCancel={handleCancel}
@@ -344,14 +438,7 @@ const Mainpage = () => {
 					</Form>
 				</Modal>
 			</div>
-			<div className="middleContainer"></div>
-			<div className="leftFooter">
-				<div>中文 | English</div>
-			</div>
-			<div className="rightFooter">
-				<div>Copyright 2023</div>
-			</div>
-		</div>
+		</>
 	);
 };
 
