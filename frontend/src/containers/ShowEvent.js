@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import "@fontsource/roboto/500.css";
 import { Input, Button, Modal, Form } from "antd";
 import "../css/Background.css";
 import { ArrowLeftOutlined } from "@ant-design/icons";

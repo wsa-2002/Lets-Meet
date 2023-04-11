@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import "@fontsource/roboto/500.css";
 import "../css/ResetPassword.css";
 import { Input, Button, Typography, Divider, notification, Space } from "antd";
 import { useNavigate } from "react-router-dom";

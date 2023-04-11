@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider, Image, notification } from "antd";
 import * as AXIOS from "../middleware";
-import googleIcon from '../resources/google.png';
+import googleIcon from "../resources/google.png";
 
 const { Text, Link } = Typography;
 
@@ -47,13 +46,12 @@ const LogIn = () => {
           email: signupData.Email,
         });
         api.open({
-          message: 'Vertification mail sent',
-          description:
-            'Please check your mailbox.',
+          message: "Vertification mail sent",
+          description: "Please check your mailbox.",
           style: {},
         });
       } catch (e) {
-        setDescription("xxx");  // 這邊會設三個不同訊息，然後useeffect那邊感測到description變後就會pop出message
+        setDescription("xxx"); // 這邊會設三個不同訊息，然後useeffect那邊感測到description變後就會pop出message
         alert(e);
       }
     }
@@ -70,9 +68,8 @@ const LogIn = () => {
 
   useEffect(() => {
     api.open({
-      message: 'Sign up failed',
-      description:
-        description, // 總共有三個 description
+      message: "Sign up failed",
+      description: description, // 總共有三個 description
       style: {},
     });
   }, [description]);
@@ -129,8 +126,8 @@ const LogIn = () => {
               window.open("http://localhost:8000/google-login", "_self");
             }}
           >
-            <Image width="20px" src={googleIcon}/>
-            <Text style={{marginLeft: "20px"}}>Login with Google</Text>
+            <Image width="20px" src={googleIcon} />
+            <Text style={{ marginLeft: "20px" }}>Login with Google</Text>
           </Button>
         </div>
       </div>
