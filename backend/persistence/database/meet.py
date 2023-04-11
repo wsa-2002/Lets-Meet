@@ -213,7 +213,7 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
     cond_sql, cond_params = compile_filters(filters=filters)
     sort_sql = ' ,'.join(f"{sorter.field} {sorter.order}" for sorter in sorters)
     sql, params = pyformat2psql(
-        sql=fr"SELECT meet.id, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,"
+        sql=fr"SELECT meet.id, invite_code, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,"
             fr"       voting_end_time, meet_url, tbl1.member_id, "
             fr"       host.username"
             fr"  FROM meet"
@@ -231,11 +231,11 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
         **cond_params, account_id=account_id,
     )
     records = await pool_handler.pool.fetch(sql, *params)
-    return [vo.BrowseMeetByAccount(meet_id=meet_id, host_account_id=host_account_id, host_username=host_username,
-                                   title=title, start_date=start_date, end_date=end_date,
+    return [vo.BrowseMeetByAccount(meet_id=meet_id, invite_code=invite_code, host_account_id=host_account_id,
+                                   host_username=host_username, title=title, start_date=start_date, end_date=end_date,
                                    start_time_slot_id=start_time_slot_id, end_time_slot_id=end_time_slot_id,
                                    status=enums.StatusType(status), voting_end_time=voting_end_time, meet_url=meet_url)
-            for meet_id, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,
+            for meet_id, invite_code, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,
                 voting_end_time, meet_url, host_account_id, host_username in records]  # noqa
 
 
