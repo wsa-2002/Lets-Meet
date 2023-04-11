@@ -10,7 +10,7 @@ import {
 } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import "../../css/Background.css";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
 import { useMeet } from "../hooks/useMeet";
 import moment from "moment";
@@ -29,7 +29,6 @@ const JoinMeet = styled.div`
   width: 310px;
   left: 10%;
   top: 20%;
-  // transform: translate(-50%, 0);
   row-gap: 20px;
 `;
 
@@ -40,18 +39,7 @@ const CreateMeet = styled.div`
   position: relative;
   left: 10%;
   top: 20%;
-  // top: 180px;
-  // transform: translate(-50%, -50%);
-  // border: 1px solid #D8D8D8;
-  // padding: 5% 10%;
 `;
-
-// const CreateContent = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   align-items: center;
-//   row-gap: 10px;
-// `;
 
 const Mainpage = () => {
   const [votingButton, setVotingButton] = useState("hidden");
@@ -87,36 +75,12 @@ const Mainpage = () => {
   const handleInvite = async (e) => {
     if (e?.key === "Enter" || !e.key) {
       if (cookies.token) {
-        const { data, error } = await AXIOS.joinMeet(
+        await AXIOS.joinMeet(
           { invite_code: invite.current.input.value },
           cookies.token
         );
-        // console.log(result);
-        navigate(`/meets/${data.id}`, {
-          state: {
-            meetInfo: {
-              EventName: data.meet_name,
-              Date:
-                data.start_date.replaceAll("-", "/") +
-                "~" +
-                data.end_date.replaceAll("-", "/"),
-              Time: slotIDProcessing(
-                data.start_time_slot_id,
-                data.end_time_slot_id
-              ), //  (data.start_time_slot_id - 1) * 30 % 60
-              Host: data.host_info?.name ?? data.host_info?.id ?? "Guest",
-              Member: data.member_infos.map((m) => m.name).toString(),
-              Description: data.description,
-              "Voting Deadline": data.voting_end_time
-                ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
-                : "not assigned",
-              "Invitation URL": `https://lets.meet.com?invite=${data.invite_code}`,
-              "Google Meet URL":
-                data.meet_url ?? "https://meet.google.com/vft-xolb-mog",
-            },
-          },
-        });
       }
+      navigate(`/meets/${invite.current.input.value}`);
     }
   };
 
@@ -134,16 +98,6 @@ const Mainpage = () => {
       }
     };
 
-  const slotIDProcessing = (start, end) => {
-    let hour = String(parseInt(((start - 1) * 30) / 60));
-    const startHour = "0".repeat(2 - hour.length) + hour;
-    const startMinute = parseInt(((start - 1) * 30) % 60) ? "30" : "00";
-    hour = String(parseInt((end * 30) / 60));
-    const endHour = "0".repeat(2 - hour.length) + hour;
-    const endMinute = parseInt((end * 30) % 60) ? "30" : "00";
-    return `${startHour}:${startMinute}~${endHour}:${endMinute}`;
-  };
-
   const handleMeetCreate = async () => {
     try {
       if (!login) {
@@ -160,30 +114,7 @@ const Mainpage = () => {
         },
         cookies.token
       );
-      navigate(`/meets/${data.id}`, {
-        state: {
-          meetInfo: {
-            EventName: data.meet_name,
-            Date:
-              data.start_date.replaceAll("-", "/") +
-              "~" +
-              data.end_date.replaceAll("-", "/"),
-            Time: slotIDProcessing(
-              data.start_time_slot_id,
-              data.end_time_slot_id
-            ), //  (data.start_time_slot_id - 1) * 30 % 60
-            Host: data.host_info.name ?? data.host_info.id,
-            Member: data.member_infos.map((m) => m.name).toString(),
-            Description: data.description,
-            "Voting Deadline": data.voting_end_time
-              ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
-              : "not assigned",
-            "Invitation URL": `https://lets.meet.com?invite=${data.invite_code}`,
-            "Google Meet URL":
-              data.meet_url ?? "https://meet.google.com/vft-xolb-mog",
-          },
-        },
-      });
+      navigate(`/meets/${data.invite_code}`);
     } catch (e) {
       console.log(e);
     }
@@ -204,31 +135,8 @@ const Mainpage = () => {
         },
         cookies.token
       );
-      console.log(data.id);
-      navigate(`/meets/${data.id}`, {
-        state: {
-          meetInfo: {
-            EventName: data.meet_name,
-            Date:
-              data.start_date.replaceAll("-", "/") +
-              "~" +
-              data.end_date.replaceAll("-", "/"),
-            Time: slotIDProcessing(
-              data.start_time_slot_id,
-              data.end_time_slot_id
-            ), //  (data.start_time_slot_id - 1) * 30 % 60
-            Host: data.host_info?.name ?? data.host_info?.id ?? "Guest",
-            Member: data.member_infos.map((m) => m.name).toString(),
-            Description: data.description,
-            "Voting Deadline": data.voting_end_time
-              ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
-              : "not assigned",
-            "Invitation URL": `https://lets.meet.com?invite=${data.invite_code}`,
-            "Google Meet URL":
-              data.meet_url ?? "https://meet.google.com/vft-xolb-mog",
-          },
-        },
-      });
+      // console.log(data.id);
+      navigate(`/meets/${data.invite_code}`);
     } catch (error) {
       console.log(error);
     }
