@@ -58,6 +58,7 @@ const Header = ({ location = "none" }) => {
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
             height: "90%",
+            fontWeight: 600,
           }}
         >
           Calendar
@@ -82,6 +83,7 @@ const Header = ({ location = "none" }) => {
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
             height: "90%",
+            fontWeight: 600,
           }}
         >
           Routine
@@ -108,7 +110,7 @@ const Header = ({ location = "none" }) => {
           left: "88%",
         }}
       >
-        Setting
+        Settings
       </Button>
       <Button
         type="link"
