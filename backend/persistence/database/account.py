@@ -74,7 +74,7 @@ async def read_by_username_or_email(identifier: str, is_google_login: bool = Fal
     try:
         id_, pass_hash, is_google_login = await pool_handler.pool.fetchrow(sql, *params)
     except TypeError:
-        raise exc.NotFound
+        raise exc.LoginFailed
     return id_, pass_hash, is_google_login
 
 
