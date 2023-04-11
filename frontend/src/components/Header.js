@@ -16,8 +16,10 @@ const Header = ({ location = "none" }) => {
         style={{
           fontSize: "28px",
           color: "#FFA601",
-          marginRight: "3%",
+          marginLeft: "1%",
+          marginRight: "2%",
           height: "100%",
+          fontFamily: "Lobster",
         }}
         href="/"
       >
@@ -27,11 +29,12 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
-            height: "90%",
-            fontWeight: 600,
+            height: "85%",
+            fontWeight: 800,
+            fontFamily: "Nunito",
           }}
           href="/meets"
         >
@@ -41,9 +44,11 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#808080",
-            height: "90%",
+            height: "85%",
+            fontFamily: "Nunito",
+            fontWeight: 600,
           }}
           href="/meets"
         >
@@ -54,11 +59,12 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
-            height: "90%",
-            fontWeight: 600,
+            height: "85%",
+            fontWeight: 800,
+            fontFamily: "Nunito",
           }}
         >
           Calendar
@@ -67,9 +73,11 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#808080",
-            height: "90%",
+            height: "85%",
+            fontFamily: "Nunito",
+            fontWeight: 600,
           }}
         >
           Calendar
@@ -79,11 +87,12 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
-            height: "90%",
-            fontWeight: 600,
+            height: "85%",
+            fontWeight: 800,
+            fontFamily: "Nunito",
           }}
         >
           Routine
@@ -92,9 +101,11 @@ const Header = ({ location = "none" }) => {
         <Button
           type="link"
           style={{
-            fontSize: "24px",
+            fontSize: "22px",
             color: "#808080",
-            height: "90%",
+            height: "85%",
+            fontFamily: "Nunito",
+            fontWeight: 600,
           }}
         >
           Routine
@@ -103,11 +114,13 @@ const Header = ({ location = "none" }) => {
       <Button
         type="link"
         style={{
-          fontSize: "24px",
+          fontSize: "22px",
           color: "#808080",
-          height: "90%",
+          height: "85%",
           position: "absolute",
           left: "88%",
+          fontFamily: "Nunito",
+          fontWeight: 600,
         }}
       >
         Settings
@@ -116,9 +129,9 @@ const Header = ({ location = "none" }) => {
         type="link"
         icon={<LogoutOutlined />}
         style={{
-          fontSize: "24px",
+          fontSize: "22px",
           color: "#808080",
-          height: "90%",
+          height: "85%",
           position: "absolute",
           left: "95%",
         }}
@@ -147,6 +160,7 @@ const Header2 = () => {
           color: "#FFA601",
           marginRight: "10%",
           height: "100%",
+          fontFamily: "Lobster",
         }}
         href="/"
       >
@@ -155,11 +169,12 @@ const Header2 = () => {
       <Button
         style={{
           position: "absolute",
-          left: "90%",
+          left: "85%",
           marginTop: "1%",
           borderRadius: "15px",
           borderColor: "#FFA601",
           color: "#FFA601",
+          fontFamily: "Nunito",
         }}
         onClick={handleLogin}
       >
