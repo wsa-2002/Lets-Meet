@@ -39,7 +39,7 @@ const Meets = () => {
               data.end_time_slot_id
             ), //  (data.start_time_slot_id - 1) * 30 % 60
             Host: data.host_info.name ?? data.host_info.id,
-            Memeber: data.member_infos,
+            Memeber: data.member_infos.map((m) => m.username).toString(),
             Description: data.description,
             "Voting Deadline": data.voting_end_time
               ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
