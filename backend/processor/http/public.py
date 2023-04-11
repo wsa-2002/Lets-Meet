@@ -18,7 +18,7 @@ async def default_page():
 
 
 @router.get('/email-verification', tags=['Account'])
-@router.post('/email-verification', tags=['Account'])
+@router.post('/email-verification', tags=['Account'], response_model=None)
 @enveloped
 async def email_verification(code: UUID):
     await db.email_verification.verify_email(code=code)
@@ -28,7 +28,7 @@ class ForgetPasswordInput(BaseModel):
     email: str
 
 
-@router.post('/forget-password')
+@router.post('/forget-password', response_model=None)
 @enveloped
 async def forget_password(data: ForgetPasswordInput) -> None:
     account = await db.account.read_by_email(email=data.email, is_google_login=False)
@@ -43,7 +43,7 @@ class ResetPasswordInput(BaseModel):
 
 
 @router.get('/reset-password')
-@router.post('/reset-password')
+@router.post('/reset-password', response_model=None)
 @enveloped
 async def reset_password(data: ResetPasswordInput):
     await db.account.reset_password(code=data.code, pass_hash=hash_password(data.password))

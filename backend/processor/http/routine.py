@@ -1,6 +1,8 @@
+from typing import Sequence
+
 from fastapi import APIRouter, responses, Depends
 from pydantic import BaseModel
-from dataclasses import dataclass
+
 from middleware.headers import get_auth_token
 from middleware.envelope import enveloped
 from middleware.context import request
@@ -30,23 +32,23 @@ weekdayValue = {
 }
 
 
-@router.post('/routine')
+@router.post('/routine', response_model=None)
 @enveloped
-async def add_routine(data: Routine):
+async def add_routine(data: Routine) -> None:
     account_id = request.account.id
     await db.routine.add(account_id=account_id, weekday=data.weekday, time_slot_id=data.time_slot_id)
 
 
-@router.delete('/routine')
+@router.delete('/routine', response_model=None)
 @enveloped
-async def delete_routine(data: Routine):
+async def delete_routine(data: Routine) -> None:
     account_id = request.account.id
     await db.routine.delete(account_id=account_id, weekday=data.weekday, time_slot_id=data.time_slot_id)
 
 
-@router.get('/routine/account/{account_id}')
+@router.get('/routine/account/{account_id}', response_model=Sequence[Routine])
 @enveloped
-async def get_routine(account_id: int):
+async def get_routine(account_id: int) -> Sequence[Routine]:
     routines = await db.routine.get(account_id=account_id)
 
     routines.sort(key=lambda x: (weekdayValue[x.weekday], x.time_slot_id)) # sort by weekday (mon to sun) then sort by time_slot_id
