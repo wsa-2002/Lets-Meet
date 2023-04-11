@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import "@fontsource/roboto/500.css";
 import { Button, Space } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
 import "../css/Background.css";
@@ -13,7 +12,6 @@ const Header = ({ location = "none" }) => {
         type="link"
         style={{
           fontSize: "28px",
-          fontFamily: "Lobster",
           color: "#FFA601",
           marginRight: "10%",
           height: "100%",
@@ -26,7 +24,6 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
             height: "100%",
@@ -39,7 +36,6 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#808080",
             height: "100%",
           }}
@@ -52,7 +48,6 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
             height: "100%",
@@ -65,7 +60,6 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#808080",
             height: "100%",
           }}
@@ -78,7 +72,6 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
             height: "100%",
@@ -91,7 +84,6 @@ const Header = ({ location = "none" }) => {
           type="link"
           style={{
             fontSize: "24px",
-            fontFamily: "Nunito",
             color: "#808080",
             height: "100%",
           }}
@@ -103,7 +95,6 @@ const Header = ({ location = "none" }) => {
         type="link"
         style={{
           fontSize: "24px",
-          fontFamily: "Nunito",
           color: "#808080",
           height: "100%",
           position: "absolute",
@@ -117,7 +108,6 @@ const Header = ({ location = "none" }) => {
         icon={<LogoutOutlined />}
         style={{
           fontSize: "24px",
-          fontFamily: "Nunito",
           color: "#808080",
           height: "100%",
           position: "absolute",
