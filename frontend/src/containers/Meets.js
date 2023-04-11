@@ -1,4 +1,3 @@
-import "@fontsource/roboto/500.css";
 import { Input, Button, DatePicker, TimePicker, Space, Table, Tag } from "antd";
 import "../css/Background.css";
 import { ArrowRightOutlined } from "@ant-design/icons";

@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import "@fontsource/roboto/500.css";
 import { Input, Button, Modal, Form } from "antd";
 import "../css/Background.css";
 import { ArrowLeftOutlined } from "@ant-design/icons";
@@ -252,7 +251,6 @@ const ShowEvent = () => {
             style={{
               top: 0,
               left: 0,
-              fontFamily: "Roboto",
               fontStyle: "normal",
               fontWeight: "500",
               fontSize: "30px",
@@ -299,7 +297,6 @@ const ShowEvent = () => {
         <FormWrapper>
           <div
             style={{
-              fontFamily: "Roboto",
               fontWeight: "500",
               fontSize: "20px",
               position: "absolute",
@@ -364,7 +361,6 @@ const ShowEvent = () => {
         </FormWrapper>
         <Modal
           title="Are you sure you want to leave this meet?"
-          style={{ fontFamily: "Nunito" }}
           open={isModalLeaveOpen}
           onOk={handleLeaveOk}
           onCancel={handleLeaveCancel}
@@ -373,7 +369,6 @@ const ShowEvent = () => {
         ></Modal>
         <Modal
           title=""
-          style={{ fontFamily: "Nunito" }}
           open={isModalVoteOpen}
           onOk={handleVoteOk}
           onCancel={handleVoteCancel}

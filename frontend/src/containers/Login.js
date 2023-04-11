@@ -1,14 +1,13 @@
 import styled from "styled-components";
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import "@fontsource/roboto/500.css";
 import "../css/Login.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider, Image, notification } from "antd";
 import { useNavigate } from "react-router-dom";
 import * as AXIOS from "../middleware";
 import { useMeet } from "./hooks/useMeet";
-import googleIcon from '../resources/google.png';
+import googleIcon from "../resources/google.png";
 
 const { Text, Link } = Typography;
 
@@ -42,8 +41,9 @@ const LogIn = () => {
       if (result.error) {
         alert("登入失敗");
         api.open({
-          message: 'Login failed',
-          description: "Username/Email has already been linked to Google. Please login with Google.",
+          message: "Login failed",
+          description:
+            "Username/Email has already been linked to Google. Please login with Google.",
         });
       } else {
         console.log(result);
@@ -53,7 +53,7 @@ const LogIn = () => {
       alert(e);
       console.log(e);
       api.open({
-        message: 'Login failed',
+        message: "Login failed",
         description: "",
       });
     }
@@ -134,10 +134,10 @@ const LogIn = () => {
               window.open("http://localhost:8000/google-login", "_self");
             }}
           >
-            <Image width="20px" src={googleIcon}/>
-            <Text style={{marginLeft: "20px"}}>Login with Google</Text>
+            <Image width="20px" src={googleIcon} />
+            <Text style={{ marginLeft: "20px" }}>Login with Google</Text>
           </Button>
-          <br/>
+          <br />
           <Text
             type="secondary"
             style={

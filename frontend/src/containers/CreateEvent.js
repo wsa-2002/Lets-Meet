@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import "@fontsource/roboto/500.css";
 import { Input, Button, DatePicker, TimePicker, Space, Table, Tag } from "antd";
 import "../css/Background.css";
 import { ArrowLeftOutlined } from "@ant-design/icons";
@@ -400,7 +399,6 @@ const CreateEvent = () => {
             style={{
               top: 0,
               left: 0,
-              fontFamily: "Roboto",
               fontStyle: "normal",
               fontWeight: "500",
               fontSize: "30px",
@@ -412,7 +410,6 @@ const CreateEvent = () => {
           </div>
           <div
             style={{
-              fontFamily: "Roboto",
               fontWeight: "500",
               fontSize: "20px",
               position: "absolute",
@@ -478,7 +475,6 @@ const CreateEvent = () => {
         <FormWrapper>
           <div
             style={{
-              fontFamily: "Roboto",
               fontWeight: "500",
               fontSize: "20px",
               position: "absolute",
