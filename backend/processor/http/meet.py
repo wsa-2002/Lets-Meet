@@ -24,6 +24,15 @@ router = APIRouter(
 )
 
 
+MEET_STATUS_MAPPING = {
+    enums.StatusType.voting: 'Unvoted',
+    enums.StatusType.voted: 'Voted',
+    enums.StatusType.need_confirm: 'Need Confirmation',
+    enums.StatusType.waiting_for_confirm: 'Confirming',
+    enums.StatusType.confirmed: 'Confirmed',
+}
+
+
 class AddMeetInput(BaseModel):
     meet_name: str
     start_date: date
@@ -99,9 +108,19 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
     # TODO: send email to members and emails
 
     meet = await db.meet.read(meet_id=meet_id)
-    if meet.voting_end_time and meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
+    if meet.voting_end_time and request.time <= meet.voting_end_time:
+        if await db.meet.has_voted(meet.id, request.account.id):
+            meet.status = enums.StatusType.voted
+        else:
+            meet.status = enums.StatusType.voting
+    elif meet.voting_end_time and request.time > meet.voting_end_time and meet.status is enums.StatusType.voting:
         await db.meet.update_status(meet.id, enums.StatusType.waiting_for_confirm)
         meet.status = enums.StatusType.waiting_for_confirm
+    if meet.status is enums.StatusType.waiting_for_confirm and await db.meet.is_authed(meet_id=meet.id,
+                                                                                       member_id=request.account.id,
+                                                                                       only_host=True):
+        meet.status = enums.StatusType.need_confirm
+    meet.status = MEET_STATUS_MAPPING[meet.status]
 
     member_auth = await db.meet.get_member_id_and_auth(meet_id)
     host = None
@@ -143,9 +162,19 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
         raise exc.NoPermission
 
     meet = await db.meet.read(meet_id=meet_id)
-    if meet.voting_end_time and meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
+    if meet.voting_end_time and request.time <= meet.voting_end_time:
+        if await db.meet.has_voted(meet.id, request.account.id):
+            meet.status = enums.StatusType.voted
+        else:
+            meet.status = enums.StatusType.voting
+    elif meet.voting_end_time and request.time > meet.voting_end_time and meet.status is enums.StatusType.voting:
         await db.meet.update_status(meet.id, enums.StatusType.waiting_for_confirm)
         meet.status = enums.StatusType.waiting_for_confirm
+    if meet.status is enums.StatusType.waiting_for_confirm and await db.meet.is_authed(meet_id=meet.id,
+                                                                                       member_id=request.account.id,
+                                                                                       only_host=True):
+        meet.status = enums.StatusType.need_confirm
+    meet.status = MEET_STATUS_MAPPING[meet.status]
 
     member_auth = await db.meet.get_member_id_and_auth(meet_id)
     host = None
@@ -277,6 +306,9 @@ async def browse_meet(filters: Sequence[model.Filter] = Depends(meet_filter),
         elif meet.voting_end_time and now > meet.voting_end_time and meet.status is enums.StatusType.voting:
             await db.meet.update_status(meet.meet_id, enums.StatusType.waiting_for_confirm)
             meet.status = enums.StatusType.waiting_for_confirm
+        if meet.status is enums.StatusType.waiting_for_confirm and await db.meet.is_authed(meet_id=meet.meet_id, member_id=request.account.id, only_host=True):
+            meet.status = enums.StatusType.need_confirm
+        meet.status = MEET_STATUS_MAPPING[meet.status]
         meets[i] = meet
 
     return meets
@@ -300,9 +332,19 @@ async def join_meet_by_invite_code(data: JoinMeetInput):
     meet = await db.meet.read_meet_by_code(invite_code=data.invite_code)
     await db.meet.add_member(meet_id=meet.id, account_id=account_id, name=data.name)
 
-    if meet.voting_end_time and meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
+    if meet.voting_end_time and request.time <= meet.voting_end_time:
+        if await db.meet.has_voted(meet.id, request.account.id):
+            meet.status = enums.StatusType.voted
+        else:
+            meet.status = enums.StatusType.voting
+    elif meet.voting_end_time and request.time > meet.voting_end_time and meet.status is enums.StatusType.voting:
         await db.meet.update_status(meet.id, enums.StatusType.waiting_for_confirm)
         meet.status = enums.StatusType.waiting_for_confirm
+    if meet.status is enums.StatusType.waiting_for_confirm and await db.meet.is_authed(meet_id=meet.id,
+                                                                                       member_id=request.account.id,
+                                                                                       only_host=True):
+        meet.status = enums.StatusType.need_confirm
+    meet.status = MEET_STATUS_MAPPING[meet.status]
 
     member_auth = await db.meet.get_member_id_and_auth(meet.id)
     host = None
@@ -342,9 +384,19 @@ async def read_meet_by_code(invite_code: str) -> ReadMeetOutput:
     meet_id = meet.id
 
     meet = await db.meet.read(meet_id=meet_id)
-    if meet.voting_end_time and meet.voting_end_time < request.time and meet.status is enums.StatusType.voting:
+    if meet.voting_end_time and request.time <= meet.voting_end_time:
+        if await db.meet.has_voted(meet.id, request.account.id):
+            meet.status = enums.StatusType.voted
+        else:
+            meet.status = enums.StatusType.voting
+    elif meet.voting_end_time and request.time > meet.voting_end_time and meet.status is enums.StatusType.voting:
         await db.meet.update_status(meet.id, enums.StatusType.waiting_for_confirm)
         meet.status = enums.StatusType.waiting_for_confirm
+    if meet.status is enums.StatusType.waiting_for_confirm and await db.meet.is_authed(meet_id=meet.id,
+                                                                                       member_id=request.account.id,
+                                                                                       only_host=True):
+        meet.status = enums.StatusType.need_confirm
+    meet.status = MEET_STATUS_MAPPING[meet.status]
 
     member_auth = await db.meet.get_member_id_and_auth(meet_id)
     host = None
