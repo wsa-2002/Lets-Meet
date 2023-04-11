@@ -105,7 +105,7 @@ const Mainpage = () => {
                 data.end_time_slot_id
               ), //  (data.start_time_slot_id - 1) * 30 % 60
               Host: data.host_info?.name ?? data.host_info?.id ?? "Guest",
-              Memeber: data.member_infos,
+              Member: data.member_infos.map((m) => m.name).toString(),
               Description: data.description,
               "Voting Deadline": data.voting_end_time
                 ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
@@ -173,7 +173,7 @@ const Mainpage = () => {
               data.end_time_slot_id
             ), //  (data.start_time_slot_id - 1) * 30 % 60
             Host: data.host_info.name ?? data.host_info.id,
-            Memeber: data.member_infos,
+            Member: data.member_infos.map((m) => m.name).toString(),
             Description: data.description,
             "Voting Deadline": data.voting_end_time
               ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
@@ -218,7 +218,7 @@ const Mainpage = () => {
               data.end_time_slot_id
             ), //  (data.start_time_slot_id - 1) * 30 % 60
             Host: data.host_info?.name ?? data.host_info?.id ?? "Guest",
-            Memeber: data.member_infos,
+            Member: data.member_infos.map((m) => m.name).toString(),
             Description: data.description,
             "Voting Deadline": data.voting_end_time
               ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
@@ -266,7 +266,9 @@ const Mainpage = () => {
         format={"HH:mm"}
       />
     ),
-    Member: <Member style={{ borderRadius: "5px" }} />,
+    Member: (
+      <Member style={{ borderRadius: "5px" }} setMeetData={setMeetData} />
+    ),
     Description: (
       <TextArea
         style={{
