@@ -44,8 +44,9 @@ const Meets = () => {
             "Voting Deadline": data.voting_end_time
               ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
               : "not assigned",
-            "Invitation URL": data.invite_code,
-            "Google Meet URL": data.meet_url ?? "temp",
+            "Invitation URL": `https://lets.meet.com?invite=${data.invite_code}`,
+            "Google Meet URL":
+              data.meet_url ?? "https://meet.google.com/vft-xolb-mog",
           },
         },
       });
