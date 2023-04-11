@@ -137,6 +137,18 @@ const Header2 = () => {
 
   return (
     <div className="header">
+    <Button
+        type="link"
+        style={{
+          fontSize: "28px",
+          color: "#FFA601",
+          marginRight: "10%",
+          height: "100%",
+        }}
+        href="/"
+      >
+        Let's Meet
+      </Button>
       <Button
         style={{
           position: "absolute",
