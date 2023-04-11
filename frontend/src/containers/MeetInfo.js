@@ -106,6 +106,7 @@ const MeetInfo = () => {
   const { login, cookies } = useMeet();
   const navigate = useNavigate();
   const { code } = useParams();
+  const [form] = Form.useForm();
 
   const handleMeetInfo = async () => {
     try {
@@ -121,7 +122,7 @@ const MeetInfo = () => {
           data.end_time_slot_id
         ), //  (data.start_time_slot_id - 1) * 30 % 60
         Host: data.host_info.name ?? data.host_info.id,
-        Member: data.member_infos.map((m) => m.name).toString(),
+        Member: data.member_infos.map((m) => m.name).join(", "),
         Description: data.description,
         "Voting Deadline": data.voting_end_time
           ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
@@ -136,13 +137,11 @@ const MeetInfo = () => {
   };
 
   useEffect(() => {
-    if (code && cookies.token) {
+    if (code) {
       handleMeetInfo();
     }
     // console.log(id);
   }, [code]);
-
-  const [form] = Form.useForm();
 
   const handleMeet = () => {
     navigate("/meets");
@@ -167,10 +166,13 @@ const MeetInfo = () => {
   };
 
   const handleVoteOk = async (e) => {
-    console.log(e);
-    // await joinMeet({ invite_code: code, name: "" }, cookies.token);
-    // navigate("/voting");
-    // setIsModalVoteOpen(false);
+    // console.log(form);
+    await joinMeet(
+      { invite_code: code, name: form.getFieldValue().name },
+      cookies.token
+    );
+    navigate("/voting");
+    setIsModalVoteOpen(false);
   };
   const handleVoteCancel = () => {
     setIsModalVoteOpen(false);
@@ -219,19 +221,22 @@ const MeetInfo = () => {
           <div
             style={{ display: "flex", flexDirection: "column", rowGap: "30px" }}
           >
-            {Object.keys(meetInfo).map((c, index) => (
-              <div
-                key={index}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  columnGap: "10%",
-                }}
-              >
-                <div style={{ width: "200px", fontSize: "20px" }}>{c}</div>
-                <div style={{ fontSize: "16px" }}>{meetInfo[c]}</div>
-              </div>
-            ))}
+            {Object.keys(meetInfo).map(
+              (c, index) =>
+                c !== "EventName" && (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      columnGap: "10%",
+                    }}
+                  >
+                    <div style={{ width: "180px", fontSize: "20px" }}>{c}</div>
+                    <div style={{ fontSize: "16px" }}>{meetInfo[c]}</div>
+                  </div>
+                )
+            )}
           </div>
           <Button
             style={{ marginLeft: "65%", marginTop: "35px", marginRight: "5px" }}
