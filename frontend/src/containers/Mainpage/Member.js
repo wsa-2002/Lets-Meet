@@ -1,11 +1,11 @@
-import { Mentions } from "antd";
+import { Mentions, Button, Tag } from "antd";
 import debounce from "lodash/debounce";
 import { useEffect } from "react";
 import { useCallback, useRef, useState } from "react";
-import { member } from "../../middleware";
+import { searchMember } from "../../middleware";
 const { Option } = Mentions;
 
-const Member = () => {
+const Member = ({ setMeetData }) => {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([
     {
@@ -15,9 +15,18 @@ const Member = () => {
       disabled: true,
     },
   ]);
+  const [member, setMember] = useState([]);
+  const [currentMember, setCurrentMember] = useState({ name: "", id: "" });
   const ref = useRef();
+  //   const [showMemberArea, setShowMemberArea] = useState(false);
 
-  const loadGithubUsers = async (key) => {
+  //   useEffect(() => {
+  //     if (users[0].key !== "No Result") {
+  //       setShowMemberArea(true);
+  //     }
+  //   }, [users]);
+
+  const handleSearchMember = async (key) => {
     if (!key) {
       setUsers([
         {
@@ -31,14 +40,21 @@ const Member = () => {
     }
     const {
       data: { accounts },
-    } = await member(key);
-    console.log(accounts);
+    } = await searchMember(key);
+    console.log(
+      accounts.slice(0, 10).map((m) => ({
+        key: m.id,
+        value: m.username,
+        label: m.username,
+      }))
+    );
     if (ref.current !== key) return;
     setLoading(false);
+    console.log(accounts);
     setUsers(
       accounts.length !== 0
         ? accounts.slice(0, 10).map((m) => ({
-            key: m.username,
+            key: String(m.id),
             value: m.username,
             label: m.username,
           }))
@@ -53,8 +69,8 @@ const Member = () => {
     );
   };
 
-  const debounceLoadGithubUsers = useCallback(
-    debounce(loadGithubUsers, 800),
+  const debouncesearchMember = useCallback(
+    debounce(handleSearchMember, 800),
     []
   );
 
@@ -70,17 +86,49 @@ const Member = () => {
         disabled: true,
       },
     ]);
-    debounceLoadGithubUsers(search);
+    debouncesearchMember(search);
   };
+
+  const handleSelectMember = () => {
+    setMember((prev) => [...prev, currentMember?.name]);
+    setMeetData((prev) => ({
+      ...prev,
+      member_ids: [...prev.member_ids, parseInt(Number(currentMember?.id))],
+    }));
+    setCurrentMember({ name: "", id: "" });
+  };
+
   return (
-    <Mentions
-      style={{
-        width: "100%",
-      }}
-      loading={loading}
-      onSearch={onSearch}
-      options={users}
-    />
+    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <Mentions
+          style={{
+            width: "350px",
+          }}
+          loading={loading}
+          onSearch={onSearch}
+          onSelect={(e) => {
+            setCurrentMember({ name: e.value, id: e.key });
+          }}
+          options={users}
+        />
+        <Button
+          style={{ background: "#5A8EA4", color: "white", marginLeft: "10px" }}
+          onClick={handleSelectMember}
+        >
+          +
+        </Button>
+      </div>
+      {member.length > 0 && (
+        <div style={{ width: "400px" }}>
+          {member.map((item, index) => (
+            <Tag closable key={index}>
+              {item}
+            </Tag>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

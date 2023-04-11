@@ -11,4 +11,4 @@ export const {
 export { googleLogin } from "./google";
 export { emailVerification } from "./emailVerification";
 export { browseMeet, meetInfo } from "./meet";
-export { member } from "./member";
+export { searchMember } from "./member";

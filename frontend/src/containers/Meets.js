@@ -69,13 +69,14 @@ const Meets = () => {
               data.end_time_slot_id
             ), //  (data.start_time_slot_id - 1) * 30 % 60
             Host: data.host_info.name ?? data.host_info.id,
-            Memeber: data.member_infos,
+            Memeber: data.member_infos.map((m) => m.username).toString(),
             Description: data.description,
             "Voting Deadline": data.voting_end_time
               ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
               : "not assigned",
-            "Invitation URL": data.invite_code,
-            "Google Meet URL": data.meet_url ?? "temp",
+            "Invitation URL": `https://lets.meet.com?invite=${data.invite_code}`,
+            "Google Meet URL":
+              data.meet_url ?? "https://meet.google.com/vft-xolb-mog",
           },
         },
       });
@@ -198,13 +199,29 @@ const Meets = () => {
       {login ? <Header location="meet" /> : <Header2 />}
       <div className="wholeContainer">
         <div className="meetTableHeader">
-            <div style={{
-                    fontFamily: "Roboto", fontStyle: "normal", fontWeight: "500",
-                    fontSize: "30px", float: "left"
-                }}>My Meets</div>
-            <Button style={{float: "right", marginLeft: "10px", backgroundColor: "#5A8EA4",
-             color: "white"}} onClick={handleEndVote}>Ended Votes</Button>
-            <Button style={{float: "right", color: "#5A8EA4"}} onClick={handleIsVote}>Voting</Button>
+          <div
+            style={{
+              fontFamily: "Roboto",
+              fontStyle: "normal",
+              fontWeight: "500",
+              fontSize: "30px",
+              float: "left",
+            }}
+          >
+            My Meets
+          </div>
+          <Button
+            style={{
+              float: "right",
+              marginLeft: "10px",
+              backgroundColor: "#5A8EA4",
+              color: "white",
+            }}
+            onClick={handleEndVote}
+          >
+            Ended Votes
+          </Button>
+          <Button style={{ float: "right", color: "#5A8EA4" }} onClick={handleIsVote}>Voting</Button>
         </div>
         {(
           <Table

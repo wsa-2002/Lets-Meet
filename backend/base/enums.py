@@ -11,6 +11,7 @@ class StrEnum(str, enum.Enum):
 class StatusType(StrEnum):
     voting = 'VOTING'
     voted = 'VOTED'
+    need_confirm = 'NEED_CONFIRM'
     waiting_for_confirm = 'WAITING_FOR_CONFIRM'
     confirmed = 'CONFIRMED'
 
