@@ -119,6 +119,7 @@ const Mainpage = () => {
     try {
       if (!login) {
         setIsModalOpen(true);
+        return;
       }
       const { data } = await AXIOS.addMeet(
         {
@@ -158,9 +159,47 @@ const Mainpage = () => {
     }
   };
 
-  const handleOk = () => {
+  const handleOk = async () => {
     // 你這邊再加上ok後要做的動作
-    setIsModalOpen(false);
+    try {
+      if (!form.getFieldValue().name) return;
+      const { data } = await AXIOS.addMeet(
+        {
+          ...meetData,
+          guest_name: form.getFieldValue().name,
+          voting_end_time: moment(
+            meetData.voting_end_date + " " + meetData.voting_end_time,
+            "YYYY-MM-DD HH-mm-ss"
+          ).toISOString(),
+        },
+        cookies.token
+      );
+      navigate(`/meets/${data.id}`, {
+        state: {
+          meetInfo: {
+            EventName: data.meet_name,
+            Date:
+              data.start_date.replaceAll("-", "/") +
+              "~" +
+              data.end_date.replaceAll("-", "/"),
+            Time: slotIDProcessing(
+              data.start_time_slot_id,
+              data.end_time_slot_id
+            ), //  (data.start_time_slot_id - 1) * 30 % 60
+            Host: data.host_info.name ?? data.host_info.id,
+            Memeber: data.member_infos,
+            Description: data.description,
+            "Voting Deadline": data.voting_end_time
+              ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
+              : "not assigned",
+            "Invitation URL": data.invite_code,
+            "Google Meet URL": data.meet_url ?? "temp",
+          },
+        },
+      });
+    } catch (error) {}
+
+    // setIsModalOpen(false);
   };
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -356,7 +395,12 @@ const Mainpage = () => {
           okText="Ok"
           cancelText="Cancel"
         >
-          <Form form={form} layout="vertical" name="form_in_modal">
+          <Form
+            form={form}
+            layout="vertical"
+            name="form_in_modal"
+            // onFinish={handleOk}
+          >
             <Form.Item
               name="name"
               label="Please enter your name"
