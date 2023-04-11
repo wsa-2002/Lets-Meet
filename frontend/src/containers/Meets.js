@@ -48,7 +48,7 @@ const tagMap = {
 const Meets = () => {
   const navigate = useNavigate();
   const { cookies, login } = useMeet();
-  const [data, setData] = useState("");
+  const [data, setData] = useState([]);
   const [isVoting, setIsVoting] = useState(true);
   const [showData, setShowData] = useState(data);
 
@@ -103,34 +103,34 @@ const Meets = () => {
 
     const handleEndVote = () => {
         setIsVoting(false);
-        const temp = data.filter((ele) => ele.status.includes("omfirm"));
+        const temp = data.filter((ele) => ele.status.includes("onfirm"));
         setShowData(temp);
     }
 
-//   useEffect(() => {
-//     (async () => {
-//       if (cookies.token) {
-//         const result = await browseMeet(cookies.token);
-//         console.log(result);
-//         setData(
-//           result.data.map((d) => ({
-//             key: d.meet_id,
-//             name: d.title,
-//             host: d.host_username,
-//             votingPeriod: `${d.start_date.replaceAll(
-//               "-",
-//               "/"
-//             )}-${d.end_date.replaceAll("-", "/")}`,
-//             status: d.status,
-//             meetingTime: "xx/xx/xx",
-//             url: d.meet_url ?? "temp",
-//           }))
-//         );
-//       } else {
-//         navigate("/");
-//       }
-//     })();
-//   }, [cookies]);
+  useEffect(() => {
+    (async () => {
+      if (cookies.token) {
+        const result = await browseMeet(cookies.token);
+        console.log(result);
+        setData(
+          result.data.map((d) => ({
+            key: d.meet_id,
+            name: d.title,
+            host: d.host_username,
+            votingPeriod: `${d.start_date.replaceAll(
+              "-",
+              "/"
+            )}-${d.end_date.replaceAll("-", "/")}`,
+            status: d.status,
+            meetingTime: "xx/xx/xx",
+            url: d.meet_url ?? "temp",
+          }))
+        );
+      } else {
+        navigate("/");
+      }
+    })();
+  }, [cookies]);
 
     const columns = [
         {
