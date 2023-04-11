@@ -120,8 +120,8 @@ const Meets = () => {
             "/"
           )}-${d.end_date.replaceAll("-", "/")}`,
           status: d.status,
-          meetingTime: "xx/xx/xx",
-          url: d.meet_url ?? "temp",
+          meetingTime: "2023/04/15",
+          url: d.meet_url ?? "https://meet.google.com/vft-xolb-mog",
         }))
         setData(data);
         setShowData(data.filter((ele) => ele.status.includes("ote"))); // default display voting
@@ -201,7 +201,6 @@ const Meets = () => {
         <div className="meetTableHeader">
           <div
             style={{
-              fontFamily: "Roboto",
               fontStyle: "normal",
               fontWeight: "500",
               fontSize: "30px",
