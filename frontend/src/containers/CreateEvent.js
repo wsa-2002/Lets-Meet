@@ -7,10 +7,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Header, Header2 } from "../components/Header";
 
-// createList 形式：{date: "May 19Wed", time: "9:00", available: false} 之後會加一格routine
+// createList 形式：{date: "May 19Wed", time: "9:00", available: false, routine: false} 之後會加一格routine
 let createList = [
-    [{date: "May 19Wed", time: "9:00", available: false},{date: "12/8", time: "9:00", available: false},{date: "12/9", time: "9:00", available: false}],
-    [{date: "12/7", time: "9:30", available: false},{date: "12/8", time: "9:30", available: false},{date: "12/9", time: "9:30", available: false}],
+    [{date: "May 19Wed", time: "9:00", available: false, routine: true},{date: "12/8", time: "9:00", available: false},{date: "12/9", time: "9:00", available: false}],
+    [{date: "12/7", time: "9:30", available: false, routine: true},{date: "12/8", time: "9:30", available: false},{date: "12/9", time: "9:30", available: false}],
     [{date: "12/7", time: "10:00", available: false},{date: "12/8", time: "10:00", available: false},{date: "12/9", time: "10:00", available: false}],
     [{date: "12/7", time: "10:30", available: false},{date: "12/8", time: "10:30", available: false},{date: "12/9", time: "10:30", available: false}],
     [{date: "12/7", time: "11:00", available: false},{date: "12/8", time: "11:00", available: false},{date: "12/9", time: "11:00", available: false}],
@@ -143,7 +143,7 @@ const CreateEvent = () => {
             return(
                 <div className='cell' key={j} id={j} date={item.date} time={item.time}
                     available={item.available? true: undefined} onClick={() => handleCell(i, j)}
-                    style={{ backgroundColor: item.available ? "pink" : "#F0F0F0" }}></div>
+                    style={{ backgroundColor: item.available ? "#94C9CD" : "#F0F0F0" }}></div>
             )
         }
     };
@@ -176,9 +176,10 @@ const CreateEvent = () => {
                         <div key={"row"+i} id={"row"+i} style={{display:'flex'}}>
                             <div className='cellIntro'>{items[0].time}</div>
                             {items.map((item, j) => (
-                                <div className='cell' key={j} id={j} date={item.date} time={item.time}
-                                 available={item.available? true: undefined} onClick={() => handleCell(i, j)}
-                                 style={{ backgroundColor: item.available ? "#94C9CD" : "#F0F0F0" }}></div>
+                                handleBlock(item, i, j)
+                                // <div className='cell' key={j} id={j} date={item.date} time={item.time}
+                                //  available={item.available? true: undefined} onClick={() => handleCell(i, j)}
+                                //  style={{ backgroundColor: item.available ? "#94C9CD" : "#F0F0F0" }}></div>
                             ))}
                         </div>
                     ))}
