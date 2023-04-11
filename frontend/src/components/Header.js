@@ -3,8 +3,10 @@ import { Button, Space } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
 import "../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
+import { useMeet } from "../containers/hooks/useMeet";
 
 const Header = ({ location = "none" }) => {
+  const { removeCookie, setLogin } = useMeet();
   //location表示現在在哪個頁面
   return (
     <div className="header">
@@ -16,6 +18,7 @@ const Header = ({ location = "none" }) => {
           marginRight: "10%",
           height: "100%",
         }}
+        href="/"
       >
         Let's Meet
       </Button>
@@ -28,6 +31,7 @@ const Header = ({ location = "none" }) => {
             backgroundColor: "#FDF3D1",
             height: "100%",
           }}
+          href="/meets"
         >
           Meets
         </Button>
@@ -39,6 +43,7 @@ const Header = ({ location = "none" }) => {
             color: "#808080",
             height: "100%",
           }}
+          href="/meets"
         >
           Meets
         </Button>
@@ -112,6 +117,10 @@ const Header = ({ location = "none" }) => {
           height: "100%",
           position: "absolute",
           left: "95%",
+        }}
+        onClick={() => {
+          removeCookie("token");
+          setLogin(false);
         }}
       />
     </div>

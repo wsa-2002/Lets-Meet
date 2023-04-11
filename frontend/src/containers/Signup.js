@@ -15,7 +15,7 @@ const LogIn = () => {
     "Confirm Password": "",
   });
   const [validName, setValidName] = useState(true);
-  const [description, setDescription] = useState("nothing");
+  const [description, setDescription] = useState("");
   const [api, contextHolder] = notification.useNotification();
 
   const handleSignupChange = (e) => {
@@ -40,18 +40,30 @@ const LogIn = () => {
       console.log("請輸入相同密碼");
     } else if (signupData.Username && signupData.Password && signupData.Email) {
       try {
-        await AXIOS.signup({
+        const { data, error } = await AXIOS.signup({
           username: signupData.Username,
           password: signupData.Password,
           email: signupData.Email,
         });
-        api.open({
-          message: "Vertification mail sent",
-          description: "Please check your mailbox.",
-          style: {},
-        });
+        if (error) {
+          switch (error) {
+            case "UsernameExists":
+              setDescription("Username has already been registered.");
+              break;
+            case "EmailExist":
+              setDescription("Email has already been registered.");
+              break;
+            default:
+              break;
+          }
+        } else {
+          api.open({
+            message: "Vertification mail sent",
+            description: "Please check your mailbox.",
+            style: {},
+          });
+        }
       } catch (e) {
-        setDescription("xxx"); // 這邊會設三個不同訊息，然後useeffect那邊感測到description變後就會pop出message
         alert(e);
       }
     }
@@ -67,11 +79,13 @@ const LogIn = () => {
   // }
 
   useEffect(() => {
-    api.open({
-      message: "Sign up failed",
-      description: description, // 總共有三個 description
-      style: {},
-    });
+    if (description) {
+      api.open({
+        message: "Sign up failed",
+        description, // 總共有三個 description
+        style: {},
+      });
+    }
   }, [description]);
 
   return (
