@@ -65,8 +65,6 @@
 }
 
 .leftFooter > div {
-<<<<<<< HEAD
-  font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -76,7 +74,6 @@
 }
 
 .rightFooter > div {
-  font-family: "Roboto";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -95,46 +92,11 @@
   display: flex;
   justify-content: center;
   /* border: 1px solid #D8D8D8; */
-  font-family: "Roboto";
   font-style: normal;
   font-weight: 500;
   font-size: 80px;
   line-height: 46px;
   color: #ffa601;
-=======
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 22px;
-    color: #808080;
-    margin-left: 5%;
-}
-
-.rightFooter > div {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 22px;
-    color: #808080;
-    /* margin-left: 90%; */
-    float: right;
-    margin-right: 5%;
-}
-
-.title {
-    width: 100%;
-    position: absolute;
-    /* left: 20%; */
-    top: 70%;
-    display: flex;
-    justify-content: center;
-    /* border: 1px solid #D8D8D8; */
-    font-style: normal;
-    font-weight: 500;
-    font-size: 80px;
-    line-height: 46px;
-    color: #ffa601;
->>>>>>> main
 }
 
 .meetTable {
