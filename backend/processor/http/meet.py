@@ -38,13 +38,33 @@ class AddMeetInput(BaseModel):
     emails: Optional[Sequence[str]] = None
 
 
-class AddMeetOutput(BaseModel):
+class MemberInfo(BaseModel):
+    member_id: Optional[int]
+    name: Optional[str]
+
+
+class ReadMeetOutput(BaseModel):
     id: int
+    status: enums.StatusType
+    start_date: date
+    end_date: date
+    start_time_slot_id: int
+    end_time_slot_id: int
+    meet_name: str
+    invite_code: str
+    gen_meet_url: bool
+    voting_end_time: Optional[datetime] = None
+    finalized_start_time: Optional[datetime] = None
+    finalized_end_time: Optional[datetime] = None
+    meet_url: Optional[str] = None
+    description: Optional[str] = None
+    host_info: Optional[MemberInfo] = None
+    member_infos: Optional[Sequence[MemberInfo]] = None
 
 
 @router.post('/meet')
 @enveloped
-async def add_meet(data: AddMeetInput) -> AddMeetOutput:
+async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
     try:
         host_account_id = request.account.id
     except exc.NoPermission:
@@ -112,30 +132,6 @@ async def add_meet(data: AddMeetInput) -> AddMeetOutput:
         host_info=host,
         member_infos=member_infos,
     )
-
-
-class MemberInfo(BaseModel):
-    member_id: Optional[int]
-    name: Optional[str]
-
-
-class ReadMeetOutput(BaseModel):
-    id: int
-    status: enums.StatusType
-    start_date: date
-    end_date: date
-    start_time_slot_id: int
-    end_time_slot_id: int
-    meet_name: str
-    invite_code: str
-    gen_meet_url: bool
-    voting_end_time: Optional[datetime] = None
-    finalized_start_time: Optional[datetime] = None
-    finalized_end_time: Optional[datetime] = None
-    meet_url: Optional[str] = None
-    description: Optional[str] = None
-    host_info: Optional[MemberInfo] = None
-    member_infos: Optional[Sequence[MemberInfo]] = None
 
 
 @router.get('/meet/{meet_id}')
@@ -308,7 +304,7 @@ async def join_meet_by_invite_code(data: JoinMeetInput):
         await db.meet.update_status(meet.id, enums.StatusType.waiting_for_confirm)
         meet.status = enums.StatusType.waiting_for_confirm
 
-    member_auth = await db.meet.get_member_id_and_auth(meet_id)
+    member_auth = await db.meet.get_member_id_and_auth(meet.id)
     host = None
     member_infos = []
     for (id_, name), v in member_auth.items():
