@@ -205,7 +205,7 @@ const Voting = () => {
               transform: "translate(-50%, 0%)",
             }}
           >
-            My Avaiability
+            My Availability
           </div>
           <div
             style={{
@@ -271,7 +271,7 @@ const Voting = () => {
               transform: "translate(-50%, 0%)",
             }}
           >
-            Group Avaiability
+            Group Availability
           </div>
           <div
             style={{
