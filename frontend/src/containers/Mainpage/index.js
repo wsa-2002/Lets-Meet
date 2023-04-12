@@ -104,16 +104,15 @@ const Mainpage = () => {
         setIsModalOpen(true);
         return;
       }
-      const { data } = await AXIOS.addMeet(
-        {
-          ...meetData,
-          voting_end_time: moment(
-            meetData.voting_end_date + " " + meetData.voting_end_time,
-            "YYYY-MM-DD HH-mm-ss"
-          ).toISOString(),
-        },
-        cookies.token
-      );
+      let temp = {
+        ...meetData,
+        voting_end_time: moment(
+          meetData.voting_end_date + " " + meetData.voting_end_time,
+          "YYYY-MM-DD HH-mm-ss"
+        ).toISOString(),
+      };
+      delete temp["voting_end_date"];
+      const { data } = await AXIOS.addMeet(temp, cookies.token);
       navigate(`/meets/${data.invite_code}`);
     } catch (e) {
       console.log(e);
