@@ -5,7 +5,6 @@ import "../css/Background.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useMeet } from "../containers/hooks/useMeet";
 
-
 const Header = ({ location = "none" }) => {
   const { removeCookie, setLogin } = useMeet();
   //location表示現在在哪個頁面
@@ -153,7 +152,7 @@ const Header2 = () => {
 
   return (
     <div className="header">
-    <Button
+      <Button
         type="link"
         style={{
           fontSize: "28px",
@@ -169,8 +168,8 @@ const Header2 = () => {
       <Button
         style={{
           position: "absolute",
-          left: "85%",
-          marginTop: "1%",
+          left: "92%",
+          marginTop: "0.8%",
           borderRadius: "15px",
           borderColor: "#FFA601",
           color: "#FFA601",
