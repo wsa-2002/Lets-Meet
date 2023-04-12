@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../css/Login.css";
+import "../css/Signup.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider, Image, notification } from "antd";
 import * as AXIOS from "../middleware";
@@ -181,14 +181,15 @@ const LogIn = () => {
           >
             Sign Up
           </Button>
-          <Divider>or</Divider>
+          <Divider style={{ borderColor: "#808080", color: "#808080"}}>or</Divider>
           <Button
             style={{
-              width: "350px",
-              height: "70px",
+              width: "300px",
+              height: "60px",
               background: "white",
               border: "0.5px solid #808080",
               borderRadius: "15px",
+              // marginBottom: "30px"
             }}
             // icon="../resources/google.png"
             onClick={() => {
