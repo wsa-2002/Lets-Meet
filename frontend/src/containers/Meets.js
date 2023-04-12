@@ -68,21 +68,29 @@ const Meets = () => {
       title: "Name",
       dataIndex: "name",
       key: "name",
+      width: 200,
+      className: "meetTableColumn",
     },
     {
       title: "Host",
       dataIndex: "host",
       key: "host",
+      width: 150,
+      className: "meetTableColumn",
     },
     {
       title: "Voting Period",
       dataIndex: "votingPeriod",
       key: "votingPeriod",
+      width: 220,
+      className: "meetTableColumn",
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
+      width: 200,
+      className: "meetTableColumn",
       render: (tag) => (
         <>
           <Tag color={tagMap[tag]} key={tag}>
@@ -95,11 +103,14 @@ const Meets = () => {
       title: isVoting ? "Voting Deadline" : "Meeting Time",
       dataIndex: isVoting ? "votingDeadline" : "meetingTime",
       key: isVoting ? "votingDeadline" : "meetingTime",
+      width: 200,
+      className: "meetTableColumn",
     },
     {
       title: "Google Meet URL",
       dataIndex: "url",
       key: "url",
+      className: "meetTableColumn",
       render: (tag) => (
         <Link type="link" href={tag} target="_blank" style={{ color: "black" }}>
           {tag}
@@ -109,6 +120,7 @@ const Meets = () => {
     {
       title: "",
       dataIndex: "action",
+      className: "meetTableColumn",
       render: (_, record) => (
         <Button
           type="link"
@@ -127,38 +139,43 @@ const Meets = () => {
         <div className="meetTableHeader">
           <div
             style={{
-              fontStyle: "normal",
-              fontWeight: "500",
+              // fontStyle: "normal",
+              fontWeight: "700",
               fontSize: "30px",
               float: "left",
+              marginLeft: 145,
+              marginTop: "4.5%",
             }}
           >
             My Meets
           </div>
-          <Button
-            style={{
-              float: "right",
-              marginLeft: "10px",
-              backgroundColor: isVoting ? "white" : "#5A8EA4",
-              color: isVoting ? "#5A8EA4" : "white",
-            }}
-            onClick={handleEndVote}
-          >
-            Ended Votes
-          </Button>
-          <Button
-            style={{
-              float: "right",
-              backgroundColor: isVoting ? "#5A8EA4" : "white",
-              color: isVoting ? "white" : "#5A8EA4",
-            }}
-            onClick={handleIsVote}
-          >
-            Voting
-          </Button>
+          <div style={{ marginTop: "5%", marginRight: 145 }}>
+            <Button
+              style={{
+                float: "right",
+                marginLeft: "10px",
+                backgroundColor: isVoting ? "white" : "#5A8EA4",
+                color: isVoting ? "#5A8EA4" : "white",
+              }}
+              onClick={handleEndVote}
+            >
+              Ended Votes
+            </Button>
+            <Button
+              style={{
+                float: "right",
+                backgroundColor: isVoting ? "#5A8EA4" : "white",
+                color: isVoting ? "white" : "#5A8EA4",
+              }}
+              onClick={handleIsVote}
+            >
+              Voting
+            </Button>
+          </div>
         </div>
         {
           <Table
+            style={{ width: 1200, marginTop: "8%" }}
             dataSource={showData}
             className="meetTable"
             columns={columns}
