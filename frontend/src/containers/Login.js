@@ -110,7 +110,7 @@ const LogIn = () => {
             name="user_identifier"
             onChange={handleLoginChange}
           />
-          <Input
+          <Input.Password
             placeholder="Password"
             style={{
               width: "100%",

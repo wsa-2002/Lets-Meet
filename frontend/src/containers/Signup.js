@@ -98,20 +98,35 @@ const LogIn = () => {
       <div className="rightContainer">
         <div className="loginContainer">
           <h1>Welcome to Let's Meet</h1>
-          {Object.keys(signupData).map((m, index) => (
-            <Input
-              placeholder={m}
-              style={{
-                width: "100%",
-                height: "45px",
-                borderRadius: "15px",
-                marginBottom: "30px",
-              }}
-              key={index}
-              name={m}
-              onChange={handleSignupChange}
-            />
-          ))}
+          {Object.keys(signupData).map((m, index) => {
+            return m === "Password" || m === "Confirm Password" ? (
+              <Input.Password
+                placeholder={m}
+                style={{
+                  width: "100%",
+                  height: "45px",
+                  borderRadius: "15px",
+                  marginBottom: "30px",
+                }}
+                key={index}
+                name={m}
+                onChange={handleSignupChange}
+              />
+            ) : (
+              <Input
+                placeholder={m}
+                style={{
+                  width: "100%",
+                  height: "45px",
+                  borderRadius: "15px",
+                  marginBottom: "30px",
+                }}
+                key={index}
+                name={m}
+                onChange={handleSignupChange}
+              />
+            );
+          })}
           {contextHolder}
           <Button
             size={"large"}
