@@ -346,7 +346,7 @@ const MeetInfo = () => {
               <Input />
             </Form.Item>
             <Form.Item name="Password" label="Password(Optional)">
-              <Input />
+              <Input.Password />
             </Form.Item>
           </Form>
           {/* <Input
