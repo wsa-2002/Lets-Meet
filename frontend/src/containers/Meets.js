@@ -38,7 +38,7 @@ const tagMap = {
 //         name: "SDM",
 //         host: "Luisa",
 //         votingPeriod: "2023/03/24-2023/04/01",
-//         status: "Comfirmed",
+//         status: "Confirmed",
 //         meetingTime: "xx/xx/xx",
 //         url: "https://meet.google.com/rcb-ffqt-xbn",
 //         filterd: true,
