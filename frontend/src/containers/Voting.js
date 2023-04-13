@@ -81,28 +81,28 @@ let showList = [
   }))
 );
 
-const CreateMeet = styled.div`
-  width: 70%;
-  height: 70%;
-  min-width: 500px;
-  min-height: 500px;
-  position: relative;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  // border: 1px solid #D8D8D8;
-  padding: 5% 0%;
-`;
-
 const FormWrapper = styled.div`
   width: 60%;
   height: 60%;
   min-width: 500px;
   min-height: 500px;
-  position: relative;
+  position: absolute;
   left: 50%;
-  top: 45%;
+  top: 47%;
   transform: translate(-50%, -50%);
+  // border: 1px solid #D8D8D8;
+  padding: 5% 0%;
+`;
+
+const NameWrapper = styled.div`
+  width: 60%;
+  height: 10%;
+  min-width: 500px;
+  min-height: 100px;
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  transform: translate(-50%, 0%);
   // border: 1px solid #D8D8D8;
   padding: 5% 0%;
 `;
@@ -175,7 +175,7 @@ const Voting = () => {
     <>
       {login ? <Header location="timeslot" /> : <Header2 />}
       <div className="leftContainer" style={{ background: "white" }}>
-        <FormWrapper>
+        <NameWrapper>
           <Button
             icon={<ArrowLeftOutlined />}
             style={{ position: "absolute", right: "100%", top: "6%" }}
@@ -183,18 +183,19 @@ const Voting = () => {
           ></Button>
           <div
             style={{
-              top: 0,
-              left: 0,
               fontFamily: "Roboto",
               fontStyle: "normal",
               fontWeight: "500",
               fontSize: "30px",
               position: "absolute",
               top: "6%",
+              marginLeft: "5px"
             }}
           >
             SDM Class
           </div>
+        </NameWrapper>
+        <FormWrapper>
           <div
             style={{
               fontFamily: "Roboto",

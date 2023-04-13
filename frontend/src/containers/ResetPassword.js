@@ -64,10 +64,9 @@ const ResetPassword = () => {
             size={"large"}
             style={{
               background: "#B3DEE5",
-              borderRadius: "15px",
-              // position: "relative",
-              // left: "50%",
-              // transform: "translate(-50%, 0)",
+              borderRadius: "20px",
+              borderColor: "#B3DEE5",
+              fontWeigh: 300,
             }}
             onClick={handleVerifyClick}
           >

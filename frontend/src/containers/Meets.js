@@ -15,6 +15,34 @@ const tagMap = {
   Comfirmed: "#FFA601",
 };
 
+// const tempData = [
+//     {
+//         name: "SDM",
+//         host: "Luisa",
+//         votingPeriod: "2023/03/24-2023/04/01",
+//         status: "Voted",
+//         votingDeadline: "xx/xx/xx",
+//         url: "https://meet.google.com/rcb-ffqt-xbn",
+//     },
+//     {
+//         name: "SDM",
+//         host: "Lisa",
+//         votingPeriod: "2023/03/24-2023/04/01",
+//         status: "Unvoted",
+//         votingDeadline: "xx/xx/xx",
+//         url: "https://meet.google.com/rcb-ffqt-xbn",
+//     },
+//     {
+//         name: "SDM",
+//         host: "Luisa",
+//         votingPeriod: "2023/03/24-2023/04/01",
+//         status: "Confirmed",
+//         meetingTime: "xx/xx/xx",
+//         url: "https://meet.google.com/rcb-ffqt-xbn",
+//         filterd: true,
+//     },
+// ];
+
 const Meets = () => {
   const navigate = useNavigate();
   const { cookies, login } = useMeet();
