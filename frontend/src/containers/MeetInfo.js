@@ -3,10 +3,12 @@ import "@fontsource/roboto/500.css";
 import { Input, Button, Modal, Form } from "antd";
 import "../css/Background.css";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getMeetInfo, joinMeet } from "../middleware";
 import { useMeet } from "./hooks/useMeet";
 import { Header, Header2 } from "../components/Header";
+import moment from "moment";
 
 let showList = [
   "9:00",
@@ -77,15 +79,73 @@ const addHexColor = (c1, c2) => {
   return hexStr;
 };
 
+const slotIDProcessing = (start, end) => {
+  let hour = String(parseInt(((start - 1) * 30) / 60));
+  const startHour = "0".repeat(2 - hour.length) + hour;
+  const startMinute = parseInt(((start - 1) * 30) % 60) ? "30" : "00";
+  hour = String(parseInt((end * 30) / 60));
+  const endHour = "0".repeat(2 - hour.length) + hour;
+  const endMinute = parseInt((end * 30) % 60) ? "30" : "00";
+  return `${startHour}:${startMinute}~${endHour}:${endMinute}`;
+};
+
 const MeetInfo = () => {
   const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
   const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
-  const { login } = useMeet();
+  const [meetInfo, setMeetInfo] = useState({
+    EventName: "",
+    "Start / End Date": "",
+    "Start / End Time": "",
+    Host: "",
+    Member: "",
+    Description: "",
+    "Voting Deadline": "",
+    "Invitation URL": "",
+    "Google Meet URL": "",
+  });
+  const { login, cookies } = useMeet();
   const navigate = useNavigate();
-  const {
-    state: { meetInfo },
-  } = useLocation();
+  const location = useLocation();
+  const { code } = useParams();
   const [form] = Form.useForm();
+
+  const handleMeetInfo = async () => {
+    try {
+      const { data } = await getMeetInfo(code, cookies.token);
+      setMeetInfo({
+        EventName: data.meet_name,
+        "Start / End Date":
+          data.start_date.replaceAll("-", "/") +
+          "~" +
+          data.end_date.replaceAll("-", "/"),
+        "Start / End Time": slotIDProcessing(
+          data.start_time_slot_id,
+          data.end_time_slot_id
+        ), //  (data.start_time_slot_id - 1) * 30 % 60
+        Host:
+          data.host_info?.name ??
+          data.host_info?.id ??
+          location.state.guestName,
+        Member: data.member_infos.map((m) => m.name).join(", "),
+        Description: data.description,
+        "Voting Deadline": data.voting_end_time
+          ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
+          : "not assigned",
+        "Invitation URL": `https://lets.meet.com?invite=${data.invite_code}`,
+        "Google Meet URL":
+          data.meet_url ?? "https://meet.google.com/vft-xolb-mog",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (code) {
+      handleMeetInfo();
+    }
+    // console.log(id);
+  }, [code]);
 
   const handleMeet = () => {
     navigate("/meets");
@@ -102,12 +162,20 @@ const MeetInfo = () => {
   };
 
   const handleVote = () => {
-    if (!login) {
+    if (!login && !location.state.guestName) {
       setIsModalVoteOpen(true);
+      return;
     }
     navigate("/voting");
   };
-  const handleVoteOk = () => {
+
+  const handleVoteOk = async (e) => {
+    // console.log(form);
+    await joinMeet(
+      { invite_code: code, name: form.getFieldValue().name },
+      cookies.token
+    );
+    navigate("/voting");
     setIsModalVoteOpen(false);
   };
   const handleVoteCancel = () => {
@@ -157,19 +225,22 @@ const MeetInfo = () => {
           <div
             style={{ display: "flex", flexDirection: "column", rowGap: "30px" }}
           >
-            {Object.keys(meetInfo).map((c, index) => (
-              <div
-                key={index}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  columnGap: "10%",
-                }}
-              >
-                <div style={{ width: "200px", fontSize: "20px" }}>{c}</div>
-                <div style={{ fontSize: "16px" }}>{meetInfo[c]}</div>
-              </div>
-            ))}
+            {Object.keys(meetInfo).map(
+              (c, index) =>
+                c !== "EventName" && (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      columnGap: "10%",
+                    }}
+                  >
+                    <div style={{ width: "180px", fontSize: "20px" }}>{c}</div>
+                    <div style={{ fontSize: "16px" }}>{meetInfo[c]}</div>
+                  </div>
+                )
+            )}
           </div>
           <Button
             style={{ marginLeft: "65%", marginTop: "35px", marginRight: "5px" }}
@@ -194,7 +265,7 @@ const MeetInfo = () => {
               transform: "translate(-50%, 0%)",
             }}
           >
-            Group Avaiability
+            Group Availability
           </div>
           <div
             style={{
@@ -205,26 +276,20 @@ const MeetInfo = () => {
             }}
           >
             <div className="cellIntroBlock">
-              {showList.length !== 0 ? (
+              {showList.length !== 0 &&
                 showList[0].map((item, j) => (
                   <div className="cellIntro" key={j}>
                     {item.date.slice(0, 6)}
                   </div>
-                ))
-              ) : (
-                <></>
-              )}
+                ))}
             </div>
             <div className="cellIntroBlock">
-              {showList.length !== 0 ? (
+              {showList.length !== 0 &&
                 showList[0].map((item, j) => (
                   <div className="cellIntro" key={j}>
                     {item.date.slice(6, 9)}
                   </div>
-                ))
-              ) : (
-                <></>
-              )}
+                ))}
             </div>
             {showList.map((items, i) => (
               <div key={"row" + i} id={"row" + i} style={{ display: "flex" }}>
@@ -281,7 +346,7 @@ const MeetInfo = () => {
               <Input />
             </Form.Item>
             <Form.Item name="Password" label="Password(Optional)">
-              <Input />
+              <Input.Password />
             </Form.Item>
           </Form>
           {/* <Input

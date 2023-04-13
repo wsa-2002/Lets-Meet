@@ -97,6 +97,7 @@
     font-size: 80px;
     line-height: 46px;
     color: #ffa601;
+    font-family: "Lobster";
 }
 
 .meetTable {
@@ -156,3 +157,10 @@
 .meetTable thead > tr > th {
     background-color: #FDF3D1;
 } */
+
+
+.meetTableColumn {
+  background-color: #FDF3D1 !important;
+  color: #7A3E00 !important;
+  border-bottom: 1px solid #7A3E00 !important;
+}

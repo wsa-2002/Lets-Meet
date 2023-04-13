@@ -20,6 +20,7 @@ const LogIn = () => {
   const { login, GLOBAL_LOGIN } = useMeet();
   const navigate = useNavigate();
   const [api, contextHolder] = notification.useNotification();
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (login) {
@@ -34,28 +35,39 @@ const LogIn = () => {
     }
   }, [login]);
 
+  useEffect(() => {
+    if (description) {
+      api.open({
+        message: "Login Failed",
+        description,
+        style: {},
+      });
+    }
+  }, [description]);
+
   const handleLoginClick = async () => {
     try {
       console.log(loginData);
-      const result = await AXIOS.login(loginData);
-      if (result.error) {
-        alert("登入失敗");
-        api.open({
-          message: "Login failed",
-          description:
-            "Username/Email has already been linked to Google. Please login with Google.",
-        });
+      const { data, error } = await AXIOS.login(loginData);
+      if (error) {
+        switch (error) {
+          case "LoginFailed":
+            setDescription(" ");
+            break;
+          case "EmailRegisteredByGoogle":
+            setDescription(
+              "Username/Email has already been linked to Google. Please login with Google."
+            );
+            break;
+          default:
+            break;
+        }
       } else {
-        console.log(result);
-        GLOBAL_LOGIN(result.data.token);
+        console.log(data);
+        GLOBAL_LOGIN(data.token);
       }
     } catch (e) {
-      alert(e);
       console.log(e);
-      api.open({
-        message: "Login failed",
-        description: "",
-      });
     }
   };
 
@@ -77,13 +89,14 @@ const LogIn = () => {
 
   return (
     <>
+      {contextHolder}
       <div className="leftContainer">
         <p className="title">Let's Meet!</p>
       </div>
       <div className="rightContainer">
         <div className="loginContainer">
-          <div style={{textAlign: 'left'}}>
-            <h1 style={{fontWeight: 700}}>Welcome</h1>
+          <div style={{ textAlign: "left" }}>
+            <h1 style={{ fontWeight: 700 }}>Welcome</h1>
           </div>
           <Input
             placeholder="Username/Email"
@@ -97,7 +110,7 @@ const LogIn = () => {
             name="user_identifier"
             onChange={handleLoginChange}
           />
-          <Input
+          <Input.Password
             placeholder="Password"
             style={{
               width: "100%",
@@ -113,10 +126,12 @@ const LogIn = () => {
             style={{
               marginLeft: "50%",
               marginBottom: "10px",
-              textAlign: 'right'
+              textAlign: "right",
             }}
           >
-            <Link onClick={handleReset} style={{color: "#B76A00"}}>Forgot Password</Link>
+            <Link onClick={handleReset} style={{ color: "#B76A00" }}>
+              Forgot Password
+            </Link>
           </div>
           <Button
             size={"large"}
@@ -132,7 +147,9 @@ const LogIn = () => {
           >
             Login
           </Button>
-          <Divider style={{borderColor: "#808080", color: "#808080"}}>or</Divider>
+          <Divider style={{ borderColor: "#808080", color: "#808080" }}>
+            or
+          </Divider>
           <Button
             style={{
               width: "300px",
@@ -140,7 +157,7 @@ const LogIn = () => {
               background: "white",
               border: "0.5px solid #808080",
               borderRadius: "15px",
-              marginBottom: "30px"
+              marginBottom: "30px",
             }}
             // icon="../resources/google.png"
             onClick={() => {
@@ -163,7 +180,10 @@ const LogIn = () => {
               }
             }
           >
-            New to Let's Meet? <Link onClick={handleSignUp} style={{color: "#B76A00"}}>Sign Up</Link>
+            New to Let's Meet?{" "}
+            <Link onClick={handleSignUp} style={{ color: "#B76A00" }}>
+              Sign Up
+            </Link>
           </Text>
           {/* <Button onClick={onSignout}>temp</Button> */}
         </div>

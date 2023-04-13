@@ -55,7 +55,7 @@ const ChangePassword = () => {
         <div className="resetContainer">
           <h1>Reset Password</h1>
           {Object.keys(newPassword).map((m, index) => (
-            <Input
+            <Input.Password
               placeholder={m}
               style={{
                 width: "100%",

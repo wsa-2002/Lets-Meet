@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import "../css/Login.css";
+import "../css/Signup.css";
 import "../css/Background.css";
 import { Input, Button, Typography, Divider, Image, notification } from "antd";
 import * as AXIOS from "../middleware";
 import googleIcon from "../resources/google.png";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
 const { Text, Link } = Typography;
 
@@ -98,20 +99,68 @@ const LogIn = () => {
       <div className="rightContainer">
         <div className="loginContainer">
           <h1>Welcome to Let's Meet</h1>
-          {Object.keys(signupData).map((m, index) => (
-            <Input
-              placeholder={m}
-              style={{
-                width: "100%",
-                height: "45px",
-                borderRadius: "15px",
-                marginBottom: "30px",
-              }}
-              key={index}
-              name={m}
-              onChange={handleSignupChange}
-            />
-          ))}
+          {Object.keys(signupData).map((m, index) => {
+            if (m === "Password")
+              return (
+                <Input.Password
+                  placeholder={m}
+                  style={{
+                    width: "100%",
+                    height: "45px",
+                    borderRadius: "15px",
+                    marginBottom: "30px",
+                  }}
+                  key={index}
+                  name={m}
+                  onChange={handleSignupChange}
+                />
+              );
+            if (m === "Confirm Password")
+              return (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    marginBottom: "30px",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Input.Password
+                    placeholder={m}
+                    style={{
+                      width: "270px",
+                      height: "45px",
+                      borderRadius: "15px",
+                      marginRight: "15px",
+                    }}
+                    key={index}
+                    name={m}
+                    onChange={handleSignupChange}
+                  />
+                  {signupData["Confirm Password"].length !== 0 &&
+                    (signupData.Password === signupData["Confirm Password"] ? (
+                      <CheckCircleOutlined style={{ color: "#5C9B6B" }} />
+                    ) : (
+                      <CloseCircleOutlined style={{ color: "#AE2A39" }} />
+                    ))}
+                </div>
+              );
+            return (
+              <Input
+                placeholder={m}
+                style={{
+                  width: "100%",
+                  height: "45px",
+                  borderRadius: "15px",
+                  marginBottom: "30px",
+                }}
+                key={index}
+                name={m}
+                onChange={handleSignupChange}
+              />
+            );
+          })}
           {contextHolder}
           <Button
             size={"large"}
@@ -132,14 +181,15 @@ const LogIn = () => {
           >
             Sign Up
           </Button>
-          <Divider>or</Divider>
+          <Divider style={{ borderColor: "#808080", color: "#808080"}}>or</Divider>
           <Button
             style={{
-              width: "350px",
-              height: "70px",
+              width: "300px",
+              height: "60px",
               background: "white",
               border: "0.5px solid #808080",
               borderRadius: "15px",
+              // marginBottom: "30px"
             }}
             // icon="../resources/google.png"
             onClick={() => {

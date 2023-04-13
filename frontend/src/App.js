@@ -23,7 +23,7 @@ function App() {
             <Route element={<Reset />} path="/reset"></Route>
             <Route element={<Change />} path="/reset-password"></Route>
             <Route element={<Meets />} path="/meets"></Route>
-            <Route element={<MeetInfo />} path="/meets/:id"></Route>
+            <Route element={<MeetInfo />} path="/meets/:code"></Route>
             <Route element={<Voting />} path="/voting"></Route>
           </Route>
         </Routes>
