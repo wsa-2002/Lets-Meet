@@ -6,8 +6,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useMeet } from "../containers/hooks/useMeet";
 
 const Header = ({ location = "none" }) => {
-  const { removeCookie, setLogin } = useMeet();
-  //location表示現在在哪個頁面
+    const { removeCookie, setLogin } = useMeet();
+    const navigate = useNavigate();
+
+    const goHome = () => {
+        navigate("/");
+    }
+    const goMeets = () => {
+        navigate("/meets");
+    }
+
   return (
     <div className="header">
       <Button
@@ -21,7 +29,7 @@ const Header = ({ location = "none" }) => {
           fontFamily: "Lobster",
           float: "left",
         }}
-        href="/"
+        onClick={goHome}
       >
         Let's Meet
       </Button>
@@ -36,9 +44,8 @@ const Header = ({ location = "none" }) => {
             fontWeight: 800,
             fontFamily: "Nunito",
             float: "left",
-            lineHeight: "50px"
           }}
-          href="/meets"
+          onClick={goMeets}
         >
           Meets
         </Button>
@@ -52,9 +59,8 @@ const Header = ({ location = "none" }) => {
             fontFamily: "Nunito",
             fontWeight: 600,
             float: "left",
-            lineHeight: "50px"
           }}
-          href="/meets"
+          onClick={goMeets}
         >
           Meets
         </Button>
@@ -70,9 +76,8 @@ const Header = ({ location = "none" }) => {
             fontWeight: 800,
             fontFamily: "Nunito",
             float: "left",
-            lineHeight: "50px"
           }}
-          href="/meets"
+          onClick={goMeets}
         >
           Calendar
         </Button>
@@ -86,9 +91,8 @@ const Header = ({ location = "none" }) => {
             fontFamily: "Nunito",
             fontWeight: 600,
             float: "left",
-            lineHeight: "50px"
           }}
-          href="/meets"
+          onClick={goMeets}
         >
           Calendar
         </Button>
@@ -104,9 +108,8 @@ const Header = ({ location = "none" }) => {
             fontWeight: 800,
             fontFamily: "Nunito",
             float: "left",
-            lineHeight: "50px"
           }}
-          href="/meets"
+          onClick={goMeets}
         >
           Routine
         </Button>
@@ -120,9 +123,8 @@ const Header = ({ location = "none" }) => {
             fontFamily: "Nunito",
             fontWeight: 600,
             float: "left",
-            lineHeight: "50px"
           }}
-          href="/meets"
+          onClick={goMeets}
         >
           Routine
         </Button>
@@ -136,9 +138,7 @@ const Header = ({ location = "none" }) => {
           height: "100%",
           float: "right",
           marginRight: "1%",
-          lineHeight: "50px"
         }}
-        href="/"
         onClick={() => {
           removeCookie("token");
           setLogin(false);
@@ -153,9 +153,8 @@ const Header = ({ location = "none" }) => {
           float: "right",
           fontFamily: "Nunito",
           fontWeight: 600,
-          lineHeight: "50px"
         }}
-        href="/meets"
+        onClick={goMeets}
       >
         Settings
       </Button>
@@ -164,43 +163,47 @@ const Header = ({ location = "none" }) => {
 };
 
 const Header2 = () => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const handleLogin = () => {
-    navigate("/login");
-  };
+    const goHome = () => {
+        navigate("/");
+    }
 
-  return (
-    <div className="header">
-      <Button
-        type="link"
-        style={{
-          fontSize: "28px",
-          color: "#FFA601",
-          marginRight: "10%",
-          height: "100%",
-          fontFamily: "Lobster",
-        }}
-        href="/"
-      >
-        Let's Meet
-      </Button>
-      <Button
-        style={{
-          float: "right",
-          marginTop: "0.8%",
-          marginRight: "1%",
-          borderRadius: "15px",
-          borderColor: "#FFA601",
-          color: "#FFA601",
-          fontFamily: "Nunito",
-        }}
-        onClick={handleLogin}
-      >
-        Login
-      </Button>
-    </div>
-  );
+    const handleLogin = () => {
+        navigate("/login");
+    };
+
+    return (
+        <div className="header">
+        <Button
+            type="link"
+            style={{
+            fontSize: "28px",
+            color: "#FFA601",
+            marginRight: "10%",
+            height: "100%",
+            fontFamily: "Lobster",
+            }}
+            onClick={goHome}
+        >
+            Let's Meet
+        </Button>
+        <Button
+            style={{
+            float: "right",
+            marginTop: "1%",
+            marginRight: "1%",
+            borderRadius: "15px",
+            borderColor: "#FFA601",
+            color: "#FFA601",
+            fontFamily: "Nunito",
+            }}
+            onClick={handleLogin}
+        >
+            Login
+        </Button>
+        </div>
+    );
 };
 
 export { Header, Header2 };

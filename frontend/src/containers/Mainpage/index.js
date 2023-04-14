@@ -309,8 +309,10 @@ const Mainpage = () => {
               <Button
                 style={{
                   top: "30px",
-                  borderRadius: "15px",
+                  borderRadius: "20px",
                   background: "#B3DEE5",
+                  borderColor: "#B3DEE5",
+                  fontWeight: "bold",
                 }}
                 size="large"
                 onClick={handleMeetCreate}

@@ -21,11 +21,16 @@ const DialogBottom = styled.div`
 `;
 
 const ShowDialog = () => {
+    // return (
+    //   <div>
+    //     <DialogUp>
+    //       <DialogBottom/>
+    //     </DialogUp>
+    //   </div>
+    // );
     return (
-      <div>
-        <DialogUp>
-          <DialogBottom/>
-        </DialogUp>
+      <div style={{width: "100px", height: "50px", border: "1px solid black"}}>
+        <p>hi</p>
       </div>
     );
   };

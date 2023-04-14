@@ -1,4 +1,4 @@
-import { Button, Table, Tag } from "antd";
+import { Button, Table, Tag, ConfigProvider } from "antd";
 import "../css/Background.css";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
@@ -42,6 +42,12 @@ const tagMap = {
 //         filterd: true,
 //     },
 // ];
+
+const customizeRenderEmpty = () => (
+    <div style={{ textAlign: 'center' }}>
+      <p>There is no meets in your meeting list.</p>
+    </div>
+);
 
 const Meets = () => {
   const navigate = useNavigate();
@@ -201,9 +207,10 @@ const Meets = () => {
             </Button>
           </div>
         </div>
+        <ConfigProvider renderEmpty={customizeRenderEmpty}>
         {
           <Table
-            style={{ width: 1200, marginTop: "6%" }}
+            style={{ width: 1200, marginTop: "4%" }}
             dataSource={showData}
             className="meetTable"
             columns={columns}
@@ -215,6 +222,7 @@ const Meets = () => {
             }}
           ></Table>
         }
+        </ConfigProvider>
       </div>
     </>
   );
