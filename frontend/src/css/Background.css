@@ -2,11 +2,11 @@
   /* border: 1px solid blue; */
   width: 100%;
   height: 100vh;
-  min-width: 1120px;
+  min-width: 1500px;
   min-height: 900px;
   display: grid;
   grid-template-columns: [line1] 35% [line2] 65% [line3];
-  grid-template-rows: [row1] 5% [row2] 90% [row3] 5% [row4];
+  grid-template-rows: [row1] 7% [row2] 88% [row3] 5% [row4];
   margin: auto;
 }
 
@@ -14,11 +14,11 @@
   /* border: 1px solid blue; */
   width: 100%;
   height: 100vh;
-  min-width: 1120px;
+  min-width: 1500px;
   min-height: 900px;
   display: grid;
   grid-template-columns: [line1] 50% [line2] 50% [line3];
-  grid-template-rows: [row1] 5% [row2] 90% [row3] 5% [row4];
+  grid-template-rows: [row1] 7% [row2] 88% [row3] 5% [row4];
   margin: auto;
 }
 

@@ -66,30 +66,30 @@ const Meets = () => {
     setShowData(temp);
   };
 
-  useEffect(() => {
-    (async () => {
-      if (cookies.token) {
-        const result = await browseMeet(cookies.token);
-        const data = result.data.map((d) => ({
-          key: d.meet_id,
-          name: d.title,
-          host: d.host_username,
-          code: d.invite_code,
-          votingPeriod: `${d.start_date.replaceAll(
-            "-",
-            "/"
-          )}-${d.end_date.replaceAll("-", "/")}`,
-          status: d.status,
-          meetingTime: "2023/04/15",
-          url: d.meet_url ?? "https://meet.google.com/vft-xolb-mog",
-        }));
-        setData(data);
-        setShowData(data.filter((ele) => ele.status.includes("ote"))); // default display voting
-      } else {
-        navigate("/");
-      }
-    })();
-  }, [cookies]);
+//   useEffect(() => {
+//     (async () => {
+//       if (cookies.token) {
+//         const result = await browseMeet(cookies.token);
+//         const data = result.data.map((d) => ({
+//           key: d.meet_id,
+//           name: d.title,
+//           host: d.host_username,
+//           code: d.invite_code,
+//           votingPeriod: `${d.start_date.replaceAll(
+//             "-",
+//             "/"
+//           )}-${d.end_date.replaceAll("-", "/")}`,
+//           status: d.status,
+//           meetingTime: "2023/04/15",
+//           url: d.meet_url ?? "https://meet.google.com/vft-xolb-mog",
+//         }));
+//         setData(data);
+//         setShowData(data.filter((ele) => ele.status.includes("ote"))); // default display voting
+//       } else {
+//         navigate("/");
+//       }
+//     })();
+//   }, [cookies]);
 
   const columns = [
     {
