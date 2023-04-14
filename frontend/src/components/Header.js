@@ -19,6 +19,7 @@ const Header = ({ location = "none" }) => {
           marginRight: "2%",
           height: "100%",
           fontFamily: "Lobster",
+          float: "left",
         }}
         href="/"
       >
@@ -31,9 +32,10 @@ const Header = ({ location = "none" }) => {
             fontSize: "22px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
-            height: "85%",
+            height: "100%",
             fontWeight: 800,
             fontFamily: "Nunito",
+            float: "left",
           }}
           href="/meets"
         >
@@ -45,9 +47,10 @@ const Header = ({ location = "none" }) => {
           style={{
             fontSize: "22px",
             color: "#808080",
-            height: "85%",
+            height: "100%",
             fontFamily: "Nunito",
             fontWeight: 600,
+            float: "left",
           }}
           href="/meets"
         >
@@ -61,10 +64,12 @@ const Header = ({ location = "none" }) => {
             fontSize: "22px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
-            height: "85%",
+            height: "100%",
             fontWeight: 800,
             fontFamily: "Nunito",
+            float: "left",
           }}
+          href="/meets"
         >
           Calendar
         </Button>
@@ -74,10 +79,12 @@ const Header = ({ location = "none" }) => {
           style={{
             fontSize: "22px",
             color: "#808080",
-            height: "85%",
+            height: "100%",
             fontFamily: "Nunito",
             fontWeight: 600,
+            float: "left",
           }}
+          href="/meets"
         >
           Calendar
         </Button>
@@ -89,10 +96,12 @@ const Header = ({ location = "none" }) => {
             fontSize: "22px",
             color: "#DB8600",
             backgroundColor: "#FDF3D1",
-            height: "85%",
+            height: "100%",
             fontWeight: 800,
             fontFamily: "Nunito",
+            float: "left",
           }}
+          href="/meets"
         >
           Routine
         </Button>
@@ -102,43 +111,46 @@ const Header = ({ location = "none" }) => {
           style={{
             fontSize: "22px",
             color: "#808080",
-            height: "85%",
+            height: "100%",
             fontFamily: "Nunito",
             fontWeight: 600,
+            float: "left",
           }}
+          href="/meets"
         >
           Routine
         </Button>
       )}
       <Button
         type="link"
-        style={{
-          fontSize: "22px",
-          color: "#808080",
-          height: "85%",
-          position: "absolute",
-          left: "88%",
-          fontFamily: "Nunito",
-          fontWeight: 600,
-        }}
-      >
-        Settings
-      </Button>
-      <Button
-        type="link"
         icon={<LogoutOutlined />}
         style={{
           fontSize: "22px",
           color: "#808080",
-          height: "85%",
-          position: "absolute",
-          left: "95%",
+          height: "100%",
+          float: "right",
+          marginRight: "1%",
         }}
+        href="/"
         onClick={() => {
           removeCookie("token");
           setLogin(false);
         }}
       />
+      <Button
+        type="link"
+        style={{
+          fontSize: "22px",
+          color: "#808080",
+          height: "100%",
+          float: "right",
+          fontFamily: "Nunito",
+          fontWeight: 600,
+        }}
+        href="/meets"
+      >
+        Settings
+      </Button>
     </div>
   );
 };
@@ -155,7 +167,7 @@ const Header2 = () => {
       <Button
         type="link"
         style={{
-          fontSize: "28px",
+          fontSize: "22px",
           color: "#FFA601",
           marginRight: "10%",
           height: "100%",
@@ -167,9 +179,9 @@ const Header2 = () => {
       </Button>
       <Button
         style={{
-          position: "absolute",
-          left: "92%",
-          marginTop: "0.8%",
+          float: "right",
+          marginTop: "0.4%",
+          marginRight: "1%",
           borderRadius: "15px",
           borderColor: "#FFA601",
           color: "#FFA601",
