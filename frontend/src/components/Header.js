@@ -36,6 +36,7 @@ const Header = ({ location = "none" }) => {
             fontWeight: 800,
             fontFamily: "Nunito",
             float: "left",
+            lineHeight: "50px"
           }}
           href="/meets"
         >
@@ -51,6 +52,7 @@ const Header = ({ location = "none" }) => {
             fontFamily: "Nunito",
             fontWeight: 600,
             float: "left",
+            lineHeight: "50px"
           }}
           href="/meets"
         >
@@ -68,6 +70,7 @@ const Header = ({ location = "none" }) => {
             fontWeight: 800,
             fontFamily: "Nunito",
             float: "left",
+            lineHeight: "50px"
           }}
           href="/meets"
         >
@@ -83,6 +86,7 @@ const Header = ({ location = "none" }) => {
             fontFamily: "Nunito",
             fontWeight: 600,
             float: "left",
+            lineHeight: "50px"
           }}
           href="/meets"
         >
@@ -100,6 +104,7 @@ const Header = ({ location = "none" }) => {
             fontWeight: 800,
             fontFamily: "Nunito",
             float: "left",
+            lineHeight: "50px"
           }}
           href="/meets"
         >
@@ -115,6 +120,7 @@ const Header = ({ location = "none" }) => {
             fontFamily: "Nunito",
             fontWeight: 600,
             float: "left",
+            lineHeight: "50px"
           }}
           href="/meets"
         >
@@ -130,6 +136,7 @@ const Header = ({ location = "none" }) => {
           height: "100%",
           float: "right",
           marginRight: "1%",
+          lineHeight: "50px"
         }}
         href="/"
         onClick={() => {
@@ -146,6 +153,7 @@ const Header = ({ location = "none" }) => {
           float: "right",
           fontFamily: "Nunito",
           fontWeight: 600,
+          lineHeight: "50px"
         }}
         href="/meets"
       >
@@ -167,7 +175,7 @@ const Header2 = () => {
       <Button
         type="link"
         style={{
-          fontSize: "22px",
+          fontSize: "28px",
           color: "#FFA601",
           marginRight: "10%",
           height: "100%",
@@ -180,7 +188,7 @@ const Header2 = () => {
       <Button
         style={{
           float: "right",
-          marginTop: "0.4%",
+          marginTop: "0.8%",
           marginRight: "1%",
           borderRadius: "15px",
           borderColor: "#FFA601",
