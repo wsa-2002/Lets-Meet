@@ -165,11 +165,10 @@ const LogIn = () => {
           <Button
             size={"large"}
             style={{
+              borderRadius: "20px",
               background: "#B3DEE5",
-              borderRadius: "15px",
-              // position: "relative",
-              // left: "50%",
-              // transform: "translate(-50%, 0)",
+              borderColor: "#B3DEE5",
+              fontWeight: "bold",
             }}
             onClick={handleSignUpClick}
             disabled={

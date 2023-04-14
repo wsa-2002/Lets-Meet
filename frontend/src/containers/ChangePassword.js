@@ -71,8 +71,10 @@ const ChangePassword = () => {
           <Button
             size={"large"}
             style={{
+              borderRadius: "20px",
               background: "#B3DEE5",
-              borderRadius: "15px",
+              borderColor: "#B3DEE5",
+              fontWeight: "bold",
               // position: "relative",
               // left: "50%",
               // transform: "translate(-50%, 0)",

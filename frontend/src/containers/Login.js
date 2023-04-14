@@ -137,11 +137,9 @@ const LogIn = () => {
             size={"large"}
             style={{
               background: "#B3DEE5",
-              borderRadius: "15px",
+              borderRadius: "20px",
               borderColor: "#B3DEE5",
-              // position: "relative",
-              // left: "50%",
-              // transform: "translate(-50%, 0)",
+              fontWeight: "bold",
             }}
             onClick={handleLoginClick}
           >

@@ -118,6 +118,9 @@ const addHexColor = (c1, c2) => {
 
 const Voting = () => {
   const [block, setBlock] = useState(createList); // 每個timeblock存的資訊
+  const [isShowDialog, setIsShowDialog] = useState(false);
+  const [dialogX, setDialogX] = useState("0");
+  const [dialogY, setDialogY] = useState("0");
   const navigate = useNavigate();
   const { login } = useMeet();
 
@@ -130,8 +133,16 @@ const Voting = () => {
     // setNotAvaList(showList[i][j].notAvailablePpl);
   };
 
-  const handleDialog = () => {
-    
+  const handleShowDialog = (location) => {
+    setIsShowDialog(true);
+    setDialogX((location.x - document.getElementById("hi").getBoundingClientRect().x).toString());
+    setDialogY((location.y - document.getElementById("hi").getBoundingClientRect().y).toString());
+    console.log(location.x, location.y);
+    console.log(document.getElementById("hi").getBoundingClientRect())
+  };
+
+  const handleHideDialog = () => {
+    setIsShowDialog(false);
   }
 
   const chooseColor = (num) => {
@@ -180,10 +191,11 @@ const Voting = () => {
     <>
       {login ? <Header location="timeslot" /> : <Header2 />}
       <div className="leftContainer" style={{ background: "white" }}>
+        <ShowDialog/>
         <NameWrapper>
           <Button
             icon={<ArrowLeftOutlined />}
-            style={{ position: "absolute", right: "100%", top: "6%" }}
+            style={{ position: "absolute", right: "100%", top: "6%", borderColor: "white", color: "#808080", fontSize: "18px" }}
             onClick={handleMeet}
           ></Button>
           <div
@@ -194,7 +206,7 @@ const Voting = () => {
               fontSize: "30px",
               position: "absolute",
               top: "6%",
-              marginLeft: "5px"
+              marginLeft: "25px"
             }}
           >
             SDM Class
@@ -266,7 +278,7 @@ const Voting = () => {
         </FormWrapper>
       </div>
       <div className="rightContainer">
-        <FormWrapper>
+        <FormWrapper id="hi">
           <div
             style={{
               fontFamily: "Roboto",
@@ -318,19 +330,25 @@ const Voting = () => {
                   // style={{ backgroundColor: "#"+chooseColor(item.availableNum) }}></div>
                   <div
                     className="cell"
-                    key={j}
-                    id={j}
+                    key={i.toString()+j.toString()}
+                    id={i.toString()+j.toString()}
                     date={item.date}
                     time={item.time}
                     available={item.availableNum}
                     style={{
                       backgroundColor: "#" + chooseColor(item.availableNum),
                     }}
-                    onMouseOver={handleDialog}
+                    onMouseOver={() => handleShowDialog(document.getElementById(i.toString()+j.toString()).getBoundingClientRect())}
+                    onMouseLeave={handleHideDialog}
                   ></div>
                 ))}
               </div>
             ))}
+            {isShowDialog ? <div 
+                style={{width: "100px", height: "50px", border: "1px solid black",
+                position: "absolute", left: dialogX+"px", top: dialogY+"px", backgroundColor: "white", zIndex: 9}}>
+              <p>hi</p>
+            </div> : <></>}
           </div>
         </FormWrapper>
       </div>

@@ -51,7 +51,7 @@ const CreateMeet = styled.div`
   min-width: 500px;
   min-height: 500px;
   position: relative;
-  left: 50%;
+  left: 60%;
   top: 50%;
   transform: translate(-50%, -50%);
   // border: 1px solid #D8D8D8;
@@ -200,7 +200,7 @@ const MeetInfo = () => {
         <CreateMeet>
           <Button
             icon={<ArrowLeftOutlined />}
-            style={{ marginBottom: "20px" }}
+            style={{ position: "absolute", right: "100%", borderColor: "white", color: "#808080", fontSize: "18px", marginRight: "25px" }}
             onClick={handleMeet}
           ></Button>
           <div
@@ -216,7 +216,7 @@ const MeetInfo = () => {
               marginBottom: "30px",
             }}
           >
-            {meetInfo.EventName}
+            SDM
           </div>
           {/* <div style={{ display: "flex", flexDirection: "column", rowGap: "20px" }}>
                     <div style={{display: "flex", alignItems: "center", columnGap: "10%",
@@ -243,12 +243,13 @@ const MeetInfo = () => {
             )}
           </div>
           <Button
-            style={{ marginLeft: "65%", marginTop: "35px", marginRight: "5px" }}
+            style={{ marginLeft: "65%", marginTop: "35px", marginRight: "5px",
+              borderColor: "#FEE9DD", color: "#DB8600" }}
             onClick={showLeaveModal}
           >
             Leave Meet
           </Button>
-          <Button style={{ marginTop: "35px" }} onClick={handleVote}>
+          <Button style={{ marginTop: "35px", background: "#DB8600", borderColor: "#DB8600", color: "white"}} onClick={handleVote}>
             Vote
           </Button>
         </CreateMeet>

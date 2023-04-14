@@ -112,7 +112,7 @@
   width: 1488px;
   position: absolute;
   left: 50%;
-  top: 5%;
+  top: 3%;
   transform: translate(-50%, 0%);
 }
 
@@ -147,20 +147,14 @@
   background-color: blue;
 }
 
-/* .table-row-light {
-    background-color: #FDF3D1;
-}
-.table-row-dark {
-    background-color: #fbfbfb;
-}
-
-.meetTable thead > tr > th {
-    background-color: #FDF3D1;
-} */
-
-
 .meetTableColumn {
   background-color: #FDF3D1 !important;
   color: #7A3E00 !important;
   border-bottom: 1px solid #7A3E00 !important;
 }
+
+/* .ant-btn {
+    border-radius: "20px";
+    background: #B3DEE5;
+    border-color: #B3DEE5;
+} */
