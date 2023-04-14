@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Header, Header2 } from "../components/Header";
 import { useMeet } from "./hooks/useMeet";
+import ShowDialog from "../components/ShowDialog";
 
 // createList 形式：{date: "May 19Wed", time: "9:00", available: false} 之後會加一格routine
 let createList = [
@@ -128,6 +129,10 @@ const Voting = () => {
     // setAvaList(showList[i][j].availablePpl);
     // setNotAvaList(showList[i][j].notAvailablePpl);
   };
+
+  const handleDialog = () => {
+    
+  }
 
   const chooseColor = (num) => {
     // return addHexColor("F0F0F0", ((Math.max(num-1, 0)*3635)+984028).toString(16));
@@ -321,6 +326,7 @@ const Voting = () => {
                     style={{
                       backgroundColor: "#" + chooseColor(item.availableNum),
                     }}
+                    onMouseOver={handleDialog}
                   ></div>
                 ))}
               </div>

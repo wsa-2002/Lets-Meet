@@ -203,7 +203,7 @@ const Meets = () => {
         </div>
         {
           <Table
-            style={{ width: 1200, marginTop: "8%" }}
+            style={{ width: 1200, marginTop: "6%" }}
             dataSource={showData}
             className="meetTable"
             columns={columns}
