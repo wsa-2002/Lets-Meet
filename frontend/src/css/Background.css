@@ -33,18 +33,15 @@
 
 .leftContainer {
   grid-column: 1/2;
-  grid-row: 1/3;
+  grid-row: 2/3;
   background: #fefcef;
-  position: relative;
+  /* position: relative; */
 }
 
 .rightContainer {
   grid-column: 2/3;
-  grid-row: 1/3;
+  grid-row: 2/3;
   position: relative;
-  /* display: grid;
-    grid-template-columns:[line1] 30% [line2] 40% [line3] 30% [line4];
-    grid-template-rows:[row1] 20% [row2] 60% [row3] 20% [row4]; */
 }
 
 .wholeContainer {
@@ -53,51 +50,20 @@
   position: relative;
 }
 
-.leftFooter {
-  grid-column: 1/2;
-  grid-row: 3/4;
-  /* background: #fefcef; */
-}
-
-.rightFooter {
-  grid-column: 2/3;
-  grid-row: 3/4;
-}
-
-.leftFooter > div {
-  font-style: normal;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: #808080;
-  margin-left: 5%;
-}
-
-.rightFooter > div {
-  font-style: normal;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
-  color: #808080;
-  /* margin-left: 90%; */
-  float: right;
-  margin-right: 5%;
-}
-
 .title {
-    width: 100%;
-    position: absolute;
-    left: 10%;
-    top: 70%;
-    /* display: flex;
+  width: 100%;
+  position: absolute;
+  left: 10%;
+  top: 70%;
+  /* display: flex;
     justify-content: center; */
-    /* border: 1px solid #D8D8D8; */
-    font-style: normal;
-    font-weight: 500;
-    font-size: 80px;
-    line-height: 46px;
-    color: #ffa601;
-    font-family: "Lobster";
+  /* border: 1px solid #D8D8D8; */
+  font-style: normal;
+  font-weight: 500;
+  font-size: 80px;
+  line-height: 46px;
+  color: #ffa601;
+  font-family: "Lobster";
 }
 
 .meetTable {
@@ -148,9 +114,9 @@
 }
 
 .meetTableColumn {
-  background-color: #FDF3D1 !important;
-  color: #7A3E00 !important;
-  border-bottom: 1px solid #7A3E00 !important;
+  background-color: #fdf3d1 !important;
+  color: #7a3e00 !important;
+  border-bottom: 1px solid #7a3e00 !important;
 }
 
 /* .ant-btn {

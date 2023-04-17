@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
-
+import Footer from "../components/Footer";
 const coloredBackground = [
   "/signup",
   "/login",
@@ -9,30 +9,24 @@ const coloredBackground = [
   "reset-password",
 ];
 
+const halfContainer = ["/voting", "/test"];
+
 const AppFrame = () => {
   const location = useLocation();
   console.log(location.pathname);
   return (
-    <div
-      className={
-        location.pathname === "/voting" ? "meetMainContainer" : "mainContainer"
-      }
-      // className="meetMainContainer"
-    >
-      <Outlet />
+    <>
       <div
-        className="leftFooter"
-        style={{
-          backgroundColor:
-            coloredBackground.find((m) => m === location.pathname) && "#fefcef",
-        }}
+        className={
+          halfContainer.find((m) => m === location.pathname)
+            ? "meetMainContainer"
+            : "mainContainer"
+        }
       >
-        <div>中文 | English</div>
+        <Outlet />
+        <Footer style={{ gridColumn: "1/3", gridRow: "3/4" }} />
       </div>
-      <div className="rightFooter">
-        <div>Copyright 2023</div>
-      </div>
-    </div>
+    </>
   );
 };
 export default AppFrame;

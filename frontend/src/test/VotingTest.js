@@ -4,9 +4,9 @@ import { Button, Tooltip } from "antd";
 import "../css/Background.css";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Header, Header2 } from "../components/Header";
-import { useMeet } from "./hooks/useMeet";
+import { useMeet } from "../containers/hooks/useMeet";
 import _ from "lodash";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
@@ -94,27 +94,20 @@ const CellInfo = () => {
 
 const Voting = () => {
   let DATERANGE = [
-    ...moment.range(moment("2019-03-28"), moment("2019-04-01")).by("day"),
+    ...moment.range(moment("2019-03-01"), moment("2019-04-01")).by("day"),
   ].map((m) => m.format("YYYY-MM-DD"));
 
-  let TIMESLOTIDS = _.range(1, 20); //記得加 1
+  let TIMESLOTIDS = _.range(1, 15); //記得加 1
 
   const dataFormatProcessing = () => {
-    let temp = {};
-    for (const d_index in DATERANGE) {
-      for (const t_index in TIMESLOTIDS.slice(0, -1)) {
-        temp[[d_index, t_index]] = false;
-      }
-    }
-    return temp;
+    return _.range(DATERANGE.length).map(() => TIMESLOTIDS.map(() => false));
   };
 
   const [cell, setCell] = useState(dataFormatProcessing());
-
   const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
   const [startIndex, setStartIndex] = useState([]); //選取方塊位置
   const [mode, setMode] = useState(true); //選取模式
-  const [oriCell, setOriSell] = useState({}); //用來記錄最先的 cell，由於後續 cell 會變動
+  const oriCell = useMemo(() => cell, [startDrag]);
 
   const slotIDProcessing = (id) => {
     let hour = String(parseInt(((id - 1) * 30) / 60));
@@ -127,29 +120,28 @@ const Voting = () => {
     e.preventDefault();
     setStartDrag(true);
     setStartIndex(index);
-    setOriSell(cell);
-    setMode(!cell[index]);
+    setMode(!cell[index[0]][index[1]]);
   };
+
+  useEffect(() => {
+    console.log(oriCell);
+  }, [oriCell]);
 
   const handleCellMouseEnter = (index) => (e) => {
     e.preventDefault();
     if (startDrag) {
       const xRange = [startIndex[0], index[0]].sort((a, b) => a - b);
       const yRange = [startIndex[1], index[1]].sort((a, b) => a - b);
-      const Processing = () => {
-        let temp = {};
+      const Processing = (prev) => {
+        let temp = JSON.parse(JSON.stringify(prev));
         for (const d_index of _.range(xRange[0], xRange[1] + 1)) {
           for (const t_index of _.range(yRange[0], yRange[1] + 1)) {
-            temp[[d_index, t_index]] = mode;
+            temp[d_index][t_index] = mode;
           }
         }
         return temp;
       };
-
-      setCell({
-        ...oriCell,
-        ...Processing(),
-      });
+      setCell(() => Processing(oriCell));
     }
   };
 
@@ -173,10 +165,11 @@ const Voting = () => {
 
   const handleCellClick = (index) => () => {
     console.log(index);
-    setCell((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
+    setCell((prev) => {
+      let result = JSON.parse(JSON.stringify(prev));
+      result[index[0]][index[1]] = !result[index[0]][index[1]];
+      return result;
+    });
   };
 
   return (
@@ -260,7 +253,7 @@ const Voting = () => {
                   display: "flex",
                   columnGap: "2px",
                   overflowX: "scroll",
-                  width: "80%",
+                  maxWidth: "80%",
                 }}
               >
                 {DATERANGE.map((date, c_index) => (
@@ -275,9 +268,9 @@ const Voting = () => {
                       <Cell
                         key={r_index}
                         style={{
-                          background: cell[[c_index, r_index]]
-                            ? "blue"
-                            : "aliceblue",
+                          background: cell[c_index][r_index]
+                            ? "#94C9CD"
+                            : "#F0F0F0",
                         }}
                         onMouseDown={handleCellMouseDown([c_index, r_index])}
                         onMouseEnter={handleCellMouseEnter([c_index, r_index])}
@@ -344,7 +337,7 @@ const Voting = () => {
                 display: "flex",
                 columnGap: "2px",
                 overflowX: "scroll",
-                width: "80%",
+                maxWidth: "80%",
               }}
             >
               {DATERANGE.map((date, c_index) => (
