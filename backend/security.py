@@ -1,6 +1,6 @@
 from functools import partial
 from datetime import timedelta, datetime
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
 import jwt
 from passlib.hash import argon2
@@ -20,12 +20,12 @@ def encode_jwt(account_id: int, expire: timedelta = jwt_config.login_expire) -> 
     })
 
 
-class AuthedAccount(NamedTuple):
-    id: int
+class Account(NamedTuple):
     time: datetime
+    id: Optional[int] = None
 
 
-def decode_jwt(encoded: str, time: datetime) -> AuthedAccount:
+def decode_jwt(encoded: str, time: datetime) -> Account:
     try:
         decoded = _jwt_decoder(encoded)
     except jwt.DecodeError:
@@ -36,7 +36,7 @@ def decode_jwt(encoded: str, time: datetime) -> AuthedAccount:
         raise exc.LoginExpired
 
     account_id = decoded['account_id']
-    return AuthedAccount(id=account_id, time=time)
+    return Account(id=account_id, time=time)
 
 
 def hash_password(password: str) -> str:

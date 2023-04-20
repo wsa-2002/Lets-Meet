@@ -38,8 +38,10 @@ class Meet:
     title: str
     invite_code: str
     gen_meet_url: bool
-    finalized_start_time: Optional[datetime] = None
-    finalized_end_time: Optional[datetime] = None
+    finalized_start_date: Optional[date] = None
+    finalized_end_date: Optional[date] = None
+    finalized_start_time_slot_id: Optional[int] = None
+    finalized_end_time_slot_id: Optional[int] = None
     meet_url: Optional[str] = None
     description: Optional[str] = None
 

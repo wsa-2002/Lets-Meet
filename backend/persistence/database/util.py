@@ -2,8 +2,8 @@ import collections
 import itertools
 from typing import Any, Tuple, List, Sequence
 
-from base.enums import FilterOperator, SortOrder
-from base.model import Filter, Sorter
+from base.enums import FilterOperator
+from base.model import Filter
 
 
 # modify from https://github.com/MagicStack/asyncpg/issues/9#issuecomment-600659015

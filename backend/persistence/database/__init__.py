@@ -45,4 +45,7 @@ from . import (
     email_verification,
     routine,
     meet,
+    meet_member,
+    available_time,
+    event,
 )
