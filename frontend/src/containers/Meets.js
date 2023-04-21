@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { Header, Header2 } from "../components/Header";
 import { browseMeet } from "../middleware";
 import { useMeet } from "./hooks/useMeet";
+import SecondaryButton from "../components/SecondaryButton";
 const { Column } = Table;
 
 const tagMap = {
@@ -184,27 +185,10 @@ const Meets = () => {
             My Meets
           </div>
           <div style={{ marginTop: "5%", marginRight: 145 }}>
-            <Button
-              style={{
-                float: "right",
-                marginLeft: "10px",
-                backgroundColor: isVoting ? "white" : "#5A8EA4",
-                color: isVoting ? "#5A8EA4" : "white",
-              }}
-              onClick={handleEndVote}
-            >
-              Ended Votes
-            </Button>
-            <Button
-              style={{
-                float: "right",
-                backgroundColor: isVoting ? "#5A8EA4" : "white",
-                color: isVoting ? "white" : "#5A8EA4",
-              }}
-              onClick={handleIsVote}
-            >
-              Voting
-            </Button>
+            <SecondaryButton background={isVoting ? "white" : "#5A8EA4"}color={isVoting ? "#5A8EA4" : "white"}
+                text="Ended Votes" handleClick={handleEndVote} style={{ float: "right", marginLeft: "10px"}} />
+            <SecondaryButton background={isVoting ? "#5A8EA4" : "white"}color={isVoting ? "white" : "#5A8EA4"}
+                text="Voting" handleClick={handleIsVote} style={{ float: "right"}} />
           </div>
         </div>
         <ConfigProvider renderEmpty={customizeRenderEmpty}>

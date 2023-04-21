@@ -216,7 +216,7 @@ const MeetInfo = () => {
               marginBottom: "30px",
             }}
           >
-            SDM
+            {meetInfo.EventName}
           </div>
           {/* <div style={{ display: "flex", flexDirection: "column", rowGap: "20px" }}>
                     <div style={{display: "flex", alignItems: "center", columnGap: "10%",

@@ -5,6 +5,7 @@ import { Input, Button, Typography, Divider, Image, notification } from "antd";
 import * as AXIOS from "../middleware";
 import googleIcon from "../resources/google.png";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import PrimaryButton from "../components/PrimaryButton";
 
 const { Text, Link } = Typography;
 
@@ -162,24 +163,13 @@ const LogIn = () => {
             );
           })}
           {contextHolder}
-          <Button
-            size={"large"}
-            style={{
-              borderRadius: "20px",
-              background: "#B3DEE5",
-              borderColor: "#B3DEE5",
-              fontWeight: "bold",
-            }}
-            onClick={handleSignUpClick}
+          <PrimaryButton handleMeetCreate={handleSignUpClick} text="Create"
             disabled={
               !signupData.Username ||
               !signupData.Password ||
               !signupData.Email ||
               !signupData["Confirm Password"]
-            }
-          >
-            Sign Up
-          </Button>
+            }/>
           <Divider style={{ borderColor: "#808080", color: "#808080"}}>or</Divider>
           <Button
             style={{

@@ -4,6 +4,7 @@ import { Input, Button, Typography, Divider, notification, Space } from "antd";
 import { useNavigate } from "react-router-dom";
 import { CheckCircleFilled } from "@ant-design/icons";
 import * as AXIOS from "../middleware";
+import PrimaryButton from "../components/PrimaryButton";
 const { Text, Link } = Typography;
 
 const ResetPassword = () => {
@@ -60,18 +61,7 @@ const ResetPassword = () => {
             }}
             ref={EmailRef}
           />
-          <Button
-            size={"large"}
-            style={{
-              borderRadius: "20px",
-              background: "#B3DEE5",
-              borderColor: "#B3DEE5",
-              fontWeight: "bold",
-            }}
-            onClick={handleVerifyClick}
-          >
-            Send Verification
-          </Button>
+          <PrimaryButton handleMeetCreate={handleVerifyClick} text="Send Verification"/>
         </div>
       </div>
     </>

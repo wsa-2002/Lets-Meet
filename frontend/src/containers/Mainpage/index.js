@@ -17,6 +17,7 @@ import moment from "moment";
 import * as AXIOS from "../../middleware";
 import Member from "./Member";
 import { Header } from "../../components/Header";
+import PrimaryButton from "../../components/PrimaryButton";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -306,19 +307,7 @@ const Mainpage = () => {
               </div>
             ))}
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
-              <Button
-                style={{
-                  top: "30px",
-                  borderRadius: "20px",
-                  background: "#B3DEE5",
-                  borderColor: "#B3DEE5",
-                  fontWeight: "bold",
-                }}
-                size="large"
-                onClick={handleMeetCreate}
-              >
-                Create
-              </Button>
+              <PrimaryButton handleMeetCreate={handleMeetCreate} text="Create" style={{top: "30px"}}/>
             </div>
           </div>
         </CreateMeet>

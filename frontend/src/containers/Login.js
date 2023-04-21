@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import * as AXIOS from "../middleware";
 import { useMeet } from "./hooks/useMeet";
 import googleIcon from "../resources/google.png";
+import PrimaryButton from "../components/PrimaryButton";
 
 const { Text, Link } = Typography;
 
@@ -133,18 +134,7 @@ const LogIn = () => {
               Forgot Password
             </Link>
           </div>
-          <Button
-            size={"large"}
-            style={{
-              background: "#B3DEE5",
-              borderRadius: "20px",
-              borderColor: "#B3DEE5",
-              fontWeight: "bold",
-            }}
-            onClick={handleLoginClick}
-          >
-            Login
-          </Button>
+          <PrimaryButton handleMeetCreate={handleLoginClick} text="Login"/>
           <Divider style={{ borderColor: "#808080", color: "#808080" }}>
             or
           </Divider>

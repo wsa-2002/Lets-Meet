@@ -4,6 +4,7 @@ import "../css/Background.css";
 import { Input, Button, Typography, Divider } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import * as AXIOS from "../middleware";
+import PrimaryButton from "../components/PrimaryButton";
 const { Text, Link } = Typography;
 
 const ChangePassword = () => {
@@ -68,25 +69,11 @@ const ChangePassword = () => {
               onChange={handleResetChange}
             />
           ))}
-          <Button
-            size={"large"}
-            style={{
-              borderRadius: "20px",
-              background: "#B3DEE5",
-              borderColor: "#B3DEE5",
-              fontWeight: "bold",
-              // position: "relative",
-              // left: "50%",
-              // transform: "translate(-50%, 0)",
-            }}
+          <PrimaryButton handleMeetCreate={handleClick} text="Save"
             disabled={
               newPassword["Confirmed New Password"] !==
               newPassword["New Password"]
-            }
-            onClick={handleClick}
-          >
-            Save
-          </Button>
+            }/>
         </div>
       </div>
     </>
