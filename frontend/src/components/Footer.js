@@ -5,6 +5,7 @@ const FooterContainer = styled.div`
   display: flex;
   justify-content: center;
   z-index: 20000;
+  min-height: 8.5vh;
 `;
 
 const FooterInnerContainer = styled.div`

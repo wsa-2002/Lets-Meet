@@ -1,12 +1,14 @@
+/*TODO:********************************************************************************************
+  1.RWD, 畫面縮小到一定程度時 MEEET TABLE 會超出畫面。
+**************************************************************************************************/
 import { Button, Table, Tag, ConfigProvider } from "antd";
-import "../css/Background.css";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Header, Header2 } from "../components/Header";
+import Base from "../components/Base/145MeetRelated";
+import styled from "styled-components";
 import { browseMeet } from "../middleware";
 import { useMeet } from "./hooks/useMeet";
-const { Column } = Table;
 
 const tagMap = {
   Voted: "#FFA601",
@@ -15,39 +17,20 @@ const tagMap = {
   Comfirmed: "#FFA601",
 };
 
-// const tempData = [
-//     {
-//         name: "SDM",
-//         host: "Luisa",
-//         votingPeriod: "2023/03/24-2023/04/01",
-//         status: "Voted",
-//         votingDeadline: "xx/xx/xx",
-//         url: "https://meet.google.com/rcb-ffqt-xbn",
-//     },
-//     {
-//         name: "SDM",
-//         host: "Lisa",
-//         votingPeriod: "2023/03/24-2023/04/01",
-//         status: "Unvoted",
-//         votingDeadline: "xx/xx/xx",
-//         url: "https://meet.google.com/rcb-ffqt-xbn",
-//     },
-//     {
-//         name: "SDM",
-//         host: "Luisa",
-//         votingPeriod: "2023/03/24-2023/04/01",
-//         status: "Confirmed",
-//         meetingTime: "xx/xx/xx",
-//         url: "https://meet.google.com/rcb-ffqt-xbn",
-//         filterd: true,
-//     },
-// ];
-
 const customizeRenderEmpty = () => (
-    <div style={{ textAlign: 'center' }}>
-      <p>There is no meets in your meeting list.</p>
-    </div>
+  <div style={{ textAlign: "center" }}>
+    <p>There is no meets in your meeting list.</p>
+  </div>
 );
+
+const MeetContainer = styled.div`
+  width: 86.1%;
+  position: relative;
+  top: calc(180 / 1080 * 100%);
+  display: flex;
+  flex-direction: column;
+  row-gap: 1vh;
+`;
 
 const Meets = () => {
   const navigate = useNavigate();
@@ -72,58 +55,59 @@ const Meets = () => {
     setShowData(temp);
   };
 
-//   useEffect(() => {
-//     (async () => {
-//       if (cookies.token) {
-//         const result = await browseMeet(cookies.token);
-//         const data = result.data.map((d) => ({
-//           key: d.meet_id,
-//           name: d.title,
-//           host: d.host_username,
-//           code: d.invite_code,
-//           votingPeriod: `${d.start_date.replaceAll(
-//             "-",
-//             "/"
-//           )}-${d.end_date.replaceAll("-", "/")}`,
-//           status: d.status,
-//           meetingTime: "2023/04/15",
-//           url: d.meet_url ?? "https://meet.google.com/vft-xolb-mog",
-//         }));
-//         setData(data);
-//         setShowData(data.filter((ele) => ele.status.includes("ote"))); // default display voting
-//       } else {
-//         navigate("/");
-//       }
-//     })();
-//   }, [cookies]);
+  //   useEffect(() => {
+  //     (async () => {
+  //       if (cookies.token) {
+  //         const result = await browseMeet(cookies.token);
+  //         const data = result.data.map((d) => ({
+  //           key: d.meet_id,
+  //           name: d.title,
+  //           host: d.host_username,
+  //           code: d.invite_code,
+  //           votingPeriod: `${d.start_date.replaceAll(
+  //             "-",
+  //             "/"
+  //           )}-${d.end_date.replaceAll("-", "/")}`,
+  //           status: d.status,
+  //           meetingTime: "2023/04/15",
+  //           url: d.meet_url ?? "https://meet.google.com/vft-xolb-mog",
+  //         }));
+  //         setData(data);
+  //         setShowData(data.filter((ele) => ele.status.includes("ote"))); // default display voting
+  //       } else {
+  //         navigate("/");
+  //       }
+  //     })();
+  //   }, [cookies]);
 
   const columns = [
     {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      width: 200,
+      // width: 200,
       className: "meetTableColumn",
+      // style: { backgroundColor: "black" },
     },
     {
       title: "Host",
       dataIndex: "host",
       key: "host",
-      width: 150,
+      // width: 150,
       className: "meetTableColumn",
     },
     {
       title: "Voting Period",
       dataIndex: "votingPeriod",
       key: "votingPeriod",
-      width: 220,
+      // width: 220,
       className: "meetTableColumn",
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      width: 200,
+      // width: 200,
       className: "meetTableColumn",
       render: (tag) => (
         <>
@@ -137,7 +121,7 @@ const Meets = () => {
       title: isVoting ? "Voting Deadline" : "Meeting Time",
       dataIndex: isVoting ? "votingDeadline" : "meetingTime",
       key: isVoting ? "votingDeadline" : "meetingTime",
-      width: 200,
+      // width: 200,
       className: "meetTableColumn",
     },
     {
@@ -167,27 +151,33 @@ const Meets = () => {
   ];
 
   return (
-    <>
-      {login ? <Header location="meet" /> : <Header2 />}
-      <div className="wholeContainer">
-        <div className="meetTableHeader">
+    <Base>
+      <MeetContainer>
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <div
             style={{
-              // fontStyle: "normal",
               fontWeight: "700",
               fontSize: "30px",
-              float: "left",
-              marginLeft: 145,
-              marginTop: "4.5%",
             }}
           >
             My Meets
           </div>
-          <div style={{ marginTop: "5%", marginRight: 145 }}>
+          <div
+            style={{
+              display: "flex",
+              columnGap: "2px",
+              alignItems: "center",
+            }}
+          >
             <Button
               style={{
-                float: "right",
-                marginLeft: "10px",
                 backgroundColor: isVoting ? "white" : "#5A8EA4",
                 color: isVoting ? "#5A8EA4" : "white",
               }}
@@ -197,7 +187,6 @@ const Meets = () => {
             </Button>
             <Button
               style={{
-                float: "right",
                 backgroundColor: isVoting ? "#5A8EA4" : "white",
                 color: isVoting ? "white" : "#5A8EA4",
               }}
@@ -207,24 +196,33 @@ const Meets = () => {
             </Button>
           </div>
         </div>
-        <ConfigProvider renderEmpty={customizeRenderEmpty}>
-        {
-          <Table
-            style={{ width: 1200, marginTop: "4%" }}
-            dataSource={showData}
-            className="meetTable"
-            columns={columns}
-            onRow={(record) => {
-              console.log(record);
-              return {
-                onClick: handleMeetInfoClick(record.code),
-              };
-            }}
-          ></Table>
-        }
+        <ConfigProvider
+          renderEmpty={customizeRenderEmpty}
+          theme={{
+            components: {
+              Table: {
+                borderRadiusLG: 0,
+              },
+            },
+          }}
+        >
+          {
+            <Table
+              style={{ width: "100%", overflowX: "auto" }}
+              dataSource={showData}
+              // className="meetTable"
+              columns={columns}
+              onRow={(record) => {
+                console.log(record);
+                return {
+                  onClick: handleMeetInfoClick(record.code),
+                };
+              }}
+            ></Table>
+          }
         </ConfigProvider>
-      </div>
-    </>
+      </MeetContainer>
+    </Base>
   );
 };
 

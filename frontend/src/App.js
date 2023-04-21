@@ -1,15 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import MainFrame from "./containers/Mainframe";
-import Main from "./containers/Mainpage";
-import Login from "./containers/Login";
-import Signup from "./containers/Signup";
-import Reset from "./containers/ResetPassword";
-import Change from "./containers/ChangePassword";
+import Main from "./containers/左橘3右白7/Mainpage";
+import Login from "./containers/左橘3右白7/Login";
+import Signup from "./containers/左橘3右白7/Signup";
+import Reset from "./containers/左橘3右白7/ResetPassword";
+import Change from "./containers/左橘3右白7/ChangePassword";
 import Meets from "./containers/Meets";
 import MeetInfo from "./containers/MeetInfo";
 import Voting from "./containers/Voting";
-import Test from "./test/Base";
+import Routine from "./containers/左橘3右白7/Routine";
+import Error from "./containers/Error";
+// import Test from "./test/MeetInfo 測試版";
 
 function App() {
   return (
@@ -17,17 +17,19 @@ function App() {
       {/* <CssBaseline /> */}
       <BrowserRouter>
         <Routes>
-          {/* <Route element={<MainFrame />} path="/"> */}
-          <Route element={<Main />} path="/"></Route>
-          <Route element={<Login />} path="/login"></Route>
-          <Route element={<Signup />} path="/signup"></Route>
-          <Route element={<Reset />} path="/reset"></Route>
-          <Route element={<Change />} path="/reset-password"></Route>
-          <Route element={<Meets />} path="/meets"></Route>
-          <Route element={<MeetInfo />} path="/meets/:code"></Route>
-          <Route element={<Voting />} path="/voting"></Route>
-          <Route element={<Test />} path="/test"></Route>
-          {/* </Route> */}
+          {/* <Route element={<MainFrame />} path="/">
+            <Route element={<MeetInfo />} path="/meets/:code"></Route>
+          </Route> */}
+          <Route element={<Main />} path="/" />
+          <Route element={<Meets />} path="/meets" />
+          <Route element={<Login />} path="/login" />
+          <Route element={<Signup />} path="/signup" />
+          <Route element={<Reset />} path="/reset" />
+          <Route element={<Change />} path="/reset-password" />
+          <Route element={<Voting />} path="/voting" />
+          <Route element={<Routine />} path="/routine" />
+          {/* <Route element={<Test />} path="/test" /> */}
+          <Route element={<Error />} path="*"></Route>
         </Routes>
       </BrowserRouter>
     </>
