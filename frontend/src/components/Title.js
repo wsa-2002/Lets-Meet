@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import styled from "styled-components";
 
 const TitleComponent = styled.div`
@@ -10,8 +11,10 @@ const TitleComponent = styled.div`
   margin: 0;
 `;
 
-const Title = ({ style, children }) => {
-  return <TitleComponent style={style}>{children}</TitleComponent>;
-};
+const Title = forwardRef(({ style, children }, ref) => (
+  <TitleComponent style={style} ref={ref}>
+    {children}
+  </TitleComponent>
+));
 
 export default Title;

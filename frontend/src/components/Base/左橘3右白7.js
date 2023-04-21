@@ -101,7 +101,7 @@ const PrimaryButton = Button("primary");
 
 /**
  * @example
- * const InfoContainer = styled.div`
+ * const RightContainer = styled.div`
     grid-column: 2/3;
     grid-row: 1/4;
     display: flex;
@@ -173,17 +173,96 @@ Base.RightContainer = Object.assign(
           padding: 0;
           margin: 0;
         `,
+        /**
+         * @example
+         * const Input = styled.div`
+            width: 100%;
+            height: ${RWDHeight(45)};
+            border-radius: ${RWDRadius(10)};
+            font-size: ${RWDFontSize(16)};
+            border: ${RWDRadius(1)} solid #808080;
+          `;
+        */
         Input: forwardRef((prop, ref) => (
           <Form autoComplete="off">
             <Input {...prop} ref={ref} />
           </Form>
         )),
+        /**
+         * @example
+         * const Password = styled.div`
+            width: 100%;
+            height: ${RWDHeight(45)};
+            border-radius: ${RWDRadius(10)};
+            font-size: ${RWDFontSize(16)};
+            border: ${RWDRadius(1)} solid #808080;
+            input::-ms-reveal,
+            input::-ms-clear {
+              display: none;
+            }
+          `;
+        */
         Password: forwardRef((prop, ref) => (
           <Form autoComplete="off">
             <Password {...prop} ref={ref} />
           </Form>
         )),
         Button: (prop) => <PrimaryButton {...prop} />,
+      }
+    ),
+
+    CreateMeet: Object.assign(
+      styled.div`
+        position: relative;
+        margin-left: ${RWDWidth(120)};
+        margin-top: ${RWDHeight(180)};
+        display: grid;
+        grid-template-columns: repeat(2, max-content);
+        grid-template-rows: repeat(8, max-content);
+        grid-column-gap: ${RWDWidth(47)};
+        grid-row-gap: ${RWDHeight(30)};
+      `,
+      {
+        Title: styled.p`
+          font-size: ${RWDFontSize(30)}; //max(1.6vw, 20px);
+          font-weight: bold;
+          margin: 0;
+          grid-column: 1/3;
+          grid-row: 1/2;
+        `,
+        Content: Object.assign(
+          styled.div`
+            display: flex;
+            align-items: center;
+            font-size: ${RWDFontSize(16)};
+            font-weight: bold;
+          `,
+          {
+            Input: {
+              width: RWDWidth(350),
+              height: RWDHeight(35),
+              border: `${RWDRadius(1)} solid #808080`,
+              borderRadius: RWDRadius(10),
+            },
+            Range: {
+              width: RWDWidth(350),
+              height: RWDHeight(32),
+              fontSize: RWDFontSize(14),
+              border: `${RWDRadius(1)} solid #808080`,
+            },
+            TextArea: {
+              width: RWDWidth(400),
+              height: RWDHeight(106),
+              border: `${RWDRadius(1)} solid #808080`,
+              borderRadius: RWDFontSize(15),
+            },
+            Picker: {
+              width: RWDWidth(150),
+              height: RWDHeight(32),
+              fontSize: RWDFontSize(14),
+            },
+          }
+        ),
       }
     ),
   }

@@ -1,9 +1,20 @@
-import { Mentions, Button, Tag } from "antd";
+import { Mentions, Button, Tag, Input } from "antd";
 import debounce from "lodash/debounce";
-import { useEffect } from "react";
 import { useCallback, useRef, useState } from "react";
 import { searchMember } from "../../../middleware";
-const { Option } = Mentions;
+import { RWD } from "../../../constant";
+import Base from "../../../components/Base/左橘3右白7";
+const { RWDHeight, RWDFontSize, RWDWidth, RWDRadius } = RWD;
+const {
+  RightContainer: { CreateMeet },
+  RightContainer: {
+    CreateMeet: { Content },
+  },
+} = Base;
+
+const Label = (
+  <div style={{ width: "400px", background: "blue" }}>No Result</div>
+);
 
 const Member = ({ setMeetData }) => {
   const [loading, setLoading] = useState(false);
@@ -11,20 +22,22 @@ const Member = ({ setMeetData }) => {
     {
       key: "No Result",
       value: "No Result",
-      label: "No Result",
+      label: Label,
       disabled: true,
     },
   ]);
-  const [member, setMember] = useState([]);
+  const [member, setMember] = useState([
+    "yclai",
+    "jtc",
+    "b09705015@gmail.com",
+    "benson",
+    "Ericaaaa",
+    "lichi",
+    "daphne",
+    "陳亮瑾",
+  ]);
   const [currentMember, setCurrentMember] = useState({ name: "", id: "" });
   const ref = useRef();
-  //   const [showMemberArea, setShowMemberArea] = useState(false);
-
-  //   useEffect(() => {
-  //     if (users[0].key !== "No Result") {
-  //       setShowMemberArea(true);
-  //     }
-  //   }, [users]);
 
   const handleSearchMember = async (key) => {
     if (!key) {
@@ -32,7 +45,7 @@ const Member = ({ setMeetData }) => {
         {
           key: "No Result",
           value: "No Result",
-          label: "No Result",
+          label: Label,
           disabled: true,
         },
       ]);
@@ -62,7 +75,7 @@ const Member = ({ setMeetData }) => {
             {
               key: "No Result",
               value: "No Result",
-              label: "No Result",
+              label: Label,
               disabled: true,
             },
           ]
@@ -82,7 +95,7 @@ const Member = ({ setMeetData }) => {
       {
         key: "No Result",
         value: "No Result",
-        label: "No Result",
+        label: Label,
         disabled: true,
       },
     ]);
@@ -99,33 +112,77 @@ const Member = ({ setMeetData }) => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <Mentions
-          style={{
-            width: "350px",
-          }}
+    <div
+      style={{ display: "flex", flexDirection: "column", rowGap: RWDHeight(6) }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          width: Content.TextArea.width,
+          justifyContent: "space-between",
+          // columnGap: RWDWidth(4),
+        }}
+      >
+        <Input
+          style={{ ...Content.Input, display: "flex", alignItems: "center" }}
           loading={loading}
-          onSearch={onSearch}
-          onSelect={(e) => {
-            setCurrentMember({ name: e.value, id: e.key });
-          }}
-          options={users}
+          // onSearch={onSearch}
+          // onSelect={(e) => {
+          //   setCurrentMember({ name: e.value, id: e.key });
+          // }}
+          // options={users}
         />
         <Button
-          style={{ background: "#5A8EA4", color: "white", marginLeft: "10px" }}
+          style={{
+            background: "#5A8EA4",
+            color: "white",
+            width: RWDWidth(42),
+            height: RWDHeight(35),
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: RWDFontSize(24),
+          }}
           onClick={handleSelectMember}
         >
           +
         </Button>
       </div>
+
       {member.length > 0 && (
-        <div style={{ width: "400px" }}>
-          {member.map((item, index) => (
-            <Tag closable key={index}>
-              {item}
-            </Tag>
-          ))}
+        <div style={{ ...Content.TextArea }}>
+          <div
+            style={{
+              margin: `${RWDFontSize(8)} ${RWDFontSize(12)}`,
+              display: "flex",
+              flexWrap: "wrap",
+              gap: `${RWDFontSize(8)} ${RWDFontSize(8)}`,
+              overflowY: "auto",
+              height: "90%",
+            }}
+          >
+            {member.map((item, index) => (
+              <Tag
+                key={index}
+                closable
+                // key={index}
+                style={{
+                  width: "fit-content",
+                  height: RWDHeight(26),
+                  borderRadius: RWDRadius(10),
+                  // padding: `${RWDHeight(2)} ${RWDWidth(8)}`,
+                  fontSize: RWDFontSize(14),
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "#E0F6F5",
+                }}
+              >
+                {item}
+              </Tag>
+            ))}
+          </div>
         </div>
       )}
     </div>

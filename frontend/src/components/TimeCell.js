@@ -5,11 +5,11 @@ const { RWDHeight, RWDWidth, RWDRadius } = RWD;
 
 const Cell = styled.div`
   width: ${RWDWidth(50)};
-  height: ${RWDHeight(20)};
+  height: ${RWDWidth(20)};
   /* max-width: 50px; */
-  max-height: 20px;
+  /* max-height: 20px; */
   /* min-width: 50px; */
-  min-height: 20px;
+  /* min-height: 20px; */
   cursor: pointer;
   border-radius: ${RWDRadius(10)};
 `;

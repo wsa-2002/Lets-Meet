@@ -1,13 +1,14 @@
 /*TODO:********************************************************************************************
   1.RWD, 在頁面高度縮小時 create meet 的欄位要產生 scroll, 在小到無法容下 create button 時要浮動 button
   2.RWD, 解決 Footer 在頁面長度和高度縮小時的錯誤, 推測是由 Grid 造成的
+  3.功能, 供選擇 23:59
 **************************************************************************************************/
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import {
+  Button as AntdButton,
   Input,
-  Button,
   DatePicker,
   TimePicker,
   Switch,
@@ -16,63 +17,65 @@ import {
 } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import Base from "../../../components/Base/左橘3右白7";
+import Button from "../../../components/Button";
+import Title from "../../../components/Title";
 import { useMeet } from "../../hooks/useMeet";
 import moment from "moment";
 import * as AXIOS from "../../../middleware";
 import Member from "./Member";
 import _ from "lodash";
-
+import { RWD } from "../../../constant";
+const { RWDHeight, RWDFontSize, RWDWidth, RWDRadius } = RWD;
+const {
+  RightContainer: { CreateMeet },
+  RightContainer: {
+    CreateMeet: { Content },
+  },
+} = Base;
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
+const PrimaryButton = Button();
 
-const JoinMeet = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  row-gap: 10px;
-  top: 16vh;
-  p {
-    font-style: normal;
-    font-weight: 500;
-    font-size: max(1.6vw, 20px);
-    font-family: Roboto;
-    margin: 0;
-  }
-  div {
+const JoinMeet = Object.assign(
+  styled.div`
+    position: relative;
     display: flex;
-    align-items: center;
-    column-gap: 10px;
+    flex-direction: column;
+    row-gap: ${RWDHeight(20)};
+    top: ${RWDHeight(180)};
+  `,
+  {
+    Title: styled.p`
+      font-size: ${RWDFontSize(30)}; //max(1.6vw, 20px);
+      font-weight: bold;
+      margin: 0;
+    `,
+    InvitationArea: Object.assign(
+      styled.div`
+        display: flex;
+        align-items: center;
+        column-gap: ${RWDWidth(10)};
+      `,
+      {
+        Input: styled(Input)`
+          width: ${RWDWidth(250)};
+          height: ${RWDHeight(45)};
+          border-radius: ${RWDRadius(10)};
+          font-size: ${RWDFontSize(16)};
+        `,
+        Button: styled(AntdButton)`
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background-color: #ffd466;
+          width: ${RWDFontSize(50)};
+          height: ${RWDFontSize(45)};
+          font-size: ${RWDFontSize(16)};
+        `,
+      }
+    ),
   }
-`;
-
-const Title = styled.span`
-  position: relative;
-  bottom: 20%;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 4.2vw;
-  color: #ffa601;
-  font-family: "Lobster";
-  width: fit-content;
-  margin: 0;
-`;
-
-const CreateMeet = styled.div`
-  width: fit-content;
-  min-width: 300px;
-  min-height: 400px;
-  position: relative;
-  left: 10%;
-  top: 16vh;
-  p {
-    font-style: normal;
-    font-weight: 500;
-    font-size: max(1.6vw, 20px);
-    font-family: Roboto;
-    margin: 0;
-    margin-bottom: 2.8vh;
-  }
-`;
+);
 
 const Mainpage = () => {
   const 追蹤LetMEET = useRef(null);
@@ -180,13 +183,13 @@ const Mainpage = () => {
   const CONTENTMENU = {
     "Meet Name*": (
       <Input
-        style={{ borderRadius: "5px", width: "350px" }}
+        style={{ ...Content.Input }}
         onChange={handleMeetDataChange((i) => i.target.value, "meet_name")}
       />
     ),
     "Start/End Date*": (
       <RangePicker
-        style={{ width: "350px" }}
+        style={{ ...Content.Range }}
         onChange={handleMeetDataChange(
           (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
           "start_date",
@@ -196,7 +199,7 @@ const Mainpage = () => {
     ),
     "Start/End Time*": (
       <TimePicker.RangePicker
-        style={{ width: "350px" }}
+        style={{ ...Content.Range }}
         onChange={handleMeetDataChange(
           (i, plus) => (i.hour() * 60 + i.minute()) / 30 + plus,
           "start_time_slot_id",
@@ -211,26 +214,28 @@ const Mainpage = () => {
     ),
     Description: (
       <TextArea
-        style={{
-          height: "120px",
-          width: "400px",
-        }}
+        style={{ ...Content.TextArea }}
         onChange={handleMeetDataChange((i) => i.target.value, "description")}
       />
     ),
     "Voting Deadline": (
-      <div style={{ columnGap: "10%" }}>
+      <div
+        style={{
+          display: "flex",
+          columnGap: RWDWidth(20),
+          alignItems: "center",
+        }}
+      >
         <Switch onChange={showDate} />
         <DatePicker
-          style={{ visibility: votingButton }}
+          style={{ ...Content.Picker }}
           onChange={handleMeetDataChange(
             (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
             "voting_end_date"
           )}
         />
         <TimePicker
-          style={{ visibility: votingButton }}
-          // name="Voting Deadline Time"
+          style={{ ...Content.Picker }}
           onChange={handleMeetDataChange(
             (i) => moment(i.toISOString()).format("HH-mm-ss"),
             "voting_end_time"
@@ -246,93 +251,86 @@ const Mainpage = () => {
     ),
   };
 
-  const leftChild = (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      <JoinMeet>
-        <p>Join Meet</p>
-        <div style={{ maxWidth: width }}>
-          <Input
-            placeholder="Invitation code"
-            style={{
-              width: "13vw",
-              height: "45px",
-              borderRadius: "15px",
-            }}
-            ref={invite}
-            onKeyDown={handleInvite}
-          />
-          <Button
-            type="primary"
-            icon={<ArrowRightOutlined />}
-            size={"large"}
-            style={{
-              background: "#FFD466",
-            }}
-          />
-        </div>
-      </JoinMeet>
-      <Title ref={追蹤LetMEET}>Let's meet</Title>
-    </div>
-  );
+  const throttledHandleResize = _.throttle(() => {
+    console.log("Hi");
+    setWidth(追蹤LetMEET?.current?.offsetWidth);
+  }, 500);
 
-  const rightChild = (
-    <>
-      <CreateMeet>
-        <p style={{}}>Create Meet</p>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            rowGap: "3vh",
-          }}
+  useEffect(() => {
+    window.addEventListener("resize", throttledHandleResize);
+    return () => {
+      window.removeEventListener("resize", throttledHandleResize);
+    };
+  }, []);
+
+  return (
+    <Base title_disable={true} header={{ show: true, login }}>
+      <Base.LeftContainer
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <JoinMeet>
+          <JoinMeet.Title>Join Meet</JoinMeet.Title>
+          <JoinMeet.InvitationArea style={{ maxWidth: width }}>
+            <JoinMeet.InvitationArea.Input
+              placeholder="Invitation code"
+              ref={invite}
+              onKeyDown={handleInvite}
+            />
+            <JoinMeet.InvitationArea.Button
+              type="primary"
+              icon={<ArrowRightOutlined />}
+            />
+          </JoinMeet.InvitationArea>
+        </JoinMeet>
+        <Title
+          ref={追蹤LetMEET}
+          style={{ position: "relative", bottom: "20%" }}
         >
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              rowGap: "1.9vh",
-            }}
-          >
-            {Object.keys(CONTENTMENU).map((c, index) => (
-              <div
-                key={index}
+          Let's meet
+        </Title>
+      </Base.LeftContainer>
+      <Base.RightContainer
+        style={{ justifyContent: "flex-start", flexDirection: "column" }}
+      >
+        <CreateMeet style={{ alignSelf: "flex-start" }}>
+          <CreateMeet.Title>Create Meet</CreateMeet.Title>
+          {Object.keys(CONTENTMENU).map((title, index) => (
+            <Fragment key={index}>
+              <CreateMeet.Content
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
+                  gridColumn: "1/2",
+                  gridRow: `${index + 2}/${index + 3}`,
+                  alignSelf:
+                    (title === "Description" || title === "Member") &&
+                    "flex-start",
                 }}
               >
-                <div style={{ width: "200px" }}>{c}</div>
-                {CONTENTMENU[c]}
-              </div>
-            ))}
-          </div>
-          <Button
-            style={{
-              borderRadius: "50px",
-              background: "#B3DEE5",
-              borderColor: "#B3DEE5",
-              fontWeight: "bold",
-              height: "7vmin",
-              width: "16.5vmin",
-              maxHeight: "55px",
-              maxWidth: "130px",
-            }}
-            size="large"
-            onClick={handleMeetCreate}
-          >
-            Create
-          </Button>
-        </div>
-      </CreateMeet>
+                {title}
+              </CreateMeet.Content>
+              <CreateMeet.Content
+                style={{
+                  gridColumn: "2/3",
+                  gridRow: `${index + 2}/${index + 3}`,
+                  fontWeight: "normal",
+                }}
+              >
+                {CONTENTMENU[title]}
+              </CreateMeet.Content>
+            </Fragment>
+          ))}
+        </CreateMeet>
+        <PrimaryButton
+          style={{ position: "relative", top: RWDHeight(119) }}
+          onClick={handleMeetCreate}
+        >
+          Create
+        </PrimaryButton>
+      </Base.RightContainer>
       <Modal
         title=""
         open={isModalOpen}
@@ -356,28 +354,7 @@ const Mainpage = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </>
-  );
-
-  const throttledHandleResize = _.throttle(() => {
-    console.log("Hi");
-    setWidth(追蹤LetMEET?.current?.offsetWidth);
-  }, 500);
-
-  useEffect(() => {
-    window.addEventListener("resize", throttledHandleResize);
-    return () => {
-      window.removeEventListener("resize", throttledHandleResize);
-    };
-  }, []);
-
-  return (
-    <Base
-      leftchild={leftChild}
-      rightChild={rightChild}
-      title_disable={true}
-      header={{ show: true, login }}
-    ></Base>
+    </Base>
   );
 };
 
