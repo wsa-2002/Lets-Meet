@@ -171,4 +171,6 @@ async def confirm(meet_id: int, data: ConfirmMeetInput):
     member_id_account_id_map = {meet_member.id: meet_member.member_id for meet_member in meet_members}
     for member_id, available_times in member_time.items():
         if all(confirmed_time in available_times for confirmed_time in confirmed_times):
-            await db.event.add(meet_id, member_id_account_id_map[member_id])
+            account_id = member_id_account_id_map.get(member_id, None)
+            if account_id:
+                await db.event.add(meet_id, account_id)
