@@ -11,4 +11,4 @@ async def add(meet_id: int, account_id: int) -> None:
             fr"     VALUES (%(meet_id)s, %(account_id)s)",
         meet_id=meet_id, account_id=account_id,
     )
-    await pool_handler.pool.execute(sql, params)
+    await pool_handler.pool.execute(sql, *params)
