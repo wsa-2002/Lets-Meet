@@ -9,6 +9,7 @@ from middleware.context import request
 from processor.http.util import timezone_validate
 import persistence.database as db
 import exceptions as exc  # noqa
+from security import verify_password
 
 
 class EditMeetInput(BaseModel):
@@ -122,7 +123,8 @@ class Slot(BaseModel):
 
 
 class AddMemberMeetAvailableTimeInput(BaseModel):
-    name: Optional[str]
+    name: Optional[str] = None
+    password: Optional[str] = None
     time_slots: Sequence[Slot]
 
 
@@ -175,7 +177,8 @@ async def confirm(meet_id: int, data: ConfirmMeetInput):
 
 
 class DeleteMeetMemberAvailableTimeInput(BaseModel):
-    name: Optional[str]
+    name: Optional[str] = None
+    password: Optional[str] = None
     time_slots: Sequence[Slot]
 
 
@@ -185,3 +188,15 @@ async def delete_meet_member_available_time(meet_id: int, data: DeleteMeetMember
         meet_member_id=meet_member.id,
         time_slots=[(time_slot.date, time_slot.time_slot_id) for time_slot in data.time_slots],
     )
+
+
+async def is_authed(meet_id: int, name: Optional[str] = None, password: Optional[str] = None):
+    if name:
+        *_, pass_hash = await db.meet_member.read_by_meet_id_and_name(meet_id=meet_id, name=name)
+        if pass_hash and not verify_password(password, pass_hash):
+            return False
+        return True
+    if not db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
+        return False
+    return True
+
