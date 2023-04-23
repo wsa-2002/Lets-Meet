@@ -65,3 +65,17 @@ async def batch_add(meet_member_id: int, time_slots: Sequence[Tuple[date, int]])
         )
     finally:
         await pool_handler.pool.release(conn)
+
+
+async def batch_delete(meet_member_id: int, time_slots: Sequence[Tuple[date, int]]):
+    conn: asyncpg.connection.Connection = await pool_handler.pool.acquire()
+    try:
+        await conn.executemany(
+            "DELETE FROM meet_member_available_time"
+            " WHERE meet_member_id = $1"
+            "   AND date = $2"
+            "   AND time_slot_id = $3",
+            args=[(meet_member_id, date, time_slot_id) for date, time_slot_id in time_slots],
+        )
+    finally:
+        await pool_handler.pool.release(conn)

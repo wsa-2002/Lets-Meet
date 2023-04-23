@@ -13,7 +13,8 @@ from middleware.headers import get_auth_token
 from middleware.context import request
 import persistence.database as db
 import service
-from service.meet import EditMeetInput, AddMemberMeetAvailableTimeInput, ConfirmMeetInput
+from service.meet import EditMeetInput, AddMemberMeetAvailableTimeInput, \
+        ConfirmMeetInput, DeleteMeetMemberAvailableTimeInput
 import exceptions as exc  # noqa
 
 
@@ -282,6 +283,8 @@ async def browse_member_available_time_by_meet_id(meet_id: int, name: Optional[s
     account_id = request.account.id
     if not account_id and not name:
         raise exc.NoPermission
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
+        raise exc.NoPermission
 
     return await service.meet.browse_member_available_time(meet_id=meet_id, name=name)
 
@@ -304,6 +307,8 @@ async def browse_all_member_available_time(meet_id: int, name: Optional[str] = N
     account_id = request.account.id
     if not account_id and not name:
         raise exc.NoPermission
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
+        raise exc.NoPermission
     return await service.meet.browse_all_member_available_time(meet_id=meet_id, name=name)
 
 
@@ -312,6 +317,9 @@ async def browse_all_member_available_time(meet_id: int, name: Optional[str] = N
 async def confirm_meet(meet_id: int, data: ConfirmMeetInput) -> None:
     account_id = request.account.id
     if not account_id:
+        raise exc.NoPermission
+
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
         raise exc.NoPermission
 
     if data.start_date > data.end_date:
@@ -326,6 +334,8 @@ async def confirm_meet(meet_id: int, data: ConfirmMeetInput) -> None:
 @enveloped
 async def delete_meet_by_code(code: str) -> None:
     meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id):
+        raise exc.NoPermission
     await service.meet.delete_meet(meet_id=meet_id)
 
 
@@ -333,6 +343,8 @@ async def delete_meet_by_code(code: str) -> None:
 @enveloped
 async def edit_meet_by_code(code: str, data: EditMeetInput) -> None:
     meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
+        raise exc.NoPermission
     await service.meet.edit_meet(meet_id, data=data)
 
 
@@ -344,6 +356,8 @@ async def browse_all_member_available_time_by_code(code: str, name: Optional[str
     if not account_id and not name:
         raise exc.NoPermission
     meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
+        raise exc.NoPermission
     return await service.meet.browse_all_member_available_time(meet_id=meet_id, name=name)
 
 
@@ -355,6 +369,8 @@ async def browse_member_available_time_by_code(code: str, name: Optional[str] = 
     if not account_id and not name:
         raise exc.NoPermission
     meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
+        raise exc.NoPermission
 
     return await service.meet.browse_member_available_time(meet_id=meet_id, name=name)
 
@@ -366,12 +382,15 @@ async def confirm_meet_by_code(code: str, data: ConfirmMeetInput) -> None:
     if not account_id:
         raise exc.NoPermission
 
+    meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
+        raise exc.NoPermission
+
     if data.start_date > data.end_date:
         raise exc.IllegalInput
     if data.start_time_slot_id > data.end_time_slot_id:
         raise exc.IllegalInput
 
-    meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
     await service.meet.confirm(meet_id=meet_id, data=data)
 
 
@@ -381,6 +400,10 @@ async def add_member_meet_available_time(meet_id: int, data: AddMemberMeetAvaila
     account_id = request.account.id
     if not account_id and not data.name:
         raise exc.IllegalInput
+
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=data.name):
+        raise exc.NoPermission
+
     meet = await db.meet.read(meet_id=meet_id)
     if any(not meet.start_time_slot_id <= time_slot.time_slot_id <= meet.end_time_slot_id for time_slot in
            data.time_slots):
@@ -399,9 +422,28 @@ async def add_member_meet_available_time_by_code(code: str, data: AddMemberMeetA
         raise exc.IllegalInput
 
     meet = await db.meet.read_meet_by_code(invite_code=code)
+    if not await db.meet.is_authed(meet_id=meet.id, member_id=request.account.id, name=data.name):
+        raise exc.NoPermission
     if any(not meet.start_time_slot_id <= time_slot.time_slot_id <= meet.end_time_slot_id for time_slot in data.time_slots): # noqa
         raise exc.IllegalInput
 
     if any(not meet.start_date <= time_slot.date <= meet.end_date for time_slot in data.time_slots):
         raise exc.IllegalInput
     await service.meet.add_member_meet_available_time(meet_id=meet.id, data=data)
+
+
+@router.delete('/meet/{meet_id}/available_time')
+@enveloped
+async def delete_member_meet_available_time(meet_id: int, data: DeleteMeetMemberAvailableTimeInput):
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=data.name):
+        raise exc.NoPermission
+    await service.meet.delete_meet_member_available_time(meet_id=meet_id, data=data)
+
+
+@router.delete('/meet/code/{code}/available_time')
+@enveloped
+async def delete_member_meet_available_time_by_code(code: str, data: DeleteMeetMemberAvailableTimeInput):
+    meet = await db.meet.read_meet_by_code(invite_code=code)
+    if not await db.meet.is_authed(meet_id=meet.id, member_id=request.account.id, name=data.name):
+        raise exc.NoPermission
+    await service.meet.delete_meet_member_available_time(meet_id=meet.id, data=data)

@@ -23,8 +23,6 @@ class EditMeetInput(BaseModel):
 
 
 async def edit_meet(meet_id: int, data: EditMeetInput):
-    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
-        raise exc.NoPermission
 
     meet = await db.meet.read(meet_id=meet_id)
     meet.start_date = data.start_date or meet.start_date
@@ -174,3 +172,16 @@ async def confirm(meet_id: int, data: ConfirmMeetInput):
             account_id = member_id_account_id_map.get(member_id, None)
             if account_id:
                 await db.event.add(meet_id, account_id)
+
+
+class DeleteMeetMemberAvailableTimeInput(BaseModel):
+    name: Optional[str]
+    time_slots: Sequence[Slot]
+
+
+async def delete_meet_member_available_time(meet_id: int, data: DeleteMeetMemberAvailableTimeInput):
+    meet_member = await db.meet_member.read(meet_id=meet_id, account_id=request.account.id, name=data.name)
+    await db.available_time.batch_delete(
+        meet_member_id=meet_member.id,
+        time_slots=[(time_slot.date, time_slot.time_slot_id) for time_slot in data.time_slots],
+    )
