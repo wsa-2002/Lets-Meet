@@ -49,9 +49,10 @@ async def delete_routine(data: Sequence[Routine]):
         routines=[(routine.weekday, routine.time_slot_id) for routine in data],
     )
 
-@router.get('/routine/account/{account_id}')
+@router.get('/routine')
 @enveloped
-async def get_routine(account_id: int):
+async def get_routine():
+    account_id = request.account.id
     routines = await db.routine.get(account_id=account_id)
 
     routines.sort(key=lambda x: (weekdayValue[x.weekday], x.time_slot_id)) # sort by weekday (mon to sun) then sort by time_slot_id
