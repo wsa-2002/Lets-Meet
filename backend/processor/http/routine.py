@@ -6,6 +6,7 @@ from middleware.envelope import enveloped
 from middleware.context import request
 import persistence.database as db
 from base.enums import WeekDayType
+from typing import Sequence
 
 router = APIRouter(
     tags=['Routine'],
@@ -32,21 +33,26 @@ weekdayValue = {
 
 @router.post('/routine')
 @enveloped
-async def add_routine(data: Routine):
+async def add_routine(data: Sequence[Routine]):
     account_id = request.account.id
-    await db.routine.add(account_id=account_id, weekday=data.weekday, time_slot_id=data.time_slot_id)
-
+    await db.routine.batch_add(
+        account_id=account_id,
+        routines=[(routine.weekday, routine.time_slot_id) for routine in data],
+    )
 
 @router.delete('/routine')
 @enveloped
-async def delete_routine(data: Routine):
+async def delete_routine(data: Sequence[Routine]):
     account_id = request.account.id
-    await db.routine.delete(account_id=account_id, weekday=data.weekday, time_slot_id=data.time_slot_id)
+    await db.routine.batch_delete(
+        account_id=account_id,
+        routines=[(routine.weekday, routine.time_slot_id) for routine in data],
+    )
 
-
-@router.get('/routine/account/{account_id}')
+@router.get('/routine')
 @enveloped
-async def get_routine(account_id: int):
+async def get_routine():
+    account_id = request.account.id
     routines = await db.routine.get(account_id=account_id)
 
     routines.sort(key=lambda x: (weekdayValue[x.weekday], x.time_slot_id)) # sort by weekday (mon to sun) then sort by time_slot_id
