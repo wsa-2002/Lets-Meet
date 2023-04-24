@@ -47,21 +47,23 @@ CREATE TABLE email_verification (
 );
 
 CREATE TABLE meet (
-    id                    SERIAL      PRIMARY KEY,
-    status                status_type NOT NULL,
-    start_date            DATE        NOT NULL,
-    end_date              DATE        NOT NULL,
-    start_time_slot_id    INTEGER     NOT NULL  REFERENCES time_slot(id), -- meet 可供選擇的時間
-    end_time_slot_id      INTEGER     NOT NULL  REFERENCES time_slot(id), -- meet 可供選擇的時間
-    voting_end_time       TIMESTAMP,
-    title                 VARCHAR     NOT NULL,
-    description           TEXT,
-    invite_code           VARCHAR     UNIQUE  NOT NULL,  -- https://host/invite_code
-    gen_meet_url          BOOLEAN     DEFAULT FALSE,
-    meet_url              VARCHAR,
-    finalized_start_time  TIMESTAMP,
-    finalized_end_time    TIMESTAMP,
-    is_deleted            BOOLEAN     DEFAULT FALSE
+    id                            SERIAL      PRIMARY KEY,
+    status                        status_type NOT NULL,
+    start_date                    DATE        NOT NULL,
+    end_date                      DATE        NOT NULL,
+    start_time_slot_id            INTEGER     NOT NULL  REFERENCES time_slot(id), -- meet 可供選擇的時間
+    end_time_slot_id              INTEGER     NOT NULL  REFERENCES time_slot(id), -- meet 可供選擇的時間
+    voting_end_time               TIMESTAMP,
+    title                         VARCHAR     NOT NULL,
+    description                   TEXT,
+    invite_code                   VARCHAR     UNIQUE  NOT NULL,  -- https://host/invite_code
+    gen_meet_url                  BOOLEAN     DEFAULT FALSE,
+    meet_url                      VARCHAR,
+    finalized_start_date          DATE,
+    finalized_end_date            DATE,
+    finalized_start_time_slot_id  INTEGER     REFERENCES time_slot(id),
+    finalized_end_time_slot_id    INTEGER     REFERENCES time_slot(id),
+    is_deleted                    BOOLEAN     DEFAULT FALSE
 );
 
 -- only when meet is confirmed and user is able to attend at that time, event record will be inserted.
