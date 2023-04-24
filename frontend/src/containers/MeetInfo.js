@@ -7,7 +7,6 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getMeetInfo, joinMeet } from "../middleware";
 import { useMeet } from "./hooks/useMeet";
-import { Header, Header2 } from "../components/Header";
 import moment from "moment";
 
 let showList = [
@@ -195,12 +194,18 @@ const MeetInfo = () => {
 
   return (
     <>
-      {login ? <Header location="timeslot" /> : <Header2 />}
       <div className="leftContainer" style={{ background: "white" }}>
         <CreateMeet>
           <Button
             icon={<ArrowLeftOutlined />}
-            style={{ position: "absolute", right: "100%", borderColor: "white", color: "#808080", fontSize: "18px", marginRight: "25px" }}
+            style={{
+              position: "absolute",
+              right: "100%",
+              borderColor: "white",
+              color: "#808080",
+              fontSize: "18px",
+              marginRight: "25px",
+            }}
             onClick={handleMeet}
           ></Button>
           <div
@@ -243,13 +248,26 @@ const MeetInfo = () => {
             )}
           </div>
           <Button
-            style={{ marginLeft: "65%", marginTop: "35px", marginRight: "5px",
-              borderColor: "#FEE9DD", color: "#DB8600" }}
+            style={{
+              marginLeft: "65%",
+              marginTop: "35px",
+              marginRight: "5px",
+              borderColor: "#FEE9DD",
+              color: "#DB8600",
+            }}
             onClick={showLeaveModal}
           >
             Leave Meet
           </Button>
-          <Button style={{ marginTop: "35px", background: "#DB8600", borderColor: "#DB8600", color: "white"}} onClick={handleVote}>
+          <Button
+            style={{
+              marginTop: "35px",
+              background: "#DB8600",
+              borderColor: "#DB8600",
+              color: "white",
+            }}
+            onClick={handleVote}
+          >
             Vote
           </Button>
         </CreateMeet>
@@ -317,7 +335,6 @@ const MeetInfo = () => {
         </FormWrapper>
         <Modal
           title="Are you sure you want to leave this meet?"
-          style={{ fontFamily: "Nunito" }}
           open={isModalLeaveOpen}
           onOk={handleLeaveOk}
           onCancel={handleLeaveCancel}
@@ -326,7 +343,6 @@ const MeetInfo = () => {
         ></Modal>
         <Modal
           title=""
-          style={{ fontFamily: "Nunito" }}
           open={isModalVoteOpen}
           onOk={handleVoteOk}
           onCancel={handleVoteCancel}

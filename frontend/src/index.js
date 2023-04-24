@@ -5,13 +5,22 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { MeetProvider } from "./containers/hooks/useMeet";
 import { CookiesProvider } from "react-cookie";
+import { ConfigProvider } from "antd";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <MeetProvider>
       <CookiesProvider>
-        <App />
+        <ConfigProvider
+          theme={{
+            token: {
+              fontFamily: "Nunito",
+            },
+          }}
+        >
+          <App />
+        </ConfigProvider>
       </CookiesProvider>
     </MeetProvider>
   </React.StrictMode>

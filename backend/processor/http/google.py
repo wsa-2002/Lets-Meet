@@ -1,15 +1,17 @@
+from uuid import uuid4
+import os
+
 from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from fastapi import APIRouter, Depends, Request, responses
 from starlette.responses import RedirectResponse
+
+from config import google_config, service_config
 from security import encode_jwt
-from middleware.envelope import enveloped
 from middleware.headers import get_auth_token
 import persistence.database as db
 import exceptions as exc  # noqa
-from uuid import uuid4
-import os
-from config import google_config, service_config
+
 
 router = APIRouter(
     tags=['Google'],
@@ -36,8 +38,7 @@ oauth.register(
 
 @router.get('/google-login')
 async def login(request: Request):
-    redirect_uri = request.url_for('auth')
-    return await oauth.google.authorize_redirect(request, redirect_uri)
+    return await oauth.google.authorize_redirect(request, google_config.GOOGLE_LOGIN_REDIRECT_URI)
 
 
 @router.get('/auth')

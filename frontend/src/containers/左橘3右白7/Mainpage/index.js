@@ -1,3 +1,9 @@
+/*TODO:********************************************************************************************
+  1.RWD, 在頁面高度縮小時 create meet 的欄位要產生 scroll, 在小到無法容下 create button 時要浮動 button
+  2.RWD, 解決 Footer 在頁面長度和高度縮小時的錯誤, 推測是由 Grid 造成的
+**************************************************************************************************/
+import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import {
   Input,
@@ -9,15 +15,12 @@ import {
   Form,
 } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
-import "../../css/Background.css";
-import { useNavigate } from "react-router-dom";
-import { useState, useRef } from "react";
-import { useMeet } from "../hooks/useMeet";
+import Base from "../../../components/Base/左橘3右白7";
+import { useMeet } from "../../hooks/useMeet";
 import moment from "moment";
-import * as AXIOS from "../../middleware";
+import * as AXIOS from "../../../middleware";
 import Member from "./Member";
-import { Header } from "../../components/Header";
-import PrimaryButton from "../../components/PrimaryButton";
+import _ from "lodash";
 
 const { RangePicker } = DatePicker;
 const { TextArea } = Input;
@@ -25,12 +28,33 @@ const { TextArea } = Input;
 const JoinMeet = styled.div`
   position: relative;
   display: flex;
-  justify-content: center;
   flex-direction: column;
-  width: 310px;
-  left: 10%;
-  top: 20%;
-  row-gap: 20px;
+  row-gap: 10px;
+  top: 16vh;
+  p {
+    font-style: normal;
+    font-weight: 500;
+    font-size: max(1.6vw, 20px);
+    font-family: Roboto;
+    margin: 0;
+  }
+  div {
+    display: flex;
+    align-items: center;
+    column-gap: 10px;
+  }
+`;
+
+const Title = styled.span`
+  position: relative;
+  bottom: 20%;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 4.2vw;
+  color: #ffa601;
+  font-family: "Lobster";
+  width: fit-content;
+  margin: 0;
 `;
 
 const CreateMeet = styled.div`
@@ -39,10 +63,20 @@ const CreateMeet = styled.div`
   min-height: 400px;
   position: relative;
   left: 10%;
-  top: 20%;
+  top: 16vh;
+  p {
+    font-style: normal;
+    font-weight: 500;
+    font-size: max(1.6vw, 20px);
+    font-family: Roboto;
+    margin: 0;
+    margin-bottom: 2.8vh;
+  }
 `;
 
 const Mainpage = () => {
+  const 追蹤LetMEET = useRef(null);
+  const [width, setWidth] = useState(追蹤LetMEET?.current?.offsetWidth);
   const [votingButton, setVotingButton] = useState("hidden");
   const [meetData, setMeetData] = useState({
     meet_name: "",
@@ -61,11 +95,7 @@ const Mainpage = () => {
   const invite = useRef(null);
   const [form] = Form.useForm();
 
-  const handleLogin = () => {
-    navigate("/login");
-  };
-
-  const showDate = (e) => {
+  const showDate = () => {
     if (votingButton === "hidden") {
       setVotingButton("visible");
     } else {
@@ -216,81 +246,60 @@ const Mainpage = () => {
     ),
   };
 
-  return (
-    <>
-      {login && <Header />}
-      <div className="leftContainer">
-        <JoinMeet>
-          <div
+  const leftChild = (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      <JoinMeet>
+        <p>Join Meet</p>
+        <div style={{ maxWidth: width }}>
+          <Input
+            placeholder="Invitation code"
             style={{
-              fontStyle: "normal",
-              fontWeight: 500,
-              fontSize: "30px",
-              lineHeight: "40px",
-            }}
-          >
-            Join Meet
-          </div>
-          <div
-            style={{ display: "flex", alignItems: "center", columnGap: "10px" }}
-          >
-            <Input
-              placeholder="Invitation code"
-              style={{
-                width: "250px",
-                height: "45px",
-                borderRadius: "15px",
-              }}
-              ref={invite}
-              onKeyDown={handleInvite}
-            />
-            <Button
-              type="primary"
-              icon={<ArrowRightOutlined />}
-              size={"large"}
-              style={{
-                background: "#FFD466",
-              }}
-              onClick={handleInvite}
-            />
-          </div>
-        </JoinMeet>
-        <p className="title">Let's Meet!</p>
-      </div>
-      <div className="rightContainer">
-        {!login && (
-          <Button
-            style={{
-              gridColumn: "2/3",
-              float: "right",
-              marginRight: "5%",
-              top: "3%",
+              width: "13vw",
+              height: "45px",
               borderRadius: "15px",
-              borderColor: "#FFA601",
-              color: "#FFA601",
             }}
-            onClick={handleLogin}
-          >
-            Login
-          </Button>
-        )}
-        <CreateMeet>
+            ref={invite}
+            onKeyDown={handleInvite}
+          />
+          <Button
+            type="primary"
+            icon={<ArrowRightOutlined />}
+            size={"large"}
+            style={{
+              background: "#FFD466",
+            }}
+          />
+        </div>
+      </JoinMeet>
+      <Title ref={追蹤LetMEET}>Let's meet</Title>
+    </div>
+  );
+
+  const rightChild = (
+    <>
+      <CreateMeet>
+        <p style={{}}>Create Meet</p>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            rowGap: "3vh",
+          }}
+        >
           <div
             style={{
-              // top: 0,
-              // left: 0,
-              fontStyle: "normal",
-              fontWeight: "500",
-              fontSize: "30px",
-              lineHeight: "40px",
-              color: "#000000",
-              marginBottom: "30px",
+              display: "flex",
+              flexDirection: "column",
+              rowGap: "1.9vh",
             }}
-          >
-            Create Meet
-          </div>
-          <div
-            style={{ display: "flex", flexDirection: "column", rowGap: "20px" }}
           >
             {Object.keys(CONTENTMENU).map((c, index) => (
               <div
@@ -298,7 +307,6 @@ const Mainpage = () => {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  // columnGap: "10%",
                   justifyContent: "flex-start",
                 }}
               >
@@ -306,36 +314,70 @@ const Mainpage = () => {
                 {CONTENTMENU[c]}
               </div>
             ))}
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
-              <PrimaryButton handleMeetCreate={handleMeetCreate} text="Create" style={{top: "30px"}}/>
-            </div>
           </div>
-        </CreateMeet>
-        <Modal
-          title=""
-          open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          okText="Ok"
-          cancelText="Cancel"
-        >
-          <Form form={form} layout="vertical" name="form_in_modal">
-            <Form.Item
-              name="name"
-              label="Please enter your name"
-              rules={[
-                {
-                  required: true,
-                  message: "Error: Please enter your name!",
-                },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-          </Form>
-        </Modal>
-      </div>
+          <Button
+            style={{
+              borderRadius: "50px",
+              background: "#B3DEE5",
+              borderColor: "#B3DEE5",
+              fontWeight: "bold",
+              height: "7vmin",
+              width: "16.5vmin",
+              maxHeight: "55px",
+              maxWidth: "130px",
+            }}
+            size="large"
+            onClick={handleMeetCreate}
+          >
+            Create
+          </Button>
+        </div>
+      </CreateMeet>
+      <Modal
+        title=""
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="Ok"
+        cancelText="Cancel"
+      >
+        <Form form={form} layout="vertical" name="form_in_modal">
+          <Form.Item
+            name="name"
+            label="Please enter your name"
+            rules={[
+              {
+                required: true,
+                message: "Error: Please enter your name!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
+  );
+
+  const throttledHandleResize = _.throttle(() => {
+    console.log("Hi");
+    setWidth(追蹤LetMEET?.current?.offsetWidth);
+  }, 500);
+
+  useEffect(() => {
+    window.addEventListener("resize", throttledHandleResize);
+    return () => {
+      window.removeEventListener("resize", throttledHandleResize);
+    };
+  }, []);
+
+  return (
+    <Base
+      leftchild={leftChild}
+      rightChild={rightChild}
+      title_disable={true}
+      header={{ show: true, login }}
+    ></Base>
   );
 };
 

@@ -2,7 +2,7 @@ import { Mentions, Button, Tag } from "antd";
 import debounce from "lodash/debounce";
 import { useEffect } from "react";
 import { useCallback, useRef, useState } from "react";
-import { searchMember } from "../../middleware";
+import { searchMember } from "../../../middleware";
 const { Option } = Mentions;
 
 const Member = ({ setMeetData }) => {

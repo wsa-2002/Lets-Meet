@@ -1,209 +1,193 @@
+import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
-import { Button, Space } from "antd";
+import { Button } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
-import "../css/Background.css";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useMeet } from "../containers/hooks/useMeet";
+import Title from "../components/Title";
+import _ from "lodash";
+import { RWD } from "../constant";
+const { RWDFontSize } = RWD;
 
-const Header = ({ location = "none" }) => {
-    const { removeCookie, setLogin } = useMeet();
-    const navigate = useNavigate();
+const HeaderContainer = styled.div`
+  width: 100%;
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
-    const goHome = () => {
-        navigate("/");
+const URLContainer = styled.div`
+  width: calc(100% * 25 / 35);
+  display: flex;
+  height: 100%;
+  align-items: center;
+  > div {
+    width: calc(100% / 3);
+    max-width: calc(100% / 3); //很可疑
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    /* border: 1px solid black; */
+    cursor: pointer;
+    > div {
+      font-size: ${RWDFontSize(24)};
+      color: #808080;
+      font-weight: 600;
+      letter-spacing: 1px;
     }
-    const goMeets = () => {
-        navigate("/meets");
+  }
+`;
+
+const NavItem = [
+  { name: "Meets", to: "/meets", alt: ["/voting", "/meetinfo"] },
+  { name: "Calendar", to: "/calendar" },
+  {
+    name: "Routine",
+    to: "/routine",
+  },
+];
+
+const Header = (prop) => {
+  const { removeCookie, setLogin } = useMeet();
+  const navigate = useNavigate();
+  const 追蹤header們距離有無太擠 = useRef();
+  const [adjusted, setAdjusted] = useState(false);
+  const { pathname } = useLocation();
+
+  const throttledHandleResize = _.throttle(() => {
+    if (追蹤header們距離有無太擠?.current?.children) {
+      setAdjusted(
+        Math.max(
+          ...[...追蹤header們距離有無太擠?.current?.children].map(
+            (m) => m?.children?.[0].offsetWidth
+          )
+        ) >
+          (window.innerWidth * 25) / 300
+      );
     }
+  }, 500);
+
+  useEffect(() => {
+    window.addEventListener("resize", throttledHandleResize);
+    return () => {
+      window.removeEventListener("resize", throttledHandleResize);
+    };
+  }, []);
 
   return (
-    <div className="header">
-      <Button
-        type="link"
+    <HeaderContainer style={prop?.style}>
+      <div
         style={{
-          fontSize: "28px",
-          color: "#FFA601",
-          marginLeft: "1%",
-          marginRight: "2%",
+          display: "flex",
+          alignItems: "center",
+          width: adjusted ? "65vw" : "35vw",
           height: "100%",
-          fontFamily: "Lobster",
-          float: "left",
         }}
-        onClick={goHome}
       >
-        Let's Meet
-      </Button>
-      {location === "meet" ? (
-        <Button
-          type="link"
+        <div
           style={{
-            fontSize: "22px",
-            color: "#DB8600",
-            backgroundColor: "#FDF3D1",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "calc(100% * 10 / 35)",
             height: "100%",
-            fontWeight: 800,
-            fontFamily: "Nunito",
-            float: "left",
           }}
-          onClick={goMeets}
         >
-          Meets
-        </Button>
-      ) : (
-        <Button
-          type="link"
-          style={{
-            fontSize: "22px",
-            color: "#808080",
-            height: "100%",
-            fontFamily: "Nunito",
-            fontWeight: 600,
-            float: "left",
-          }}
-          onClick={goMeets}
-        >
-          Meets
-        </Button>
-      )}
-      {location === "calendar" ? (
-        <Button
-          type="link"
-          style={{
-            fontSize: "22px",
-            color: "#DB8600",
-            backgroundColor: "#FDF3D1",
-            height: "100%",
-            fontWeight: 800,
-            fontFamily: "Nunito",
-            float: "left",
-          }}
-          onClick={goMeets}
-        >
-          Calendar
-        </Button>
-      ) : (
-        <Button
-          type="link"
-          style={{
-            fontSize: "22px",
-            color: "#808080",
-            height: "100%",
-            fontFamily: "Nunito",
-            fontWeight: 600,
-            float: "left",
-          }}
-          onClick={goMeets}
-        >
-          Calendar
-        </Button>
-      )}
-      {location === "routine" ? (
-        <Button
-          type="link"
-          style={{
-            fontSize: "22px",
-            color: "#DB8600",
-            backgroundColor: "#FDF3D1",
-            height: "100%",
-            fontWeight: 800,
-            fontFamily: "Nunito",
-            float: "left",
-          }}
-          onClick={goMeets}
-        >
-          Routine
-        </Button>
-      ) : (
-        <Button
-          type="link"
-          style={{
-            fontSize: "22px",
-            color: "#808080",
-            height: "100%",
-            fontFamily: "Nunito",
-            fontWeight: 600,
-            float: "left",
-          }}
-          onClick={goMeets}
-        >
-          Routine
-        </Button>
-      )}
-      <Button
-        type="link"
-        icon={<LogoutOutlined />}
+          <Title
+            style={{
+              fontSize: "3vmin",
+            }}
+          >
+            Let's Meet
+          </Title>
+        </div>
+        <URLContainer ref={追蹤header們距離有無太擠}>
+          {NavItem.map((n, index) => (
+            <div
+              key={index}
+              style={{
+                backgroundColor:
+                  (pathname === n.to || n?.alt?.includes(pathname)) &&
+                  "#fdf3d1",
+              }}
+              onClick={() => {
+                navigate(n.to);
+              }}
+            >
+              {/* 置中 */}
+              <div
+                style={{
+                  color:
+                    (pathname === n.to || n?.alt?.includes(pathname)) &&
+                    "#DB8600",
+                }}
+              >
+                {n.name}
+              </div>
+            </div>
+          ))}
+        </URLContainer>
+      </div>
+      <div
         style={{
-          fontSize: "22px",
-          color: "#808080",
-          height: "100%",
-          float: "right",
-          marginRight: "1%",
+          display: "flex",
+          alignItems: "baseline",
+          columnGap: "3vmin",
+          marginRight: "3vw",
         }}
-        onClick={() => {
-          removeCookie("token");
-          setLogin(false);
-        }}
-      />
-      <Button
-        type="link"
-        style={{
-          fontSize: "22px",
-          color: "#808080",
-          height: "100%",
-          float: "right",
-          fontFamily: "Nunito",
-          fontWeight: 600,
-        }}
-        onClick={goMeets}
       >
-        Settings
-      </Button>
-    </div>
+        {prop?.login ? (
+          <>
+            <Button
+              type="link"
+              style={{
+                fontSize: "2.2vmin",
+                color: "#808080",
+                height: "100%",
+                fontWeight: 600,
+                padding: 0,
+                border: 0,
+              }}
+            >
+              Settings
+            </Button>
+            <Button
+              type="link"
+              icon={<LogoutOutlined />}
+              style={{
+                fontSize: "2.3vmin",
+                color: "#808080",
+                height: "100%",
+                padding: 0,
+                border: 0,
+              }}
+              onClick={() => {
+                removeCookie("token");
+                setLogin(false);
+              }}
+            />
+          </>
+        ) : (
+          <Button
+            style={{
+              borderRadius: "15px",
+              borderColor: "#FFA601",
+              color: "#FFA601",
+            }}
+            onClick={() => {
+              navigate("/login");
+            }}
+          >
+            Login
+          </Button>
+        )}
+      </div>
+    </HeaderContainer>
   );
 };
 
-const Header2 = () => {
-    const navigate = useNavigate();
-
-    const goHome = () => {
-        navigate("/");
-    }
-
-    const handleLogin = () => {
-        navigate("/login");
-    };
-
-    return (
-        <div className="header">
-        <Button
-            type="link"
-            style={{
-            fontSize: "28px",
-            color: "#FFA601",
-            marginRight: "10%",
-            height: "100%",
-            fontFamily: "Lobster",
-            }}
-            onClick={goHome}
-        >
-            Let's Meet
-        </Button>
-        <Button
-            style={{
-            float: "right",
-            marginTop: "1%",
-            marginRight: "1%",
-            borderRadius: "15px",
-            borderColor: "#FFA601",
-            color: "#FFA601",
-            fontFamily: "Nunito",
-            }}
-            onClick={handleLogin}
-        >
-            Login
-        </Button>
-        </div>
-    );
-};
-
-export { Header, Header2 };
+export default Header;

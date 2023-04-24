@@ -8,7 +8,7 @@ import security
 
 async def middleware(request: Request, call_next):
     time = datetime.now()
-    account = None
+    account = security.Account(id=None, time=time)
     if auth_token := request.headers.get('auth-token', None):
         account = security.decode_jwt(auth_token, time=time)
     context['account'] = account

@@ -1,358 +1,389 @@
+/*TODO:********************************************************************************************
+  1. RWD, 版面縮小到一定程度時兩個 component 會重疊。 
+  2. 物件, 返回鍵按鈕對齊, 可能要使用 useRef。 
+**************************************************************************************************/
 import styled from "styled-components";
 import "@fontsource/roboto/500.css";
-import { Input, Button, DatePicker, TimePicker, Space, Table, Tag } from "antd";
-import "../css/Background.css";
+import { Button, Tooltip } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { Header, Header2 } from "../components/Header";
-import { useMeet } from "./hooks/useMeet";
-import ShowDialog from "../components/ShowDialog";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { useMeet } from "../containers/hooks/useMeet";
+import _ from "lodash";
+import Moment from "moment";
+import { extendMoment } from "moment-range";
+import Base from "../components/Base/145MeetRelated";
+import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 
-// createList 形式：{date: "May 19Wed", time: "9:00", available: false} 之後會加一格routine
-let createList = [
-  "9:00",
-  "9:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-].map((m) =>
-  [
-    "May 19Wed",
-    "May 20Thu",
-    "May 21Fri",
-    "May 22Sat",
-    "May 23Sun",
-    "May 24Mon",
-    "May 25Tue",
-  ].map((d) => ({
-    date: d,
-    time: m,
-    availableNum: false,
-  }))
-);
-
-// showList形式：{date: May 19Wed, time: "9:00", availableNum: 2, availablePpl: ["Luisa, Tom"]}
-
-let showList = [
-  "9:00",
-  "9:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-].map((m) =>
-  [
-    "May 19Wed",
-    "May 20Wed",
-    "May 21Wed",
-    "May 22Wed",
-    "May 23Wed",
-    "May 24Wed",
-    "May 25Wed",
-  ].map((d) => ({
-    date: d,
-    time: m,
-    availableNum: Math.floor(Math.random() * 3),
-  }))
-);
+const moment = extendMoment(Moment);
 
 const FormWrapper = styled.div`
-  width: 60%;
-  height: 60%;
+  width: 40vw;
   min-width: 500px;
   min-height: 500px;
-  position: absolute;
-  left: 50%;
-  top: 47%;
-  transform: translate(-50%, -50%);
-  // border: 1px solid #D8D8D8;
-  padding: 5% 0%;
+  position: relative;
+  margin-top: calc(100vh * 235 / 1080 - 10vh);
+  /* top: calc(100vh * 235 / 1080 - 10vh); */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 10px;
 `;
 
 const NameWrapper = styled.div`
-  width: 60%;
-  height: 10%;
-  min-width: 500px;
-  min-height: 100px;
+  width: 200px;
   position: absolute;
-  left: 50%;
-  top: 10%;
-  transform: translate(-50%, 0%);
-  // border: 1px solid #D8D8D8;
-  padding: 5% 0%;
+  left: 0;
+  top: calc(100vh * 180 / 1080 - 10vh);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
-const addHexColor = (c1, c2) => {
-  var hexStr = (parseInt(c1, 16) - parseInt(c2, 16)).toString(16);
-  while (hexStr.length < 6) {
-    hexStr = "0" + hexStr;
-  } // Zero pad.
-  return hexStr;
+const Cell = styled.div`
+  width: 50px;
+  height: 20px;
+  cursor: pointer;
+  border-radius: 8px;
+  /* background-color: aliceblue; */
+`;
+
+const DayColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 5px;
+  div {
+    font-size: 14px;
+    text-align: center;
+  }
+`;
+
+const CellInfo = () => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        columnGap: "10px",
+        background: "antiquewhite",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <div>123</div>
+        <div>123</div>
+        <div>123</div>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <div>123</div>
+        <div>123</div>
+        <div>123</div>
+      </div>
+    </div>
+  );
 };
 
 const Voting = () => {
-  const [block, setBlock] = useState(createList); // 每個timeblock存的資訊
-  const [isShowDialog, setIsShowDialog] = useState(false);
-  const [dialogX, setDialogX] = useState("0");
-  const [dialogY, setDialogY] = useState("0");
-  const navigate = useNavigate();
-  const { login } = useMeet();
+  let DATERANGE = [
+    ...moment.range(moment("2019-03-13"), moment("2019-03-19")).by("day"),
+  ].map((m) => m.format("YYYY-MM-DD"));
 
-  const handleMeet = () => {
-    navigate("/meets");
+  let TIMESLOTIDS = _.range(15, 30); //記得加 1
+
+  const dataFormatProcessing = () => {
+    return _.range(DATERANGE.length).map(() => TIMESLOTIDS.map(() => false));
   };
 
-  const handleShow = (i, j) => {
-    // setAvaList(showList[i][j].availablePpl);
-    // setNotAvaList(showList[i][j].notAvailablePpl);
+  const [cell, setCell] = useState(dataFormatProcessing());
+  const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
+  const [startIndex, setStartIndex] = useState([]); //選取方塊位置
+  const [mode, setMode] = useState(true); //選取模式
+  const oriCell = useMemo(() => cell, [startDrag]);
+  const 偵測userScroll = useRef(null);
+
+  const slotIDProcessing = (id) => {
+    let hour = String(parseInt(((id - 1) * 30) / 60));
+    const startHour = "0".repeat(2 - hour.length) + hour;
+    const startMinute = parseInt(((id - 1) * 30) % 60) ? "30" : "00";
+    return `${startHour}:${startMinute}`;
   };
 
-  const handleShowDialog = (location) => {
-    setIsShowDialog(true);
-    setDialogX((location.x - document.getElementById("hi").getBoundingClientRect().x).toString());
-    setDialogY((location.y - document.getElementById("hi").getBoundingClientRect().y).toString());
-    console.log(location.x, location.y);
-    console.log(document.getElementById("hi").getBoundingClientRect())
+  const handleCellMouseDown = (index) => (e) => {
+    e.preventDefault();
+    setStartDrag(true);
+    setStartIndex(index);
+    setMode(!cell[index[0]][index[1]]);
   };
 
-  const handleHideDialog = () => {
-    setIsShowDialog(false);
-  }
-
-  const chooseColor = (num) => {
-    // return addHexColor("F0F0F0", ((Math.max(num-1, 0)*3635)+984028).toString(16));
-    if (num === 0) return "f0f0f0";
-    else return addHexColor("FFF4CC", ((num - 1) * 3635).toString(16));
-  };
-
-  const handleCell = (i, j) => {
-    let temp = [...block];
-    temp[i][j].available = !temp[i][j].available;
-    setBlock(temp);
-    console.log(block[i][j].available);
-  };
-
-  const handleBlock = (item, i, j) => {
-    if (item.routine) {
-      return (
-        <div
-          className="cell"
-          key={j}
-          id={j}
-          date={item.date}
-          time={item.time}
-          available={item.available ? true : undefined}
-          style={{ backgroundColor: "gray" }}
-        ></div>
-      );
-    } else {
-      return (
-        <div
-          className="cell"
-          key={j}
-          id={j}
-          date={item.date}
-          time={item.time}
-          available={item.available ? true : undefined}
-          onClick={() => handleCell(i, j)}
-          style={{ backgroundColor: item.available ? "pink" : "#F0F0F0" }}
-        ></div>
-      );
+  const handleCellMouseEnter = (index) => (e) => {
+    e.preventDefault();
+    if (startDrag) {
+      const xRange = [startIndex[0], index[0]].sort((a, b) => a - b);
+      const yRange = [startIndex[1], index[1]].sort((a, b) => a - b);
+      const Processing = (prev) => {
+        let temp = JSON.parse(JSON.stringify(prev));
+        for (const d_index of _.range(xRange[0], xRange[1] + 1)) {
+          for (const t_index of _.range(yRange[0], yRange[1] + 1)) {
+            temp[d_index][t_index] = mode;
+          }
+        }
+        return temp;
+      };
+      setCell(() => Processing(oriCell));
     }
   };
 
-  return (
-    <>
-      {login ? <Header location="timeslot" /> : <Header2 />}
-      <div className="leftContainer" style={{ background: "white" }}>
-        <ShowDialog/>
+  const handleCellMouseUp = (e) => {
+    e.preventDefault();
+    setStartDrag(false);
+  };
+
+  const { login } = useMeet();
+
+  const chooseColor = (num) => {
+    if (num === 0) return "#f0f0f0";
+    const hexStr = (
+      parseInt("FFF4CC", 16) - parseInt(((num - 1) * 3635).toString(16), 16)
+    ).toString(16);
+    while (hexStr.length < 6) {
+      hexStr = "0" + hexStr;
+    } // Zero pad.
+    return `#${hexStr}`;
+  };
+
+  const handleCellClick = (index) => () => {
+    console.log(index);
+    setCell((prev) => {
+      let result = JSON.parse(JSON.stringify(prev));
+      result[index[0]][index[1]] = !result[index[0]][index[1]];
+      return result;
+    });
+  };
+
+  const leftChild = (
+    <div style={{ width: "100%", position: "relative" }}>
+      <div
+        style={{
+          borderLeft: "1px #000000 dashed",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
         <NameWrapper>
-          <Button
+          {/* <Button
             icon={<ArrowLeftOutlined />}
-            style={{ position: "absolute", right: "100%", top: "6%", borderColor: "white", color: "#808080", fontSize: "18px" }}
-            onClick={handleMeet}
-          ></Button>
+            style={{
+              borderColor: "white",
+              color: "#808080",
+              fontSize: "18px",
+              margin: 0,
+              padding: 0,
+            }}
+          ></Button> */}
           <div
             style={{
               fontFamily: "Roboto",
               fontStyle: "normal",
               fontWeight: "500",
-              fontSize: "30px",
-              position: "absolute",
-              top: "6%",
-              marginLeft: "25px"
+              fontSize: "calc(100vmin * 30 / 1080)",
             }}
           >
             SDM Class
           </div>
         </NameWrapper>
-        <FormWrapper>
+        <FormWrapper onMouseUp={handleCellMouseUp}>
           <div
             style={{
               fontFamily: "Roboto",
               fontWeight: "500",
               fontSize: "20px",
-              position: "absolute",
-              left: "50%",
-              transform: "translate(-50%, 0%)",
             }}
           >
             My Availability
           </div>
           <div
             style={{
-              position: "absolute",
-              left: "50%",
-              top: "15%",
-              transform: "translate(-50%, 0%)",
+              display: "flex",
+              columnGap: "2px",
+              width: "100%",
+              justifyContent: "center",
             }}
           >
-            <div className="cellIntroBlock">
-              {block.length !== 0 ? (
-                block[0].map((item, j) => (
-                  <div className="cellIntro" key={j}>
-                    {item.date.slice(0, 6)}
-                  </div>
-                ))
-              ) : (
-                <></>
-              )}
-            </div>
-            <div className="cellIntroBlock">
-              {block.length !== 0 ? (
-                block[0].map((item, j) => (
-                  <div className="cellIntro" key={j}>
-                    {item.date.slice(6, 9)}
-                  </div>
-                ))
-              ) : (
-                <></>
-              )}
-            </div>
-            {block.map((items, i) => (
-              <div key={"row" + i} id={"row" + i} style={{ display: "flex" }}>
-                <div className="cellIntro">{items[0].time}</div>
-                {items.map((item, j) => (
-                  <div
-                    className="cell"
-                    key={j}
-                    id={j}
-                    date={item.date}
-                    time={item.time}
-                    available={item.available ? true : undefined}
-                    onClick={() => handleCell(i, j)}
-                    style={{
-                      backgroundColor: item.available ? "#94C9CD" : "#F0F0F0",
-                    }}
-                  ></div>
+            <DayColumn
+              style={{
+                alignItems: "flex-end",
+                marginRight: "5px",
+                marginTop: "-10px",
+              }}
+            >
+              <div style={{ opacity: "0" }}>Mar 29</div>
+              <div style={{ opacity: "0" }}>Wed</div>
+              {TIMESLOTIDS.map((t, Tindex) => (
+                <div
+                  key={Tindex}
+                  style={{
+                    height: "20px",
+                    userSelect: startDrag ? "none" : "text",
+                  }}
+                >
+                  {slotIDProcessing(t)}
+                </div>
+              ))}
+            </DayColumn>
+            <ScrollSyncPane>
+              <div
+                style={{
+                  display: "flex",
+                  columnGap: "2px",
+                  overflowX: "auto",
+                  maxWidth: "80%",
+                }}
+                onScroll={(e) => {
+                  console.log(e.target);
+                }}
+              >
+                {DATERANGE.map((date, c_index) => (
+                  <DayColumn key={c_index}>
+                    <div style={{ userSelect: "none" }}>
+                      {moment(date).format("MMM DD")}
+                    </div>
+                    <div style={{ userSelect: "none" }}>
+                      {moment(date).format("ddd")}
+                    </div>
+                    {TIMESLOTIDS.slice(0, -1).map((_, r_index) => (
+                      <Cell
+                        key={r_index}
+                        style={{
+                          background: cell[c_index][r_index]
+                            ? "#94C9CD"
+                            : "#F0F0F0",
+                        }}
+                        onMouseDown={handleCellMouseDown([c_index, r_index])}
+                        onMouseEnter={handleCellMouseEnter([c_index, r_index])}
+                        onClick={handleCellClick([c_index, r_index])}
+                      />
+                    ))}
+                  </DayColumn>
                 ))}
               </div>
-            ))}
+            </ScrollSyncPane>
           </div>
         </FormWrapper>
       </div>
-      <div className="rightContainer">
-        <FormWrapper id="hi">
-          <div
+    </div>
+  );
+
+  const rightChild = (
+    <div
+      style={{
+        // borderLeft: "1px #000000 dashed",
+        // borderRight: "1px #000000 dashed",
+        display: "flex",
+        justifyContent: "center",
+        width: "100%",
+        position: "relative",
+      }}
+    >
+      <FormWrapper>
+        <div
+          style={{
+            fontFamily: "Roboto",
+            fontWeight: "500",
+            fontSize: "20px",
+          }}
+        >
+          Group Availability
+        </div>
+        <div
+          style={{
+            display: "flex",
+            columnGap: "2px",
+            width: "100%",
+            justifyContent: "center",
+          }}
+        >
+          <DayColumn
             style={{
-              fontFamily: "Roboto",
-              fontWeight: "500",
-              fontSize: "20px",
-              position: "absolute",
-              left: "50%",
-              transform: "translate(-50%, 0%)",
+              alignItems: "flex-end",
+              marginRight: "5px",
+              marginTop: "-10px",
             }}
           >
-            Group Availability
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: "15%",
-              transform: "translate(-50%, 0%)",
-            }}
-          >
-            <div className="cellIntroBlock">
-              {showList.length !== 0 ? (
-                showList[0].map((item, j) => (
-                  <div className="cellIntro" key={j}>
-                    {item.date.slice(0, 6)}
-                  </div>
-                ))
-              ) : (
-                <></>
-              )}
-            </div>
-            <div className="cellIntroBlock">
-              {showList.length !== 0 ? (
-                showList[0].map((item, j) => (
-                  <div className="cellIntro" key={j}>
-                    {item.date.slice(6, 9)}
-                  </div>
-                ))
-              ) : (
-                <></>
-              )}
-            </div>
-            {showList.map((items, i) => (
-              <div key={"row" + i} id={"row" + i} style={{ display: "flex" }}>
-                <div className="cellIntro">{items[0].time}</div>
-                {items.map((item, j) => (
-                  // <div className='cell' key={j} id={j} date={item.date} time={item.time}
-                  // available={item.availableNum} onMouseOver={() => handleShow(i, j)}
-                  // style={{ backgroundColor: "#"+chooseColor(item.availableNum) }}></div>
-                  <div
-                    className="cell"
-                    key={i.toString()+j.toString()}
-                    id={i.toString()+j.toString()}
-                    date={item.date}
-                    time={item.time}
-                    available={item.availableNum}
-                    style={{
-                      backgroundColor: "#" + chooseColor(item.availableNum),
-                    }}
-                    onMouseOver={() => handleShowDialog(document.getElementById(i.toString()+j.toString()).getBoundingClientRect())}
-                    onMouseLeave={handleHideDialog}
-                  ></div>
-                ))}
+            <div style={{ opacity: "0" }}>Mar 29</div>
+            <div style={{ opacity: "0" }}>Wed</div>
+            {TIMESLOTIDS.map((t, Tindex) => (
+              <div
+                key={Tindex}
+                style={{
+                  height: "20px",
+                  userSelect: startDrag ? "none" : "text",
+                }}
+              >
+                {slotIDProcessing(t)}
               </div>
             ))}
-            {isShowDialog ? <div 
-                style={{width: "100px", height: "50px", border: "1px solid black",
-                position: "absolute", left: dialogX+"px", top: dialogY+"px", backgroundColor: "white", zIndex: 9}}>
-              <p>hi</p>
-            </div> : <></>}
-          </div>
-        </FormWrapper>
-      </div>
-    </>
+          </DayColumn>
+          <ScrollSyncPane>
+            <div
+              style={{
+                display: "flex",
+                columnGap: "2px",
+                overflowX: "auto",
+                maxWidth: "80%",
+              }}
+            >
+              {DATERANGE.map((date, c_index) => (
+                <DayColumn key={c_index}>
+                  <div style={{ userSelect: "none" }}>
+                    {moment(date).format("MMM DD")}
+                  </div>
+                  <div style={{ userSelect: "none" }}>
+                    {moment(date).format("ddd")}
+                  </div>
+                  {TIMESLOTIDS.slice(0, -1).map((t, r_index) => (
+                    <Tooltip
+                      key={r_index}
+                      placement="bottom"
+                      title={<CellInfo />}
+                      overlayStyle={{ background: "white" }}
+                      overlayInnerStyle={{
+                        color: "black",
+                        background: "white",
+                      }}
+                    >
+                      <Cell
+                        style={{
+                          backgroundColor: chooseColor(2),
+                        }}
+                      />
+                    </Tooltip>
+                  ))}
+                </DayColumn>
+              ))}
+            </div>
+          </ScrollSyncPane>
+        </div>
+      </FormWrapper>
+    </div>
+  );
+
+  return (
+    <ScrollSync>
+      <Base leftChild={leftChild} rightChild={rightChild} />
+    </ScrollSync>
   );
 };
 

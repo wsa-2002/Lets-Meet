@@ -6,12 +6,15 @@ from typing import Optional, Sequence, Union
 from fastapi import APIRouter, responses, Depends
 from pydantic import BaseModel, Json
 
-from base import enums, model, vo
+from base import enums, model, vo, do
 import const
 from middleware.envelope import enveloped
 from middleware.headers import get_auth_token
 from middleware.context import request
 import persistence.database as db
+import service
+from service.meet import EditMeetInput, AddMemberMeetAvailableTimeInput, \
+        ConfirmMeetInput, DeleteMeetMemberAvailableTimeInput
 import exceptions as exc  # noqa
 
 
@@ -49,8 +52,10 @@ class ReadMeetOutput(BaseModel):
     invite_code: str
     gen_meet_url: bool
     voting_end_time: Optional[datetime] = None
-    finalized_start_time: Optional[datetime] = None
-    finalized_end_time: Optional[datetime] = None
+    finalized_start_date: Optional[date] = None
+    finalized_end_date: Optional[date] = None
+    finalized_start_time_slot_id: Optional[int] = None
+    finalized_end_time_slot_id: Optional[int] = None
     meet_url: Optional[str] = None
     description: Optional[str] = None
     host_info: Optional[MemberInfo] = None
@@ -60,12 +65,9 @@ class ReadMeetOutput(BaseModel):
 @router.post('/meet')
 @enveloped
 async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
-    try:
-        host_account_id = request.account.id
-    except exc.NoPermission:
-        if not data.guest_name:
-            raise exc.IllegalInput
-        host_account_id = None
+    host_account_id = request.account.id
+    if not host_account_id and not data.guest_name:
+        raise exc.IllegalInput
 
     if data.start_date > data.end_date or data.start_time_slot_id > data.end_time_slot_id:
         raise exc.IllegalInput
@@ -94,13 +96,9 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
     # TODO: send email to members and emails
 
     meet = await db.meet.read(meet_id=meet_id)
-    try:
-        account_id = request.account.id
-    except exc.NoPermission:
-        account_id = None
+    account_id = request.account.id
     meet.status = await update_status(meet.id, meet, request.time, account_id)
     host, member_infos = await compose_host_and_member_info(meet_id=meet.id)
-
 
     return ReadMeetOutput(
         id=meet.id,
@@ -113,8 +111,10 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
         meet_name=meet.title,
         invite_code=meet.invite_code,
         gen_meet_url=meet.gen_meet_url,
-        finalized_start_time=meet.finalized_start_time,
-        finalized_end_time=meet.finalized_end_time,
+        finalized_start_date=meet.finalized_start_date,
+        finalized_end_date=meet.finalized_end_date,
+        finalized_start_time_slot_id=meet.finalized_start_time_slot_id,
+        finalized_end_time_slot_id=meet.finalized_end_time_slot_id,
         meet_url=meet.meet_url,
         description=meet.description,
         host_info=host,
@@ -138,7 +138,6 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
     meet.status = await update_status(meet.id, meet, request.time, account_id)
     host, member_infos = await compose_host_and_member_info(meet_id=meet.id)
 
-
     return ReadMeetOutput(
         id=meet.id,
         status=meet.status,
@@ -150,8 +149,10 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
         meet_name=meet.title,
         invite_code=meet.invite_code,
         gen_meet_url=meet.gen_meet_url,
-        finalized_start_time=meet.finalized_start_time,
-        finalized_end_time=meet.finalized_end_time,
+        finalized_start_date=meet.finalized_start_date,
+        finalized_end_date=meet.finalized_end_date,
+        finalized_start_time_slot_id=meet.finalized_start_time_slot_id,
+        finalized_end_time_slot_id=meet.finalized_end_time_slot_id,
         meet_url=meet.meet_url,
         description=meet.description,
         host_info=host,
@@ -162,64 +163,13 @@ async def read_meet(meet_id: int, name: Optional[str] = None) -> ReadMeetOutput:
 @router.delete('/meet/{meet_id}')
 @enveloped
 async def delete_meet(meet_id: int) -> None:
-    meet_members = await db.meet.get_member_id_and_auth(meet_id=meet_id)
-    try:
-        is_host = meet_members[request.account.id]
-    except KeyError:
-        raise exc.NoPermission
-
-    if is_host:
-        await db.meet.delete(meet_id)
-    else:
-        await db.meet.leave(meet_id, request.account.id)
-
-
-class EditMeetInput(BaseModel):
-    title: Optional[str] = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
-    start_time_slot_id: Optional[int] = None
-    end_time_slot_id: Optional[int] = None
-    description: Optional[str] = None
-    voting_end_time: Optional[datetime] = None
-    gen_meet_url: Optional[bool] = False
+    await service.meet.delete_meet(meet_id=meet_id)
 
 
 @router.patch('/meet/[meet_id}')
 @enveloped
 async def edit_meet(meet_id: int, data: EditMeetInput) -> None:
-    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
-        raise exc.NoPermission
-
-    meet = await db.meet.read(meet_id=meet_id)
-    meet.start_date = data.start_date or meet.start_date
-    meet.end_date = data.end_date or meet.end_date
-    meet.start_time_slot_id = data.start_time_slot_id or meet.start_time_slot_id
-    meet.end_time_slot_id = data.end_time_slot_id
-    meet.voting_end_time = data.voting_end_time or meet.voting_end_time
-
-    if meet.start_date > meet.end_date:
-        raise exc.IllegalInput
-
-    if meet.start_time_slot_id > meet.end_time_slot_id:
-        raise exc.IllegalInput
-
-    status = enums.StatusType.voting
-    if meet.voting_end_time and meet.voting_end_time < request.time:
-        status = enums.StatusType.waiting_for_confirm
-
-    await db.meet.edit(
-        meet_id=meet_id,
-        title=data.title,
-        start_date=data.start_date,
-        end_date=data.end_date,
-        start_time_slot_id=data.start_time_slot_id,
-        end_time_slot_id=data.end_time_slot_id,
-        description=data.description,
-        voting_end_time=timezone_validate(data.voting_end_time),
-        gen_meet_url=data.gen_meet_url,
-        status=status,
-    )
+    await service.meet.edit_meet(meet_id=meet_id, data=data)
 
 
 BROWSE_MEET_COLUMNS = {
@@ -256,29 +206,21 @@ async def browse_meet(filters: Sequence[model.Filter] = Depends(meet_filter),
 
 
 class JoinMeetInput(BaseModel):
-    invite_code: str
     name: Optional[str]
 
 
-@router.post('/meet/invite')
+@router.post('/meet/code/{code}')
 @enveloped
-async def join_meet_by_invite_code(data: JoinMeetInput):
-    try:
-        account_id = request.account.id
-    except exc.NoPermission:
-        if not data.name:
-            raise exc.IllegalInput
-        account_id = None
+async def join_meet_by_invite_code(code: str, data: JoinMeetInput):
+    account_id = request.account.id
+    if not account_id and not data.name:
+        raise exc.IllegalInput
 
-    meet = await db.meet.read_meet_by_code(invite_code=data.invite_code)
+    meet = await db.meet.read_meet_by_code(invite_code=code)
     await db.meet.add_member(meet_id=meet.id, account_id=account_id, name=data.name)
-    try:
-        account_id = request.account.id
-    except exc.NoPermission:
-        account_id = None
+
     meet.status = await update_status(meet.id, meet, request.time, account_id)
     host, member_infos = await compose_host_and_member_info(meet_id=meet.id)
-
 
     return ReadMeetOutput(
         id=meet.id,
@@ -291,8 +233,10 @@ async def join_meet_by_invite_code(data: JoinMeetInput):
         meet_name=meet.title,
         invite_code=meet.invite_code,
         gen_meet_url=meet.gen_meet_url,
-        finalized_start_time=meet.finalized_start_time,
-        finalized_end_time=meet.finalized_end_time,
+        finalized_start_date=meet.finalized_start_date,
+        finalized_end_date=meet.finalized_end_date,
+        finalized_start_time_slot_id=meet.finalized_start_time_slot_id,
+        finalized_end_time_slot_id=meet.finalized_end_time_slot_id,
         meet_url=meet.meet_url,
         description=meet.description,
         host_info=host,
@@ -300,35 +244,206 @@ async def join_meet_by_invite_code(data: JoinMeetInput):
     )
 
 
-@router.get('/meet/invite/{invite_code}')
+@router.get('/meet/code/{code}')
 @enveloped
-async def read_meet_by_code(invite_code: str) -> ReadMeetOutput:
-    meet = await db.meet.read_meet_by_code(invite_code=invite_code)
-    meet_id = meet.id
+async def read_meet_by_code(code: str) -> ReadMeetOutput:
+    meet = await db.meet.read_meet_by_code(invite_code=code)
+
+    account_id = request.account.id
+
+    meet.status = await update_status(meet.id, meet, request.time, account_id)
+    host, member_infos = await compose_host_and_member_info(meet_id=meet.id)
+
+    return ReadMeetOutput(
+        id=meet.id,
+        status=meet.status,
+        start_date=meet.start_date,
+        end_date=meet.end_date,
+        start_time_slot_id=meet.start_time_slot_id,
+        end_time_slot_id=meet.end_time_slot_id,
+        voting_end_time=meet.voting_end_time,
+        meet_name=meet.title,
+        invite_code=meet.invite_code,
+        gen_meet_url=meet.gen_meet_url,
+        finalized_start_date=meet.finalized_start_date,
+        finalized_end_date=meet.finalized_end_date,
+        finalized_start_time_slot_id=meet.finalized_start_time_slot_id,
+        finalized_end_time_slot_id=meet.finalized_end_time_slot_id,
+        meet_url=meet.meet_url,
+        description=meet.description,
+        host_info=host,
+        member_infos=member_infos,
+    )
+
+
+@router.get('/meet/{meet_id}/available_time')
+@enveloped
+async def browse_member_available_time_by_meet_id(meet_id: int, name: Optional[str] = None) \
+        -> Sequence[do.MeetMemberAvailableTime]:
+    account_id = request.account.id
+    if not account_id and not name:
+        raise exc.NoPermission
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
+        raise exc.NoPermission
+
+    return await service.meet.browse_member_available_time(meet_id=meet_id, name=name)
+
+
+class DateSlotData(BaseModel):
+    date: date
+    time_slot_id: int
+    available_members: Sequence[str]
+    unavailable_members: Sequence[str]
+
+
+class BrowseAllMemberAvailableTimeOutput(BaseModel):
+    data: Sequence[DateSlotData]
+
+
+@router.get('/meet/{meet_id}/available_time/all')
+@enveloped
+async def browse_all_member_available_time(meet_id: int, name: Optional[str] = None) \
+        -> BrowseAllMemberAvailableTimeOutput:
+    account_id = request.account.id
+    if not account_id and not name:
+        raise exc.NoPermission
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
+        raise exc.NoPermission
+    return await service.meet.browse_all_member_available_time(meet_id=meet_id, name=name)
+
+
+@router.post('/meet/{meet_id}/confirm')
+@enveloped
+async def confirm_meet(meet_id: int, data: ConfirmMeetInput) -> None:
+    account_id = request.account.id
+    if not account_id:
+        raise exc.NoPermission
+
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
+        raise exc.NoPermission
+
+    if data.start_date > data.end_date:
+        raise exc.IllegalInput
+    if data.start_time_slot_id > data.end_time_slot_id:
+        raise exc.IllegalInput
+
+    await service.meet.confirm(meet_id=meet_id, data=data)
+
+
+@router.delete('/meet/code/{code}')
+@enveloped
+async def delete_meet_by_code(code: str) -> None:
+    meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id):
+        raise exc.NoPermission
+    await service.meet.delete_meet(meet_id=meet_id)
+
+
+@router.patch('/meet/code/{code}')
+@enveloped
+async def edit_meet_by_code(code: str, data: EditMeetInput) -> None:
+    meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
+        raise exc.NoPermission
+    await service.meet.edit_meet(meet_id, data=data)
+
+
+@router.get('/meet/code/{code}/available_time/all')
+@enveloped
+async def browse_all_member_available_time_by_code(code: str, name: Optional[str] = None) \
+        -> BrowseAllMemberAvailableTimeOutput:
+    account_id = request.account.id
+    if not account_id and not name:
+        raise exc.NoPermission
+    meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
+        raise exc.NoPermission
+    return await service.meet.browse_all_member_available_time(meet_id=meet_id, name=name)
+
+
+@router.get('/meet/code/{code}/available_time')
+@enveloped
+async def browse_member_available_time_by_code(code: str, name: Optional[str] = None) \
+        -> Sequence[do.MeetMemberAvailableTime]:
+    account_id = request.account.id
+    if not account_id and not name:
+        raise exc.NoPermission
+    meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
+        raise exc.NoPermission
+
+    return await service.meet.browse_member_available_time(meet_id=meet_id, name=name)
+
+
+@router.post('/meet/code/{code}/confirm')
+@enveloped
+async def confirm_meet_by_code(code: str, data: ConfirmMeetInput) -> None:
+    account_id = request.account.id
+    if not account_id:
+        raise exc.NoPermission
+
+    meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
+        raise exc.NoPermission
+
+    if data.start_date > data.end_date:
+        raise exc.IllegalInput
+    if data.start_time_slot_id > data.end_time_slot_id:
+        raise exc.IllegalInput
+
+    await service.meet.confirm(meet_id=meet_id, data=data)
+
+
+@router.post('/meet/{meet_id}/available_time')
+@enveloped
+async def add_member_meet_available_time(meet_id: int, data: AddMemberMeetAvailableTimeInput):
+    account_id = request.account.id
+    if not account_id and not data.name:
+        raise exc.IllegalInput
+
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=data.name):
+        raise exc.NoPermission
 
     meet = await db.meet.read(meet_id=meet_id)
-    try:
-        account_id = request.account.id
-    except exc.NoPermission:
-        account_id = None
-    meet.status = await update_status(meet.id, meet, request.time, account_id)
-    host, member_infos = await compose_host_and_member_info(meet_id=meet.id)
+    if any(not meet.start_time_slot_id <= time_slot.time_slot_id <= meet.end_time_slot_id for time_slot in
+           data.time_slots):
+        raise exc.IllegalInput
 
-    return ReadMeetOutput(
-        id=meet.id,
-        status=meet.status,
-        start_date=meet.start_date,
-        end_date=meet.end_date,
-        start_time_slot_id=meet.start_time_slot_id,
-        end_time_slot_id=meet.end_time_slot_id,
-        voting_end_time=meet.voting_end_time,
-        meet_name=meet.title,
-        invite_code=meet.invite_code,
-        gen_meet_url=meet.gen_meet_url,
-        finalized_start_time=meet.finalized_start_time,
-        finalized_end_time=meet.finalized_end_time,
-        meet_url=meet.meet_url,
-        description=meet.description,
-        host_info=host,
-        member_infos=member_infos,
-    )
+    if any(not meet.start_date <= time_slot.date <= meet.end_date for time_slot in data.time_slots):
+        raise exc.IllegalInput
+    await service.meet.add_member_meet_available_time(meet_id, data=data)
+
+
+@router.post('/meet/code/{code}/available_time')
+@enveloped
+async def add_member_meet_available_time_by_code(code: str, data: AddMemberMeetAvailableTimeInput):
+    account_id = request.account.id
+    if not account_id and not data.name:
+        raise exc.IllegalInput
+
+    meet = await db.meet.read_meet_by_code(invite_code=code)
+    if not await db.meet.is_authed(meet_id=meet.id, member_id=request.account.id, name=data.name):
+        raise exc.NoPermission
+    if any(not meet.start_time_slot_id <= time_slot.time_slot_id <= meet.end_time_slot_id for time_slot in data.time_slots): # noqa
+        raise exc.IllegalInput
+
+    if any(not meet.start_date <= time_slot.date <= meet.end_date for time_slot in data.time_slots):
+        raise exc.IllegalInput
+    await service.meet.add_member_meet_available_time(meet_id=meet.id, data=data)
+
+
+@router.delete('/meet/{meet_id}/available_time')
+@enveloped
+async def delete_member_meet_available_time(meet_id: int, data: DeleteMeetMemberAvailableTimeInput):
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=data.name):
+        raise exc.NoPermission
+    await service.meet.delete_meet_member_available_time(meet_id=meet_id, data=data)
+
+
+@router.delete('/meet/code/{code}/available_time')
+@enveloped
+async def delete_member_meet_available_time_by_code(code: str, data: DeleteMeetMemberAvailableTimeInput):
+    meet = await db.meet.read_meet_by_code(invite_code=code)
+    if not await db.meet.is_authed(meet_id=meet.id, member_id=request.account.id, name=data.name):
+        raise exc.NoPermission
+    await service.meet.delete_meet_member_available_time(meet_id=meet.id, data=data)
