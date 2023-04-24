@@ -1,11 +1,11 @@
 /**************************************************************************************************
  DONE!
 **************************************************************************************************/
-import React, { useRef } from "react";
+import React, { useState } from "react";
 import { notification } from "antd";
 import { CheckCircleFilled } from "@ant-design/icons";
 import * as AXIOS from "../../middleware";
-import Base from "../../components/Base/左橘3右白7";
+import Base from "../../components/Base/orange3_white7";
 import { RWD } from "../../constant";
 const {
   RightContainer,
@@ -14,8 +14,7 @@ const {
 const { RWDHeight } = RWD;
 
 const ResetPassword = () => {
-  const EmailRef = useRef(null);
-
+  const [email, setEmail] = useState("");
   const [api, contextHolder] = notification.useNotification();
   const openNotification = (placement) => {
     api.info({
@@ -27,19 +26,19 @@ const ResetPassword = () => {
     });
   };
 
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
   const handleVerifyClick = async () => {
-    if (EmailRef.current.input.value) {
-      try {
-        openNotification("top");
-        const result = await AXIOS.forgetPassword({
-          email: EmailRef.current.input.value,
-        });
-        console.log(result);
-      } catch (e) {
-        alert(e);
-      }
-    } else {
-      console.log("Email 不能為空");
+    try {
+      openNotification("top");
+      const result = await AXIOS.forgetPassword({
+        email,
+      });
+      console.log(result);
+    } catch (e) {
+      alert(e);
     }
   };
 
@@ -53,15 +52,13 @@ const ResetPassword = () => {
           >
             <InfoContainer.InputContainer style={{ marginTop: RWDHeight(10) }}>
               <InfoContainer.Title>Reset Password</InfoContainer.Title>
-              <InfoContainer.Input placeholder="Email" ref={EmailRef} />
+              <InfoContainer.Input
+                placeholder="Email"
+                value={email}
+                onChange={handleEmailChange}
+              />
             </InfoContainer.InputContainer>
-            <InfoContainer.Button
-              // disabled={
-              //   newPassword["Confirmed New Password"] !==
-              //   newPassword["New Password"]
-              // }
-              onClick={handleVerifyClick}
-            >
+            <InfoContainer.Button disabled={!email} onClick={handleVerifyClick}>
               Send Verification
             </InfoContainer.Button>
           </RightContainer.InfoContainer>

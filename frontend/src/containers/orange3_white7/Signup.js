@@ -3,18 +3,33 @@
   Component DONE! 
 **************************************************************************************************/
 import React, { useState, useEffect } from "react";
-import { Divider, notification } from "antd";
+import { Divider, notification, Typography } from "antd";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import * as AXIOS from "../../middleware";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import Button from "../../components/Button";
-import Base from "../../components/Base/左橘3右白7";
-import { RWD } from "../../constant";
+import Base from "../../components/Base/orange3_white7";
+import { RWD, ANIME } from "../../constant";
 const {
   RightContainer,
   RightContainer: { InfoContainer },
 } = Base;
 const GoogleButton = Button("google");
-const { RWDWidth, RWDHeight } = RWD;
+const { RWDWidth, RWDHeight, RWDFontSize } = RWD;
+const { Text, Link } = Typography;
+
+const CheckCircle = styled(CheckCircleOutlined)`
+  color: #5c9b6b;
+  font-size: ${RWDFontSize(20)};
+  ${ANIME.FadeIn};
+`;
+
+const CloseCircle = styled(CloseCircleOutlined)`
+  color: #ae2a39;
+  font-size: ${RWDFontSize(20)};
+  ${ANIME.FadeIn};
+`;
 
 const SignUp = () => {
   const [signupData, setSignupData] = useState({
@@ -26,10 +41,10 @@ const SignUp = () => {
   const [validName, setValidName] = useState(true);
   const [description, setDescription] = useState("");
   const [api, contextHolder] = notification.useNotification();
+  const navigate = useNavigate();
 
   const handleSignupChange = (e) => {
     const { name, value } = e.target;
-    console.log(name);
     setSignupData((prev) => ({
       ...prev,
       [name]: value,
@@ -127,9 +142,9 @@ const SignUp = () => {
                 />
                 {signupData["Confirm Password"] &&
                   (signupData.Password === signupData["Confirm Password"] ? (
-                    <CheckCircleOutlined style={{ color: "#5C9B6B" }} />
+                    <CheckCircle />
                   ) : (
-                    <CloseCircleOutlined style={{ color: "#AE2A39" }} />
+                    <CloseCircle />
                   ))}
               </div>
             </InfoContainer.InputContainer>
@@ -147,13 +162,13 @@ const SignUp = () => {
                   !signupData.Username ||
                   !signupData.Password ||
                   !signupData.Email ||
-                  !signupData["Confirm Password"]
+                  !signupData["Confirm Password"] ||
+                  signupData.Password !== signupData["Confirm Password"]
                 }
                 onClick={handleSignUpClick}
               >
-                Save
+                Sign Up
               </InfoContainer.Button>
-
               <Divider
                 style={{ borderColor: "#808080", color: "#808080", margin: 0 }}
               >
@@ -161,54 +176,27 @@ const SignUp = () => {
               </Divider>
               <GoogleButton>Sign up with Google</GoogleButton>
             </InfoContainer.InputContainer>
+            <InfoContainer.InputContainer
+              style={{
+                gap: "unset",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text type="secondary">
+                Already have an account?
+                <Link
+                  onClick={() => {
+                    navigate("/login");
+                  }}
+                  style={{ color: "#B76A00", fontSize: RWDFontSize(16) }}
+                >
+                  {" "}
+                  Login
+                </Link>
+              </Text>
+            </InfoContainer.InputContainer>
           </RightContainer.InfoContainer>
-
-          {/* 
-            <Button
-              size={"large"}
-              style={{
-                borderRadius: "20px",
-                background: "#B3DEE5",
-                borderColor: "#B3DEE5",
-                fontWeight: "bold",
-              }}
-              onClick={handleSignUpClick}
-              disabled={
-                !signupData.Username ||
-                !signupData.Password ||
-                !signupData.Email ||
-                !signupData["Confirm Password"]
-              }
-            >
-              Sign Up
-            </Button>
-            <Divider style={{ borderColor: "#808080", color: "#808080" }}>
-              or
-            </Divider>
-            <Button
-              style={{
-                width: "300px",
-                height: "60px",
-                background: "white",
-                border: "0.5px solid #808080",
-                borderRadius: "15px",
-              }}
-              onClick={() => {
-                window.open("http://localhost:8000/google-login", "_self");
-              }}
-            >
-              <Image width="30px" src={googleIcon} />
-              <span
-                style={{
-                  marginLeft: "30px",
-                  fontSize: "20px",
-                  fontWeight: 500,
-                }}
-              >
-                Login with Google
-              </span>
-            </Button>
-          </SignupContainer> */}
         </Base.RightContainer>
       </Base>
     </>

@@ -14,9 +14,10 @@ import {
   Switch,
   Modal,
   Form,
+  Tooltip,
 } from "antd";
-import { ArrowRightOutlined } from "@ant-design/icons";
-import Base from "../../../components/Base/左橘3右白7";
+import { ArrowRightOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import Base from "../../../components/Base/orange3_white7";
 import Button from "../../../components/Button";
 import Title from "../../../components/Title";
 import { useMeet } from "../../hooks/useMeet";
@@ -78,8 +79,8 @@ const JoinMeet = Object.assign(
 );
 
 const Mainpage = () => {
-  const 追蹤LetMEET = useRef(null);
-  const [width, setWidth] = useState(追蹤LetMEET?.current?.offsetWidth);
+  const ref = useRef(null); //追蹤LetMEET
+  const [width, setWidth] = useState(ref?.current?.offsetWidth);
   const [votingButton, setVotingButton] = useState("hidden");
   const [meetData, setMeetData] = useState({
     meet_name: "",
@@ -181,13 +182,14 @@ const Mainpage = () => {
   };
 
   const CONTENTMENU = {
-    "Meet Name*": (
+    "Meet Name": (
       <Input
         style={{ ...Content.Input }}
         onChange={handleMeetDataChange((i) => i.target.value, "meet_name")}
+        data-required={true}
       />
     ),
-    "Start/End Date*": (
+    "Start/End Date": (
       <RangePicker
         style={{ ...Content.Range }}
         onChange={handleMeetDataChange(
@@ -195,9 +197,10 @@ const Mainpage = () => {
           "start_date",
           "end_date"
         )}
+        data-required={true}
       />
     ),
-    "Start/End Time*": (
+    "Start/End Time": (
       <TimePicker.RangePicker
         style={{ ...Content.Range }}
         onChange={handleMeetDataChange(
@@ -207,6 +210,7 @@ const Mainpage = () => {
         )}
         minuteStep={30}
         format={"HH:mm"}
+        data-required={true}
       />
     ),
     Member: (
@@ -245,6 +249,7 @@ const Mainpage = () => {
     ),
     "Google Meet URL": (
       <Switch
+        data-info={!login}
         disabled={!login}
         onChange={handleMeetDataChange((i) => i, "gen_meet_url")}
       />
@@ -252,8 +257,7 @@ const Mainpage = () => {
   };
 
   const throttledHandleResize = _.throttle(() => {
-    console.log("Hi");
-    setWidth(追蹤LetMEET?.current?.offsetWidth);
+    setWidth(ref?.current?.offsetWidth);
   }, 500);
 
   useEffect(() => {
@@ -287,10 +291,7 @@ const Mainpage = () => {
             />
           </JoinMeet.InvitationArea>
         </JoinMeet>
-        <Title
-          ref={追蹤LetMEET}
-          style={{ position: "relative", bottom: "20%" }}
-        >
+        <Title ref={ref} style={{ position: "relative", bottom: "20%" }}>
           Let's meet
         </Title>
       </Base.LeftContainer>
@@ -308,9 +309,38 @@ const Mainpage = () => {
                   alignSelf:
                     (title === "Description" || title === "Member") &&
                     "flex-start",
+                  columnGap: RWDWidth(4),
                 }}
               >
-                {title}
+                <div>{title}</div>
+                {CONTENTMENU[title].props["data-required"] && (
+                  <div
+                    style={{
+                      fontFamily: "Courier New",
+                      alignSelf: "flex-start",
+                    }}
+                  >
+                    &#1645;
+                  </div>
+                )}
+                {CONTENTMENU[title].props["data-info"] && (
+                  <Tooltip
+                    title="Registered users only"
+                    color="#FFFFFF"
+                    overlayInnerStyle={{
+                      color: "#000000",
+                    }}
+                  >
+                    <InfoCircleOutlined
+                      style={{
+                        marginLeft: RWDWidth(4),
+                        cursor: "pointer",
+                        color: "darkgray",
+                        fontSize: "bold",
+                      }}
+                    />
+                  </Tooltip>
+                )}
               </CreateMeet.Content>
               <CreateMeet.Content
                 style={{
@@ -325,7 +355,7 @@ const Mainpage = () => {
           ))}
         </CreateMeet>
         <PrimaryButton
-          style={{ position: "relative", top: RWDHeight(119) }}
+          style={{ position: "relative", top: RWDHeight(8) }}
           onClick={handleMeetCreate}
         >
           Create

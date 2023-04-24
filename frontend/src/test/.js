@@ -1,3 +1,5 @@
-const a = { a: "b", b: "c" };
-const { b } = a;
-console.log(a);
+const a = "/meets";
+const regex = /^\/meets$/;
+// const alt = ["/voting", "/^/meets/.*$/"];
+
+console.log(regex.test(a));

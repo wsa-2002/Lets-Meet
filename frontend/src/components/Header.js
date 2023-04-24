@@ -1,13 +1,13 @@
 import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
-import { Button } from "antd";
+import { Button, ConfigProvider } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useMeet } from "../containers/hooks/useMeet";
 import Title from "../components/Title";
 import _ from "lodash";
 import { RWD } from "../constant";
-const { RWDFontSize } = RWD;
+const { RWDFontSize, RWDRadius, RWDHeight, RWDWidth } = RWD;
 
 const HeaderContainer = styled.div`
   width: 100%;
@@ -43,26 +43,32 @@ const URLContainer = styled.div`
 `;
 
 const NavItem = [
-  { name: "Meets", to: "/meets", alt: ["/voting", "/meetinfo"] },
-  { name: "Calendar", to: "/calendar" },
+  {
+    name: "Meets",
+    to: "/meets",
+    regex: [/^\/meets$/, /^\/voting\/.*$/, /^\/meets\/.*$/],
+  },
+  { name: "Calendar", to: "/calendar", regex: [/^\/calendar$/] },
   {
     name: "Routine",
     to: "/routine",
+    regex: [/^\/routine$/],
   },
 ];
 
 const Header = (prop) => {
   const { removeCookie, setLogin } = useMeet();
   const navigate = useNavigate();
-  const 追蹤header們距離有無太擠 = useRef();
+  const ref = useRef(); //追蹤 header 們距離有無太擠
   const [adjusted, setAdjusted] = useState(false);
   const { pathname } = useLocation();
+  console.log(pathname);
 
   const throttledHandleResize = _.throttle(() => {
-    if (追蹤header們距離有無太擠?.current?.children) {
+    if (ref?.current?.children) {
       setAdjusted(
         Math.max(
-          ...[...追蹤header們距離有無太擠?.current?.children].map(
+          ...[...ref?.current?.children].map(
             (m) => m?.children?.[0].offsetWidth
           )
         ) >
@@ -72,6 +78,16 @@ const Header = (prop) => {
   }, 500);
 
   useEffect(() => {
+    if (ref?.current?.children) {
+      setAdjusted(
+        Math.max(
+          ...[...ref?.current?.children].map(
+            (m) => m?.children?.[0].offsetWidth
+          )
+        ) >
+          (window.innerWidth * 25) / 300
+      );
+    } //load 時
     window.addEventListener("resize", throttledHandleResize);
     return () => {
       window.removeEventListener("resize", throttledHandleResize);
@@ -79,58 +95,69 @@ const Header = (prop) => {
   }, []);
 
   return (
-    <HeaderContainer style={prop?.style}>
+    <HeaderContainer
+      style={{ ...prop?.style, borderBottom: !prop?.login && "none" }}
+    >
       <div
         style={{
           display: "flex",
           alignItems: "center",
           width: adjusted ? "65vw" : "35vw",
           height: "100%",
+          backgroundColor: !prop?.login && "#fefcef",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "calc(100% * 10 / 35)",
-            height: "100%",
-          }}
-        >
-          <Title
-            style={{
-              fontSize: "3vmin",
-            }}
-          >
-            Let's Meet
-          </Title>
-        </div>
-        <URLContainer ref={追蹤header們距離有無太擠}>
-          {NavItem.map((n, index) => (
+        {prop?.login && (
+          <>
             <div
-              key={index}
               style={{
-                backgroundColor:
-                  (pathname === n.to || n?.alt?.includes(pathname)) &&
-                  "#fdf3d1",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "calc(100% * 10 / 35)",
+                height: "100%",
+                cursor: "pointer",
               }}
               onClick={() => {
-                navigate(n.to);
+                navigate("/");
               }}
             >
-              {/* 置中 */}
-              <div
+              <Title
                 style={{
-                  color:
-                    (pathname === n.to || n?.alt?.includes(pathname)) &&
-                    "#DB8600",
+                  fontSize: "3vmin",
                 }}
               >
-                {n.name}
-              </div>
+                Let's Meet
+              </Title>
             </div>
-          ))}
-        </URLContainer>
+            <URLContainer ref={ref}>
+              {NavItem.map((n, index) => (
+                <div
+                  key={index}
+                  style={{
+                    backgroundColor:
+                      n?.regex.some((regex) => regex.test(pathname)) &&
+                      "#fdf3d1",
+                  }}
+                  onClick={() => {
+                    navigate(n.to);
+                  }}
+                >
+                  {/* 置中 */}
+                  <div
+                    style={{
+                      color:
+                        n?.regex.some((regex) => regex.test(pathname)) &&
+                        "#DB8600",
+                    }}
+                  >
+                    {n.name}
+                  </div>
+                </div>
+              ))}
+            </URLContainer>
+          </>
+        )}
       </div>
       <div
         style={{
@@ -172,18 +199,49 @@ const Header = (prop) => {
             />
           </>
         ) : (
-          <Button
-            style={{
-              borderRadius: "15px",
-              borderColor: "#FFA601",
-              color: "#FFA601",
-            }}
-            onClick={() => {
-              navigate("/login");
+          <ConfigProvider
+            theme={{
+              components: {
+                Button: {
+                  colorBgTextHover: "#FFF4CC",
+                  colorBgTextActive: "#B76A00",
+                  colorText: "#FFA601",
+                },
+              },
             }}
           >
-            Login
-          </Button>
+            <Button
+              type="text"
+              style={{
+                borderRadius: RWDRadius(30),
+                width: RWDWidth(80),
+                height: RWDHeight(42),
+                fontSize: RWDFontSize(16),
+                minHeight: "fit-content",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1px solid #FFA601",
+              }}
+              onClick={() => {
+                navigate("/login");
+              }}
+            >
+              Login
+            </Button>
+          </ConfigProvider>
+          // <ConfigProvider
+          //   theme={{
+          //     components: {
+          //       Button: {
+
+          //         colorPrimaryBorder: "#FFA601",
+          //       },
+          //     },
+          //   }}
+          // >
+
+          // </ConfigProvider>
         )}
       </div>
     </HeaderContainer>

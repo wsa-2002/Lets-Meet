@@ -3,7 +3,7 @@
   2. RWD, 高度縮小「有時」scrollBar 會跑出來造成頁面錯誤
 **************************************************************************************************/
 import React, { useEffect, useRef } from "react";
-import Base from "../../components/Base/左橘3右白7";
+import Base from "../../components/Base/orange3_white7";
 import TimeCell from "../../components/TimeCell";
 import { RWD } from "../../constant";
 import Moment from "moment";
@@ -75,7 +75,6 @@ const InfoContainer = Object.assign(
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const TIMESLOTIDS = _.range(1, 50); //記得加 1
-console.log(TIMESLOTIDS);
 const slotIDProcessing = (id) => {
   let hour = String(parseInt(((id - 1) * 30) / 60));
   const startHour = "0".repeat(2 - hour.length) + hour;
@@ -84,13 +83,13 @@ const slotIDProcessing = (id) => {
 };
 
 const Routine = () => {
-  const 讓頁面自動滾 = useRef(null);
+  const ref = useRef(null); //讓頁面自動滾
   useEffect(() => {
-    if (讓頁面自動滾?.current) {
+    if (ref?.current) {
       // use to get the size (width, height) of an element and its position
       // (x, y, top, left, right, bottom) relative to the viewport.
-      //  讓頁面自動滾.current.getBoundingClientRect();
-      讓頁面自動滾.current.scrollIntoView({
+      //  ref.current.getBoundingClientRect();
+      ref.current.scrollIntoView({
         behavior: "smooth",
         block: "nearest",
         inline: "start",
@@ -104,7 +103,7 @@ const Routine = () => {
       // button then we change it back to `false` when re-render
       // setTopPosition(false)
     }
-  }, [讓頁面自動滾]);
+  }, [ref]);
 
   return (
     <Base
@@ -164,7 +163,7 @@ const Routine = () => {
                         style={{
                           background: "#F0F0F0",
                         }}
-                        ref={t === 43 ? 讓頁面自動滾 : null}
+                        ref={t === 43 ? ref : null}
                       />
                     )}
                   </div>

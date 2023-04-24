@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import * as AXIOS from "../../middleware";
 import { useMeet } from "../hooks/useMeet";
 import Button from "../../components/Button";
-import Base from "../../components/Base/左橘3右白7";
+import Base from "../../components/Base/orange3_white7";
 import { RWD } from "../../constant";
 const {
   RightContainer,
@@ -87,8 +87,6 @@ const LogIn = () => {
     }));
   };
 
-  console.log(InfoContainer, RightContainer.InfoContainer);
-
   return (
     <>
       {contextHolder}
@@ -165,7 +163,7 @@ const LogIn = () => {
               }}
             >
               <Text type="secondary">
-                {"New to Let's Meet? "}
+                New to Let's Meet?
                 <Link
                   onClick={() => {
                     navigate("/signup");
