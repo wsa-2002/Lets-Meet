@@ -9,6 +9,7 @@ import Base from "../components/Base/145MeetRelated";
 import styled from "styled-components";
 import { browseMeet } from "../middleware";
 import { useMeet } from "./hooks/useMeet";
+import { useTranslation } from 'react-i18next';
 
 const tagMap = {
   Voted: "#FFA601",
@@ -16,12 +17,6 @@ const tagMap = {
   Comfirming: "#D8D8D8",
   Comfirmed: "#FFA601",
 };
-
-const customizeRenderEmpty = () => (
-  <div style={{ textAlign: "center" }}>
-    <p>There is no meets in your meeting list.</p>
-  </div>
-);
 
 const MeetContainer = styled.div`
   width: 86.1%;
@@ -34,10 +29,17 @@ const MeetContainer = styled.div`
 
 const Meets = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { cookies, login } = useMeet();
   const [data, setData] = useState([]);
   const [isVoting, setIsVoting] = useState(true);
   const [showData, setShowData] = useState(data);
+
+  const customizeRenderEmpty = () => (
+    <div style={{ textAlign: "center" }}>
+      <p>{t("noData")}</p>
+    </div>
+  );
 
   const handleMeetInfoClick = (code) => () => {
     navigate(`/meets/${code}`);
@@ -82,7 +84,7 @@ const Meets = () => {
 
   const columns = [
     {
-      title: "Name",
+      title: t("name"),
       dataIndex: "name",
       key: "name",
       // width: 200,
@@ -90,21 +92,21 @@ const Meets = () => {
       // style: { backgroundColor: "black" },
     },
     {
-      title: "Host",
+      title: t("host"),
       dataIndex: "host",
       key: "host",
       // width: 150,
       className: "meetTableColumn",
     },
     {
-      title: "Voting Period",
+      title: t("votingPeriod"),
       dataIndex: "votingPeriod",
       key: "votingPeriod",
       // width: 220,
       className: "meetTableColumn",
     },
     {
-      title: "Status",
+      title: t("status"),
       dataIndex: "status",
       key: "status",
       // width: 200,
@@ -118,14 +120,14 @@ const Meets = () => {
       ),
     },
     {
-      title: isVoting ? "Voting Deadline" : "Meeting Time",
+      title: isVoting ? t("votingDeadline") : t("meetingTime"),
       dataIndex: isVoting ? "votingDeadline" : "meetingTime",
       key: isVoting ? "votingDeadline" : "meetingTime",
       // width: 200,
       className: "meetTableColumn",
     },
     {
-      title: "Google Meet URL",
+      title: t("url"),
       dataIndex: "url",
       key: "url",
       className: "meetTableColumn",
@@ -167,7 +169,7 @@ const Meets = () => {
               fontSize: "30px",
             }}
           >
-            My Meets
+            {t("myMeets")}
           </div>
           <div
             style={{
@@ -183,7 +185,7 @@ const Meets = () => {
               }}
               onClick={handleEndVote}
             >
-              Ended Votes
+              {t("endedVotes")}
             </Button>
             <Button
               style={{
@@ -192,7 +194,7 @@ const Meets = () => {
               }}
               onClick={handleIsVote}
             >
-              Voting
+              {t("voting")}
             </Button>
           </div>
         </div>

@@ -7,6 +7,8 @@ import { useMeet } from "../containers/hooks/useMeet";
 import Title from "../components/Title";
 import _ from "lodash";
 import { RWD } from "../constant";
+import { useTranslation } from 'react-i18next';
+
 const { RWDFontSize } = RWD;
 
 const HeaderContainer = styled.div`
@@ -42,21 +44,19 @@ const URLContainer = styled.div`
   }
 `;
 
-const NavItem = [
-  { name: "Meets", to: "/meets", alt: ["/voting", "/meetinfo"] },
-  { name: "Calendar", to: "/calendar" },
-  {
-    name: "Routine",
-    to: "/routine",
-  },
-];
-
 const Header = (prop) => {
   const { removeCookie, setLogin } = useMeet();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const 追蹤header們距離有無太擠 = useRef();
   const [adjusted, setAdjusted] = useState(false);
   const { pathname } = useLocation();
+
+  const NavItem = [
+    { name: t("meets"), to: "/meets", alt: ["/voting", "/meetinfo"] },
+    { name: t("calendar"), to: "/calendar" },
+    { name: t("routine"), to: "/routine" },
+  ];
 
   const throttledHandleResize = _.throttle(() => {
     if (追蹤header們距離有無太擠?.current?.children) {
@@ -153,7 +153,7 @@ const Header = (prop) => {
                 border: 0,
               }}
             >
-              Settings
+              {t("settings")}
             </Button>
             <Button
               type="link"
