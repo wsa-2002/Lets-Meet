@@ -62,7 +62,6 @@ const Header = (prop) => {
   const ref = useRef(); //追蹤 header 們距離有無太擠
   const [adjusted, setAdjusted] = useState(false);
   const { pathname } = useLocation();
-  console.log(pathname);
 
   const throttledHandleResize = _.throttle(() => {
     if (ref?.current?.children) {

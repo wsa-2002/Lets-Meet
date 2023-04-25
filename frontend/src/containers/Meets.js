@@ -74,7 +74,7 @@ const Meets = () => {
   useEffect(() => {
     (async () => {
       if (cookies.token) {
-        const result = await browseMeet(cookies.token);
+        const result = await browseMeet(undefined, cookies.token);
         const data = result.data.map((d) => ({
           key: d.meet_id,
           name: d.title,

@@ -6,13 +6,13 @@ const URL = {
   resetPassword: "/reset-password",
   addMeet: "/meet",
   joinMeet: "/meet/invite",
+  addRoutine: "/routine",
 };
 
 export default Object.keys(URL).reduce((acc, curr) => {
   acc[curr] = async (data, token = undefined) => {
     try {
       console.log("req:", data);
-      console.log();
       const { data: result } = await instance.post(
         URL[curr],
         data,

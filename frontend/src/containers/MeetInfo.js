@@ -146,7 +146,7 @@ const MeetInfo = () => {
 
   const handleMeetInfo = async () => {
     try {
-      const { data } = await getMeetInfo(code, cookies.token);
+      const { data } = await getMeetInfo(undefined, cookies.token, code);
       setMeetInfo({
         EventName: data.meet_name,
         "Start / End Date":

@@ -13,18 +13,24 @@ import { RWD, FONTS } from "../../constant";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 const { main } = FONTS;
 
-const Base = ({
-  children,
-  title_disable = false,
-  header = { show: false, login: false },
-}) => {
+const Base = (prop) => {
+  const {
+    children,
+    title_disable = false,
+    header = { show: false, login: false },
+  } = prop;
+
   if (header.show === undefined || header.login === undefined) {
     throw new Error(
       "Header 需包含「顯示狀態」和「Login狀態」，prop 應如下輸入\nheader:{show:Boolean, login:Boolean}"
     );
   }
   return (
-    <Grid column={[35, 65]} row={["7.5vh", "minmax(84vh, auto)", "8.5vh"]}>
+    <Grid
+      {...prop}
+      column={[35, 65]}
+      row={["7.5vh", "minmax(84vh, auto)", "8.5vh"]}
+    >
       {header?.show && (
         <Header
           style={{ gridRow: "1/2", gridColumn: "1/3", zIndex: 600000 }}

@@ -2,16 +2,14 @@
   1. RWD, 頁面縮過小時的錯誤
   2. RWD, 高度縮小「有時」scrollBar 會跑出來造成頁面錯誤
 **************************************************************************************************/
-import React, { useEffect, useRef } from "react";
+import _ from "lodash";
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import styled from "styled-components";
+import { useMeet } from "../hooks/useMeet";
 import Base from "../../components/Base/orange3_white7";
 import TimeCell from "../../components/TimeCell";
 import { RWD } from "../../constant";
-import Moment from "moment";
-import styled from "styled-components";
-import { extendMoment } from "moment-range";
-import _ from "lodash";
-
-const moment = extendMoment(Moment);
+import { getRoutine, addRoutine, deleteRoutine } from "../../middleware";
 const { RWDHeight, RWDFontSize, RWDWidth } = RWD;
 
 const InfoContainer = Object.assign(
@@ -83,33 +81,85 @@ const slotIDProcessing = (id) => {
 };
 
 const Routine = () => {
-  const ref = useRef(null); //讓頁面自動滾
+  const { cookies } = useMeet();
+  const [cell, setCell] = useState([]);
+
+  // _.range(WEEKDAYS.length).map(async() => TIMESLOTIDS.map(() => false))
+
+  const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
+  const [startIndex, setStartIndex] = useState([]); //選取方塊位置
+  const oriCell = useMemo(() => cell, [startDrag]);
+  const [updatedCell, setUpdatedCell] = useState("");
+  const [mode, setMode] = useState(true); //選取模式
+  const drag = {
+    cell,
+    setCell,
+    startDrag,
+    setStartDrag,
+    startIndex,
+    setStartIndex,
+    mode,
+    setMode,
+    setUpdatedCell,
+    oriCell,
+  };
+
   useEffect(() => {
-    if (ref?.current) {
-      // use to get the size (width, height) of an element and its position
-      // (x, y, top, left, right, bottom) relative to the viewport.
-      //  ref.current.getBoundingClientRect();
-      ref.current.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "start",
-      });
+    (async () => {
+      const { data } = await getRoutine(undefined, cookies.token);
+      setCell(
+        WEEKDAYS.map((w) =>
+          TIMESLOTIDS.map((t) =>
+            Boolean(
+              data.find(
+                (d) => d.weekday === w.toUpperCase() && d.time_slot_id === t
+              )
+            )
+          )
+        )
+      );
+    })();
+  }, []);
 
-      // You have to call `current` from the Ref
-      // Add the `scrollTo()` second parameter (which is left)
-      // childRef.current.scrollTo(y, 0)
+  const ref = useRef(null); //讓頁面自動滾
+  // useEffect(() => {
+  //   if (ref?.current && cell.length > 0 && !startDrag) {
+  //     ref.current.scrollIntoView({
+  //       behavior: "smooth",
+  //       block: "nearest",
+  //       inline: "start",
+  //     });
+  //   }
+  // }, [ref, cell]);
 
-      // Initially it was set to `false` and we change it to `true` when click on scroll
-      // button then we change it back to `false` when re-render
-      // setTopPosition(false)
+  const handleCellMouseUp = async (e) => {
+    e.preventDefault();
+    try {
+      if (!updatedCell) {
+        return;
+      }
+      console.log(updatedCell);
+      const API = mode ? addRoutine : deleteRoutine;
+      await API(
+        updatedCell.map((u) => ({
+          weekday: WEEKDAYS[u[0]].toUpperCase(),
+          time_slot_id: u[1] + 1,
+        })),
+        cookies.token
+      );
+    } catch (error) {
+      throw error;
+    } finally {
+      setUpdatedCell("");
+      setStartDrag(false);
     }
-  }, [ref]);
+  };
 
   return (
     <Base
       header={{ show: true, login: true }}
       title_disable={true}
-      // leftchild={leftChild}
+      onMouseUp={handleCellMouseUp}
     >
       <Base.LeftContainer
         style={{
@@ -132,46 +182,52 @@ const Routine = () => {
         </p>
       </Base.LeftContainer>
       <Base.RightContainer style={{ gridRow: "2/3", position: "relative" }}>
-        <InfoContainer>
-          <InfoContainer.WeekContainer>
-            {WEEKDAYS.map((w, w_index) => (
-              <InfoContainer.WeekContainer.WeekDayContainer key={w_index}>
-                {w}
-              </InfoContainer.WeekContainer.WeekDayContainer>
-            ))}
-          </InfoContainer.WeekContainer>
-          <InfoContainer.TimeCellsContainer>
-            {WEEKDAYS.map((_, w_index) => (
-              <InfoContainer.TimeCellsContainer.DayColumn key={w_index}>
-                {TIMESLOTIDS.map((t, t_index) => (
-                  <div
-                    key={t_index}
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      // whiteSpace: "nowrap",
-                      position: "relative",
-                    }}
-                  >
-                    {w_index === 0 && (
-                      <InfoContainer.TimeCellsContainer.DayColumn.TimeContainer>
-                        {slotIDProcessing(t)}
-                      </InfoContainer.TimeCellsContainer.DayColumn.TimeContainer>
-                    )}
-                    {t_index !== TIMESLOTIDS.length - 1 && (
-                      <TimeCell
-                        style={{
-                          background: "#F0F0F0",
-                        }}
-                        ref={t === 43 ? ref : null}
-                      />
-                    )}
-                  </div>
-                ))}
-              </InfoContainer.TimeCellsContainer.DayColumn>
-            ))}
-          </InfoContainer.TimeCellsContainer>
-        </InfoContainer>
+        {cell.length > 0 && (
+          <InfoContainer>
+            <InfoContainer.WeekContainer>
+              {WEEKDAYS.map((w, w_index) => (
+                <InfoContainer.WeekContainer.WeekDayContainer key={w_index}>
+                  {w}
+                </InfoContainer.WeekContainer.WeekDayContainer>
+              ))}
+            </InfoContainer.WeekContainer>
+            <InfoContainer.TimeCellsContainer>
+              {WEEKDAYS.map((_, w_index) => (
+                <InfoContainer.TimeCellsContainer.DayColumn key={w_index}>
+                  {TIMESLOTIDS.map((t, t_index) => (
+                    <div
+                      key={t_index}
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        // whiteSpace: "nowrap",
+                        position: "relative",
+                      }}
+                    >
+                      {w_index === 0 && (
+                        <InfoContainer.TimeCellsContainer.DayColumn.TimeContainer>
+                          {slotIDProcessing(t)}
+                        </InfoContainer.TimeCellsContainer.DayColumn.TimeContainer>
+                      )}
+                      {t_index !== TIMESLOTIDS.length - 1 && (
+                        <TimeCell
+                          style={{
+                            background: cell[w_index][t_index]
+                              ? "#808080"
+                              : "#F0F0F0",
+                          }}
+                          ref={t === 43 ? ref : null}
+                          drag={drag}
+                          index={[w_index, t_index]}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </InfoContainer.TimeCellsContainer.DayColumn>
+              ))}
+            </InfoContainer.TimeCellsContainer>
+          </InfoContainer>
+        )}
       </Base.RightContainer>
     </Base>
   );

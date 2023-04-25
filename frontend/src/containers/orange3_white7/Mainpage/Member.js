@@ -57,7 +57,7 @@ const Member = ({ setMeetData }) => {
     try {
       const {
         data: { accounts },
-      } = await searchMember(key);
+      } = await searchMember({ identifier: key });
       setUsers(
         accounts.length !== 0
           ? accounts.map((m) => ({

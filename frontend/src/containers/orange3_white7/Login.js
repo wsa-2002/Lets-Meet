@@ -38,7 +38,7 @@ const LogIn = () => {
     if (search) {
       const code = new URLSearchParams(search).get("code");
       if (code) {
-        AXIOS.emailVerification(code);
+        AXIOS.emailVerification({ code });
       }
     }
   }, [login]);
