@@ -1,30 +1,46 @@
 /*TODO:********************************************************************************************
   1.RWD, 畫面縮小到一定程度時 MEEET TABLE 會超出畫面。
+  2. Style, hover 時的特效。
 **************************************************************************************************/
-import { Button, Table, Tag, ConfigProvider } from "antd";
+import { Button, Table, ConfigProvider } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Base from "../components/Base/145MeetRelated";
+import Tag from "../components/Tag";
 import styled from "styled-components";
 import { browseMeet } from "../middleware";
 import { useMeet } from "./hooks/useMeet";
+import { RWD } from "../constant";
 import { useTranslation } from 'react-i18next';
+const { RWDHeight, RWDWidth } = RWD;
+const MemberTag = Tag("member");
+const StatusTag = Tag("status");
 
 const tagMap = {
-  Voted: "#FFA601",
-  unVoted: "#D8D8D8",
-  Comfirming: "#D8D8D8",
-  Comfirmed: "#FFA601",
+  Voted: { color: "#808080", border: "1px solid #D8D8D8" },
+  Confirming: { color: "#808080", border: "1px solid #D8D8D8" },
+  Unvoted: { color: "#FFA601", border: "1px solid #FFA601" },
+  Comfirmed: { color: "#FFA601", border: "1px solid #FFA601" },
+  "Need Confirmation": {
+    color: "#FFFFFF",
+    border: "none",
+    backgroundColor: "#FFA601",
+  },
 };
 
 const MeetContainer = styled.div`
-  width: 86.1%;
+  width: ${RWDWidth(1488)};
   position: relative;
-  top: calc(180 / 1080 * 100%);
+  top: ${RWDHeight(100)};
   display: flex;
   flex-direction: column;
-  row-gap: 1vh;
+  row-gap: ${RWDHeight(30)};
+  thead .meetTableColumn {
+    background-color: #fdf3d1 !important;
+    color: #7a3e00 !important;
+    border-bottom: 1px solid #7a3e00 !important;
+  }
 `;
 
 const Meets = () => {
@@ -57,90 +73,88 @@ const Meets = () => {
     setShowData(temp);
   };
 
-  //   useEffect(() => {
-  //     (async () => {
-  //       if (cookies.token) {
-  //         const result = await browseMeet(cookies.token);
-  //         const data = result.data.map((d) => ({
-  //           key: d.meet_id,
-  //           name: d.title,
-  //           host: d.host_username,
-  //           code: d.invite_code,
-  //           votingPeriod: `${d.start_date.replaceAll(
-  //             "-",
-  //             "/"
-  //           )}-${d.end_date.replaceAll("-", "/")}`,
-  //           status: d.status,
-  //           meetingTime: "2023/04/15",
-  //           url: d.meet_url ?? "https://meet.google.com/vft-xolb-mog",
-  //         }));
-  //         setData(data);
-  //         setShowData(data.filter((ele) => ele.status.includes("ote"))); // default display voting
-  //       } else {
-  //         navigate("/");
-  //       }
-  //     })();
-  //   }, [cookies]);
+  useEffect(() => {
+    (async () => {
+      if (cookies.token) {
+        const result = await browseMeet(undefined, cookies.token);
+        const data = result.data.map((d) => ({
+          key: d.meet_id,
+          name: d.title,
+          host: d.host_username,
+          code: d.invite_code,
+          votingPeriod: `${d.start_date.replaceAll(
+            "-",
+            "/"
+          )} ~ ${d.end_date.replaceAll("-", "/")}`,
+          status: d.status,
+          meetingTime: "2023/04/15",
+          url: d.meet_url ?? "https://meet.google.com/vft-xolb-mog",
+        }));
+        setData(data);
+        setShowData(data.filter((ele) => ele.status.includes("ote"))); // default display voting
+      } else {
+        navigate("/");
+      }
+    })();
+  }, [cookies]);
 
   const columns = [
     {
       title: t("name"),
       dataIndex: "name",
       key: "name",
-      // width: 200,
-      className: "meetTableColumn",
-      // style: { backgroundColor: "black" },
+      width: RWDWidth(200),
     },
     {
       title: t("host"),
       dataIndex: "host",
       key: "host",
-      // width: 150,
-      className: "meetTableColumn",
+      width: RWDWidth(150),
+      render: (tag) => <MemberTag>{tag}</MemberTag>,
     },
     {
       title: t("votingPeriod"),
       dataIndex: "votingPeriod",
       key: "votingPeriod",
-      // width: 220,
-      className: "meetTableColumn",
+      width: RWDWidth(220),
     },
     {
       title: t("status"),
       dataIndex: "status",
       key: "status",
-      // width: 200,
-      className: "meetTableColumn",
+      width: RWDWidth(200),
       render: (tag) => (
-        <>
-          <Tag color={tagMap[tag]} key={tag}>
-            {tag}
-          </Tag>
-        </>
+        <StatusTag key={tag} style={tagMap[tag]}>
+          {tag}
+        </StatusTag>
       ),
     },
     {
       title: isVoting ? t("votingDeadline") : t("meetingTime"),
       dataIndex: isVoting ? "votingDeadline" : "meetingTime",
       key: isVoting ? "votingDeadline" : "meetingTime",
-      // width: 200,
-      className: "meetTableColumn",
+      width: RWDWidth(200),
     },
     {
       title: t("url"),
       dataIndex: "url",
       key: "url",
-      className: "meetTableColumn",
-      render: (tag) => (
-        <Link type="link" href={tag} target="_blank" style={{ color: "black" }}>
-          {tag}
+      width: RWDWidth(300),
+      render: (url) => (
+        <Link
+          type="link"
+          href={url}
+          target="_blank"
+          style={{ color: "black", textDecoration: "underline" }}
+        >
+          {url}
         </Link> // 跳轉到新的頁面
       ),
     },
     {
       title: "",
       dataIndex: "action",
-      className: "meetTableColumn",
+      align: "right",
       render: (_, record) => (
         <Button
           type="link"
@@ -150,80 +164,81 @@ const Meets = () => {
         />
       ),
     },
-  ];
+  ].map((m) => ({ ...m, className: "meetTableColumn" }));
 
   return (
     <Base>
-      <MeetContainer>
-        <div
-          style={{
-            display: "flex",
-            width: "100%",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <div
-            style={{
-              fontWeight: "700",
-              fontSize: "30px",
-            }}
-          >
-            {t("myMeets")}
-          </div>
+      <Base.FullContainer>
+        <MeetContainer>
           <div
             style={{
               display: "flex",
-              columnGap: "2px",
+              width: "100%",
               alignItems: "center",
+              justifyContent: "space-between",
             }}
           >
-            <Button
+            <div
               style={{
-                backgroundColor: isVoting ? "white" : "#5A8EA4",
-                color: isVoting ? "#5A8EA4" : "white",
+                fontWeight: "bold",
+                fontSize: "30px",
               }}
-              onClick={handleEndVote}
             >
-              {t("endedVotes")}
-            </Button>
-            <Button
+              {t("myMeets")}
+            </div>
+            <div
               style={{
-                backgroundColor: isVoting ? "#5A8EA4" : "white",
-                color: isVoting ? "white" : "#5A8EA4",
+                display: "flex",
+                columnGap: RWDWidth(15),
+                alignItems: "center",
               }}
-              onClick={handleIsVote}
             >
-              {t("voting")}
-            </Button>
+              <Button
+                style={{
+                  backgroundColor: isVoting ? "white" : "#5A8EA4",
+                  color: isVoting ? "#5A8EA4" : "white",
+                }}
+                onClick={handleEndVote}
+              >
+                {t("endedVotes")}
+              </Button>
+              <Button
+                style={{
+                  backgroundColor: isVoting ? "#5A8EA4" : "white",
+                  color: isVoting ? "white" : "#5A8EA4",
+                }}
+                onClick={handleIsVote}
+              >
+                {t("voting")}
+              </Button>
+            </div>
           </div>
-        </div>
-        <ConfigProvider
-          renderEmpty={customizeRenderEmpty}
-          theme={{
-            components: {
-              Table: {
-                borderRadiusLG: 0,
+          <ConfigProvider
+            renderEmpty={customizeRenderEmpty}
+            theme={{
+              components: {
+                Table: {
+                  borderRadiusLG: 0,
+                },
               },
-            },
-          }}
-        >
-          {
+            }}
+          >
             <Table
               style={{ width: "100%", overflowX: "auto" }}
               dataSource={showData}
-              // className="meetTable"
               columns={columns}
               onRow={(record) => {
-                console.log(record);
                 return {
+                  onMouseEnter: (e) => {
+                    // console.log(record);
+                  },
                   onClick: handleMeetInfoClick(record.code),
                 };
               }}
             ></Table>
-          }
-        </ConfigProvider>
-      </MeetContainer>
+          </ConfigProvider>
+        </MeetContainer>
+      </Base.FullContainer>
     </Base>
   );
 };

@@ -12,7 +12,8 @@ const GridContainer = styled.div`
   grid-template-rows: ${({ gridRow }) => gridRow};
 `;
 
-const Grid = ({ column, row, children }) => {
+const Grid = (prop) => {
+  const { column, row, children } = prop;
   if (
     !column ||
     !row ||
@@ -38,7 +39,7 @@ const Grid = ({ column, row, children }) => {
     }, "") + `[line${row.length + 1}]`;
 
   return (
-    <GridContainer gridColumn={gridColumn} gridRow={gridRow}>
+    <GridContainer {...prop} gridColumn={gridColumn} gridRow={gridRow}>
       {children}
     </GridContainer>
   );

@@ -7,7 +7,7 @@ import "@fontsource/roboto/500.css";
 import { Button, Tooltip } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useMeet } from "../containers/hooks/useMeet";
 import _ from "lodash";
 import Moment from "moment";
@@ -111,7 +111,6 @@ const Voting = () => {
   const [startIndex, setStartIndex] = useState([]); //選取方塊位置
   const [mode, setMode] = useState(true); //選取模式
   const oriCell = useMemo(() => cell, [startDrag]);
-  const 偵測userScroll = useRef(null);
 
   const slotIDProcessing = (id) => {
     let hour = String(parseInt(((id - 1) * 30) / 60));

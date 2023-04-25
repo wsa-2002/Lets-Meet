@@ -1,4 +1,6 @@
 import POST from "./simplePost";
+import GET from "./simpleGet";
+import DELETE from "./simpleDelete";
 
 export const {
   login,
@@ -7,8 +9,14 @@ export const {
   resetPassword,
   addMeet,
   joinMeet,
+  addRoutine,
 } = POST;
+export const {
+  searchMember,
+  browseMeet,
+  getMeetInfo,
+  emailVerification,
+  getRoutine,
+} = GET;
+export const { deleteRoutine } = DELETE;
 export { googleLogin } from "./google";
-export { emailVerification } from "./emailVerification";
-export { browseMeet, getMeetInfo } from "./meet";
-export { searchMember } from "./member";

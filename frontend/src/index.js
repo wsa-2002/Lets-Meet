@@ -11,21 +11,21 @@ import { ConfigProvider } from "antd";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <MeetProvider>
-      <CookiesProvider>
-        <ConfigProvider
-          theme={{
-            token: {
-              fontFamily: "Nunito",
-            },
-          }}
-        >
-          <App />
-        </ConfigProvider>
-      </CookiesProvider>
-    </MeetProvider>
-  </React.StrictMode>
+  // <React.StrictMode>
+  <MeetProvider>
+    <CookiesProvider>
+      <ConfigProvider
+        theme={{
+          token: {
+            fontFamily: "Nunito",
+          },
+        }}
+      >
+        <App />
+      </ConfigProvider>
+    </CookiesProvider>
+  </MeetProvider>
+  // </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

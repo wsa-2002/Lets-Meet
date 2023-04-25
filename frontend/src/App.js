@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Main from "./containers/左橘3右白7/Mainpage";
-import Login from "./containers/左橘3右白7/Login";
-import Signup from "./containers/左橘3右白7/Signup";
-import Reset from "./containers/左橘3右白7/ResetPassword";
-import Change from "./containers/左橘3右白7/ChangePassword";
+import Main from "./containers/orange3_white7/Mainpage";
+import Login from "./containers/orange3_white7/Login";
+import Signup from "./containers/orange3_white7/Signup";
+import Reset from "./containers/orange3_white7/ResetPassword";
+import Change from "./containers/orange3_white7/ChangePassword";
 import Meets from "./containers/Meets";
 import MeetInfo from "./containers/MeetInfo";
 import Voting from "./containers/Voting";
-import Routine from "./containers/左橘3右白7/Routine";
+import Routine from "./containers/orange3_white7/Routine";
 import Error from "./containers/Error";
 // import Test from "./test/MeetInfo 測試版";
 
@@ -22,6 +22,7 @@ function App() {
           </Route> */}
           <Route element={<Main />} path="/" />
           <Route element={<Meets />} path="/meets" />
+          <Route element={<MeetInfo />} path="/meets/:code"></Route>
           <Route element={<Login />} path="/login" />
           <Route element={<Signup />} path="/signup" />
           <Route element={<Reset />} path="/reset" />

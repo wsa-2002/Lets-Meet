@@ -1,3 +1,4 @@
+import { keyframes, css } from "styled-components";
 export const COLORS = {
   // base colors
   primary: "#00996D", // Green
@@ -114,19 +115,22 @@ export const RWD = {
   RWDFontSize: (fontsize) => `calc(100vmin * ${fontsize} / 1080)`,
 };
 
+export const ANIME = {
+  FadeIn: css`
+    animation-name: ${keyframes`
+                      from { opacity: 0; }
+                      to { opacity: 1; }
+                     `};
+    animation-duration: 0.5s;
+    animation-iteration-count: 1;
+    animation-timing-function: linear;
+  `,
+};
+
 export default {
   COLORS,
   SIZES,
   FONTS,
   RWD,
+  ANIME,
 };
-
-/**
- * Foo takes any argument.
- * The return value is 'baz' in all cases.
- * @param {*} bar - Any argument
- * @param {string} [optionalArg] - An optional argument that is a string
- */
-function foo(bar, optionalArg) {
-  return "baz";
-}

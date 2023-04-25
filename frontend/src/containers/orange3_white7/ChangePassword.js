@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import * as AXIOS from "../../middleware";
-import Base from "../../components/Base/左橘3右白7";
+import Base from "../../components/Base/orange3_white7";
 import { RWD } from "../../constant";
 const { InfoContainer } = Base.RightContainer;
 const { RWDHeight } = RWD;

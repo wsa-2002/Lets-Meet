@@ -1,10 +1,9 @@
-import instance from "./axios";
-
 export const googleLogin = async () => {
   try {
-    const { data: result } = await instance.post("/google-login");
-    console.log(result);
-    return result;
+    window.open(
+      `http://${process.env.REACT_APP_SERVER_DOMAIN}:${process.env.REACT_APP_SERVER_PORT}/google-login`,
+      "_self"
+    );
   } catch (error) {
     throw error;
   }

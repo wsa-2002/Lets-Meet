@@ -1,13 +1,17 @@
+import React, { Fragment, useState, useEffect } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
 import "@fontsource/roboto/500.css";
 import { Input, Button, Modal, Form } from "antd";
-import "../css/Background.css";
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
 import { getMeetInfo, joinMeet } from "../middleware";
 import { useMeet } from "./hooks/useMeet";
+import Base from "../components/Base/145MeetRelated";
+import Tag from "../components/Tag";
 import moment from "moment";
+import { RWD } from "../constant";
+const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
+const MemberTag = Tag("member");
 
 let showList = [
   "9:00",
@@ -44,31 +48,45 @@ let showList = [
   }))
 );
 
-const CreateMeet = styled.div`
-  width: 70%;
-  height: 70%;
-  min-width: 500px;
-  min-height: 500px;
-  position: relative;
-  left: 60%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  // border: 1px solid #D8D8D8;
-  padding: 5% 0%;
-`;
-
-const FormWrapper = styled.div`
-  width: 60%;
-  height: 60%;
-  min-width: 500px;
-  min-height: 500px;
-  position: relative;
-  left: 50%;
-  top: 45%;
-  transform: translate(-50%, -50%);
-  // border: 1px solid #D8D8D8;
-  padding: 5% 0%;
-`;
+const ContentContainer = Object.assign(
+  styled.div`
+    display: grid;
+    position: relative;
+    top: ${RWDHeight(100)};
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: min-content min-content auto;
+    border: 2px dashed black;
+  `,
+  {
+    Title: styled.div`
+      display: flex;
+      align-items: center;
+      grid-column: 1/2;
+      grid-row: 1/2;
+      font-size: ${RWDFontSize(30)};
+      font-weight: bold;
+    `,
+    InfoContainer: Object.assign(
+      styled.div`
+        display: flex;
+        flex-direction: column;
+        grid-column: 1/2;
+        grid-row: 3/4;
+      `,
+      {
+        Info: styled.div`
+          display: grid;
+          grid-template-columns: repeat(2, max-content);
+          grid-template-rows: repeat(8, max-content);
+          grid-column-gap: ${RWDWidth(33)};
+          grid-row-gap: ${RWDHeight(30)};
+          font-size: ${RWDFontSize(20)};
+          font-weight: bold;
+        `,
+      }
+    ),
+  }
+);
 
 const addHexColor = (c1, c2) => {
   var hexStr = (parseInt(c1, 16) - parseInt(c2, 16)).toString(16);
@@ -92,15 +110,33 @@ const MeetInfo = () => {
   const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
   const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
   const [meetInfo, setMeetInfo] = useState({
-    EventName: "",
-    "Start / End Date": "",
-    "Start / End Time": "",
-    Host: "",
-    Member: "",
-    Description: "",
-    "Voting Deadline": "",
-    "Invitation URL": "",
-    "Google Meet URL": "",
+    EventName: "SDM UIUX discuss",
+    "Start / End Date": "2023/03/29 ~ 2023/04/05",
+    "Start / End Time": "08:00 ~ 19:30",
+    Host: <MemberTag>Amber</MemberTag>,
+    Member: (
+      <div
+        style={{
+          display: "flex",
+          gap: `${RWDFontSize(8)} ${RWDFontSize(8)}`,
+          flexWrap: "wrap",
+          width: RWDWidth(590),
+          alignContent: "flex-start",
+        }}
+      >
+        <MemberTag>b09705015@gmail.com</MemberTag>
+        <MemberTag>b09705015@gmail.com</MemberTag>
+        <MemberTag>b09705015@gmail.com</MemberTag>
+        <MemberTag>b09705015@gmail.com</MemberTag>
+        <MemberTag>b09705015@gmail.com</MemberTag>
+        <MemberTag>b09705015@gmail.com</MemberTag>
+      </div>
+    ),
+
+    Description: "None",
+    "Voting Deadline": "None",
+    "Invitation URL": "https://lets.meet.com?invite=Dh6yu3",
+    "Google Meet URL": "https://meet.google.com/vft-xolb-mog",
   });
   const { login, cookies } = useMeet();
   const navigate = useNavigate();
@@ -110,7 +146,7 @@ const MeetInfo = () => {
 
   const handleMeetInfo = async () => {
     try {
-      const { data } = await getMeetInfo(code, cookies.token);
+      const { data } = await getMeetInfo(undefined, cookies.token, code);
       setMeetInfo({
         EventName: data.meet_name,
         "Start / End Date":
@@ -146,10 +182,6 @@ const MeetInfo = () => {
     // console.log(id);
   }, [code]);
 
-  const handleMeet = () => {
-    navigate("/meets");
-  };
-
   const showLeaveModal = () => {
     setIsModalLeaveOpen(true);
   };
@@ -181,11 +213,6 @@ const MeetInfo = () => {
     setIsModalVoteOpen(false);
   };
 
-  const handleShow = (i, j) => {
-    // setAvaList(showList[i][j].availablePpl);
-    // setNotAvaList(showList[i][j].notAvailablePpl);
-  };
-
   const chooseColor = (num) => {
     // return addHexColor("F0F0F0", ((Math.max(num-1, 0)*3635)+984028).toString(16));
     if (num === 0) return "f0f0f0";
@@ -193,60 +220,66 @@ const MeetInfo = () => {
   };
 
   return (
-    <>
-      <div className="leftContainer" style={{ background: "white" }}>
-        <CreateMeet>
-          <Button
-            icon={<ArrowLeftOutlined />}
-            style={{
-              position: "absolute",
-              right: "100%",
-              borderColor: "white",
-              color: "#808080",
-              fontSize: "18px",
-              marginRight: "25px",
-            }}
-            onClick={handleMeet}
-          ></Button>
+    <Base>
+      <Base.FullContainer>
+        <ContentContainer>
+          <ContentContainer.Title>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              style={{
+                position: "absolute",
+                right: "100%",
+                borderColor: "white",
+                color: "#808080",
+                marginRight: RWDWidth(30),
+              }}
+              onClick={() => {
+                navigate("/meets");
+              }}
+            ></Button>
+            <span>{meetInfo.EventName}</span>
+          </ContentContainer.Title>
           <div
             style={{
-              top: 0,
-              left: 0,
-              fontFamily: "Roboto",
-              fontStyle: "normal",
-              fontWeight: "500",
-              fontSize: "30px",
-              lineHeight: "40px",
-              color: "#000000",
-              marginBottom: "30px",
+              gridColumn: "1/2",
+              gridRow: "2/3",
+              height: "50px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
             }}
           >
-            {meetInfo.EventName}
+            Group Availability
           </div>
-          {/* <div style={{ display: "flex", flexDirection: "column", rowGap: "20px" }}>
-                    <div style={{display: "flex", alignItems: "center", columnGap: "10%",
-                }}>Start/End Date<div>{meetInfo.Date}</div></div>
-                </div> */}
-          <div
-            style={{ display: "flex", flexDirection: "column", rowGap: "30px" }}
-          >
-            {Object.keys(meetInfo).map(
-              (c, index) =>
-                c !== "EventName" && (
-                  <div
-                    key={index}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      columnGap: "10%",
-                    }}
-                  >
-                    <div style={{ width: "180px", fontSize: "20px" }}>{c}</div>
-                    <div style={{ fontSize: "16px" }}>{meetInfo[c]}</div>
-                  </div>
-                )
-            )}
-          </div>
+          <ContentContainer.InfoContainer>
+            <ContentContainer.InfoContainer.Info>
+              {Object.keys(meetInfo)
+                .filter((m) => m !== "EventName")
+                .map((title, index) => (
+                  <Fragment key={index}>
+                    <div
+                      style={{
+                        gridColumn: "1/2",
+                        gridRow: `${index + 1}/${index + 2}`,
+                      }}
+                    >
+                      {title}
+                    </div>
+                    <div
+                      style={{
+                        gridColumn: "2/3",
+                        gridRow: `${index + 1}/${index + 2}`,
+                        fontWeight: "normal",
+                      }}
+                    >
+                      {meetInfo[title]}
+                    </div>
+                  </Fragment>
+                ))}
+            </ContentContainer.InfoContainer.Info>
+          </ContentContainer.InfoContainer>
+        </ContentContainer>
+        {/*
           <Button
             style={{
               marginLeft: "65%",
@@ -270,10 +303,10 @@ const MeetInfo = () => {
           >
             Vote
           </Button>
-        </CreateMeet>
-      </div>
-      <div className="rightContainer">
-        <FormWrapper>
+        </CreateMeet> */}
+      </Base.FullContainer>
+      <Base.RightContainer>
+        {/* <FormWrapper>
           <div
             style={{
               fontFamily: "Roboto",
@@ -365,8 +398,8 @@ const MeetInfo = () => {
             <Form.Item name="Password" label="Password(Optional)">
               <Input.Password />
             </Form.Item>
-          </Form>
-          {/* <Input
+          </Form> */}
+        {/* <Input
                     placeholder="Your name"
                     style={{
                     borderRadius: "15px",
@@ -383,9 +416,9 @@ const MeetInfo = () => {
                     }}
                     name="password"
                 /> */}
-        </Modal>
-      </div>
-    </>
+        {/* </Modal> */}
+      </Base.RightContainer>
+    </Base>
   );
 };
 
