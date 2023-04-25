@@ -1,3 +1,2 @@
-const a = { a: "b", b: "c" };
-const { b } = a;
-console.log(a);
+const a = [[[]], [[1, 0]]];
+console.log(a.flat());

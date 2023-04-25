@@ -7,22 +7,22 @@ import Header from "../Header.js";
 import Footer from "../Footer.js";
 import styled from "styled-components";
 
-const ContentContainer = styled.div`
-  grid-column: 2/4;
-  grid-row: 2/3;
-  display: flex;
-  position: relative;
-`;
+// const ContentContainer = styled.div`
+//   grid-column: 2/4;
+//   grid-row: 2/3;
+//   display: flex;
+//   position: relative;
+// `;
 
-const 左半 = styled.div`
-  grid-column: 2/3;
-  grid-row: 2/4;
-`;
+// const 左半 = styled.div`
+//   grid-column: 2/3;
+//   grid-row: 2/4;
+// `;
 
-const 右半 = styled.div`
-  grid-column: 3/4;
-  grid-row: 2/3;
-`;
+// const 右半 = styled.div`
+//   grid-column: 3/4;
+//   grid-row: 2/3;
+// `;
 
 const Base = ({ children, rightChild, leftChild }) => {
   return (
@@ -32,12 +32,40 @@ const Base = ({ children, rightChild, leftChild }) => {
         login={true}
       />
 
-      {children && <ContentContainer>{children}</ContentContainer>}
+      {/* {children && <ContentContainer>{children}</ContentContainer>}
       {leftChild && <左半>{leftChild}</左半>}
-      {rightChild && <右半>{rightChild}</右半>}
+      {rightChild && <右半>{rightChild}</右半>} */}
+      {children}
       <Footer style={{ gridColumn: "1/4", gridRow: "3/4" }} />
     </Grid>
   );
 };
+
+/**
+ * @example
+ * const LeftContainer = styled.div`
+    grid-column: 2/3;
+    grid-row: 2/4;
+  `;
+ */
+Base.LeftContainer = styled.div`
+  grid-column: 2/3;
+  grid-row: 2/4;
+`;
+/**
+ * @example
+ * const LeftContainer = styled.div`
+    grid-column: 3/4;
+    grid-row: 2/3;
+  `;
+ */
+Base.RightContainer = styled.div`
+  grid-column: 3/4;
+  grid-row: 2/3;
+`;
+Base.FullContainer = styled.div`
+  grid-column: 2/4;
+  grid-row: 2/3;
+`;
 
 export default Base;

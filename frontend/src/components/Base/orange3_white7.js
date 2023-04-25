@@ -13,18 +13,24 @@ import { RWD, FONTS } from "../../constant";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 const { main } = FONTS;
 
-const Base = ({
-  children,
-  title_disable = false,
-  header = { show: false, login: false },
-}) => {
+const Base = (prop) => {
+  const {
+    children,
+    title_disable = false,
+    header = { show: false, login: false },
+  } = prop;
+
   if (header.show === undefined || header.login === undefined) {
     throw new Error(
       "Header 需包含「顯示狀態」和「Login狀態」，prop 應如下輸入\nheader:{show:Boolean, login:Boolean}"
     );
   }
   return (
-    <Grid column={[35, 65]} row={["7.5vh", "minmax(84vh, auto)", "8.5vh"]}>
+    <Grid
+      {...prop}
+      column={[35, 65]}
+      row={["7.5vh", "minmax(84vh, auto)", "8.5vh"]}
+    >
       {header?.show && (
         <Header
           style={{ gridRow: "1/2", gridColumn: "1/3", zIndex: 600000 }}
@@ -58,7 +64,6 @@ const Base = ({
           </div>
         )}
       </div>
-      <div style={{ gridColumn: "2/3", gridRow: "1/4", zIndex: -1 }} />
       {children}
       <Footer style={{ gridColumn: "1/3", gridRow: "3/4" }} />
     </Grid>
@@ -101,7 +106,7 @@ const PrimaryButton = Button("primary");
 
 /**
  * @example
- * const InfoContainer = styled.div`
+ * const RightContainer = styled.div`
     grid-column: 2/3;
     grid-row: 1/4;
     display: flex;
@@ -173,17 +178,128 @@ Base.RightContainer = Object.assign(
           padding: 0;
           margin: 0;
         `,
+        /**
+         * @example
+         * const Input = styled.div`
+            width: 100%;
+            height: ${RWDHeight(45)};
+            border-radius: ${RWDRadius(10)};
+            font-size: ${RWDFontSize(16)};
+            border: ${RWDRadius(1)} solid #808080;
+          `;
+        */
         Input: forwardRef((prop, ref) => (
           <Form autoComplete="off">
             <Input {...prop} ref={ref} />
           </Form>
         )),
+        /**
+         * @example
+         * const Password = styled.div`
+            width: 100%;
+            height: ${RWDHeight(45)};
+            border-radius: ${RWDRadius(10)};
+            font-size: ${RWDFontSize(16)};
+            border: ${RWDRadius(1)} solid #808080;
+            input::-ms-reveal,
+            input::-ms-clear {
+              display: none;
+            }
+          `;
+        */
         Password: forwardRef((prop, ref) => (
           <Form autoComplete="off">
             <Password {...prop} ref={ref} />
           </Form>
         )),
         Button: (prop) => <PrimaryButton {...prop} />,
+      }
+    ),
+
+    /**
+     * @example
+     * const CreateMeet = styled.div`
+        position: relative;
+        margin-left: ${RWDWidth(120)};
+        margin-top: ${RWDHeight(180)};
+        display: grid;
+        grid-template-columns: repeat(2, max-content);
+        grid-template-rows: repeat(8, max-content);
+        grid-column-gap: ${RWDWidth(55)};
+        grid-row-gap: ${RWDHeight(30)};
+      `;
+    */
+    CreateMeet: Object.assign(
+      styled.div`
+        position: relative;
+        margin-left: ${RWDWidth(120)};
+        margin-top: ${RWDHeight(180)};
+        display: grid;
+        grid-template-columns: repeat(2, max-content);
+        grid-template-rows: repeat(8, max-content);
+        grid-column-gap: ${RWDWidth(55)};
+        grid-row-gap: ${RWDHeight(30)};
+      `,
+      {
+        /**
+         * @example
+         * const Title = styled.div`
+            font-size: ${RWDFontSize(30)}; //max(1.6vw, 20px);
+            font-weight: bold;
+            margin: 0;
+            grid-column: 1/3;
+            grid-row: 1/2;
+          `;
+        */
+        Title: styled.p`
+          font-size: ${RWDFontSize(30)}; //max(1.6vw, 20px);
+          font-weight: bold;
+          margin: 0;
+          grid-column: 1/3;
+          grid-row: 1/2;
+        `,
+        /**
+         * @example
+         * const Content = styled.div`
+            display: flex;
+            align-items: center;
+            font-size: ${RWDFontSize(16)};
+            font-weight: bold;
+          `;
+        */
+        Content: Object.assign(
+          styled.div`
+            display: flex;
+            align-items: center;
+            font-size: ${RWDFontSize(16)};
+            font-weight: bold;
+          `,
+          {
+            Input: {
+              width: RWDWidth(350),
+              height: RWDHeight(35),
+              border: `${RWDRadius(1)} solid #808080`,
+              borderRadius: RWDRadius(10),
+            },
+            Range: {
+              width: RWDWidth(350),
+              height: RWDHeight(32),
+              fontSize: RWDFontSize(14),
+              border: `${RWDRadius(1)} solid #808080`,
+            },
+            TextArea: {
+              width: RWDWidth(400),
+              height: RWDHeight(106),
+              border: `${RWDRadius(1)} solid #808080`,
+              borderRadius: RWDFontSize(15),
+            },
+            Picker: {
+              width: RWDWidth(150),
+              height: RWDHeight(32),
+              fontSize: RWDFontSize(14),
+            },
+          }
+        ),
       }
     ),
   }
