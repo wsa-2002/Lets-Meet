@@ -11,6 +11,7 @@ import TimeCell from "../../components/TimeCell";
 import { RWD } from "../../constant";
 import { getRoutine, addRoutine, deleteRoutine } from "../../middleware";
 const { RWDHeight, RWDFontSize, RWDWidth } = RWD;
+const DraggableCell = TimeCell("draggable");
 
 const InfoContainer = Object.assign(
   styled.div`
@@ -210,7 +211,7 @@ const Routine = () => {
                         </InfoContainer.TimeCellsContainer.DayColumn.TimeContainer>
                       )}
                       {t_index !== TIMESLOTIDS.length - 1 && (
-                        <TimeCell
+                        <DraggableCell
                           style={{
                             background: cell[w_index][t_index]
                               ? "#808080"

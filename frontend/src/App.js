@@ -9,7 +9,7 @@ import MeetInfo from "./containers/MeetInfo";
 import Voting from "./containers/Voting";
 import Routine from "./containers/orange3_white7/Routine";
 import Error from "./containers/Error";
-// import Test from "./test/MeetInfo 測試版";
+import Test from "./test/MeetInfo 測試版";
 
 function App() {
   return (
@@ -29,7 +29,7 @@ function App() {
           <Route element={<Change />} path="/reset-password" />
           <Route element={<Voting />} path="/voting" />
           <Route element={<Routine />} path="/routine" />
-          {/* <Route element={<Test />} path="/test" /> */}
+          <Route element={<Test />} path="/test" />
           <Route element={<Error />} path="*"></Route>
         </Routes>
       </BrowserRouter>

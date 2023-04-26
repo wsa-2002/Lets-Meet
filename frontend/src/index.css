@@ -9,23 +9,23 @@
     url(./font/static/Lobster-Regular.ttf) format("truetype");
 }
 
-/* @font-face {
-  font-family: 'Nunito';
+@font-face {
+  font-family: "Nunito";
   font-weight: 300;
-  src: local('Nunito'), url(./font/static/Nunito-Light.ttf) format('truetype');
+  src: local("Nunito"), url(./font/static/Nunito-Light.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Nunito';
+  font-family: "Nunito";
   font-weight: 700;
-  src: local('Nunito'), url(./font/static/Nunito-Bold.ttf) format('truetype');
+  src: local("Nunito"), url(./font/static/Nunito-Bold.ttf) format("truetype");
 }
 
 @font-face {
-  font-family: 'Nunito';
+  font-family: "Nunito";
   font-weight: 900;
-  src: local('Nunito'), url(./font/static/Nunito-Black.ttf) format('truetype');
-} */
+  src: local("Nunito"), url(./font/static/Nunito-Black.ttf) format("truetype");
+}
 
 body,
 html {
