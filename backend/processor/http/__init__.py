@@ -8,6 +8,7 @@ def register_routers(app: fastapi.FastAPI):
         google,
         routine,
         meet,
+        calendar,
     )
 
     app.include_router(public.router)
@@ -15,3 +16,4 @@ def register_routers(app: fastapi.FastAPI):
     app.include_router(google.router)
     app.include_router(routine.router)
     app.include_router(meet.router)
+    app.include_router(calendar.router)

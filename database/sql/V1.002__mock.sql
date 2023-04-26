@@ -52,7 +52,7 @@ INSERT INTO account (email, username, pass_hash, notification_preference) VALUES
 INSERT INTO account (email, username, pass_hash, notification_preference) VALUES ('b@gmail.com', 'Donkey', '$argon2id$v=19$m=65536,t=3,p=4$9n5vrRUCgHAOofQeY6y1Ng$Lu4uhE4EQaGifUNMThhLUQs1JfUq2iSw99DtWx5lSug', 'EMAIL');
 INSERT INTO account (email, username, pass_hash, notification_preference) VALUES ('c@gmail.com', 'Benson', '$argon2id$v=19$m=65536,t=3,p=4$9n5vrRUCgHAOofQeY6y1Ng$Lu4uhE4EQaGifUNMThhLUQs1JfUq2iSw99DtWx5lSug', 'EMAIL');
 
-INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status) VALUES ('2023-01-01', '2023-01-07', 1, 24, 'SDM meeting', 'qweras', 'CONFIRMED');
+INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status, finalized_start_date, finalized_end_date) VALUES ('2023-01-01', '2023-01-07', 1, 24, 'SDM meeting', 'qweras', 'CONFIRMED', '2023-01-01', '2023-01-01');
 INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status, voting_end_time) VALUES ('2023-04-08', '2023-04-15', 1, 24, 'Comebuy Meeting', 'dfzxcv', 'WAITING_FOR_CONFIRM', '2023-04-11 06:06:06');
 INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status, voting_end_time) VALUES ('2023-04-01', '2023-04-07', 1, 24, 'Final Project first discussion', 'tyuiop', 'VOTING', '2023-04-15 05:05:05');
 INSERT INTO meet (start_date, end_date, start_time_slot_id, end_time_slot_id, title, invite_code, status, voting_end_time) VALUES ('2023-04-01', '2023-04-13', 1, 24, 'Final Project second discussion', 'jifhjr', 'VOTING', '2023-04-15 05:05:05');
@@ -80,5 +80,8 @@ INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUE
 -- INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (8, '2023-04-09', 9);
 INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (9, '2023-04-09', 6);
 INSERT INTO meet_member_available_time(meet_member_id, date, time_slot_id) VALUES (9, '2023-04-09', 10);
+
+INSERT INTO event(meet_id, account_id) VALUES (1, 1);
+
 
 

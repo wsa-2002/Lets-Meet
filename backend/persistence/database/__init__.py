@@ -48,4 +48,5 @@ from . import (
     meet_member,
     available_time,
     event,
+    calendar,
 )
