@@ -65,9 +65,8 @@ class BrowseAllMemberAvailableTimeOutput(BaseModel):
     data: Sequence[DateSlotData]
 
 
-async def browse_all_member_available_time(meet_id: int, name: Optional[str] = None) \
+async def browse_all_member_available_time(meet_id: int) \
         -> BrowseAllMemberAvailableTimeOutput:
-    await db.meet_member.read(meet_id, account_id=request.account.id, name=name)
     available_times = await db.available_time.browse_by_meet_id(meet_id)
     meet_members = await db.meet_member.browse_meet_members_with_names(meet_id=meet_id)
     member_id_name_map = {meet_member.id: meet_member.name for meet_member in meet_members}
