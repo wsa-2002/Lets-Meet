@@ -302,13 +302,8 @@ class BrowseAllMemberAvailableTimeOutput(BaseModel):
 
 @router.get('/meet/{meet_id}/available_time/all')
 @enveloped
-async def browse_all_member_available_time(meet_id: int, name: Optional[str] = None) \
+async def browse_all_member_available_time(meet_id: int) \
         -> BrowseAllMemberAvailableTimeOutput:
-    account_id = request.account.id
-    if not account_id and not name:
-        raise exc.NoPermission
-    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
-        raise exc.NoPermission
     return await service.meet.browse_all_member_available_time(meet_id=meet_id, name=name)
 
 
@@ -350,15 +345,10 @@ async def edit_meet_by_code(code: str, data: EditMeetInput) -> None:
 
 @router.get('/meet/code/{code}/available_time/all')
 @enveloped
-async def browse_all_member_available_time_by_code(code: str, name: Optional[str] = None) \
+async def browse_all_member_available_time_by_code(code: str) \
         -> BrowseAllMemberAvailableTimeOutput:
-    account_id = request.account.id
-    if not account_id and not name:
-        raise exc.NoPermission
     meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
-    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
-        raise exc.NoPermission
-    return await service.meet.browse_all_member_available_time(meet_id=meet_id, name=name)
+    return await service.meet.browse_all_member_available_time(meet_id=meet_id)
 
 
 @router.get('/meet/code/{code}/available_time')
