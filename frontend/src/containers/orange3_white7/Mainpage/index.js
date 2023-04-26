@@ -108,6 +108,9 @@ const Mainpage = () => {
   };
 
   const handleInvite = async (e) => {
+    if (!invite?.current?.input?.value) {
+      return;
+    }
     if (e?.key === "Enter" || !e.key) {
       if (cookies.token) {
         await AXIOS.joinMeet(
@@ -288,6 +291,7 @@ const Mainpage = () => {
             <JoinMeet.InvitationArea.Button
               type="primary"
               icon={<ArrowRightOutlined />}
+              onClick={handleInvite}
             />
           </JoinMeet.InvitationArea>
         </JoinMeet>
@@ -336,7 +340,7 @@ const Mainpage = () => {
                         marginLeft: RWDWidth(4),
                         cursor: "pointer",
                         color: "darkgray",
-                        fontSize: "bold",
+                        fontWeight: "bold",
                       }}
                     />
                   </Tooltip>

@@ -15,6 +15,7 @@ const {
     CreateMeet: { Content },
   },
 } = Base;
+const MemberTag = Tag("member");
 
 const MenuItem = styled.div`
   width: ${RWDWidth(290)};
@@ -236,9 +237,13 @@ const Member = ({ setMeetData }) => {
             }}
           >
             {member.map((item, index) => (
-              <Tag key={index} closable onClose={handleMemberDelete(item)}>
+              <MemberTag
+                key={index}
+                closable
+                onClose={handleMemberDelete(item)}
+              >
                 {item.username}
-              </Tag>
+              </MemberTag>
             ))}
           </div>
         </div>
