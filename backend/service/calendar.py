@@ -1,7 +1,7 @@
 import persistence.database as db
 
 
-class meet_calendar:
+class MeetCalendar:
     def __init__(self, account_id):
         self.id = account_id 
     
@@ -9,6 +9,6 @@ class meet_calendar:
         events = await db.calendar.get_event(self.id, start_date, end_date)
         return(events)
     
-class google_calendar:
+class GoogleCalendar:
     def __init__(self, google_token):
         self.gtoken = google_token 
