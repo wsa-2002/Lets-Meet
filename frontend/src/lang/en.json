@@ -1,0 +1,28 @@
+{
+    "meets": "Meets",
+    "calendar": "Calendar",
+    "routine": "Routine",
+    "settings": "Settings",
+
+    "myMeets": "My Meets",
+    "name": "Name",
+    "host": "Host",
+    "votingPeriod": "Voting Period",
+    "status": "Status",
+    "votingDeadline": "Voting Deadline",
+    "meetingTime": "Meeting Time",
+    "url": "Google Meet URL",
+    "endedVotes": "Ended Votes",
+    "voting": "Voting",
+    "noData": "There is no meets in your meeting list.",
+
+    "welcome": "Welcome",
+    "save": "Save",
+    "forgot": "Forgot Password",
+    "newToMeet": "New to Let's Meet?",
+    "resetpass": "Reset Password",
+    "sendVer": "Send Verification",
+    
+
+    "pageNotExists": "Page not exists"
+}
