@@ -27,7 +27,7 @@ function App() {
           <Route element={<Signup />} path="/signup" />
           <Route element={<Reset />} path="/reset" />
           <Route element={<Change />} path="/reset-password" />
-          <Route element={<Voting />} path="/voting" />
+          <Route element={<Voting />} path="/voting/:code" />
           <Route element={<Routine />} path="/routine" />
           <Route element={<Test />} path="/test" />
           <Route element={<Error />} path="*"></Route>

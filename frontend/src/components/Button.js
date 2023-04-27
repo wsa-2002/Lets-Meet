@@ -1,24 +1,28 @@
 /*TODO:********************************************************************************************
   1. Button, disalbed 時的提示語
 **************************************************************************************************/
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button as AntdButton, Tooltip, Image, ConfigProvider } from "antd";
 import styled from "styled-components";
 import { RWD } from "../constant";
 import { googleLogin } from "../middleware";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 
-const BUTTONTYPE = ["primary", "secondary", "google"];
+const BUTTONTYPE = ["primary", "secondary", "google", "back", "modal"];
 
-const Button = styled(AntdButton)`
+const BaseButton = styled(AntdButton)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const PrimaryButton = styled(BaseButton)`
   border-radius: ${RWDRadius(50)};
   font-weight: bold;
   font-size: ${RWDFontSize(20)};
   min-width: ${RWDWidth(130)};
   height: ${RWDHeight(55)};
   width: fit-content;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   /* color: "#000000"; */
   /* &:disabled {
     cursor: default;
@@ -26,18 +30,27 @@ const Button = styled(AntdButton)`
   } */
 `;
 
-const GoogleButton = styled(AntdButton)`
+const GoogleButton = styled(BaseButton)`
   width: 100%;
   height: ${RWDHeight(70)};
   background: white;
   border: ${RWDRadius(1)} solid #808080;
   border-radius: ${RWDRadius(15)};
-  display: flex;
-  align-items: center;
-  justify-content: center;
   column-gap: ${RWDWidth(20)};
   font-size: RWDFontSize(21);
   font-weight: bold;
+`;
+
+const BackButton = styled(BaseButton)`
+  border-color: white;
+  color: #808080;
+`;
+
+const ModalButton = styled(BaseButton)`
+  border-radius: ${RWDRadius(5)};
+  width: ${RWDWidth(42)};
+  height: ${RWDHeight(32)};
+  font-size: ${RWDFontSize(14)};
 `;
 
 export default (type = "primary") =>
@@ -47,28 +60,9 @@ export default (type = "primary") =>
         `請定義 Btton 種類，有以下可以選擇：\n${BUTTONTYPE.join(", ")}`
       );
     }
+    let Component;
+    let ButtonStyle;
     switch (type) {
-      case "primary":
-        return (
-          <Tooltip title={"待補"} placement="bottom">
-            <ConfigProvider
-              theme={{
-                components: {
-                  Button: {
-                    colorPrimary: "#B3DEE5",
-                    colorPrimaryHover: "#D6F7F6",
-                    colorPrimaryActive: "#5A8EA4",
-                    colorTextLightSolid: "#000000",
-                  },
-                },
-              }}
-            >
-              <Button {...prop} type="primary">
-                {prop.children}
-              </Button>
-            </ConfigProvider>
-          </Tooltip>
-        );
       case "google":
         return (
           <GoogleButton
@@ -86,7 +80,51 @@ export default (type = "primary") =>
             {prop.children}
           </GoogleButton>
         );
+      case "primary":
+        Component = (
+          <Tooltip title={"待補"} placement="bottom">
+            <PrimaryButton {...prop} type="primary">
+              {prop.children}
+            </PrimaryButton>
+          </Tooltip>
+        );
+        ButtonStyle = {
+          colorPrimary: "#B3DEE5",
+          colorPrimaryHover: "#D6F7F6",
+          colorPrimaryActive: "#5A8EA4",
+          colorTextLightSolid: "#000000",
+        };
+        break;
+      case "back":
+        Component = <BackButton icon={<ArrowLeftOutlined />} {...prop} />;
+        ButtonStyle = { controlTmpOutline: "rgba(0, 0, 0, 0)" };
+        break;
+      case "modal":
+        Component = (
+          <ModalButton type="primary" {...prop}>
+            {prop.children}
+          </ModalButton>
+        );
+        ButtonStyle = {
+          colorTextLightSolid: prop.style.color ?? "#000000",
+        };
+        break;
       default:
         break;
     }
+    return (
+      <ConfigProvider
+        theme={{
+          components: {
+            Button: {
+              controlTmpOutline: "rgba(0, 0, 0, 0)",
+              controlOutline: "rgba(0, 0, 0, 0)",
+              ...ButtonStyle,
+            },
+          },
+        }}
+      >
+        {Component}
+      </ConfigProvider>
+    );
   };

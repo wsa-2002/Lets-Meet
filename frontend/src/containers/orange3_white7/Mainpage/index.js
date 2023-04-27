@@ -186,8 +186,7 @@ const Mainpage = () => {
 
   const CONTENTMENU = {
     "Meet Name": (
-      <Input
-        style={{ ...Content.Input }}
+      <Content.Input
         onChange={handleMeetDataChange((i) => i.target.value, "meet_name")}
         data-required={true}
       />
@@ -271,7 +270,7 @@ const Mainpage = () => {
   }, []);
 
   return (
-    <Base title_disable={true} header={{ show: true, login }}>
+    <Base title_disable={true} login={login}>
       <Base.LeftContainer
         style={{
           display: "flex",

@@ -11,7 +11,6 @@ const { RWDFontSize, RWDRadius, RWDHeight, RWDWidth } = RWD;
 
 const HeaderContainer = styled.div`
   width: 100%;
-  background: white;
   border-bottom: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
@@ -23,6 +22,7 @@ const URLContainer = styled.div`
   display: flex;
   height: 100%;
   align-items: center;
+  background-color: #ffffff;
   > div {
     width: calc(100% / 3);
     max-width: calc(100% / 3); //很可疑
@@ -56,12 +56,24 @@ const NavItem = [
   },
 ];
 
+/**
+ * @param   {Object} prop
+ * @param   {Object} prop.show
+ * @param   {boolean} prop.show.title 最左邊的 title
+ * @param   {boolean} prop.show.navbar NavBar 功能列
+ * @param   {boolean} prop.show.login login 狀態
+ */
 const Header = (prop) => {
   const { removeCookie, setLogin } = useMeet();
   const navigate = useNavigate();
   const ref = useRef(); //追蹤 header 們距離有無太擠
   const [adjusted, setAdjusted] = useState(false);
   const { pathname } = useLocation();
+
+  const {
+    show: { title, navbar, login },
+  } = prop;
+  //login 是 undefined 則不顯示按鈕
 
   const throttledHandleResize = _.throttle(() => {
     if (ref?.current?.children) {
@@ -95,7 +107,7 @@ const Header = (prop) => {
 
   return (
     <HeaderContainer
-      style={{ ...prop?.style, borderBottom: !prop?.login && "none" }}
+      style={{ ...prop?.style, borderBottom: !title && !navbar && "none" }}
     >
       <div
         style={{
@@ -103,59 +115,58 @@ const Header = (prop) => {
           alignItems: "center",
           width: adjusted ? "65vw" : "35vw",
           height: "100%",
-          backgroundColor: !prop?.login && "#fefcef",
         }}
       >
-        {prop?.login && (
-          <>
-            <div
+        {title && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "calc(100% * 10 / 35)",
+              height: "100%",
+              cursor: "pointer",
+              backgroundColor: "#ffffff",
+            }}
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            <Title
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "calc(100% * 10 / 35)",
-                height: "100%",
-                cursor: "pointer",
-              }}
-              onClick={() => {
-                navigate("/");
+                fontSize: "3vmin",
               }}
             >
-              <Title
+              Let's Meet
+            </Title>
+          </div>
+        )}
+        {navbar && (
+          <URLContainer ref={ref}>
+            {NavItem.map((n, index) => (
+              <div
+                key={index}
                 style={{
-                  fontSize: "3vmin",
+                  backgroundColor:
+                    n?.regex.some((regex) => regex.test(pathname)) && "#fdf3d1",
+                }}
+                onClick={() => {
+                  navigate(n.to);
                 }}
               >
-                Let's Meet
-              </Title>
-            </div>
-            <URLContainer ref={ref}>
-              {NavItem.map((n, index) => (
+                {/* 置中 */}
                 <div
-                  key={index}
                   style={{
-                    backgroundColor:
+                    color:
                       n?.regex.some((regex) => regex.test(pathname)) &&
-                      "#fdf3d1",
-                  }}
-                  onClick={() => {
-                    navigate(n.to);
+                      "#DB8600",
                   }}
                 >
-                  {/* 置中 */}
-                  <div
-                    style={{
-                      color:
-                        n?.regex.some((regex) => regex.test(pathname)) &&
-                        "#DB8600",
-                    }}
-                  >
-                    {n.name}
-                  </div>
+                  {n.name}
                 </div>
-              ))}
-            </URLContainer>
-          </>
+              </div>
+            ))}
+          </URLContainer>
         )}
       </div>
       <div
@@ -166,82 +177,71 @@ const Header = (prop) => {
           marginRight: "3vw",
         }}
       >
-        {prop?.login ? (
-          <>
-            <Button
-              type="link"
-              style={{
-                fontSize: "2.2vmin",
-                color: "#808080",
-                height: "100%",
-                fontWeight: 600,
-                padding: 0,
-                border: 0,
-              }}
-            >
-              Settings
-            </Button>
-            <Button
-              type="link"
-              icon={<LogoutOutlined />}
-              style={{
-                fontSize: "2.3vmin",
-                color: "#808080",
-                height: "100%",
-                padding: 0,
-                border: 0,
-              }}
-              onClick={() => {
-                removeCookie("token");
-                setLogin(false);
-              }}
-            />
-          </>
-        ) : (
-          <ConfigProvider
-            theme={{
-              components: {
-                Button: {
-                  colorBgTextHover: "#FFF4CC",
-                  colorBgTextActive: "#B76A00",
-                  colorText: "#FFA601",
+        {!(login === undefined) &&
+          (login ? (
+            <>
+              <Button
+                type="link"
+                style={{
+                  fontSize: "2.2vmin",
+                  color: "#808080",
+                  height: "100%",
+                  fontWeight: 600,
+                  padding: 0,
+                  border: 0,
+                }}
+              >
+                Settings
+              </Button>
+              <Button
+                type="link"
+                icon={<LogoutOutlined />}
+                style={{
+                  fontSize: "2.3vmin",
+                  color: "#808080",
+                  height: "100%",
+                  padding: 0,
+                  border: 0,
+                }}
+                onClick={() => {
+                  removeCookie("token");
+                  setLogin(false);
+                }}
+              />
+            </>
+          ) : (
+            <ConfigProvider
+              theme={{
+                components: {
+                  Button: {
+                    colorBgTextHover: "#FFF4CC",
+                    colorBgTextActive: "#B76A00",
+                    colorText: "#FFA601",
+                  },
                 },
-              },
-            }}
-          >
-            <Button
-              type="text"
-              style={{
-                borderRadius: RWDRadius(30),
-                width: RWDWidth(80),
-                height: RWDHeight(42),
-                fontSize: RWDFontSize(16),
-                minHeight: "fit-content",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: "1px solid #FFA601",
-              }}
-              onClick={() => {
-                navigate("/login");
               }}
             >
-              Login
-            </Button>
-          </ConfigProvider>
-          // <ConfigProvider
-          //   theme={{
-          //     components: {
-          //       Button: {
-
-          //         colorPrimaryBorder: "#FFA601",
-          //       },
-          //     },
-          //   }}
-          // >
-
-          // </ConfigProvider>
-        )}
+              <Button
+                type="text"
+                style={{
+                  borderRadius: RWDRadius(30),
+                  width: RWDWidth(80),
+                  height: RWDHeight(42),
+                  fontSize: RWDFontSize(16),
+                  minHeight: "fit-content",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: "1px solid #FFA601",
+                }}
+                onClick={() => {
+                  navigate("/login");
+                }}
+              >
+                Login
+              </Button>
+            </ConfigProvider>
+          ))}
       </div>
     </HeaderContainer>
   );

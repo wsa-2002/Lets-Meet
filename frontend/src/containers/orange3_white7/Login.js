@@ -144,7 +144,7 @@ const LogIn = () => {
                 disabled={!loginData.user_identifier || !loginData.password}
                 onClick={handleLoginClick}
               >
-                Save
+                Login
               </InfoContainer.Button>
 
               <Divider

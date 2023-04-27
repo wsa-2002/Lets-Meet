@@ -1,190 +1,40 @@
-import React, { Fragment, useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
-import styled from "styled-components";
-import "@fontsource/roboto/500.css";
-import { Input, Button, Modal, Form } from "antd";
+import { InfoCircleFilled } from "@ant-design/icons";
+import { Button, Modal, Form } from "antd";
 import _ from "lodash";
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import { getMeetInfo, joinMeet, GroupAvailability } from "../middleware";
-import { useMeet } from "./hooks/useMeet";
-import Base from "../components/Base/145MeetRelated";
-import Tag from "../components/Tag";
-import TimeCell from "../components/TimeCell";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
-import { RWD } from "../constant";
+import React, { Fragment, useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
+import { useMeet } from "./hooks/useMeet";
+import Base from "../components/Base/145MeetRelated";
+import TEST from "../components/Button";
+import Input from "../components/Input";
+import Tag from "../components/Tag";
+import TimeCell, { slotIDProcessing } from "../components/TimeCell";
+import { RWD } from "../constant";
+import { getMeetInfo, joinMeet, getGroupAvailability } from "../middleware";
 const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
 const MemberTag = Tag("member");
 const InfoCell = TimeCell("info");
 const moment = extendMoment(Moment);
+const MainInput = Input("main");
+const MainPassword = Input.Password("main");
+const BackButton = TEST("back");
+const ModalButton = TEST("modal");
 
-let showList = [
-  "9:00",
-  "9:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-].map((m) =>
-  [
-    "May 19Wed",
-    "May 20Wed",
-    "May 21Wed",
-    "May 22Wed",
-    "May 23Wed",
-    "May 24Wed",
-    "May 25Wed",
-  ].map((d) => ({
-    date: d,
-    time: m,
-    availableNum: Math.floor(Math.random() * 3),
-  }))
-);
-
-const ContentContainer = Object.assign(
-  styled.div`
-    display: grid;
-    position: relative;
-    top: ${RWDHeight(100)};
-    grid-template-columns: 4fr 5fr;
-    grid-template-rows: min-content min-content auto;
-    /* border: 2px dashed black; */
-  `,
-  {
-    Title: styled.div`
-      display: flex;
-      align-items: center;
-      grid-column: 1/2;
-      grid-row: 1/2;
-      font-size: ${RWDFontSize(30)};
-      font-weight: bold;
-    `,
-    InfoContainer: Object.assign(
-      styled.div`
-        display: flex;
-        flex-direction: column;
-        grid-column: 1/2;
-        grid-row: 3/4;
-        row-gap: ${RWDHeight(54)};
-      `,
-      {
-        Info: styled.div`
-          display: grid;
-          grid-template-columns: repeat(2, max-content);
-          grid-template-rows: repeat(8, max-content);
-          grid-column-gap: ${RWDWidth(33)};
-          grid-row-gap: ${RWDHeight(30)};
-          font-size: ${RWDFontSize(20)};
-          font-weight: 700;
-        `,
-      }
-    ),
-    GroupAvailability: styled.div`
-      grid-column: 2/3;
-      grid-row: 2/3;
-      height: ${RWDHeight(65)};
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: ${RWDFontSize(20)};
-      font-weight: bold;
-    `,
-    VotingContainer: Object.assign(
-      styled.div`
-        grid-column: 2/3;
-        grid-row: 3/4;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        max-width: ${RWDWidth(960)};
-        max-height: ${RWDHeight(700)};
-        overflow-x: auto;
-        &::-webkit-scrollbar {
-          display: none;
-        }
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      `,
-      {
-        DayContainer: Object.assign(
-          styled.div`
-            display: flex;
-            max-width: 100%;
-            position: relative;
-            height: fit-content;
-            flex-shrink: 0;
-            column-gap: ${RWDWidth(5)};
-            overflow-x: auto;
-            &::-webkit-scrollbar {
-              display: none;
-            }
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          `,
-          {
-            TimeContainer: styled.span`
-              display: flex;
-              align-items: center;
-              justify-content: flex-end;
-              width: ${RWDWidth(32)};
-              height: fit-content;
-              font-size: ${RWDFontSize(12)};
-              align-self: flex-end;
-              position: sticky;
-              left: 0;
-              padding-left: ${RWDWidth(20)};
-              padding-top: ${RWDHeight(20)};
-              background-color: white;
-            `,
-            CellContainer: styled.div`
-              width: ${RWDWidth(50)};
-              font-size: ${RWDFontSize(14)};
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              flex-shrink: 0;
-            `,
-            CellHoverContainer: Object.assign(
-              styled.div`
-                width: ${RWDWidth(165)};
-                display: flex;
-                justify-content: space-between;
-                color: #000000;
-              `,
-              {
-                CellHoverInfo: styled.div`
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  row-gap: ${RWDHeight(5)};
-                `,
-              }
-            ),
-          }
-        ),
-      }
-    ),
-  }
-);
+const { ContentContainer } = Base.FullContainer;
 
 const {
-  VotingContainer,
-  VotingContainer: { DayContainer },
-  VotingContainer: {
-    DayContainer: { CellHoverContainer },
+  GroupAvailability,
+  GroupAvailability: { VotingContainer },
+  GroupAvailability: {
+    VotingContainer: { DayContainer },
+  },
+  GroupAvailability: {
+    VotingContainer: {
+      DayContainer: { CellHoverContainer },
+    },
   },
 } = ContentContainer;
 
@@ -203,13 +53,6 @@ const MeetInfo = () => {
   const [DATERANGE, setDATERANGE] = useState([]);
   const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
   const [VOTINGINFO, setVOTINGINFO] = useState([]);
-
-  const slotIDProcessing = (id) => {
-    let hour = String(parseInt(((id - 1) * 30) / 60));
-    const startHour = "0".repeat(2 - hour.length) + hour;
-    const startMinute = parseInt(((id - 1) * 30) % 60) ? "30" : "00";
-    return `${startHour}:${startMinute}`;
-  };
 
   const [meetInfo, setMeetInfo] = useState({
     EventName: "",
@@ -230,7 +73,10 @@ const MeetInfo = () => {
 
   const handleMeetInfo = async () => {
     try {
-      const { data: votingData } = await GroupAvailability(code, cookies.token);
+      const { data: votingData } = await getGroupAvailability(
+        code,
+        cookies.token
+      );
       setVOTINGINFO(votingData.data);
       console.log(votingData.data);
       const { data } = await getMeetInfo(undefined, cookies.token, code);
@@ -243,7 +89,7 @@ const MeetInfo = () => {
         "Start / End Time":
           slotIDProcessing(data.start_time_slot_id) +
           " ~ " +
-          slotIDProcessing(data.end_time_slot_id), //  (data.start_time_slot_id - 1) * 30 % 60
+          slotIDProcessing(data.end_time_slot_id + 1), //  (data.start_time_slot_id - 1) * 30 % 60
         Host: (
           <MemberTag style={{ fontSize: RWDFontSize(16) }}>
             {data.host_info?.name ??
@@ -282,7 +128,7 @@ const MeetInfo = () => {
         ].map((m) => m.format("YYYY-MM-DD"))
       );
       setTIMESLOTIDS(
-        _.range(data.start_time_slot_id, data.end_time_slot_id + 1)
+        _.range(data.start_time_slot_id, data.end_time_slot_id + 2)
       );
     } catch (error) {
       console.log(error);
@@ -295,22 +141,18 @@ const MeetInfo = () => {
     }
   }, [code]);
 
-  const showLeaveModal = () => {
-    setIsModalLeaveOpen(true);
-  };
-  const handleLeaveOk = () => {
-    setIsModalLeaveOpen(false);
-  };
-  const handleLeaveCancel = () => {
-    setIsModalLeaveOpen(false);
+  const handleLeaveYes = () => {
+    if (!login) {
+      navigate("/");
+    }
   };
 
   const handleVote = () => {
-    if (!login && !location.state.guestName) {
+    if (!login && !location?.state?.guestName) {
       setIsModalVoteOpen(true);
       return;
     }
-    navigate("/voting");
+    navigate(`/voting/${code}`);
   };
 
   const handleVoteOk = async (e) => {
@@ -319,10 +161,7 @@ const MeetInfo = () => {
       { invite_code: code, name: form.getFieldValue().name },
       cookies.token
     );
-    navigate("/voting");
-    setIsModalVoteOpen(false);
-  };
-  const handleVoteCancel = () => {
+    navigate(`/voting/${code}`);
     setIsModalVoteOpen(false);
   };
 
@@ -333,24 +172,21 @@ const MeetInfo = () => {
   };
 
   return (
-    <Base>
+    <Base login={login}>
       <Base.FullContainer>
         {meetInfo?.EventName && (
-          <ContentContainer>
+          <Base.FullContainer.ContentContainer>
             <ContentContainer.Title>
-              <Button
-                icon={<ArrowLeftOutlined />}
+              <BackButton
                 style={{
                   position: "absolute",
                   right: "100%",
-                  borderColor: "white",
-                  color: "#808080",
                   marginRight: RWDWidth(30),
                 }}
                 onClick={() => {
                   navigate("/meets");
                 }}
-              ></Button>
+              />
               <span>{meetInfo.EventName}</span>
             </ContentContainer.Title>
             <ContentContainer.InfoContainer>
@@ -396,7 +232,9 @@ const MeetInfo = () => {
                     alignItems: "center",
                     fontSize: RWDFontSize(14),
                   }}
-                  onClick={showLeaveModal}
+                  onClick={() => {
+                    setIsModalLeaveOpen(true);
+                  }}
                 >
                   Leave Meet
                 </Button>
@@ -420,7 +258,7 @@ const MeetInfo = () => {
             </ContentContainer.GroupAvailability>
             {DATERANGE.length && TIMESLOTIDS.length && (
               <ScrollSync>
-                <ContentContainer.VotingContainer>
+                <GroupAvailability.VotingContainer>
                   <ScrollSyncPane>
                     <VotingContainer.DayContainer>
                       <DayContainer.TimeContainer
@@ -497,61 +335,106 @@ const MeetInfo = () => {
                       </VotingContainer.DayContainer>
                     </ScrollSyncPane>
                   ))}
-                </ContentContainer.VotingContainer>
+                </GroupAvailability.VotingContainer>
               </ScrollSync>
             )}
-          </ContentContainer>
+          </Base.FullContainer.ContentContainer>
         )}
         <Modal
-          title="Are you sure you want to leave this meet?"
+          bodyStyle={{ height: RWDHeight(30) }}
+          centered
+          closable={false}
+          footer={
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+              }}
+            >
+              <ModalButton
+                style={{ backgroundColor: "#B8D8BA" }}
+                onClick={() => {
+                  setIsModalLeaveOpen(false);
+                }}
+              >
+                NO
+              </ModalButton>
+              <ModalButton
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  borderColor: "#B8D8BA",
+                }}
+                onClick={handleLeaveYes}
+                type="default"
+              >
+                YES
+              </ModalButton>
+            </div>
+          }
+          onCancel={() => {
+            setIsModalLeaveOpen(false);
+          }}
           open={isModalLeaveOpen}
-          onOk={handleLeaveOk}
-          onCancel={handleLeaveCancel}
-          okText="Yes"
-          cancelText="No"
-        ></Modal>
+          title={
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                columnGap: RWDWidth(12),
+              }}
+            >
+              <InfoCircleFilled style={{ color: "#FAAD14" }} />
+              <span>Are you sure you want to leave this meet?</span>
+            </div>
+          }
+        />
         <Modal
-          title=""
+          centered
+          closable={false}
+          footer={null}
+          onCancel={() => {
+            setIsModalVoteOpen(false);
+          }}
           open={isModalVoteOpen}
-          onOk={handleVoteOk}
-          onCancel={handleVoteCancel}
-          okText="Ok"
-          cancelText="Cancel"
+          title=""
+          width={RWDWidth(450)}
         >
-          <Form form={form} layout="vertical" name="form_in_modal">
+          <Form
+            form={form}
+            style={{
+              width: RWDWidth(393),
+              height: RWDHeight(192),
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              margin: "15px 0",
+            }}
+          >
             <Form.Item
-              name="name"
-              label="Your name"
+              name="username"
               rules={[
                 {
                   required: true,
-                  message: "Error: Please enter your name!",
+                  message: "Username is required",
                 },
               ]}
+              style={{ margin: 0 }}
             >
-              <Input />
+              <MainInput placeholder="Your name" />
             </Form.Item>
-            <Form.Item name="Password" label="Password(Optional)">
-              <Input.Password />
+            <Form.Item name="password" style={{ margin: 0 }}>
+              <MainPassword placeholder="Password (optional)" />
+            </Form.Item>
+            <Form.Item style={{ margin: 0, alignSelf: "flex-end" }}>
+              <ModalButton
+                htmlType="submit"
+                style={{ backgroundColor: "#B8D8BA" }}
+              >
+                OK
+              </ModalButton>
             </Form.Item>
           </Form>
-          <Input
-            placeholder="Your name"
-            style={{
-              borderRadius: "15px",
-              marginTop: "30px",
-              marginBottom: "20px",
-            }}
-            name="user_identifier"
-          />
-          <Input
-            placeholder="Password(Optional)"
-            style={{
-              borderRadius: "15px",
-              // marginBttom: "30px",
-            }}
-            name="password"
-          />
         </Modal>
       </Base.FullContainer>
     </Base>

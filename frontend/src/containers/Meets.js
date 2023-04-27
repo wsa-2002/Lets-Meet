@@ -165,7 +165,7 @@ const Meets = () => {
   ].map((m) => ({ ...m, className: "meetTableColumn" }));
 
   return (
-    <Base>
+    <Base login={true}>
       <Base.FullContainer>
         <MeetContainer>
           <div

@@ -196,15 +196,7 @@ const Member = ({ setMeetData }) => {
             placement="bottomLeft"
             open={open}
           >
-            <Input
-              style={{
-                ...Content.Input,
-                display: "flex",
-                alignItems: "center",
-              }}
-              value={input}
-              onChange={handleInputChange}
-            />
+            <Content.Input value={input} onChange={handleInputChange} />
           </Dropdown>
           <Button
             style={{
