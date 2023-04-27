@@ -7,6 +7,7 @@ import { useMeet } from "../containers/hooks/useMeet";
 import Title from "../components/Title";
 import _ from "lodash";
 import { RWD } from "../constant";
+import { useTranslation } from 'react-i18next';
 const { RWDFontSize, RWDRadius, RWDHeight, RWDWidth } = RWD;
 
 const HeaderContainer = styled.div`
@@ -42,26 +43,27 @@ const URLContainer = styled.div`
   }
 `;
 
-const NavItem = [
-  {
-    name: "Meets",
-    to: "/meets",
-    regex: [/^\/meets$/, /^\/voting\/.*$/, /^\/meets\/.*$/],
-  },
-  { name: "Calendar", to: "/calendar", regex: [/^\/calendar$/] },
-  {
-    name: "Routine",
-    to: "/routine",
-    regex: [/^\/routine$/],
-  },
-];
-
 const Header = (prop) => {
   const { removeCookie, setLogin } = useMeet();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const ref = useRef(); //追蹤 header 們距離有無太擠
   const [adjusted, setAdjusted] = useState(false);
   const { pathname } = useLocation();
+
+  const NavItem = [
+    {
+      name: t("meets"),
+      to: "/meets",
+      regex: [/^\/meets$/, /^\/voting\/.*$/, /^\/meets\/.*$/],
+    },
+    { name: t("calendar"), to: "/calendar", regex: [/^\/calendar$/] },
+    {
+      name: t("routine"),
+      to: "/routine",
+      regex: [/^\/routine$/],
+    },
+  ];
 
   const throttledHandleResize = _.throttle(() => {
     if (ref?.current?.children) {
@@ -179,7 +181,7 @@ const Header = (prop) => {
                 border: 0,
               }}
             >
-              Settings
+              {t("settings")}
             </Button>
             <Button
               type="link"

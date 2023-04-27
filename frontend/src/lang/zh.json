@@ -1,0 +1,28 @@
+{
+    "meets": "會議",
+    "calendar": "日曆",
+    "routine": "例行公事",
+    "settings": "設定",
+
+    "myMeets": "我的會議",
+    "name": "姓名",
+    "host": "主持人",
+    "votingPeriod": "投票時程",
+    "status": "狀態",
+    "votingDeadline": "投票截止日期",
+    "meetingTime": "會議時間",
+    "url": "Google Meet URL",
+    "endedVotes": "投票結束",
+    "voting": "正在投票",
+    "noData": "您的列表中目前尚未有會議",
+
+    "welcome": "歡迎",
+    "save": "儲存",
+    "forgot": "忘記密碼",
+    "newToMeet": "尚未加入 Let's Meet 嗎？",
+    "resetpass": "重設密碼",
+    "sendVer": "傳送認證",
+    
+
+    "pageNotExists": "沒有頁面"
+}

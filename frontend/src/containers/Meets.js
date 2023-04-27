@@ -12,6 +12,7 @@ import styled from "styled-components";
 import { browseMeet } from "../middleware";
 import { useMeet } from "./hooks/useMeet";
 import { RWD } from "../constant";
+import { useTranslation } from 'react-i18next';
 const { RWDHeight, RWDWidth } = RWD;
 const MemberTag = Tag("member");
 const StatusTag = Tag("status");
@@ -27,12 +28,6 @@ const tagMap = {
     backgroundColor: "#FFA601",
   },
 };
-
-const customizeRenderEmpty = () => (
-  <div style={{ textAlign: "center" }}>
-    <p>There is no meets in your meeting list.</p>
-  </div>
-);
 
 const MeetContainer = styled.div`
   width: ${RWDWidth(1488)};
@@ -50,10 +45,17 @@ const MeetContainer = styled.div`
 
 const Meets = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { cookies, login } = useMeet();
   const [data, setData] = useState([]);
   const [isVoting, setIsVoting] = useState(true);
   const [showData, setShowData] = useState(data);
+
+  const customizeRenderEmpty = () => (
+    <div style={{ textAlign: "center" }}>
+      <p>{t("noData")}</p>
+    </div>
+  );
 
   const handleMeetInfoClick = (code) => () => {
     navigate(`/meets/${code}`);
@@ -98,26 +100,26 @@ const Meets = () => {
 
   const columns = [
     {
-      title: "Name",
+      title: t("name"),
       dataIndex: "name",
       key: "name",
       width: RWDWidth(200),
     },
     {
-      title: "Host",
+      title: t("host"),
       dataIndex: "host",
       key: "host",
       width: RWDWidth(150),
       render: (tag) => <MemberTag>{tag}</MemberTag>,
     },
     {
-      title: "Voting Period",
+      title: t("votingPeriod"),
       dataIndex: "votingPeriod",
       key: "votingPeriod",
       width: RWDWidth(220),
     },
     {
-      title: "Status",
+      title: t("status"),
       dataIndex: "status",
       key: "status",
       width: RWDWidth(200),
@@ -128,13 +130,13 @@ const Meets = () => {
       ),
     },
     {
-      title: isVoting ? "Voting Deadline" : "Meeting Time",
+      title: isVoting ? t("votingDeadline") : t("meetingTime"),
       dataIndex: isVoting ? "votingDeadline" : "meetingTime",
       key: isVoting ? "votingDeadline" : "meetingTime",
       width: RWDWidth(200),
     },
     {
-      title: "Google Meet URL",
+      title: t("url"),
       dataIndex: "url",
       key: "url",
       width: RWDWidth(300),
@@ -182,7 +184,7 @@ const Meets = () => {
                 fontSize: "30px",
               }}
             >
-              My Meets
+              {t("myMeets")}
             </div>
             <div
               style={{
@@ -198,7 +200,7 @@ const Meets = () => {
                 }}
                 onClick={handleEndVote}
               >
-                Ended Votes
+                {t("endedVotes")}
               </Button>
               <Button
                 style={{
@@ -207,7 +209,7 @@ const Meets = () => {
                 }}
                 onClick={handleIsVote}
               >
-                Voting
+                {t("voting")}
               </Button>
             </div>
           </div>
