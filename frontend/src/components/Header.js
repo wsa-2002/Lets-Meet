@@ -42,20 +42,6 @@ const URLContainer = styled.div`
   }
 `;
 
-const NavItem = [
-  {
-    name: "Meets",
-    to: "/meets",
-    regex: [/^\/meets$/, /^\/voting\/.*$/, /^\/meets\/.*$/],
-  },
-  { name: "Calendar", to: "/calendar", regex: [/^\/calendar$/] },
-  {
-    name: "Routine",
-    to: "/routine",
-    regex: [/^\/routine$/],
-  },
-];
-
 /**
  * @param   {Object} prop
  * @param   {Object} prop.show
@@ -74,6 +60,20 @@ const Header = (prop) => {
     show: { title, navbar, login },
   } = prop;
   //login 是 undefined 則不顯示按鈕
+  const NavItem = [
+    {
+      name: t("meets"),
+      //login 是 undefined 則不顯示按鈕
+      to: "/meets",
+      regex: [/^\/meets$/, /^\/voting\/.*$/, /^\/meets\/.*$/],
+    },
+    { name: t("calendar"), to: "/calendar", regex: [/^\/calendar$/] },
+    {
+      name: t("routine"),
+      to: "/routine",
+      regex: [/^\/routine$/],
+    },
+  ];
 
   const throttledHandleResize = _.throttle(() => {
     if (ref?.current?.children) {
@@ -191,7 +191,7 @@ const Header = (prop) => {
                   border: 0,
                 }}
               >
-                Settings
+                {t("settings")}
               </Button>
               <Button
                 type="link"
