@@ -7,6 +7,7 @@ import { useMeet } from "../containers/hooks/useMeet";
 import Title from "../components/Title";
 import _ from "lodash";
 import { RWD } from "../constant";
+import { useTranslation } from "react-i18next";
 const { RWDFontSize, RWDRadius, RWDHeight, RWDWidth } = RWD;
 
 const HeaderContainer = styled.div`
@@ -36,7 +37,7 @@ const URLContainer = styled.div`
     > div {
       font-size: ${RWDFontSize(24)};
       color: #808080;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 1px;
     }
   }
@@ -52,6 +53,7 @@ const URLContainer = styled.div`
 const Header = (prop) => {
   const { removeCookie, setLogin } = useMeet();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const ref = useRef(); //追蹤 header 們距離有無太擠
   const [adjusted, setAdjusted] = useState(false);
   const { pathname } = useLocation();

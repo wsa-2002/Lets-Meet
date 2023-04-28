@@ -38,7 +38,6 @@ const Input = (type) =>
         `請定義 Input 種類，有以下可以選擇：\n${INPUTTYPE.join(", ")}`
       );
     }
-    console.log("hi");
     let style;
     switch (type) {
       case "main":
