@@ -113,6 +113,11 @@ export const RWD = {
    * @return {String}         calc(100vmin * ${fontsize} / 1080)
    */
   RWDFontSize: (fontsize) => `calc(100vmin * ${fontsize} / 1080)`,
+  /**
+   * @param {number} number px unit in Figma
+   * @return {String}         calc(100vmin * ${number} / 1080)
+   */
+  RWDVmin: (number) => `calc(100vmin * ${number} / 1080)`,
 };
 
 export const ANIME = {

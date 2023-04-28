@@ -14,7 +14,7 @@ from middleware.context import request
 import persistence.database as db
 import service
 from service.meet import EditMeetInput, AddMemberMeetAvailableTimeInput, \
-        ConfirmMeetInput, DeleteMeetMemberAvailableTimeInput
+    ConfirmMeetInput, DeleteMeetMemberAvailableTimeInput
 import exceptions as exc  # noqa
 
 
@@ -72,14 +72,16 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
     if data.start_date > data.end_date or data.start_time_slot_id > data.end_time_slot_id:
         raise exc.IllegalInput
 
-    converted_voting_end_time = timezone_validate(data.voting_end_time) if data.voting_end_time else None
+    converted_voting_end_time = timezone_validate(
+        data.voting_end_time) if data.voting_end_time else None
     if converted_voting_end_time and converted_voting_end_time < datetime.now():
         raise exc.IllegalInput
 
     if not 0 < data.start_time_slot_id < 49 and not 0 < data.end_time_slot_id < 49:
         raise exc.IllegalInput
 
-    invite_code = ''.join(random.choice(const.AVAILABLE_CODE_CHAR) for _ in range(const.INVITE_CODE_LENGTH))
+    invite_code = ''.join(random.choice(const.AVAILABLE_CODE_CHAR)
+                          for _ in range(const.INVITE_CODE_LENGTH))
     meet_id = await db.meet.add(
         title=data.meet_name,
         invite_code=invite_code,
@@ -414,7 +416,7 @@ async def add_member_meet_available_time_by_code(code: str, data: AddMemberMeetA
     meet = await db.meet.read_meet_by_code(invite_code=code)
     if not await db.meet.is_authed(meet_id=meet.id, member_id=request.account.id, name=data.name):
         raise exc.NoPermission
-    if any(not meet.start_time_slot_id <= time_slot.time_slot_id <= meet.end_time_slot_id for time_slot in data.time_slots): # noqa
+    if any(not meet.start_time_slot_id <= time_slot.time_slot_id <= meet.end_time_slot_id for time_slot in data.time_slots):  # noqa
         raise exc.IllegalInput
 
     if any(not meet.start_date <= time_slot.date <= meet.end_date for time_slot in data.time_slots):

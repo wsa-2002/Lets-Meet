@@ -4,10 +4,11 @@
 **************************************************************************************************/
 import _ from "lodash";
 import React, { useEffect, useRef, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useMeet } from "../hooks/useMeet";
 import Base from "../../components/Base/orange3_white7";
-import TimeCell from "../../components/TimeCell";
+import TimeCell, { slotIDProcessing } from "../../components/TimeCell";
 import { RWD } from "../../constant";
 import { getRoutine, addRoutine, deleteRoutine } from "../../middleware";
 const { RWDHeight, RWDFontSize, RWDWidth } = RWD;
@@ -74,19 +75,12 @@ const InfoContainer = Object.assign(
 
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const TIMESLOTIDS = _.range(1, 50); //記得加 1
-const slotIDProcessing = (id) => {
-  let hour = String(parseInt(((id - 1) * 30) / 60));
-  const startHour = "0".repeat(2 - hour.length) + hour;
-  const startMinute = parseInt(((id - 1) * 30) % 60) ? "30" : "00";
-  return `${startHour}:${startMinute}`;
-};
 
 const Routine = () => {
-  const { cookies } = useMeet();
+  const { cookies, login } = useMeet();
+  const navigate = useNavigate();
+
   const [cell, setCell] = useState([]);
-
-  // _.range(WEEKDAYS.length).map(async() => TIMESLOTIDS.map(() => false))
-
   const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
   const [startIndex, setStartIndex] = useState([]); //選取方塊位置
   const oriCell = useMemo(() => cell, [startDrag]);
@@ -107,20 +101,28 @@ const Routine = () => {
 
   useEffect(() => {
     (async () => {
-      const { data } = await getRoutine(undefined, cookies.token);
-      setCell(
-        WEEKDAYS.map((w) =>
-          TIMESLOTIDS.map((t) =>
-            Boolean(
-              data.find(
-                (d) => d.weekday === w.toUpperCase() && d.time_slot_id === t
+      try {
+        if (!login) {
+          navigate("/");
+        } else {
+          const { data } = await getRoutine(undefined, cookies.token);
+          setCell(
+            WEEKDAYS.map((w) =>
+              TIMESLOTIDS.map((t) =>
+                Boolean(
+                  data.find(
+                    (d) => d.weekday === w.toUpperCase() && d.time_slot_id === t
+                  )
+                )
               )
             )
-          )
-        )
-      );
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
     })();
-  }, []);
+  }, [login]);
 
   const ref = useRef(null); //讓頁面自動滾
   // useEffect(() => {
@@ -139,7 +141,7 @@ const Routine = () => {
       if (!updatedCell) {
         return;
       }
-      console.log(updatedCell);
+      setStartDrag(false);
       const API = mode ? addRoutine : deleteRoutine;
       await API(
         updatedCell.map((u) => ({
@@ -152,16 +154,11 @@ const Routine = () => {
       throw error;
     } finally {
       setUpdatedCell("");
-      setStartDrag(false);
     }
   };
 
   return (
-    <Base
-      header={{ show: true, login: true }}
-      title_disable={true}
-      onMouseUp={handleCellMouseUp}
-    >
+    <Base login={true} title_disable={true} onMouseUp={handleCellMouseUp}>
       <Base.LeftContainer
         style={{
           display: "flex",
