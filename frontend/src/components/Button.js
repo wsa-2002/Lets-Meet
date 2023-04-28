@@ -18,7 +18,7 @@ const BaseButton = styled(AntdButton)`
 
 const PrimaryButton = styled(BaseButton)`
   border-radius: ${RWDRadius(50)};
-  font-weight: bold;
+  font-weight: 800;
   font-size: ${RWDFontSize(20)};
   min-width: ${RWDWidth(130)};
   height: ${RWDHeight(55)};
@@ -37,8 +37,8 @@ const GoogleButton = styled(BaseButton)`
   border: ${RWDRadius(1)} solid #808080;
   border-radius: ${RWDRadius(15)};
   column-gap: ${RWDWidth(20)};
-  font-size: RWDFontSize(21);
-  font-weight: bold;
+  font-size: ${RWDFontSize(21)};
+  font-weight: 900;
 `;
 
 const BackButton = styled(BaseButton)`

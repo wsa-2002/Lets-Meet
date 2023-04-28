@@ -93,7 +93,7 @@ const Mainpage = () => {
     member_ids: [],
     emails: [],
   });
-  const { login, cookies } = useMeet();
+  const { login, cookies, setError } = useMeet();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const invite = useRef(null);
@@ -152,8 +152,8 @@ const Mainpage = () => {
       delete temp["voting_end_date"];
       const { data } = await AXIOS.addMeet(temp, cookies.token);
       navigate(`/meets/${data.invite_code}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      setError(error.message);
     }
   };
 
@@ -177,7 +177,7 @@ const Mainpage = () => {
         state: { guestName: form.getFieldValue().name },
       });
     } catch (error) {
-      console.log(error);
+      setError(error.message);
     }
   };
   const handleCancel = () => {

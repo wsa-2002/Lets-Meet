@@ -25,7 +25,7 @@ const LogIn = () => {
     password: "",
   });
   const search = useLocation().search;
-  const { login, GLOBAL_LOGIN } = useMeet();
+  const { login, GLOBAL_LOGIN, setError } = useMeet();
   const navigate = useNavigate();
   const [api, contextHolder] = notification.useNotification();
   const [description, setDescription] = useState("");
@@ -48,8 +48,17 @@ const LogIn = () => {
       api.open({
         message: "Login Failed",
         description,
-        style: {},
+        placement: "top",
+        duration: 160,
+        style: {
+          fontSize: RWDFontSize(20),
+          fontWeight: 700,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        },
       });
+      setDescription("");
     }
   }, [description]);
 
@@ -60,7 +69,7 @@ const LogIn = () => {
       if (error) {
         switch (error) {
           case "LoginFailed":
-            setDescription(" ");
+            setDescription(<></>);
             break;
           case "EmailRegisteredByGoogle":
             setDescription(
@@ -74,8 +83,8 @@ const LogIn = () => {
         console.log(data);
         GLOBAL_LOGIN(data.token);
       }
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      setError(error.message);
     }
   };
 

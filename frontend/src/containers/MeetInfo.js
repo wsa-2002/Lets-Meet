@@ -12,7 +12,7 @@ import TEST from "../components/Button";
 import Input from "../components/Input";
 import Tag from "../components/Tag";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
-import { RWD } from "../constant";
+import { RWD, COLORS } from "../constant";
 import { getMeetInfo, joinMeet, getGroupAvailability } from "../middleware";
 const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
 const MemberTag = Tag("member");
@@ -38,14 +38,6 @@ const {
   },
 } = ContentContainer;
 
-const addHexColor = (c1, c2) => {
-  var hexStr = (parseInt(c1, 16) - parseInt(c2, 16)).toString(16);
-  while (hexStr.length < 6) {
-    hexStr = "0" + hexStr;
-  } // Zero pad.
-  return hexStr;
-};
-
 const MeetInfo = () => {
   const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
   const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
@@ -53,6 +45,7 @@ const MeetInfo = () => {
   const [DATERANGE, setDATERANGE] = useState([]);
   const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
   const [VOTINGINFO, setVOTINGINFO] = useState([]);
+  const [CELLCOLOR, setCELLCOLOR] = useState([]);
 
   const [meetInfo, setMeetInfo] = useState({
     EventName: "",
@@ -65,7 +58,7 @@ const MeetInfo = () => {
     "Invitation URL": "",
     "Google Meet URL": "",
   });
-  const { login, cookies } = useMeet();
+  const { login, cookies, setError } = useMeet();
   const navigate = useNavigate();
   const location = useLocation();
   const { code } = useParams();
@@ -89,7 +82,7 @@ const MeetInfo = () => {
         "Start / End Time":
           slotIDProcessing(data.start_time_slot_id) +
           " ~ " +
-          slotIDProcessing(data.end_time_slot_id + 1), //  (data.start_time_slot_id - 1) * 30 % 60
+          slotIDProcessing(data.end_time_slot_id + 1),
         Host: (
           <MemberTag style={{ fontSize: RWDFontSize(16) }}>
             {data.host_info?.name ??
@@ -131,7 +124,7 @@ const MeetInfo = () => {
         _.range(data.start_time_slot_id, data.end_time_slot_id + 2)
       );
     } catch (error) {
-      console.log(error);
+      setError(error.message);
     }
   };
 
@@ -140,6 +133,21 @@ const MeetInfo = () => {
       handleMeetInfo();
     }
   }, [code]);
+
+  useEffect(() => {
+    if (VOTINGINFO.length) {
+      const allMembersNum =
+        VOTINGINFO?.[0]?.available_members.length +
+        VOTINGINFO?.[0]?.unavailable_members.length;
+      const gap =
+        Math.floor(allMembersNum / 5) < 1 ? 1 : Math.floor(allMembersNum / 5);
+      setCELLCOLOR(
+        VOTINGINFO.map(
+          (v) => COLORS.orange[Math.ceil(v.available_members.length / gap)]
+        )
+      );
+    }
+  }, [VOTINGINFO]); //設定 time cell 顏色
 
   const handleLeaveYes = () => {
     if (!login) {
@@ -163,12 +171,6 @@ const MeetInfo = () => {
     );
     navigate(`/voting/${code}`);
     setIsModalVoteOpen(false);
-  };
-
-  const chooseColor = (num) => {
-    // return addHexColor("F0F0F0", ((Math.max(num-1, 0)*3635)+984028).toString(16));
-    if (num === 0) return "f0f0f0";
-    else return addHexColor("FFF4CC", ((num - 1) * 3635).toString(16));
   };
 
   return (
@@ -293,7 +295,12 @@ const MeetInfo = () => {
                         {DATERANGE.map((_, w_index) => (
                           <DayContainer.CellContainer key={w_index}>
                             <InfoCell
-                              style={{ backgroundColor: "#F0F0F0" }}
+                              style={{
+                                backgroundColor:
+                                  CELLCOLOR[
+                                    w_index * (TIMESLOTIDS.length - 1) + t_index
+                                  ],
+                              }}
                               info={
                                 <DayContainer.CellHoverContainer>
                                   <CellHoverContainer.CellHoverInfo>
@@ -308,8 +315,8 @@ const MeetInfo = () => {
                                     {VOTINGINFO?.[
                                       w_index * (TIMESLOTIDS.length - 1) +
                                         t_index
-                                    ]?.available_members.map((m) => (
-                                      <div>{m}</div>
+                                    ]?.available_members.map((m, index) => (
+                                      <div key={index}>{m}</div>
                                     ))}
                                   </CellHoverContainer.CellHoverInfo>
                                   <CellHoverContainer.CellHoverInfo>
@@ -321,11 +328,12 @@ const MeetInfo = () => {
                                     >
                                       Unavailble
                                     </div>
-                                    {VOTINGINFO?.[0]?.unavailable_members.map(
-                                      (m, index) => (
-                                        <div key={index}>{m}</div>
-                                      )
-                                    )}
+                                    {VOTINGINFO?.[
+                                      w_index * (TIMESLOTIDS.length - 1) +
+                                        t_index
+                                    ]?.unavailable_members.map((m, index) => (
+                                      <div key={index}>{m}</div>
+                                    ))}
                                   </CellHoverContainer.CellHoverInfo>
                                 </DayContainer.CellHoverContainer>
                               }

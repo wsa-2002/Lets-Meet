@@ -7,7 +7,7 @@ import { useMeet } from "../containers/hooks/useMeet";
 import Title from "../components/Title";
 import _ from "lodash";
 import { RWD } from "../constant";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 const { RWDFontSize, RWDRadius, RWDHeight, RWDWidth } = RWD;
 
 const HeaderContainer = styled.div`
@@ -37,7 +37,7 @@ const URLContainer = styled.div`
     > div {
       font-size: ${RWDFontSize(24)};
       color: #808080;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 1px;
     }
   }
