@@ -76,6 +76,7 @@ CREATE TABLE event (
 CREATE TABLE meet_member (
     id        SERIAL  PRIMARY KEY,
     name      VARCHAR, -- TBD, a little bit weird?
+    pass_hash VARCHAR,
     member_id INTEGER REFERENCES account (id),
     meet_id   INTEGER NOT NULL REFERENCES meet (id),
     is_host   BOOLEAN DEFAULT FALSE,
