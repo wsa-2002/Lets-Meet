@@ -17,7 +17,6 @@ class Account:
     notification_preference: enums.NotificationPreference
     is_google_login: bool
     line_token: Optional[str] = None
-    google_token: Optional[str] = None
 
 
 @dataclass

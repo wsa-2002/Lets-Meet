@@ -1,6 +1,7 @@
 from .util import pyformat2psql
 from . import pool_handler
 from datetime import date
+import exceptions as exc  # noqa
 from base import vo
 
 async def get_event(account_id: str, start_date: date, end_date: date):
@@ -21,3 +22,4 @@ async def get_event(account_id: str, start_date: date, end_date: date):
                                    end_time_slot_id=finalized_end_time_slot_id)
                                    for invite_code, title, finalized_start_date, finalized_end_date, finalized_start_time_slot_id, finalized_end_time_slot_id
                                    in records]
+

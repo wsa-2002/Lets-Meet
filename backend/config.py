@@ -54,6 +54,7 @@ class ServiceConfig:
 class GoogleConfig:
     GOOGLE_CLIENT_ID = env_values.get('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET = env_values.get('GOOGLE_CLIENT_SECRET')
+    GOOGLE_API_SECRET = env_values.get('GOOGLE_API_SECRET')
     GOOGLE_LOGIN_REDIRECT_URI = env_values.get('GOOGLE_LOGIN_REDIRECT_URI')
 
 

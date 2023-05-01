@@ -30,3 +30,12 @@ class CalendarEvent:
     start_time_slot_id: int
     end_time_slot_id: int
     
+@dataclass
+class GoogleCalendarEvent:
+    title: str
+    start_date: date
+    end_date: date
+    color: str
+    
+
+    
