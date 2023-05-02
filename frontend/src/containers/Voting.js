@@ -14,6 +14,7 @@ import Moment from "moment";
 import { extendMoment } from "moment-range";
 import Base from "../components/Base/145MeetRelated";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
+import { useTranslation } from 'react-i18next';
 
 const moment = extendMoment(Moment);
 
@@ -107,6 +108,7 @@ const Voting = () => {
   };
 
   const [cell, setCell] = useState(dataFormatProcessing());
+  const { t } = useTranslation();
   const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
   const [startIndex, setStartIndex] = useState([]); //選取方塊位置
   const [mode, setMode] = useState(true); //選取模式
@@ -211,7 +213,7 @@ const Voting = () => {
               fontSize: "20px",
             }}
           >
-            My Availability
+            {t("myAva")}
           </div>
           <div
             style={{
@@ -304,7 +306,7 @@ const Voting = () => {
             fontSize: "20px",
           }}
         >
-          Group Availability
+          {t("groupAva")}
         </div>
         <div
           style={{

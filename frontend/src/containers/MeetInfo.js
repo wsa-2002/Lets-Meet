@@ -10,6 +10,7 @@ import Base from "../components/Base/145MeetRelated";
 import Tag from "../components/Tag";
 import moment from "moment";
 import { RWD } from "../constant";
+import { useTranslation } from 'react-i18next';
 const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
 const MemberTag = Tag("member");
 
@@ -107,6 +108,7 @@ const slotIDProcessing = (start, end) => {
 };
 
 const MeetInfo = () => {
+  const { t } = useTranslation();
   const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
   const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
   const [meetInfo, setMeetInfo] = useState({
@@ -174,6 +176,18 @@ const MeetInfo = () => {
       console.log(error);
     }
   };
+
+  const CONTENTNAME = {
+    "Meet Name": t("meetName"),
+    "Start / End Date": t("startDate"),
+    "Start / End Time": t("startTime"),
+    Host: t("host"),
+    Member: t("member"),
+    Description: t("description"),
+    "Voting Deadline": t("votingDeadline"),
+    "Invitation URL": t("invitation"),
+    "Google Meet URL": t("url")
+  }
 
   useEffect(() => {
     if (code) {
@@ -249,7 +263,7 @@ const MeetInfo = () => {
               justifyContent: "flex-end",
             }}
           >
-            Group Availability
+            {t("groupAva")}
           </div>
           <ContentContainer.InfoContainer>
             <ContentContainer.InfoContainer.Info>
@@ -263,7 +277,7 @@ const MeetInfo = () => {
                         gridRow: `${index + 1}/${index + 2}`,
                       }}
                     >
-                      {title}
+                      {CONTENTNAME[title]}
                     </div>
                     <div
                       style={{

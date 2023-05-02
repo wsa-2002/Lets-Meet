@@ -7,6 +7,7 @@ import { CheckCircleFilled } from "@ant-design/icons";
 import * as AXIOS from "../../middleware";
 import Base from "../../components/Base/orange3_white7";
 import { RWD } from "../../constant";
+import { useTranslation } from 'react-i18next';
 const {
   RightContainer,
   RightContainer: { InfoContainer },
@@ -14,12 +15,13 @@ const {
 const { RWDHeight } = RWD;
 
 const ResetPassword = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [api, contextHolder] = notification.useNotification();
   const openNotification = (placement) => {
     api.info({
-      message: `Verification mail sent`,
-      description: "please check your mailbox",
+      message: t("verSent"),
+      description: t("checkMail"),
       placement,
       duration: 1.5,
       icon: <CheckCircleFilled style={{ color: "green" }} />,
@@ -51,7 +53,7 @@ const ResetPassword = () => {
             style={{ height: RWDHeight(300), justifyContent: "space-evenly" }}
           >
             <InfoContainer.InputContainer style={{ marginTop: RWDHeight(10) }}>
-              <InfoContainer.Title>Reset Password</InfoContainer.Title>
+              <InfoContainer.Title>{t("resetPass")}</InfoContainer.Title>
               <InfoContainer.Input
                 placeholder="Email"
                 value={email}
@@ -59,7 +61,7 @@ const ResetPassword = () => {
               />
             </InfoContainer.InputContainer>
             <InfoContainer.Button disabled={!email} onClick={handleVerifyClick}>
-              Send Verification
+              {t("sendVer")}
             </InfoContainer.Button>
           </RightContainer.InfoContainer>
         </Base.RightContainer>

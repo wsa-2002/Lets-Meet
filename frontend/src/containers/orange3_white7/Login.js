@@ -10,6 +10,7 @@ import { useMeet } from "../hooks/useMeet";
 import Button from "../../components/Button";
 import Base from "../../components/Base/orange3_white7";
 import { RWD } from "../../constant";
+import { useTranslation } from 'react-i18next';
 const {
   RightContainer,
   RightContainer: { InfoContainer },
@@ -26,6 +27,7 @@ const LogIn = () => {
   });
   const search = useLocation().search;
   const { login, GLOBAL_LOGIN } = useMeet();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [api, contextHolder] = notification.useNotification();
   const [description, setDescription] = useState("");
@@ -46,7 +48,7 @@ const LogIn = () => {
   useEffect(() => {
     if (description) {
       api.open({
-        message: "Login Failed",
+        message: t("loginFailed"),
         description,
         style: {},
       });
@@ -64,7 +66,7 @@ const LogIn = () => {
             break;
           case "EmailRegisteredByGoogle":
             setDescription(
-              "Username/Email has already been linked to Google. Please login with Google."
+              t("linkedGoogle")
             );
             break;
           default:
@@ -101,7 +103,7 @@ const LogIn = () => {
             }}
           >
             <InfoContainer.InputContainer style={{ marginTop: RWDHeight(50) }}>
-              <InfoContainer.Title>Welcome</InfoContainer.Title>
+              <InfoContainer.Title>{t("welcome")}</InfoContainer.Title>
               <InfoContainer.Input
                 placeholder="Username/Email"
                 name="user_identifier"
@@ -136,7 +138,7 @@ const LogIn = () => {
                     fontSize: RWDFontSize(16),
                   }}
                 >
-                  Forgot Password
+                  {t("forgot")}
                 </Link>
               </div>
 
@@ -144,7 +146,7 @@ const LogIn = () => {
                 disabled={!loginData.user_identifier || !loginData.password}
                 onClick={handleLoginClick}
               >
-                Save
+                {t("save")}
               </InfoContainer.Button>
 
               <Divider
@@ -163,14 +165,14 @@ const LogIn = () => {
               }}
             >
               <Text type="secondary">
-                New to Let's Meet?
+                {t("newToMeet")}
                 <Link
                   onClick={() => {
                     navigate("/signup");
                   }}
                   style={{ color: "#B76A00", fontSize: RWDFontSize(16) }}
                 >
-                  Sign Up
+                  {t("signup")}
                 </Link>
               </Text>
             </InfoContainer.InputContainer>

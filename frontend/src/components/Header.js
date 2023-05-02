@@ -228,7 +228,7 @@ const Header = (prop) => {
                 navigate("/login");
               }}
             >
-              Login
+              {t("login")}
             </Button>
           </ConfigProvider>
           // <ConfigProvider
