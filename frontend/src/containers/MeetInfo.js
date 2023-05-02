@@ -1,146 +1,66 @@
-import React, { Fragment, useState, useEffect } from "react";
+import { InfoCircleFilled } from "@ant-design/icons";
+import { Button, Modal, Form } from "antd";
+import _ from "lodash";
+import Moment from "moment";
+import { extendMoment } from "moment-range";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import styled from "styled-components";
-import "@fontsource/roboto/500.css";
-import { Input, Button, Modal, Form } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import { getMeetInfo, joinMeet } from "../middleware";
+import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import { useMeet } from "./hooks/useMeet";
 import Base from "../components/Base/145MeetRelated";
+import TEST from "../components/Button";
+import Input from "../components/Input";
 import Tag from "../components/Tag";
-import moment from "moment";
-import { RWD } from "../constant";
+import TimeCell, { slotIDProcessing } from "../components/TimeCell";
+import { RWD, COLORS } from "../constant";
 import { useTranslation } from 'react-i18next';
+import { getMeetInfo, joinMeet, getGroupAvailability } from "../middleware";
 const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
 const MemberTag = Tag("member");
+const InfoCell = TimeCell("info");
+const moment = extendMoment(Moment);
+const MainInput = Input("main");
+const MainPassword = Input.Password("main");
+const BackButton = TEST("back");
+const ModalButton = TEST("modal");
 
-let showList = [
-  "9:00",
-  "9:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-].map((m) =>
-  [
-    "May 19Wed",
-    "May 20Wed",
-    "May 21Wed",
-    "May 22Wed",
-    "May 23Wed",
-    "May 24Wed",
-    "May 25Wed",
-  ].map((d) => ({
-    date: d,
-    time: m,
-    availableNum: Math.floor(Math.random() * 3),
-  }))
-);
+const { ContentContainer } = Base.FullContainer;
 
-const ContentContainer = Object.assign(
-  styled.div`
-    display: grid;
-    position: relative;
-    top: ${RWDHeight(100)};
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: min-content min-content auto;
-    border: 2px dashed black;
-  `,
-  {
-    Title: styled.div`
-      display: flex;
-      align-items: center;
-      grid-column: 1/2;
-      grid-row: 1/2;
-      font-size: ${RWDFontSize(30)};
-      font-weight: bold;
-    `,
-    InfoContainer: Object.assign(
-      styled.div`
-        display: flex;
-        flex-direction: column;
-        grid-column: 1/2;
-        grid-row: 3/4;
-      `,
-      {
-        Info: styled.div`
-          display: grid;
-          grid-template-columns: repeat(2, max-content);
-          grid-template-rows: repeat(8, max-content);
-          grid-column-gap: ${RWDWidth(33)};
-          grid-row-gap: ${RWDHeight(30)};
-          font-size: ${RWDFontSize(20)};
-          font-weight: bold;
-        `,
-      }
-    ),
-  }
-);
-
-const addHexColor = (c1, c2) => {
-  var hexStr = (parseInt(c1, 16) - parseInt(c2, 16)).toString(16);
-  while (hexStr.length < 6) {
-    hexStr = "0" + hexStr;
-  } // Zero pad.
-  return hexStr;
-};
-
-const slotIDProcessing = (start, end) => {
-  let hour = String(parseInt(((start - 1) * 30) / 60));
-  const startHour = "0".repeat(2 - hour.length) + hour;
-  const startMinute = parseInt(((start - 1) * 30) % 60) ? "30" : "00";
-  hour = String(parseInt((end * 30) / 60));
-  const endHour = "0".repeat(2 - hour.length) + hour;
-  const endMinute = parseInt((end * 30) % 60) ? "30" : "00";
-  return `${startHour}:${startMinute}~${endHour}:${endMinute}`;
-};
+const {
+  GroupAvailability,
+  GroupAvailability: { VotingContainer },
+  GroupAvailability: {
+    VotingContainer: { DayContainer },
+  },
+  GroupAvailability: {
+    VotingContainer: {
+      DayContainer: { CellHoverContainer },
+    },
+  },
+} = ContentContainer;
 
 const MeetInfo = () => {
   const { t } = useTranslation();
   const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
   const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
-  const [meetInfo, setMeetInfo] = useState({
-    EventName: "SDM UIUX discuss",
-    "Start / End Date": "2023/03/29 ~ 2023/04/05",
-    "Start / End Time": "08:00 ~ 19:30",
-    Host: <MemberTag>Amber</MemberTag>,
-    Member: (
-      <div
-        style={{
-          display: "flex",
-          gap: `${RWDFontSize(8)} ${RWDFontSize(8)}`,
-          flexWrap: "wrap",
-          width: RWDWidth(590),
-          alignContent: "flex-start",
-        }}
-      >
-        <MemberTag>b09705015@gmail.com</MemberTag>
-        <MemberTag>b09705015@gmail.com</MemberTag>
-        <MemberTag>b09705015@gmail.com</MemberTag>
-        <MemberTag>b09705015@gmail.com</MemberTag>
-        <MemberTag>b09705015@gmail.com</MemberTag>
-        <MemberTag>b09705015@gmail.com</MemberTag>
-      </div>
-    ),
+  const ref = useRef(); //偵測星期三的高度與寬度
+  const [DATERANGE, setDATERANGE] = useState([]);
+  const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
+  const [VOTINGINFO, setVOTINGINFO] = useState([]);
+  const [CELLCOLOR, setCELLCOLOR] = useState([]);
 
-    Description: "None",
-    "Voting Deadline": "None",
-    "Invitation URL": "https://lets.meet.com?invite=Dh6yu3",
-    "Google Meet URL": "https://meet.google.com/vft-xolb-mog",
+  const [meetInfo, setMeetInfo] = useState({
+    EventName: "",
+    "Start / End Date": "",
+    "Start / End Time": "",
+    Host: "",
+    Member: "",
+    Description: "",
+    "Voting Deadline": "",
+    "Invitation URL": "",
+    "Google Meet URL": "",
   });
-  const { login, cookies } = useMeet();
+  const { login, cookies, setError } = useMeet();
   const navigate = useNavigate();
   const location = useLocation();
   const { code } = useParams();
@@ -148,32 +68,65 @@ const MeetInfo = () => {
 
   const handleMeetInfo = async () => {
     try {
+      const { data: votingData } = await getGroupAvailability(
+        code,
+        cookies.token
+      );
+      setVOTINGINFO(votingData.data);
+      console.log(votingData.data);
       const { data } = await getMeetInfo(undefined, cookies.token, code);
       setMeetInfo({
         EventName: data.meet_name,
         "Start / End Date":
           data.start_date.replaceAll("-", "/") +
-          "~" +
+          " ~ " +
           data.end_date.replaceAll("-", "/"),
-        "Start / End Time": slotIDProcessing(
-          data.start_time_slot_id,
-          data.end_time_slot_id
-        ), //  (data.start_time_slot_id - 1) * 30 % 60
-        Host:
-          data.host_info?.name ??
-          data.host_info?.id ??
-          location.state.guestName,
-        Member: data.member_infos.map((m) => m.name).join(", "),
-        Description: data.description,
+        "Start / End Time":
+          slotIDProcessing(data.start_time_slot_id) +
+          " ~ " +
+          slotIDProcessing(data.end_time_slot_id + 1),
+        Host: (
+          <MemberTag style={{ fontSize: RWDFontSize(16) }}>
+            {data.host_info?.name ??
+              data.host_info?.id ??
+              location.state.guestName}
+          </MemberTag>
+        ),
+        Member: (
+          <div
+            style={{
+              display: "flex",
+              gap: `${RWDFontSize(8)} ${RWDFontSize(8)}`,
+              flexWrap: "wrap",
+              width: RWDWidth(590),
+              alignContent: "flex-start",
+            }}
+          >
+            {data.member_infos.map((m, index) => (
+              <MemberTag key={index}>{m.name}</MemberTag>
+            ))}
+          </div>
+        ),
+        Description: data.description ?? "None",
         "Voting Deadline": data.voting_end_time
           ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
-          : "not assigned",
+          : "None",
         "Invitation URL": `https://lets.meet.com?invite=${data.invite_code}`,
         "Google Meet URL":
           data.meet_url ?? "https://meet.google.com/vft-xolb-mog",
       });
+      setDATERANGE(
+        [
+          ...moment
+            .range(moment(data.start_date), moment(data.end_date))
+            .by("day"),
+        ].map((m) => m.format("YYYY-MM-DD"))
+      );
+      setTIMESLOTIDS(
+        _.range(data.start_time_slot_id, data.end_time_slot_id + 2)
+      );
     } catch (error) {
-      console.log(error);
+      setError(error.message);
     }
   };
 
@@ -193,25 +146,35 @@ const MeetInfo = () => {
     if (code) {
       handleMeetInfo();
     }
-    // console.log(id);
   }, [code]);
 
-  const showLeaveModal = () => {
-    setIsModalLeaveOpen(true);
-  };
-  const handleLeaveOk = () => {
-    setIsModalLeaveOpen(false);
-  };
-  const handleLeaveCancel = () => {
-    setIsModalLeaveOpen(false);
+  useEffect(() => {
+    if (VOTINGINFO.length) {
+      const allMembersNum =
+        VOTINGINFO?.[0]?.available_members.length +
+        VOTINGINFO?.[0]?.unavailable_members.length;
+      const gap =
+        Math.floor(allMembersNum / 5) < 1 ? 1 : Math.floor(allMembersNum / 5);
+      setCELLCOLOR(
+        VOTINGINFO.map(
+          (v) => COLORS.orange[Math.ceil(v.available_members.length / gap)]
+        )
+      );
+    }
+  }, [VOTINGINFO]); //設定 time cell 顏色
+
+  const handleLeaveYes = () => {
+    if (!login) {
+      navigate("/");
+    }
   };
 
   const handleVote = () => {
-    if (!login && !location.state.guestName) {
+    if (!login && !location?.state?.guestName) {
       setIsModalVoteOpen(true);
       return;
     }
-    navigate("/voting");
+    navigate(`/voting/${code}`);
   };
 
   const handleVoteOk = async (e) => {
@@ -220,218 +183,282 @@ const MeetInfo = () => {
       { invite_code: code, name: form.getFieldValue().name },
       cookies.token
     );
-    navigate("/voting");
+    navigate(`/voting/${code}`);
     setIsModalVoteOpen(false);
-  };
-  const handleVoteCancel = () => {
-    setIsModalVoteOpen(false);
-  };
-
-  const chooseColor = (num) => {
-    // return addHexColor("F0F0F0", ((Math.max(num-1, 0)*3635)+984028).toString(16));
-    if (num === 0) return "f0f0f0";
-    else return addHexColor("FFF4CC", ((num - 1) * 3635).toString(16));
   };
 
   return (
-    <Base>
+    <Base login={login}>
       <Base.FullContainer>
-        <ContentContainer>
-          <ContentContainer.Title>
-            <Button
-              icon={<ArrowLeftOutlined />}
-              style={{
-                position: "absolute",
-                right: "100%",
-                borderColor: "white",
-                color: "#808080",
-                marginRight: RWDWidth(30),
-              }}
-              onClick={() => {
-                navigate("/meets");
-              }}
-            ></Button>
-            <span>{meetInfo.EventName}</span>
-          </ContentContainer.Title>
-          <div
-            style={{
-              gridColumn: "1/2",
-              gridRow: "2/3",
-              height: "50px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "flex-end",
-            }}
-          >
-            {t("groupAva")}
-          </div>
-          <ContentContainer.InfoContainer>
-            <ContentContainer.InfoContainer.Info>
-              {Object.keys(meetInfo)
-                .filter((m) => m !== "EventName")
-                .map((title, index) => (
-                  <Fragment key={index}>
-                    <div
-                      style={{
-                        gridColumn: "1/2",
-                        gridRow: `${index + 1}/${index + 2}`,
-                      }}
-                    >
-                      {CONTENTNAME[title]}
-                    </div>
-                    <div
-                      style={{
-                        gridColumn: "2/3",
-                        gridRow: `${index + 1}/${index + 2}`,
-                        fontWeight: "normal",
-                      }}
-                    >
-                      {meetInfo[title]}
-                    </div>
-                  </Fragment>
-                ))}
-            </ContentContainer.InfoContainer.Info>
-          </ContentContainer.InfoContainer>
-        </ContentContainer>
-        {/*
-          <Button
-            style={{
-              marginLeft: "65%",
-              marginTop: "35px",
-              marginRight: "5px",
-              borderColor: "#FEE9DD",
-              color: "#DB8600",
-            }}
-            onClick={showLeaveModal}
-          >
-            Leave Meet
-          </Button>
-          <Button
-            style={{
-              marginTop: "35px",
-              background: "#DB8600",
-              borderColor: "#DB8600",
-              color: "white",
-            }}
-            onClick={handleVote}
-          >
-            Vote
-          </Button>
-        </CreateMeet> */}
-      </Base.FullContainer>
-      <Base.RightContainer>
-        {/* <FormWrapper>
-          <div
-            style={{
-              fontFamily: "Roboto",
-              fontWeight: "500",
-              fontSize: "20px",
-              position: "absolute",
-              left: "50%",
-              transform: "translate(-50%, 0%)",
-            }}
-          >
-            Group Availability
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: "15%",
-              transform: "translate(-50%, 0%)",
-            }}
-          >
-            <div className="cellIntroBlock">
-              {showList.length !== 0 &&
-                showList[0].map((item, j) => (
-                  <div className="cellIntro" key={j}>
-                    {item.date.slice(0, 6)}
-                  </div>
-                ))}
-            </div>
-            <div className="cellIntroBlock">
-              {showList.length !== 0 &&
-                showList[0].map((item, j) => (
-                  <div className="cellIntro" key={j}>
-                    {item.date.slice(6, 9)}
-                  </div>
-                ))}
-            </div>
-            {showList.map((items, i) => (
-              <div key={"row" + i} id={"row" + i} style={{ display: "flex" }}>
-                <div className="cellIntro">{items[0].time}</div>
-                {items.map((item, j) => (
-                  // <div className='cell' key={j} id={j} date={item.date} time={item.time}
-                  // available={item.availableNum} onMouseOver={() => handleShow(i, j)}
-                  // style={{ backgroundColor: "#"+chooseColor(item.availableNum) }}></div>
-                  <div
-                    className="cell"
-                    key={j}
-                    id={j}
-                    date={item.date}
-                    time={item.time}
-                    available={item.availableNum}
-                    style={{
-                      backgroundColor: "#" + chooseColor(item.availableNum),
-                    }}
-                  ></div>
-                ))}
+        {meetInfo?.EventName && (
+          <Base.FullContainer.ContentContainer>
+            <ContentContainer.Title>
+              <BackButton
+                style={{
+                  position: "absolute",
+                  right: "100%",
+                  marginRight: RWDWidth(30),
+                }}
+                onClick={() => {
+                  navigate("/meets");
+                }}
+              />
+              <span>{meetInfo.EventName}</span>
+            </ContentContainer.Title>
+            <ContentContainer.InfoContainer>
+              <ContentContainer.InfoContainer.Info>
+                {Object.keys(meetInfo)
+                  .filter((m) => m !== "EventName")
+                  .map((title, index) => (
+                    <Fragment key={index}>
+                      <div
+                        style={{
+                          gridColumn: "1/2",
+                          gridRow: `${index + 1}/${index + 2}`,
+                        }}
+                      >
+                        {title}
+                      </div>
+                      <div
+                        style={{
+                          gridColumn: "2/3",
+                          gridRow: `${index + 1}/${index + 2}`,
+                          fontWeight: "normal",
+                          fontSize: RWDFontSize(16),
+                        }}
+                      >
+                        {meetInfo[title]}
+                      </div>
+                    </Fragment>
+                  ))}
+              </ContentContainer.InfoContainer.Info>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  alignSelf: "flex-end",
+                  columnGap: RWDWidth(15),
+                }}
+              >
+                <Button
+                  style={{
+                    borderColor: "#FEE9DD",
+                    color: "#DB8600",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontSize: RWDFontSize(14),
+                  }}
+                  onClick={() => {
+                    setIsModalLeaveOpen(true);
+                  }}
+                >
+                  Leave Meet
+                </Button>
+                <Button
+                  style={{
+                    background: "#DB8600",
+                    borderColor: "#DB8600",
+                    color: "white",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    fontSize: RWDFontSize(14),
+                  }}
+                  onClick={handleVote}
+                >
+                  Vote
+                </Button>
               </div>
-            ))}
-          </div>
-        </FormWrapper>
+            </ContentContainer.InfoContainer>
+            <ContentContainer.GroupAvailability>
+            {t("groupAva")}
+            </ContentContainer.GroupAvailability>
+            {DATERANGE.length && TIMESLOTIDS.length && (
+              <ScrollSync>
+                <GroupAvailability.VotingContainer>
+                  <ScrollSyncPane>
+                    <VotingContainer.DayContainer>
+                      <DayContainer.TimeContainer
+                        style={{ paddingTop: RWDHeight(30) }}
+                      >
+                        {slotIDProcessing(TIMESLOTIDS[0])}
+                      </DayContainer.TimeContainer>
+                      {DATERANGE.map((w, index) => (
+                        <DayContainer.CellContainer
+                          key={index}
+                          // ref={w === "WED" ? ref : null}
+                        >
+                          <div style={{ userSelect: "none" }}>
+                            {moment(w).format("MMM DD")}
+                          </div>
+                          <div
+                            style={{ userSelect: "none", fontWeight: "bold" }}
+                          >
+                            {moment(w).format("ddd")}
+                          </div>
+                        </DayContainer.CellContainer>
+                      ))}
+                    </VotingContainer.DayContainer>
+                  </ScrollSyncPane>
+
+                  {TIMESLOTIDS.slice(1).map((t, t_index) => (
+                    <ScrollSyncPane key={t_index}>
+                      <VotingContainer.DayContainer>
+                        <DayContainer.TimeContainer>
+                          {slotIDProcessing(t)}
+                        </DayContainer.TimeContainer>
+                        {DATERANGE.map((_, w_index) => (
+                          <DayContainer.CellContainer key={w_index}>
+                            <InfoCell
+                              style={{
+                                backgroundColor:
+                                  CELLCOLOR[
+                                    w_index * (TIMESLOTIDS.length - 1) + t_index
+                                  ],
+                              }}
+                              info={
+                                <DayContainer.CellHoverContainer>
+                                  <CellHoverContainer.CellHoverInfo>
+                                    <div
+                                      style={{
+                                        fontWeight: "bold",
+                                        textDecoration: "underline",
+                                      }}
+                                    >
+                                      Availble
+                                    </div>
+                                    {VOTINGINFO?.[
+                                      w_index * (TIMESLOTIDS.length - 1) +
+                                        t_index
+                                    ]?.available_members.map((m, index) => (
+                                      <div key={index}>{m}</div>
+                                    ))}
+                                  </CellHoverContainer.CellHoverInfo>
+                                  <CellHoverContainer.CellHoverInfo>
+                                    <div
+                                      style={{
+                                        fontWeight: "bold",
+                                        textDecoration: "underline",
+                                      }}
+                                    >
+                                      Unavailble
+                                    </div>
+                                    {VOTINGINFO?.[
+                                      w_index * (TIMESLOTIDS.length - 1) +
+                                        t_index
+                                    ]?.unavailable_members.map((m, index) => (
+                                      <div key={index}>{m}</div>
+                                    ))}
+                                  </CellHoverContainer.CellHoverInfo>
+                                </DayContainer.CellHoverContainer>
+                              }
+                            />
+                          </DayContainer.CellContainer>
+                        ))}
+                      </VotingContainer.DayContainer>
+                    </ScrollSyncPane>
+                  ))}
+                </GroupAvailability.VotingContainer>
+              </ScrollSync>
+            )}
+          </Base.FullContainer.ContentContainer>
+        )}
         <Modal
-          title="Are you sure you want to leave this meet?"
+          bodyStyle={{ height: RWDHeight(30) }}
+          centered
+          closable={false}
+          footer={
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+              }}
+            >
+              <ModalButton
+                style={{ backgroundColor: "#B8D8BA" }}
+                onClick={() => {
+                  setIsModalLeaveOpen(false);
+                }}
+              >
+                NO
+              </ModalButton>
+              <ModalButton
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  borderColor: "#B8D8BA",
+                }}
+                onClick={handleLeaveYes}
+                type="default"
+              >
+                YES
+              </ModalButton>
+            </div>
+          }
+          onCancel={() => {
+            setIsModalLeaveOpen(false);
+          }}
           open={isModalLeaveOpen}
-          onOk={handleLeaveOk}
-          onCancel={handleLeaveCancel}
-          okText="Yes"
-          cancelText="No"
-        ></Modal>
+          title={
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                columnGap: RWDWidth(12),
+              }}
+            >
+              <InfoCircleFilled style={{ color: "#FAAD14" }} />
+              <span>Are you sure you want to leave this meet?</span>
+            </div>
+          }
+        />
         <Modal
-          title=""
+          centered
+          closable={false}
+          footer={null}
+          onCancel={() => {
+            setIsModalVoteOpen(false);
+          }}
           open={isModalVoteOpen}
-          onOk={handleVoteOk}
-          onCancel={handleVoteCancel}
-          okText="Ok"
-          cancelText="Cancel"
+          title=""
+          width={RWDWidth(450)}
         >
-          <Form form={form} layout="vertical" name="form_in_modal">
+          <Form
+            form={form}
+            style={{
+              width: RWDWidth(393),
+              height: RWDHeight(192),
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              margin: "15px 0",
+            }}
+          >
             <Form.Item
-              name="name"
-              label="Your name"
+              name="username"
               rules={[
                 {
                   required: true,
-                  message: "Error: Please enter your name!",
+                  message: "Username is required",
                 },
               ]}
+              style={{ margin: 0 }}
             >
-              <Input />
+              <MainInput placeholder="Your name" />
             </Form.Item>
-            <Form.Item name="Password" label="Password(Optional)">
-              <Input.Password />
+            <Form.Item name="password" style={{ margin: 0 }}>
+              <MainPassword placeholder="Password (optional)" />
             </Form.Item>
-          </Form> */}
-        {/* <Input
-                    placeholder="Your name"
-                    style={{
-                    borderRadius: "15px",
-                    marginTop: "30px",
-                    marginBottom: "20px",
-                    }}
-                    name="user_identifier"
-                />
-                <Input
-                    placeholder="Password(Optional)"
-                    style={{
-                    borderRadius: "15px",
-                    // marginBttom: "30px",
-                    }}
-                    name="password"
-                /> */}
-        {/* </Modal> */}
-      </Base.RightContainer>
+            <Form.Item style={{ margin: 0, alignSelf: "flex-end" }}>
+              <ModalButton
+                htmlType="submit"
+                style={{ backgroundColor: "#B8D8BA" }}
+              >
+                OK
+              </ModalButton>
+            </Form.Item>
+          </Form>
+        </Modal>
+      </Base.FullContainer>
     </Base>
   );
 };

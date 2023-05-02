@@ -15,6 +15,7 @@ const {
     CreateMeet: { Content },
   },
 } = Base;
+const MemberTag = Tag("member");
 
 const MenuItem = styled.div`
   width: ${RWDWidth(290)};
@@ -195,15 +196,7 @@ const Member = ({ setMeetData }) => {
             placement="bottomLeft"
             open={open}
           >
-            <Input
-              style={{
-                ...Content.Input,
-                display: "flex",
-                alignItems: "center",
-              }}
-              value={input}
-              onChange={handleInputChange}
-            />
+            <Content.Input value={input} onChange={handleInputChange} />
           </Dropdown>
           <Button
             style={{
@@ -236,9 +229,13 @@ const Member = ({ setMeetData }) => {
             }}
           >
             {member.map((item, index) => (
-              <Tag key={index} closable onClose={handleMemberDelete(item)}>
+              <MemberTag
+                key={index}
+                closable
+                onClose={handleMemberDelete(item)}
+              >
                 {item.username}
-              </Tag>
+              </MemberTag>
             ))}
           </div>
         </div>

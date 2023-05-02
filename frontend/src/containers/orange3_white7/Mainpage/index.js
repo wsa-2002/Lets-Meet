@@ -95,7 +95,7 @@ const Mainpage = () => {
     member_ids: [],
     emails: [],
   });
-  const { login, cookies } = useMeet();
+  const { login, cookies, setError } = useMeet();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const invite = useRef(null);
@@ -110,6 +110,9 @@ const Mainpage = () => {
   };
 
   const handleInvite = async (e) => {
+    if (!invite?.current?.input?.value) {
+      return;
+    }
     if (e?.key === "Enter" || !e.key) {
       if (cookies.token) {
         await AXIOS.joinMeet(
@@ -151,8 +154,8 @@ const Mainpage = () => {
       delete temp["voting_end_date"];
       const { data } = await AXIOS.addMeet(temp, cookies.token);
       navigate(`/meets/${data.invite_code}`);
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      setError(error.message);
     }
   };
 
@@ -176,7 +179,7 @@ const Mainpage = () => {
         state: { guestName: form.getFieldValue().name },
       });
     } catch (error) {
-      console.log(error);
+      setError(error.message);
     }
   };
   const handleCancel = () => {
@@ -185,8 +188,7 @@ const Mainpage = () => {
 
   const CONTENTMENU = {
     "Meet Name": (
-      <Input
-        style={{ ...Content.Input }}
+      <Content.Input
         onChange={handleMeetDataChange((i) => i.target.value, "meet_name")}
         data-required={true}
       />
@@ -280,7 +282,7 @@ const Mainpage = () => {
   }, []);
 
   return (
-    <Base title_disable={true} header={{ show: true, login }}>
+    <Base title_disable={true} login={login}>
       <Base.LeftContainer
         style={{
           display: "flex",
@@ -300,6 +302,7 @@ const Mainpage = () => {
             <JoinMeet.InvitationArea.Button
               type="primary"
               icon={<ArrowRightOutlined />}
+              onClick={handleInvite}
             />
           </JoinMeet.InvitationArea>
         </JoinMeet>
@@ -348,7 +351,7 @@ const Mainpage = () => {
                         marginLeft: RWDWidth(4),
                         cursor: "pointer",
                         color: "darkgray",
-                        fontSize: "bold",
+                        fontWeight: "bold",
                       }}
                     />
                   </Tooltip>

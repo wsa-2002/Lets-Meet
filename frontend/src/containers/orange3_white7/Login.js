@@ -26,7 +26,7 @@ const LogIn = () => {
     password: "",
   });
   const search = useLocation().search;
-  const { login, GLOBAL_LOGIN } = useMeet();
+  const { login, GLOBAL_LOGIN, setError } = useMeet();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [api, contextHolder] = notification.useNotification();
@@ -50,8 +50,17 @@ const LogIn = () => {
       api.open({
         message: t("loginFailed"),
         description,
-        style: {},
+        placement: "top",
+        duration: 160,
+        style: {
+          fontSize: RWDFontSize(20),
+          fontWeight: 700,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        },
       });
+      setDescription("");
     }
   }, [description]);
 
@@ -62,7 +71,7 @@ const LogIn = () => {
       if (error) {
         switch (error) {
           case "LoginFailed":
-            setDescription(" ");
+            setDescription(<></>);
             break;
           case "EmailRegisteredByGoogle":
             setDescription(
@@ -76,8 +85,8 @@ const LogIn = () => {
         console.log(data);
         GLOBAL_LOGIN(data.token);
       }
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      setError(error.message);
     }
   };
 
@@ -146,7 +155,7 @@ const LogIn = () => {
                 disabled={!loginData.user_identifier || !loginData.password}
                 onClick={handleLoginClick}
               >
-                {t("save")}
+                {t("login")}
               </InfoContainer.Button>
 
               <Divider

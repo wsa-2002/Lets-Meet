@@ -1,22 +1,13 @@
 import { keyframes, css } from "styled-components";
 export const COLORS = {
-  // base colors
-  primary: "#00996D", // Green
-  secondary: "#606d87", // Gray
-
-  // colors
-  black: "#1E1F20",
-  white: "#FFFFFF",
-  lightGray: "#eff2f5",
-  gray: "#BEC1D2",
-
-  // https://www.figma.com/community/file/963797805297200933
-  orange: "#FFE3D3",
-  yellow: "#FFFACA",
-  green: "#EAFFFB",
-  blue: "#E7F6FF",
-  purple: "#EEE5FF",
-  pink: "#FFE8EC",
+  orange: {
+    0: "#F0F0F0",
+    1: "#FFF4CC",
+    2: "#FFD466",
+    3: "#FFC340",
+    4: "#DB8600",
+    5: "#935000",
+  },
 };
 
 export const SIZES = {
@@ -113,6 +104,11 @@ export const RWD = {
    * @return {String}         calc(100vmin * ${fontsize} / 1080)
    */
   RWDFontSize: (fontsize) => `calc(100vmin * ${fontsize} / 1080)`,
+  /**
+   * @param {number} number px unit in Figma
+   * @return {String}         calc(100vmin * ${number} / 1080)
+   */
+  RWDVmin: (number) => `calc(100vmin * ${number} / 1080)`,
 };
 
 export const ANIME = {

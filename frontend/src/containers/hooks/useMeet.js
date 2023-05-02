@@ -1,13 +1,15 @@
+import jwt from "jwt-decode";
 import { useState, useContext, createContext, useEffect } from "react";
 import { useCookies } from "react-cookie";
-import jwt from "jwt-decode";
 const MeetContext = createContext({
   login: false,
+  error: "",
 });
 
 const MeetProvider = (props) => {
   const [cookies, setCookie, removeCookie] = useCookies(["token"]);
   const [login, setLogin] = useState(cookies.token ?? false);
+  const [error, setError] = useState("");
 
   const GLOBAL_LOGIN = (token) => {
     const decoded = jwt(token);
@@ -26,6 +28,8 @@ const MeetProvider = (props) => {
       value={{
         login,
         cookies,
+        error,
+        setError,
         setLogin,
         setCookie,
         removeCookie,

@@ -20,3 +20,9 @@ export const {
 } = GET;
 export const { deleteRoutine } = DELETE;
 export { googleLogin } from "./google";
+export {
+  getGroupAvailability,
+  getMyAvailability,
+  addMyAvailability,
+  deleteMyAvailability,
+} from "./votingTable";

@@ -1,4 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { message } from "antd";
+import { useEffect } from "react";
+import { useMeet } from "./containers/hooks/useMeet";
 import Main from "./containers/orange3_white7/Mainpage";
 import Login from "./containers/orange3_white7/Login";
 import Signup from "./containers/orange3_white7/Signup";
@@ -9,12 +12,25 @@ import MeetInfo from "./containers/MeetInfo";
 import Voting from "./containers/Voting";
 import Routine from "./containers/orange3_white7/Routine";
 import Error from "./containers/Error";
-// import Test from "./test/MeetInfo 測試版";
-
 function App() {
+  const [messageApi, contextHolder] = message.useMessage();
+  const { error, setError } = useMeet();
+
+  useEffect(() => {
+    if (error) {
+      messageApi.open({
+        type: "error",
+        content: error,
+        duration: 1,
+      });
+      setError("");
+    }
+  }, [error]);
+
   return (
+    // <CssBaseline />
     <>
-      {/* <CssBaseline /> */}
+      {contextHolder}
       <BrowserRouter>
         <Routes>
           {/* <Route element={<MainFrame />} path="/">
@@ -27,7 +43,7 @@ function App() {
           <Route element={<Signup />} path="/signup" />
           <Route element={<Reset />} path="/reset" />
           <Route element={<Change />} path="/reset-password" />
-          <Route element={<Voting />} path="/voting" />
+          <Route element={<Voting />} path="/voting/:code" />
           <Route element={<Routine />} path="/routine" />
           {/* <Route element={<Test />} path="/test" /> */}
           <Route element={<Error />} path="*"></Route>

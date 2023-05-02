@@ -16,7 +16,8 @@ async def add(title: str, invite_code: str,
               gen_meet_url: bool, voting_end_time: Optional[datetime] = None,
               status: enums.StatusType = enums.StatusType.voting,
               host_member_id: int = None, member_ids: Sequence[int] = None,
-              guest_name: Optional[str] = None, description: Optional[str] = None) -> int:
+              guest_name: Optional[str] = None, guest_passhash: Optional[str] = None,
+              description: Optional[str] = None) -> int:
     conn: asyncpg.connection.Connection = await pool_handler.pool.acquire()
     try:
         meet_id, = await conn.fetchrow(
@@ -45,9 +46,9 @@ async def add(title: str, invite_code: str,
         if guest_name:
             await conn.execute(
                 r"INSERT INTO meet_member"
-                r"            (meet_id, name)"
-                r"     VALUES ($1, $2)",
-                meet_id, guest_name,
+                r"            (meet_id, name, pass_hash)"
+                r"     VALUES ($1, $2, $3)",
+                meet_id, guest_name, guest_passhash,
             )
         return meet_id
     finally:
@@ -287,11 +288,12 @@ async def update_status(meet_id: int, status: enums.StatusType) -> None:
     await pool_handler.pool.execute(sql, *params)
 
 
-async def add_member(meet_id: int, account_id: Optional[int] = None, name: Optional[str] = None) -> None:
+async def add_member(meet_id: int, account_id: Optional[int] = None,
+                     name: Optional[str] = None, pass_hash: Optional[str] = None) -> None:
     sql, params = pyformat2psql(
         sql=fr'INSERT INTO meet_member'
-            fr'            (name, member_id, meet_id)'
-            fr'     VALUES (%(name)s, %(member_id)s, %(meet_id)s)',
-        name=name, member_id=account_id, meet_id=meet_id,
+            fr'            (name, member_id, meet_id, pass_hash)'
+            fr'     VALUES (%(name)s, %(member_id)s, %(meet_id)s, %(pass_hash)s)',
+        name=name, member_id=account_id, meet_id=meet_id, pass_hash=pass_hash,
     )
     await pool_handler.pool.execute(sql, *params)
