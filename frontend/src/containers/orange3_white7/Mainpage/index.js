@@ -26,6 +26,7 @@ import * as AXIOS from "../../../middleware";
 import Member from "./Member";
 import _ from "lodash";
 import { RWD } from "../../../constant";
+import { useTranslation } from 'react-i18next';
 const { RWDHeight, RWDFontSize, RWDWidth, RWDRadius } = RWD;
 const {
   RightContainer: { CreateMeet },
@@ -80,6 +81,7 @@ const JoinMeet = Object.assign(
 
 const Mainpage = () => {
   const ref = useRef(null); //追蹤LetMEET
+  const { t } = useTranslation();
   const [width, setWidth] = useState(ref?.current?.offsetWidth);
   const [votingButton, setVotingButton] = useState("hidden");
   const [meetData, setMeetData] = useState({
@@ -258,6 +260,16 @@ const Mainpage = () => {
     ),
   };
 
+  const CONTENTNAME = {
+    "Meet Name": t("meetName"),
+    "Start/End Date": t("startDate"),
+    "Start/End Time": t("startTime"),
+    Member: t("member"),
+    Description: t("description"),
+    "Voting Deadline": t("votingDeadline"),
+    "Google Meet URL": t("url")
+  }
+
   const throttledHandleResize = _.throttle(() => {
     setWidth(ref?.current?.offsetWidth);
   }, 500);
@@ -280,10 +292,10 @@ const Mainpage = () => {
         }}
       >
         <JoinMeet>
-          <JoinMeet.Title>Join Meet</JoinMeet.Title>
+          <JoinMeet.Title>{t("joinMeet")}</JoinMeet.Title>
           <JoinMeet.InvitationArea style={{ maxWidth: width }}>
             <JoinMeet.InvitationArea.Input
-              placeholder="Invitation code"
+              placeholder={t("invitation")}
               ref={invite}
               onKeyDown={handleInvite}
             />
@@ -302,7 +314,7 @@ const Mainpage = () => {
         style={{ justifyContent: "flex-start", flexDirection: "column" }}
       >
         <CreateMeet style={{ alignSelf: "flex-start" }}>
-          <CreateMeet.Title>Create Meet</CreateMeet.Title>
+          <CreateMeet.Title>{t("createMeet")}</CreateMeet.Title>
           {Object.keys(CONTENTMENU).map((title, index) => (
             <Fragment key={index}>
               <CreateMeet.Content
@@ -315,7 +327,7 @@ const Mainpage = () => {
                   columnGap: RWDWidth(4),
                 }}
               >
-                <div>{title}</div>
+                <div>{CONTENTNAME[title]}</div>
                 {CONTENTMENU[title].props["data-required"] && (
                   <div
                     style={{
@@ -361,7 +373,7 @@ const Mainpage = () => {
           style={{ position: "relative", top: RWDHeight(8) }}
           onClick={handleMeetCreate}
         >
-          Create
+          {t("create")}
         </PrimaryButton>
       </Base.RightContainer>
       <Modal

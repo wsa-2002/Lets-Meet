@@ -13,6 +13,7 @@ import Input from "../components/Input";
 import Tag from "../components/Tag";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
 import { RWD, COLORS } from "../constant";
+import { useTranslation } from 'react-i18next';
 import { getMeetInfo, joinMeet, getGroupAvailability } from "../middleware";
 const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
 const MemberTag = Tag("member");
@@ -39,6 +40,7 @@ const {
 } = ContentContainer;
 
 const MeetInfo = () => {
+  const { t } = useTranslation();
   const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
   const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
   const ref = useRef(); //偵測星期三的高度與寬度
@@ -127,6 +129,18 @@ const MeetInfo = () => {
       setError(error.message);
     }
   };
+
+  const CONTENTNAME = {
+    "Meet Name": t("meetName"),
+    "Start / End Date": t("startDate"),
+    "Start / End Time": t("startTime"),
+    Host: t("host"),
+    Member: t("member"),
+    Description: t("description"),
+    "Voting Deadline": t("votingDeadline"),
+    "Invitation URL": t("invitation"),
+    "Google Meet URL": t("url")
+  }
 
   useEffect(() => {
     if (code) {
@@ -256,7 +270,7 @@ const MeetInfo = () => {
               </div>
             </ContentContainer.InfoContainer>
             <ContentContainer.GroupAvailability>
-              Group Availability
+            {t("groupAva")}
             </ContentContainer.GroupAvailability>
             {DATERANGE.length && TIMESLOTIDS.length && (
               <ScrollSync>

@@ -6,10 +6,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import * as AXIOS from "../../middleware";
 import Base from "../../components/Base/orange3_white7";
 import { RWD } from "../../constant";
+import { useTranslation } from 'react-i18next';
 const { InfoContainer } = Base.RightContainer;
 const { RWDHeight } = RWD;
 
 const ChangePassword = () => {
+  const { t } = useTranslation();
   const [newPassword, setNewPassword] = useState({
     "New Password": "",
     "Confirmed New Password": "",
@@ -53,7 +55,7 @@ const ChangePassword = () => {
               marginTop: RWDHeight(10),
             }}
           >
-            <InfoContainer.Title>Reset Password</InfoContainer.Title>
+            <InfoContainer.Title>{t("resetPass")}</InfoContainer.Title>
             {Object.keys(newPassword).map((m, index) => (
               <InfoContainer.Password
                 placeholder={m}
@@ -70,7 +72,7 @@ const ChangePassword = () => {
             }
             onClick={handleClick}
           >
-            Save
+            {t("save")}
           </InfoContainer.Button>
         </InfoContainer>
       </Base.RightContainer>

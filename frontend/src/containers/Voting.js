@@ -12,6 +12,7 @@ import { RWD } from "../constant";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
+import { useTranslation } from 'react-i18next';
 import {
   getGroupAvailability,
   getMyAvailability,
@@ -36,6 +37,7 @@ const Voting = () => {
 
   /*可拖曳 time cell 套組*/
   const [cell, setCell] = useState([]);
+  const { t } = useTranslation();
   const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
   const [startIndex, setStartIndex] = useState([]); //選取方塊位置
   const oriCell = useMemo(() => cell, [startDrag]);
@@ -195,10 +197,10 @@ const Voting = () => {
                 <span>{"SDM"}</span>
               </ContentContainer.Title>
               <ContentContainer.MyAvailability>
-                My Availability
+                {t("myAva")}
               </ContentContainer.MyAvailability>
               <ContentContainer.GroupAvailability>
-                Group Availability
+              {t("groupAva")}
               </ContentContainer.GroupAvailability>
               <ContentContainer.MyAvailability.VotingContainer>
                 <ContentContainer.MyAvailability.VotingContainer.TimeContainer
@@ -280,8 +282,57 @@ const Voting = () => {
               >
                 SDM Class
               </div>
+<<<<<<< HEAD
+            </ScrollSyncPane>
+          </div>
+        </FormWrapper>
+      </div>
+    </div>
+  );
+
+  const rightChild = (
+    <div
+      style={{
+        // borderLeft: "1px #000000 dashed",
+        // borderRight: "1px #000000 dashed",
+        display: "flex",
+        justifyContent: "center",
+        width: "100%",
+        position: "relative",
+      }}
+    >
+      <FormWrapper>
+        <div
+          style={{
+            fontFamily: "Roboto",
+            fontWeight: "500",
+            fontSize: "20px",
+          }}
+        >
+          {t("groupAva")}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            columnGap: "2px",
+            width: "100%",
+            justifyContent: "center",
+          }}
+        >
+          <DayColumn
+            style={{
+              alignItems: "flex-end",
+              marginRight: "5px",
+              marginTop: "-10px",
+            }}
+          >
+            <div style={{ opacity: "0" }}>Mar 29</div>
+            <div style={{ opacity: "0" }}>Wed</div>
+            {TIMESLOTIDS.map((t, Tindex) => (
+=======
             </NameWrapper>
             <FormWrapper onMouseUp={handleCellMouseUp}>
+>>>>>>> origin/main
               <div
                 style={{
                   fontFamily: "Roboto",
