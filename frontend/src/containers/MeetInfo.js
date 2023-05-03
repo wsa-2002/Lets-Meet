@@ -1,5 +1,5 @@
-import { InfoCircleFilled } from "@ant-design/icons";
-import { Button, Modal, Form } from "antd";
+import { InfoCircleFilled, EditFilled } from "@ant-design/icons";
+import { Modal, Form } from "antd";
 import _ from "lodash";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
@@ -8,20 +8,25 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import { useMeet } from "./hooks/useMeet";
 import Base from "../components/Base/145MeetRelated";
-import TEST from "../components/Button";
+import Button from "../components/Button";
 import Input from "../components/Input";
+import MeetInfoEdit from "../components/MeetInfo";
 import Tag from "../components/Tag";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
 import { RWD, COLORS } from "../constant";
-import { getMeetInfo, joinMeet, getGroupAvailability } from "../middleware";
+import { meet, getGroupAvailability } from "../middleware";
 const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
 const MemberTag = Tag("member");
 const InfoCell = TimeCell("info");
 const moment = extendMoment(Moment);
 const MainInput = Input("main");
 const MainPassword = Input.Password("main");
-const BackButton = TEST("back");
-const ModalButton = TEST("modal");
+const BackButton = Button("back");
+const ModalButton = Button("modal");
+const RectButton = Button("rect");
+const getMeetInfo = meet("read");
+const joinMeet = meet("join");
+const leaveMeet = meet("leave");
 
 const { ContentContainer } = Base.FullContainer;
 
@@ -58,6 +63,9 @@ const MeetInfo = () => {
     "Invitation URL": "",
     "Google Meet URL": "",
   });
+  const [editMeetInfo, setEditMeetInfo] = useState({});
+  const [editMode, setEditMode] = useState(false);
+
   const { login, cookies, setError } = useMeet();
   const navigate = useNavigate();
   const location = useLocation();
@@ -72,22 +80,34 @@ const MeetInfo = () => {
       );
       setVOTINGINFO(votingData.data);
       console.log(votingData.data);
-      const { data } = await getMeetInfo(undefined, cookies.token, code);
+      const {
+        data: {
+          meet_name,
+          start_date,
+          end_date,
+          start_time_slot_id,
+          end_time_slot_id,
+          host_info,
+          member_infos,
+          description,
+          voting_end_time,
+          invite_code,
+          meet_url,
+        },
+      } = await getMeetInfo(code, cookies.token);
       setMeetInfo({
-        EventName: data.meet_name,
+        EventName: meet_name,
         "Start / End Date":
-          data.start_date.replaceAll("-", "/") +
+          start_date.replaceAll("-", "/") +
           " ~ " +
-          data.end_date.replaceAll("-", "/"),
+          end_date.replaceAll("-", "/"),
         "Start / End Time":
-          slotIDProcessing(data.start_time_slot_id) +
+          slotIDProcessing(start_time_slot_id) +
           " ~ " +
-          slotIDProcessing(data.end_time_slot_id + 1),
+          slotIDProcessing(end_time_slot_id + 1),
         Host: (
           <MemberTag style={{ fontSize: RWDFontSize(16) }}>
-            {data.host_info?.name ??
-              data.host_info?.id ??
-              location.state.guestName}
+            {host_info?.name ?? host_info?.id ?? location.state.guestName}
           </MemberTag>
         ),
         Member: (
@@ -100,29 +120,33 @@ const MeetInfo = () => {
               alignContent: "flex-start",
             }}
           >
-            {data.member_infos.map((m, index) => (
+            {member_infos.map((m, index) => (
               <MemberTag key={index}>{m.name}</MemberTag>
             ))}
           </div>
         ),
-        Description: data.description ?? "None",
-        "Voting Deadline": data.voting_end_time
-          ? moment(data.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
+        Description: description ?? "None",
+        "Voting Deadline": voting_end_time
+          ? moment(voting_end_time).format("YYYY/MM/DD HH:mm:ss")
           : "None",
-        "Invitation URL": `https://lets.meet.com?invite=${data.invite_code}`,
-        "Google Meet URL":
-          data.meet_url ?? "https://meet.google.com/vft-xolb-mog",
+        "Invitation URL": `https://lets.meet.com?invite=${invite_code}`,
+        "Google Meet URL": meet_url ?? "https://meet.google.com/vft-xolb-mog",
+      });
+      setEditMeetInfo({
+        title: meet_name,
+        start_date,
+        end_date,
+        start_time_slot_id,
+        end_time_slot_id,
+        description,
+        voting_end_time,
       });
       setDATERANGE(
-        [
-          ...moment
-            .range(moment(data.start_date), moment(data.end_date))
-            .by("day"),
-        ].map((m) => m.format("YYYY-MM-DD"))
+        [...moment.range(moment(start_date), moment(end_date)).by("day")].map(
+          (m) => m.format("YYYY-MM-DD")
+        )
       );
-      setTIMESLOTIDS(
-        _.range(data.start_time_slot_id, data.end_time_slot_id + 2)
-      );
+      setTIMESLOTIDS(_.range(start_time_slot_id, end_time_slot_id + 2));
     } catch (error) {
       setError(error.message);
     }
@@ -149,9 +173,16 @@ const MeetInfo = () => {
     }
   }, [VOTINGINFO]); //設定 time cell 顏色
 
-  const handleLeaveYes = () => {
+  const handleLeaveYes = async () => {
     if (!login) {
       navigate("/");
+    } else {
+      try {
+        const { data, error } = await leaveMeet(code, cookies.token);
+        console.log(data, error);
+      } catch (error) {
+        throw error;
+      }
     }
   };
 
@@ -173,12 +204,26 @@ const MeetInfo = () => {
     setIsModalVoteOpen(false);
   };
 
+  const handleMeetDataChange =
+    (func, ...name) =>
+    (e) => {
+      if (name.length === 1) {
+        setEditMeetInfo((prev) => ({ ...prev, [name[0]]: func(e) }));
+      } else {
+        setEditMeetInfo((prev) => ({
+          ...prev,
+          [name[0]]: func(e[0], 1),
+          [name[1]]: func(e[1], 0),
+        }));
+      }
+    };
+
   return (
     <Base login={login}>
       <Base.FullContainer>
         {meetInfo?.EventName && (
           <Base.FullContainer.ContentContainer>
-            <ContentContainer.Title>
+            <ContentContainer.Title style={{ columnGap: RWDWidth(10) }}>
               <BackButton
                 style={{
                   position: "absolute",
@@ -186,38 +231,57 @@ const MeetInfo = () => {
                   marginRight: RWDWidth(30),
                 }}
                 onClick={() => {
-                  navigate("/meets");
+                  if (cookies.token) {
+                    navigate("/meets");
+                  } else {
+                    navigate("/");
+                  }
                 }}
               />
               <span>{meetInfo.EventName}</span>
+              <EditFilled
+                onClick={() => {
+                  setEditMode((prev) => !prev);
+                }}
+              />
             </ContentContainer.Title>
             <ContentContainer.InfoContainer>
-              <ContentContainer.InfoContainer.Info>
-                {Object.keys(meetInfo)
-                  .filter((m) => m !== "EventName")
-                  .map((title, index) => (
-                    <Fragment key={index}>
-                      <div
-                        style={{
-                          gridColumn: "1/2",
-                          gridRow: `${index + 1}/${index + 2}`,
-                        }}
-                      >
-                        {title}
-                      </div>
-                      <div
-                        style={{
-                          gridColumn: "2/3",
-                          gridRow: `${index + 1}/${index + 2}`,
-                          fontWeight: "normal",
-                          fontSize: RWDFontSize(16),
-                        }}
-                      >
-                        {meetInfo[title]}
-                      </div>
-                    </Fragment>
-                  ))}
-              </ContentContainer.InfoContainer.Info>
+              {editMode ? (
+                <MeetInfoEdit
+                  handleMeetDataChange={handleMeetDataChange}
+                  columnGap={20}
+                  rowGap={22}
+                  login={login}
+                  setMeetData={setEditMeetInfo}
+                />
+              ) : (
+                <ContentContainer.InfoContainer.Info>
+                  {Object.keys(meetInfo)
+                    .filter((m) => m !== "EventName")
+                    .map((title, index) => (
+                      <Fragment key={index}>
+                        <div
+                          style={{
+                            gridColumn: "1/2",
+                            gridRow: `${index + 1}/${index + 2}`,
+                          }}
+                        >
+                          {title}
+                        </div>
+                        <div
+                          style={{
+                            gridColumn: "2/3",
+                            gridRow: `${index + 1}/${index + 2}`,
+                            fontWeight: "normal",
+                            fontSize: RWDFontSize(16),
+                          }}
+                        >
+                          {meetInfo[title]}
+                        </div>
+                      </Fragment>
+                    ))}
+                </ContentContainer.InfoContainer.Info>
+              )}
               <div
                 style={{
                   display: "flex",
@@ -226,33 +290,28 @@ const MeetInfo = () => {
                   columnGap: RWDWidth(15),
                 }}
               >
-                <Button
+                <RectButton
                   style={{
                     borderColor: "#FEE9DD",
-                    color: "#DB8600",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    fontSize: RWDFontSize(14),
+                    color: "#F25C54",
                   }}
                   onClick={() => {
                     setIsModalLeaveOpen(true);
                   }}
                 >
                   Leave Meet
-                </Button>
-                <Button
+                </RectButton>
+                <RectButton
                   style={{
                     background: "#DB8600",
                     borderColor: "#DB8600",
                     color: "white",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    fontSize: RWDFontSize(14),
                   }}
+                  type="primary"
                   onClick={handleVote}
                 >
                   Vote
-                </Button>
+                </RectButton>
               </div>
             </ContentContainer.InfoContainer>
             <ContentContainer.GroupAvailability>

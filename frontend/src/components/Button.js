@@ -2,13 +2,19 @@
   1. Button, disalbed 時的提示語
 **************************************************************************************************/
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button as AntdButton, Tooltip, Image, ConfigProvider } from "antd";
+import {
+  Button as AntdButton,
+  Tooltip,
+  Image,
+  ConfigProvider,
+  Modal,
+} from "antd";
 import styled from "styled-components";
 import { RWD } from "../constant";
 import { googleLogin } from "../middleware";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 
-const BUTTONTYPE = ["primary", "secondary", "google", "back", "modal"];
+const BUTTONTYPE = ["primary", "secondary", "google", "back", "modal", "rect"];
 
 const BaseButton = styled(AntdButton)`
   display: flex;
@@ -53,6 +59,12 @@ const ModalButton = styled(BaseButton)`
   font-size: ${RWDFontSize(14)};
 `;
 
+const RectButton = styled(ModalButton)`
+  width: fit-content;
+  height: fit-content;
+  font-weight: 700;
+`;
+
 export default (type = "primary") =>
   (prop) => {
     if (!BUTTONTYPE.includes(type)) {
@@ -69,7 +81,6 @@ export default (type = "primary") =>
             {...prop}
             onClick={() => {
               googleLogin();
-              // window.open("http://localhost:8000/google-login", "_self");
             }}
           >
             <Image
@@ -109,6 +120,8 @@ export default (type = "primary") =>
           colorTextLightSolid: prop.style.color ?? "#000000",
         };
         break;
+      case "rect":
+        Component = <RectButton {...prop}>{prop.children}</RectButton>;
       default:
         break;
     }

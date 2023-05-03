@@ -3,39 +3,23 @@
   2.RWD, 解決 Footer 在頁面長度和高度縮小時的錯誤, 推測是由 Grid 造成的
   3.功能, 供選擇 23:59
 **************************************************************************************************/
-import React, { useRef, useState, useEffect, Fragment } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import {
-  Button as AntdButton,
-  Input,
-  DatePicker,
-  TimePicker,
-  Switch,
-  Modal,
-  Form,
-  Tooltip,
-} from "antd";
-import { ArrowRightOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { Button as AntdButton, Input, Modal, Form } from "antd";
+import { ArrowRightOutlined } from "@ant-design/icons";
 import Base from "../../../components/Base/orange3_white7";
 import Button from "../../../components/Button";
+import MeetInfo from "../../../components/MeetInfo";
 import Title from "../../../components/Title";
 import { useMeet } from "../../hooks/useMeet";
 import moment from "moment";
 import * as AXIOS from "../../../middleware";
-import Member from "./Member";
 import _ from "lodash";
 import { RWD } from "../../../constant";
 const { RWDHeight, RWDFontSize, RWDWidth, RWDRadius } = RWD;
-const {
-  RightContainer: { CreateMeet },
-  RightContainer: {
-    CreateMeet: { Content },
-  },
-} = Base;
-const { RangePicker } = DatePicker;
-const { TextArea } = Input;
 const PrimaryButton = Button();
+const joinMeet = AXIOS.meet("join");
 
 const JoinMeet = Object.assign(
   styled.div`
@@ -81,7 +65,6 @@ const JoinMeet = Object.assign(
 const Mainpage = () => {
   const ref = useRef(null); //追蹤LetMEET
   const [width, setWidth] = useState(ref?.current?.offsetWidth);
-  const [votingButton, setVotingButton] = useState("hidden");
   const [meetData, setMeetData] = useState({
     meet_name: "",
     start_date: "",
@@ -94,18 +77,10 @@ const Mainpage = () => {
     emails: [],
   });
   const { login, cookies, setError } = useMeet();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [guestModal, setGuestModalOpen] = useState(false);
   const navigate = useNavigate();
   const invite = useRef(null);
   const [form] = Form.useForm();
-
-  const showDate = () => {
-    if (votingButton === "hidden") {
-      setVotingButton("visible");
-    } else {
-      setVotingButton("hidden");
-    }
-  };
 
   const handleInvite = async (e) => {
     if (!invite?.current?.input?.value) {
@@ -113,10 +88,14 @@ const Mainpage = () => {
     }
     if (e?.key === "Enter" || !e.key) {
       if (cookies.token) {
-        await AXIOS.joinMeet(
-          { invite_code: invite.current.input.value },
+        const { error } = await joinMeet(
+          invite.current.input.value,
           cookies.token
         );
+        if (error) {
+          setError(error);
+          return;
+        }
       }
       navigate(`/meets/${invite.current.input.value}`);
     }
@@ -139,7 +118,7 @@ const Mainpage = () => {
   const handleMeetCreate = async () => {
     try {
       if (!login) {
-        setIsModalOpen(true);
+        setGuestModalOpen(true);
         return;
       }
       let temp = {
@@ -179,83 +158,6 @@ const Mainpage = () => {
     } catch (error) {
       setError(error.message);
     }
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-  const CONTENTMENU = {
-    "Meet Name": (
-      <Content.Input
-        onChange={handleMeetDataChange((i) => i.target.value, "meet_name")}
-        data-required={true}
-      />
-    ),
-    "Start/End Date": (
-      <RangePicker
-        style={{ ...Content.Range }}
-        onChange={handleMeetDataChange(
-          (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
-          "start_date",
-          "end_date"
-        )}
-        data-required={true}
-      />
-    ),
-    "Start/End Time": (
-      <TimePicker.RangePicker
-        style={{ ...Content.Range }}
-        onChange={handleMeetDataChange(
-          (i, plus) => (i.hour() * 60 + i.minute()) / 30 + plus,
-          "start_time_slot_id",
-          "end_time_slot_id"
-        )}
-        minuteStep={30}
-        format={"HH:mm"}
-        data-required={true}
-      />
-    ),
-    Member: (
-      <Member style={{ borderRadius: "5px" }} setMeetData={setMeetData} />
-    ),
-    Description: (
-      <TextArea
-        style={{ ...Content.TextArea }}
-        onChange={handleMeetDataChange((i) => i.target.value, "description")}
-      />
-    ),
-    "Voting Deadline": (
-      <div
-        style={{
-          display: "flex",
-          columnGap: RWDWidth(20),
-          alignItems: "center",
-        }}
-      >
-        <Switch onChange={showDate} />
-        <DatePicker
-          style={{ ...Content.Picker }}
-          onChange={handleMeetDataChange(
-            (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
-            "voting_end_date"
-          )}
-        />
-        <TimePicker
-          style={{ ...Content.Picker }}
-          onChange={handleMeetDataChange(
-            (i) => moment(i.toISOString()).format("HH-mm-ss"),
-            "voting_end_time"
-          )}
-        />
-      </div>
-    ),
-    "Google Meet URL": (
-      <Switch
-        data-info={!login}
-        disabled={!login}
-        onChange={handleMeetDataChange((i) => i, "gen_meet_url")}
-      />
-    ),
   };
 
   const throttledHandleResize = _.throttle(() => {
@@ -301,62 +203,26 @@ const Mainpage = () => {
       <Base.RightContainer
         style={{ justifyContent: "flex-start", flexDirection: "column" }}
       >
-        <CreateMeet style={{ alignSelf: "flex-start" }}>
-          <CreateMeet.Title>Create Meet</CreateMeet.Title>
-          {Object.keys(CONTENTMENU).map((title, index) => (
-            <Fragment key={index}>
-              <CreateMeet.Content
-                style={{
-                  gridColumn: "1/2",
-                  gridRow: `${index + 2}/${index + 3}`,
-                  alignSelf:
-                    (title === "Description" || title === "Member") &&
-                    "flex-start",
-                  columnGap: RWDWidth(4),
-                }}
-              >
-                <div>{title}</div>
-                {CONTENTMENU[title].props["data-required"] && (
-                  <div
-                    style={{
-                      fontFamily: "Courier New",
-                      alignSelf: "flex-start",
-                    }}
-                  >
-                    &#1645;
-                  </div>
-                )}
-                {CONTENTMENU[title].props["data-info"] && (
-                  <Tooltip
-                    title="Registered users only"
-                    color="#FFFFFF"
-                    overlayInnerStyle={{
-                      color: "#000000",
-                    }}
-                  >
-                    <InfoCircleOutlined
-                      style={{
-                        marginLeft: RWDWidth(4),
-                        cursor: "pointer",
-                        color: "darkgray",
-                        fontWeight: "bold",
-                      }}
-                    />
-                  </Tooltip>
-                )}
-              </CreateMeet.Content>
-              <CreateMeet.Content
-                style={{
-                  gridColumn: "2/3",
-                  gridRow: `${index + 2}/${index + 3}`,
-                  fontWeight: "normal",
-                }}
-              >
-                {CONTENTMENU[title]}
-              </CreateMeet.Content>
-            </Fragment>
-          ))}
-        </CreateMeet>
+        <div
+          style={{
+            position: "relative",
+            marginLeft: RWDWidth(120),
+            marginTop: RWDHeight(180),
+            alignSelf: "flex-start",
+            display: "flex",
+            flexDirection: "column",
+            rowGap: RWDHeight(35),
+          }}
+        >
+          <MeetInfo.Title>Create Meet</MeetInfo.Title>
+          <MeetInfo
+            rowGap={30}
+            columnGap={55}
+            handleMeetDataChange={handleMeetDataChange}
+            login={login}
+            setMeetData={setMeetData}
+          ></MeetInfo>
+        </div>
         <PrimaryButton
           style={{ position: "relative", top: RWDHeight(8) }}
           onClick={handleMeetCreate}
@@ -366,9 +232,11 @@ const Mainpage = () => {
       </Base.RightContainer>
       <Modal
         title=""
-        open={isModalOpen}
+        open={guestModal}
         onOk={handleOk}
-        onCancel={handleCancel}
+        onCancel={() => {
+          setGuestModalOpen(false);
+        }}
         okText="Ok"
         cancelText="Cancel"
       >

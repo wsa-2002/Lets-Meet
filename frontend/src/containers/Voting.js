@@ -8,7 +8,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import { useMeet } from "./hooks/useMeet";
-import { RWD } from "../constant";
+import { RWD, COLORS } from "../constant";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
@@ -17,16 +17,31 @@ import {
   getMyAvailability,
   addMyAvailability,
   deleteMyAvailability,
-  getMeetInfo,
+  meet,
   getRoutine,
 } from "../middleware";
+const getMeetInfo = meet("read");
 const BackButton = Button("back");
 const { ContentContainer } = Base.FullContainer;
+const {
+  GroupAvailability: {
+    VotingContainer: {
+      DayContainer: { CellHoverContainer },
+    },
+  },
+} = ContentContainer;
 const { RWDWidth } = RWD;
 const DraggableCell = TimeCell("draggable");
+const InfoCell = TimeCell("info");
 const moment = extendMoment(Moment);
 
 const Voting = () => {
+  const [DATERANGE, setDATERANGE] = useState([]);
+  const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
+  const [VOTINGINFO, setVOTINGINFO] = useState([]);
+  const [CELLCOLOR, setCELLCOLOR] = useState([]);
+  const [ROUTINE, setROUTINE] = useState("");
+
   /*調整 time gap 套組*/
   const WeekdayRef = useRef(null); //追蹤天數高度
   const TimeCellRef = useRef(null); //追蹤 TimeCell 高度
@@ -52,13 +67,9 @@ const Voting = () => {
     setMode,
     setUpdatedCell,
     oriCell,
+    setVOTINGINFO,
   };
   /******************************************************/
-
-  const [DATERANGE, setDATERANGE] = useState([]);
-  const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
-  const [VOTINGINFO, setVOTINGINFO] = useState([]);
-  const [ROUTINE, setROUTINE] = useState("");
 
   const { code } = useParams();
   const { cookies, login } = useMeet();
@@ -75,7 +86,7 @@ const Voting = () => {
       const { data: routine } = await getRoutine(undefined, cookies.token);
       setROUTINE(routine);
 
-      const { data } = await getMeetInfo(undefined, cookies.token, code);
+      const { data } = await getMeetInfo(code, cookies.token);
       setDATERANGE(
         [
           ...moment
@@ -123,16 +134,20 @@ const Voting = () => {
     }
   }, [code]);
 
-  const chooseColor = (num) => {
-    if (num === 0) return "#f0f0f0";
-    const hexStr = (
-      parseInt("FFF4CC", 16) - parseInt(((num - 1) * 3635).toString(16), 16)
-    ).toString(16);
-    while (hexStr.length < 6) {
-      hexStr = "0" + hexStr;
-    } // Zero pad.
-    return `#${hexStr}`;
-  };
+  useEffect(() => {
+    if (VOTINGINFO.length) {
+      const allMembersNum =
+        VOTINGINFO?.[0]?.available_members.length +
+        VOTINGINFO?.[0]?.unavailable_members.length;
+      const gap =
+        Math.floor(allMembersNum / 5) < 1 ? 1 : Math.floor(allMembersNum / 5);
+      setCELLCOLOR(
+        VOTINGINFO.map(
+          (v) => COLORS.orange[Math.ceil(v.available_members.length / gap)]
+        )
+      );
+    }
+  }, [VOTINGINFO]); //設定 time cell 顏色
 
   const throttledHandleResize = _.throttle(() => {
     if (WeekdayRef?.current) {
@@ -144,6 +159,7 @@ const Voting = () => {
     if (WeekdayRef?.current) {
       setTimeTop(WeekdayRef.current.offsetHeight);
     } //load 時
+
     window.addEventListener("resize", throttledHandleResize);
     return () => {
       window.removeEventListener("resize", throttledHandleResize);
@@ -168,6 +184,11 @@ const Voting = () => {
         },
         cookies.token
       );
+      const { data: votingData } = await getGroupAvailability(
+        code,
+        cookies.token
+      );
+      setVOTINGINFO(votingData.data);
     } catch (error) {
       throw error;
     } finally {
@@ -249,6 +270,94 @@ const Voting = () => {
                               index={[d_index, t_index]}
                               key={t_index}
                               ref={TimeCellRef}
+                            />
+                          )
+                      )}
+                    </ContentContainer.MyAvailability.VotingContainer.CellsContainer.DayColumn>
+                  ))}
+                </ContentContainer.MyAvailability.VotingContainer.CellsContainer>
+              </ContentContainer.MyAvailability.VotingContainer>
+              <ContentContainer.MyAvailability.VotingContainer
+                style={{ gridColumn: "2/3" }}
+              >
+                <ContentContainer.MyAvailability.VotingContainer.TimeContainer
+                  style={{
+                    marginTop: `${timeTop - 3}px`,
+                  }}
+                >
+                  {TIMESLOTIDS.map((m, index) => (
+                    <div ref={TimeRef} key={index}>
+                      {slotIDProcessing(m)}
+                    </div>
+                  ))}
+                </ContentContainer.MyAvailability.VotingContainer.TimeContainer>
+                <ContentContainer.MyAvailability.VotingContainer.CellsContainer>
+                  {DATERANGE.map((m, d_index) => (
+                    <ContentContainer.MyAvailability.VotingContainer.CellsContainer.DayColumn
+                      key={d_index}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                        }}
+                        ref={WeekdayRef}
+                      >
+                        <div style={{ userSelect: "none" }}>
+                          {moment(m).format("MMM D")}
+                        </div>
+                        <div style={{ userSelect: "none", fontWeight: "700" }}>
+                          {moment(m).format("ddd")}
+                        </div>
+                      </div>
+                      {TIMESLOTIDS.map(
+                        (_, t_index) =>
+                          t_index !== TIMESLOTIDS.length - 1 && (
+                            <InfoCell
+                              key={t_index}
+                              style={{
+                                backgroundColor:
+                                  CELLCOLOR[
+                                    d_index * (TIMESLOTIDS.length - 1) + t_index
+                                  ],
+                              }}
+                              info={
+                                <CellHoverContainer>
+                                  <CellHoverContainer.CellHoverInfo>
+                                    <div
+                                      style={{
+                                        fontWeight: "bold",
+                                        textDecoration: "underline",
+                                      }}
+                                    >
+                                      Availble
+                                    </div>
+                                    {VOTINGINFO?.[
+                                      d_index * (TIMESLOTIDS.length - 1) +
+                                        t_index
+                                    ]?.available_members.map((m, index) => (
+                                      <div key={index}>{m}</div>
+                                    ))}
+                                  </CellHoverContainer.CellHoverInfo>
+                                  <CellHoverContainer.CellHoverInfo>
+                                    <div
+                                      style={{
+                                        fontWeight: "bold",
+                                        textDecoration: "underline",
+                                      }}
+                                    >
+                                      Unavailble
+                                    </div>
+                                    {VOTINGINFO?.[
+                                      d_index * (TIMESLOTIDS.length - 1) +
+                                        t_index
+                                    ]?.unavailable_members.map((m, index) => (
+                                      <div key={index}>{m}</div>
+                                    ))}
+                                  </CellHoverContainer.CellHoverInfo>
+                                </CellHoverContainer>
+                              }
                             />
                           )
                       )}
