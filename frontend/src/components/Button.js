@@ -2,13 +2,7 @@
   1. Button, disalbed 時的提示語
 **************************************************************************************************/
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import {
-  Button as AntdButton,
-  Tooltip,
-  Image,
-  ConfigProvider,
-  Modal,
-} from "antd";
+import { Button as AntdButton, Tooltip, Image, ConfigProvider } from "antd";
 import styled from "styled-components";
 import { RWD } from "../constant";
 import { googleLogin } from "../middleware";
