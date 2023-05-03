@@ -310,7 +310,7 @@ class BrowseAllMemberAvailableTimeOutput(BaseModel):
 @enveloped
 async def browse_all_member_available_time(meet_id: int) \
         -> BrowseAllMemberAvailableTimeOutput:
-    return await service.meet.browse_all_member_available_time(meet_id=meet_id, name=name)
+    return await service.meet.browse_all_member_available_time(meet_id=meet_id)
 
 
 @router.post('/meet/{meet_id}/confirm')
