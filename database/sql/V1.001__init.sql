@@ -34,7 +34,8 @@ CREATE TABLE account (
     username                 VARCHAR NOT NULL UNIQUE,   -- require username?
     pass_hash                VARCHAR,
     line_token               VARCHAR,                   -- TBD?
-    google_token             VARCHAR,                    -- TBD?
+    access_token             VARCHAR,                    
+    refresh_token            VARCHAR,                    
     notification_preference  notification_preference NOT NULL,
     is_google_login          BOOLEAN  DEFAULT FALSE
 );
