@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from typing import Sequence, Optional
+from typing import Sequence, Optional, Tuple
 
 import asyncpg
 
@@ -141,7 +141,7 @@ async def delete(meet_id: int) -> None:
     await pool_handler.pool.execute(sql, *params)
 
 
-async def get_member_id_and_auth(meet_id: int) -> dict[int, bool]:
+async def get_member_id_and_auth(meet_id: int) -> dict[Tuple[int, Optional[str]], bool]:
     sql, params = pyformat2psql(
         sql=fr"SELECT member_id, name, is_host"
             fr"  FROM meet_member"
@@ -155,7 +155,7 @@ async def get_member_id_and_auth(meet_id: int) -> dict[int, bool]:
 async def leave(meet_id: int, account_id: int) -> None:
     conn: asyncpg.connection.Connection = await pool_handler.pool.acquire()
     try:
-        meet_member_id, = await conn.execute(
+        meet_member_id, = await conn.fetchrow(
             fr"SELECT id FROM meet_member"
             fr" WHERE meet_id = $1"
             fr"   AND member_id = $2",
