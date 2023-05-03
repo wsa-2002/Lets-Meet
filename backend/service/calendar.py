@@ -24,18 +24,15 @@ class GoogleCalendar:
         access_token, refresh_token = await db.account.get_google_token(self.id)
         token_dict = {'access_token': access_token, 'refresh_token': refresh_token,
                       'client_id':google_config.GOOGLE_CLIENT_ID, 'client_secret':google_config.GOOGLE_CLIENT_SECRET}
-        SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+        SCOPES = ["https://www.googleapis.com/auth/calendar"]
         creds = Credentials.from_authorized_user_info(token_dict, SCOPES)
         if not creds.valid:
             creds.refresh(Request())
-        try:
-            self.service = build('calendar', 'v3', credentials=creds)
-        except HttpError:
-            raise HttpError
+        self.service = build('calendar', 'v3', credentials=creds)
             
     async def get_google_event(self, start_date, end_date):
         start_date = datetime.combine(start_date, datetime.min.time())
-        end_date = datetime.combine(end_date, datetime.min.time())
+        end_date = datetime.combine(end_date, datetime.max.time())
         formatted_start = start_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         formatted_end = end_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         
