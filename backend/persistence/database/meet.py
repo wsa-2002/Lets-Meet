@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from typing import Sequence, Optional
+from typing import Sequence, Optional, Tuple
 
 import asyncpg
 
@@ -16,7 +16,8 @@ async def add(title: str, invite_code: str,
               gen_meet_url: bool, voting_end_time: Optional[datetime] = None,
               status: enums.StatusType = enums.StatusType.voting,
               host_member_id: int = None, member_ids: Sequence[int] = None,
-              guest_name: Optional[str] = None, description: Optional[str] = None) -> int:
+              guest_name: Optional[str] = None, guest_passhash: Optional[str] = None,
+              description: Optional[str] = None) -> int:
     conn: asyncpg.connection.Connection = await pool_handler.pool.acquire()
     try:
         meet_id, = await conn.fetchrow(
@@ -45,9 +46,9 @@ async def add(title: str, invite_code: str,
         if guest_name:
             await conn.execute(
                 r"INSERT INTO meet_member"
-                r"            (meet_id, name)"
-                r"     VALUES ($1, $2)",
-                meet_id, guest_name,
+                r"            (meet_id, name, pass_hash, is_host)"
+                r"     VALUES ($1, $2, $3, $4)",
+                meet_id, guest_name, guest_passhash, True,
             )
         return meet_id
     finally:
@@ -140,7 +141,7 @@ async def delete(meet_id: int) -> None:
     await pool_handler.pool.execute(sql, *params)
 
 
-async def get_member_id_and_auth(meet_id: int) -> dict[int, bool]:
+async def get_member_id_and_auth(meet_id: int) -> dict[Tuple[int, Optional[str]], bool]:
     sql, params = pyformat2psql(
         sql=fr"SELECT member_id, name, is_host"
             fr"  FROM meet_member"
@@ -154,7 +155,7 @@ async def get_member_id_and_auth(meet_id: int) -> dict[int, bool]:
 async def leave(meet_id: int, account_id: int) -> None:
     conn: asyncpg.connection.Connection = await pool_handler.pool.acquire()
     try:
-        meet_member_id, = await conn.execute(
+        meet_member_id, = await conn.fetchrow(
             fr"SELECT id FROM meet_member"
             fr" WHERE meet_id = $1"
             fr"   AND member_id = $2",
@@ -287,11 +288,12 @@ async def update_status(meet_id: int, status: enums.StatusType) -> None:
     await pool_handler.pool.execute(sql, *params)
 
 
-async def add_member(meet_id: int, account_id: Optional[int] = None, name: Optional[str] = None) -> None:
+async def add_member(meet_id: int, account_id: Optional[int] = None,
+                     name: Optional[str] = None, pass_hash: Optional[str] = None) -> None:
     sql, params = pyformat2psql(
         sql=fr'INSERT INTO meet_member'
-            fr'            (name, member_id, meet_id)'
-            fr'     VALUES (%(name)s, %(member_id)s, %(meet_id)s)',
-        name=name, member_id=account_id, meet_id=meet_id,
+            fr'            (name, member_id, meet_id, pass_hash)'
+            fr'     VALUES (%(name)s, %(member_id)s, %(meet_id)s, %(pass_hash)s)',
+        name=name, member_id=account_id, meet_id=meet_id, pass_hash=pass_hash,
     )
     await pool_handler.pool.execute(sql, *params)

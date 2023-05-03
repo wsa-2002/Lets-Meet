@@ -19,3 +19,23 @@ class BrowseMeetByAccount:
     status: enums.StatusType
     voting_end_time: Optional[datetime] = None
     meet_url: Optional[str] = None
+
+
+@dataclass
+class CalendarEvent:
+    invite_code: str
+    title: str
+    start_date: date
+    end_date: date
+    start_time_slot_id: int
+    end_time_slot_id: int
+    
+@dataclass
+class GoogleCalendarEvent:
+    title: str
+    start_date: date
+    end_date: date
+    color: str
+    
+
+    

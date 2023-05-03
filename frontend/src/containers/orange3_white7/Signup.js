@@ -11,6 +11,7 @@ import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import Button from "../../components/Button";
 import Base from "../../components/Base/orange3_white7";
 import { RWD, ANIME } from "../../constant";
+import { useTranslation } from 'react-i18next';
 const {
   RightContainer,
   RightContainer: { InfoContainer },
@@ -32,6 +33,7 @@ const CloseCircle = styled(CloseCircleOutlined)`
 `;
 
 const SignUp = () => {
+  const { t } = useTranslation();
   const [signupData, setSignupData] = useState({
     Email: "",
     Username: "",
@@ -42,6 +44,13 @@ const SignUp = () => {
   const [description, setDescription] = useState("");
   const [api, contextHolder] = notification.useNotification();
   const navigate = useNavigate();
+
+  const CONTENTNAME = {
+    Email: t("email"),
+    Username: t("username"),
+    Password: t("password"),
+    "Confirm Password": "",
+  };
 
   const handleSignupChange = (e) => {
     const { name, value } = e.target;
@@ -72,18 +81,18 @@ const SignUp = () => {
         if (error) {
           switch (error) {
             case "UsernameExists":
-              setDescription("Username has already been registered.");
+              setDescription(t("usernameExists"));
               break;
             case "EmailExist":
-              setDescription("Email has already been registered.");
+              setDescription(t("emailExist"));
               break;
             default:
               break;
           }
         } else {
           api.open({
-            message: "Vertification mail sent",
-            description: "Please check your mailbox.",
+            message: t("verSent"),
+            description: t("checkMail"),
             style: {},
           });
         }
@@ -96,7 +105,7 @@ const SignUp = () => {
   useEffect(() => {
     if (description) {
       api.open({
-        message: "Sign up failed",
+        message: t("signupFailed"),
         description, // 總共有三個 description
         style: {},
       });
@@ -110,7 +119,7 @@ const SignUp = () => {
         <Base.RightContainer>
           <RightContainer.InfoContainer style={{ height: RWDHeight(688) }}>
             <InfoContainer.InputContainer style={{ marginTop: RWDHeight(50) }}>
-              <InfoContainer.Title>Welcome</InfoContainer.Title>
+              <InfoContainer.Title>{t("welcome")}</InfoContainer.Title>
               {Object.keys(signupData)
                 .filter((m) => m !== "Confirm Password")
                 .map((m, index) => {
@@ -119,7 +128,7 @@ const SignUp = () => {
                     : InfoContainer.Input;
                   return (
                     <Component
-                      placeholder={m}
+                      placeholder={CONTENTNAME[m]}
                       name={m}
                       onChange={handleSignupChange}
                       key={index}
@@ -135,7 +144,7 @@ const SignUp = () => {
               >
                 <InfoContainer.Password
                   style={{ width: RWDWidth(350) }}
-                  placeholder={"Confirm Password"}
+                  placeholder={t("confirmPwd")}
                   name={"Confirm Password"}
                   onChange={handleSignupChange}
                   key={"1231"}
@@ -167,14 +176,14 @@ const SignUp = () => {
                 }
                 onClick={handleSignUpClick}
               >
-                Sign Up
+                {t("signup")}
               </InfoContainer.Button>
               <Divider
                 style={{ borderColor: "#808080", color: "#808080", margin: 0 }}
               >
                 or
               </Divider>
-              <GoogleButton>Sign up with Google</GoogleButton>
+              <GoogleButton>{t("signupGoogle")}</GoogleButton>
             </InfoContainer.InputContainer>
             <InfoContainer.InputContainer
               style={{
@@ -184,7 +193,7 @@ const SignUp = () => {
               }}
             >
               <Text type="secondary">
-                Already have an account?
+                {t("already")}
                 <Link
                   onClick={() => {
                     navigate("/login");
@@ -192,7 +201,7 @@ const SignUp = () => {
                   style={{ color: "#B76A00", fontSize: RWDFontSize(16) }}
                 >
                   {" "}
-                  Login
+                  {t("login")}
                 </Link>
               </Text>
             </InfoContainer.InputContainer>

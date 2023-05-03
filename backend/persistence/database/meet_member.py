@@ -1,5 +1,5 @@
 from base import do
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 import exceptions as exc  # noqa
 
 from .util import pyformat2psql
@@ -40,3 +40,18 @@ async def browse_meet_members_with_names(meet_id: int) -> Sequence[do.MeetMember
                 member_id=member_id
             )
             for id_, meet_id, is_host, name, member_id, username in results]
+
+
+async def read_by_meet_id_and_name(meet_id: int, name: str) -> Tuple[int, str, str]:
+    sql, params = pyformat2psql(
+        sql=fr"SELECT id, name, pass_hash"
+            fr"  FROM meet_member"
+            fr" WHERE meet_id = %(meet_id)s"
+            fr"   AND name = %(name)s",
+        meet_id=meet_id, name=name,
+    )
+    try:
+        id_, name, pass_hash = await pool_handler.pool.fetchrow(sql, *params)
+    except TypeError:
+        raise exc.NotFound
+    return id_, name, pass_hash

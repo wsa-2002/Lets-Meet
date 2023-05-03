@@ -21,3 +21,8 @@ python-multipart # required for fastapi UploadFile
 starlette-session
 authlib
 httpx
+
+google-auth
+google-auth-oauthlib
+google-api-python-client
+

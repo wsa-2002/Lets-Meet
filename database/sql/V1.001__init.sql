@@ -34,7 +34,8 @@ CREATE TABLE account (
     username                 VARCHAR NOT NULL UNIQUE,   -- require username?
     pass_hash                VARCHAR,
     line_token               VARCHAR,                   -- TBD?
-    google_token             VARCHAR,                    -- TBD?
+    access_token             VARCHAR,                    
+    refresh_token            VARCHAR,                    
     notification_preference  notification_preference NOT NULL,
     is_google_login          BOOLEAN  DEFAULT FALSE
 );
@@ -76,6 +77,7 @@ CREATE TABLE event (
 CREATE TABLE meet_member (
     id        SERIAL  PRIMARY KEY,
     name      VARCHAR, -- TBD, a little bit weird?
+    pass_hash VARCHAR,
     member_id INTEGER REFERENCES account (id),
     meet_id   INTEGER NOT NULL REFERENCES meet (id),
     is_host   BOOLEAN DEFAULT FALSE,
