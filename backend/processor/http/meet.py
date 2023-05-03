@@ -17,7 +17,7 @@ from service.meet import EditMeetInput, AddMemberMeetAvailableTimeInput, \
     ConfirmMeetInput, DeleteMeetMemberAvailableTimeInput
 import exceptions as exc  # noqa
 from security import hash_password, verify_password
-
+import persistence.email as email
 
 from .util import parse_filter, parse_sorter, timezone_validate, update_status, compose_host_and_member_info, MemberInfo
 
@@ -84,6 +84,7 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
 
     invite_code = ''.join(random.choice(const.AVAILABLE_CODE_CHAR)
                           for _ in range(const.INVITE_CODE_LENGTH))
+    
     meet_id = await db.meet.add(
         title=data.meet_name,
         invite_code=invite_code,
@@ -100,6 +101,12 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
         guest_passhash=hash_password(data.guest_password) if data.guest_password else None,
     )
     # TODO: send email to members and emails
+    for id in data.member_ids:
+        account = await db.account.get_email(member_id=id)
+        await email.invite_to_meet.send(to=account.email, meet_code=invite_code)
+    
+    for user_email in data.emails:
+        await email.invite_to_meet.send(to=user_email, meet_code=invite_code)
 
     meet = await db.meet.read(meet_id=meet_id)
     account_id = request.account.id

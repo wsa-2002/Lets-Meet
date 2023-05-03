@@ -163,3 +163,17 @@ async def get_google_token(account_id: int):
     except TypeError:
         raise exc.NotFound
     return access_token, refresh_token
+
+
+async def get_email(member_id: int) -> do.Account:
+    sql, params = pyformat2psql(
+        sql=fr"SELECT id, email, username"
+            fr"  FROM account"
+            fr" WHERE id = %(member_id)s",
+        member_id=member_id
+    )
+    try:
+        id_, email, username = await pool_handler.pool.fetchrow(sql, *params)
+    except TypeError:
+        raise exc.NotFound
+    return do.AccountMail(id=id_, email=email, username=username)
