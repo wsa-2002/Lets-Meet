@@ -15,7 +15,7 @@ restart:
 	docker-compose -f docker-compose.yaml up -d;
 
 build:
-	docker build ./backend
+	docker build -t letsmeet-backend ./backend
 
 logs:
 	docker-compose -f docker-compose.yaml logs
