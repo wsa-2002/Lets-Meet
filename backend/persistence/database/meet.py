@@ -46,9 +46,9 @@ async def add(title: str, invite_code: str,
         if guest_name:
             await conn.execute(
                 r"INSERT INTO meet_member"
-                r"            (meet_id, name, pass_hash)"
-                r"     VALUES ($1, $2, $3)",
-                meet_id, guest_name, guest_passhash,
+                r"            (meet_id, name, pass_hash, is_host)"
+                r"     VALUES ($1, $2, $3, $4)",
+                meet_id, guest_name, guest_passhash, True,
             )
         return meet_id
     finally:
