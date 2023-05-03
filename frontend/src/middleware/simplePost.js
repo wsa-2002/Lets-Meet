@@ -5,7 +5,6 @@ const URL = {
   forgetPassword: "/forget-password",
   resetPassword: "/reset-password",
   addMeet: "/meet",
-  joinMeet: "/meet/invite",
   addRoutine: "/routine",
 };
 

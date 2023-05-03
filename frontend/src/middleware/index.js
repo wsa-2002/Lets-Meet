@@ -8,7 +8,6 @@ export const {
   forgetPassword,
   resetPassword,
   addMeet,
-  joinMeet,
   addRoutine,
 } = POST;
 export const {
@@ -26,3 +25,4 @@ export {
   addMyAvailability,
   deleteMyAvailability,
 } from "./votingTable";
+export { default as meet } from "./meet";

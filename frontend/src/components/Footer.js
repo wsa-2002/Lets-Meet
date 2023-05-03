@@ -1,7 +1,7 @@
 import { Button, Divider } from "antd";
+import i18n from "i18next";
 import React from "react";
 import styled from "styled-components";
-import i18n from "i18next";
 
 const FooterContainer = styled.div`
   display: flex;
@@ -29,9 +29,13 @@ const Footer = (prop) => {
       <FooterInnerContainer>
         {/* <div>中文 | English</div> */}
         <div>
-          <Button type="link" onClick={() => i18n.changeLanguage('zh')}>中文</Button>
+          <Button type="link" onClick={() => i18n.changeLanguage("zh")}>
+            中文
+          </Button>
           <Divider type="vertical" />
-          <Button type="link" onClick={() => i18n.changeLanguage('en')}>English</Button>
+          <Button type="link" onClick={() => i18n.changeLanguage("en")}>
+            English
+          </Button>
         </div>
         <div>Copyright 2023</div>
       </FooterInnerContainer>

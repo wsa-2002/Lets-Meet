@@ -13,6 +13,7 @@ const MeetProvider = (props) => {
 
   const GLOBAL_LOGIN = (token) => {
     const decoded = jwt(token);
+    console.log(decoded);
     setCookie("token", token, { path: "/", expires: new Date(decoded.expire) });
     setLogin(true);
   };

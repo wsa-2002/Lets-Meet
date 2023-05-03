@@ -30,7 +30,7 @@ const Base = (prop) => {
         style={{
           gridColumn: "1/2",
           gridRow: "1/4",
-          background: "#fefcef",
+          background: "#FDF3D1",
           display: "flex",
           position: "relative",
           justifyContent: "center",
@@ -73,7 +73,7 @@ Base.LeftContainer = styled.div`
     justify-content: center;
     align-items: center;
   `;
-  */
+*/
 Base.RightContainer = Object.assign(
   styled.div`
     grid-column: 2/3;
@@ -84,7 +84,7 @@ Base.RightContainer = Object.assign(
   `,
   {
     /**
-     * @example
+     * @example 
      * const InfoContainer = styled.div`
         width: ${RWDWidth(470)};
         height: auto;
@@ -96,6 +96,7 @@ Base.RightContainer = Object.assign(
       `;
      */
     InfoContainer: Object.assign(
+      //login
       styled.div`
         width: ${RWDWidth(470)};
         height: auto;
@@ -155,88 +156,6 @@ Base.RightContainer = Object.assign(
         */
         Password: MainPassword,
         Button: (prop) => <PrimaryButton {...prop} />,
-      }
-    ),
-
-    /**
-     * @example
-     * const CreateMeet = styled.div`
-        position: relative;
-        margin-left: ${RWDWidth(120)};
-        margin-top: ${RWDHeight(180)};
-        display: grid;
-        grid-template-columns: repeat(2, max-content);
-        grid-template-rows: repeat(8, max-content);
-        grid-column-gap: ${RWDWidth(55)};
-        grid-row-gap: ${RWDHeight(30)};
-      `;
-    */
-    CreateMeet: Object.assign(
-      styled.div`
-        position: relative;
-        margin-left: ${RWDWidth(120)};
-        margin-top: ${RWDHeight(180)};
-        display: grid;
-        grid-template-columns: repeat(2, max-content);
-        grid-template-rows: repeat(8, max-content);
-        grid-column-gap: ${RWDWidth(55)};
-        grid-row-gap: ${RWDHeight(30)};
-      `,
-      {
-        /**
-         * @example
-         * const Title = styled.div`
-            font-size: ${RWDFontSize(30)}; //max(1.6vw, 20px);
-            font-weight: bold;
-            margin: 0;
-            grid-column: 1/3;
-            grid-row: 1/2;
-          `;
-        */
-        Title: styled.p`
-          font-size: ${RWDFontSize(30)}; //max(1.6vw, 20px);
-          font-weight: bold;
-          margin: 0;
-          grid-column: 1/3;
-          grid-row: 1/2;
-        `,
-        /**
-         * @example
-         * const Content = styled.div`
-            display: flex;
-            align-items: center;
-            font-size: ${RWDFontSize(16)};
-            font-weight: bold;
-          `;
-        */
-        Content: Object.assign(
-          styled.div`
-            display: flex;
-            align-items: center;
-            font-size: ${RWDFontSize(16)};
-            font-weight: bold;
-          `,
-          {
-            Input: ThinnerInput,
-            Range: {
-              width: RWDWidth(350),
-              height: RWDHeight(32),
-              fontSize: RWDFontSize(14),
-              border: `${RWDRadius(1)} solid #808080`,
-            },
-            TextArea: {
-              width: RWDWidth(400),
-              height: RWDHeight(106),
-              border: `${RWDRadius(1)} solid #808080`,
-              borderRadius: RWDFontSize(15),
-            },
-            Picker: {
-              width: RWDWidth(150),
-              height: RWDHeight(32),
-              fontSize: RWDFontSize(14),
-            },
-          }
-        ),
       }
     ),
   }

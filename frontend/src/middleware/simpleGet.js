@@ -2,7 +2,6 @@ import instance from "./axios";
 const URL = {
   searchMember: "/account/search",
   browseMeet: "/meet",
-  getMeetInfo: "/meet/code",
   emailVerification: "/email-verification",
   getRoutine: "/routine",
 };

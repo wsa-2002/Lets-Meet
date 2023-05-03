@@ -40,7 +40,7 @@ const TimeCell = (type) =>
 
         const handleCellMouseDown = (index) => (e) => {
           if (cell[index[0]][index[1]] === null) {
-            return;
+            setMode(true);
           }
           e.preventDefault();
           setStartDrag(true);
@@ -64,9 +64,6 @@ const TimeCell = (type) =>
             let allNewCells = JSON.parse(JSON.stringify(oriCell));
             for (const d_index of _.range(xRange[0], xRange[1] + 1)) {
               for (const t_index of _.range(yRange[0], yRange[1] + 1)) {
-                if (oriCell[d_index][t_index] === null) {
-                  continue;
-                }
                 if (oriCell[d_index][t_index] !== mode) {
                   updatedCell.push([d_index, t_index]);
                 }
