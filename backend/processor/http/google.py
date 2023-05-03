@@ -35,9 +35,11 @@ oauth.register(
     }
 )
 
+
 @router.get('/google-login')
 async def login(request: Request):
-    return await oauth.google.authorize_redirect(request, google_config.GOOGLE_LOGIN_REDIRECT_URI, access_type='offline')
+    return await oauth.google.authorize_redirect(request, google_config.GOOGLE_LOGIN_REDIRECT_URI,
+                                                 access_type='offline')
 
 
 @router.get('/auth')
@@ -47,10 +49,12 @@ async def auth(request: Request):
     try:
         result = await db.account.read_by_email(user_email, is_google_login=True)
         account_id = result.id
-        await db.account.update_token(account_id, access_token=token_google['access_token'], refresh_token=token_google['refresh_token'])
+        await db.account.update_token(account_id, access_token=token_google['access_token'],
+                                      refresh_token=token_google['refresh_token'])
     except exc.NotFound:
-        account_id = await db.account.add(username=str(uuid4()), email=user_email, is_google_login=True, 
-                                          access_token=token_google['access_token'], refresh_token=token_google['refresh_token'])
+        account_id = await db.account.add(username=str(uuid4()), email=user_email, is_google_login=True,
+                                          access_token=token_google['access_token'],
+                                          refresh_token=token_google['refresh_token'])
         await db.account.update_username(account_id=account_id, username='用戶_'+str(account_id))
     token = encode_jwt(account_id=account_id)
     response = RedirectResponse(url=f"{service_config.url}/login")
