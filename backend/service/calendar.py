@@ -48,8 +48,8 @@ class GoogleCalendar:
         for event in events:
             start = event['start'].get('dateTime', event['start'].get('date'))
             end = event['end'].get('dateTime', event['end'].get('date'))
-            start = datetime.fromisoformat(start).date()
-            end = datetime.fromisoformat(end).date()
+            start = datetime.strptime(start[:-6], '%Y-%m-%dT%H:%M:%S')
+            end = datetime.strptime(end[:-6], '%Y-%m-%dT%H:%M:%S')
             color_id = event.get('colorId')
             if color_id:
                 color = self.service.colors().get().execute()['calendar'][str(color_id)]['background']
