@@ -105,8 +105,9 @@ async def browse_member_available_time(meet_id: int, name: Optional[str] = None)
 
 async def delete_meet(meet_id: int) -> None:
     meet_members = await db.meet.get_member_id_and_auth(meet_id=meet_id)
+    print(meet_members)
     try:
-        is_host = meet_members[request.account.id]
+        is_host = meet_members[request.account.id, None]
     except KeyError:
         raise exc.NoPermission
 
