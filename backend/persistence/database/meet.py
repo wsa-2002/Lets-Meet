@@ -10,24 +10,21 @@ from .util import pyformat2psql, compile_filters
 from . import pool_handler
 
 
-async def add(title: str, invite_code: str,
-              start_date: date, end_date: date,
-              start_time_slot_id: int, end_time_slot_id: int,
-              gen_meet_url: bool, voting_end_time: Optional[datetime] = None,
-              status: enums.StatusType = enums.StatusType.voting,
-              host_member_id: int = None, member_ids: Sequence[int] = None,
-              guest_name: Optional[str] = None, guest_passhash: Optional[str] = None,
-              description: Optional[str] = None) -> int:
+async def add(title: str, invite_code: str, start_date: date, end_date: date, start_time_slot_id: int,
+              end_time_slot_id: int, gen_meet_url: bool, meet_url: Optional[str] = None,
+              voting_end_time: Optional[datetime] = None, status: enums.StatusType = enums.StatusType.voting,
+              host_member_id: int = None, member_ids: Sequence[int] = None, guest_name: Optional[str] = None,
+              guest_passhash: Optional[str] = None, description: Optional[str] = None) -> int:
     conn: asyncpg.connection.Connection = await pool_handler.pool.acquire()
     try:
         meet_id, = await conn.fetchrow(
             r"INSERT INTO meet "
-            r"            (title, invite_code, start_date,end_date, start_time_slot_id, end_time_slot_id,"
-            r"            voting_end_time, gen_meet_url, status, description)"
-            r"     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
+            r"            (title, invite_code, start_date, end_date, start_time_slot_id, end_time_slot_id,"
+            r"            voting_end_time, gen_meet_url, meet_url, status, description)"
+            r"     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)"
             r"  RETURNING id",
             title, invite_code, start_date, end_date, start_time_slot_id, end_time_slot_id, voting_end_time,
-            gen_meet_url, status, description,
+            gen_meet_url, meet_url, status, description,
         )
         if member_ids:
             await conn.executemany(
@@ -175,12 +172,11 @@ async def leave(meet_id: int, account_id: int) -> None:
         await pool_handler.pool.release(conn)
 
 
-async def edit(meet_id: int,
-               title: Optional[str] = None,
-               start_date: Optional[date] = None, end_date: Optional[date] = None,
-               start_time_slot_id: Optional[int] = None, end_time_slot_id: Optional[int] = None,
-               description: Optional[str] = None, voting_end_time: Optional[datetime] = None,
-               gen_meet_url: Optional[bool] = None, status: Optional[enums.StatusType] = None,
+async def edit(meet_id: int, title: Optional[str] = None, start_date: Optional[date] = None,
+               end_date: Optional[date] = None, start_time_slot_id: Optional[int] = None,
+               end_time_slot_id: Optional[int] = None, description: Optional[str] = None,
+               voting_end_time: Optional[datetime] = None, gen_meet_url: Optional[bool] = None,
+               meet_url: Optional[str] = None, status: Optional[enums.StatusType] = None,
                finalized_start_date: Optional[date] = None, finalized_end_date: Optional[date] = None,
                finalized_start_time_slot_id: Optional[int] = None, finalized_end_time_slot_id: Optional[int] = None) \
         -> None:
@@ -201,6 +197,10 @@ async def edit(meet_id: int,
         update_params['voting_end_time'] = voting_end_time
     if gen_meet_url is not None:
         update_params['gen_meet_url'] = gen_meet_url
+    if meet_url:
+        update_params['meet_url'] = meet_url
+    if not gen_meet_url:
+        update_params['meet_url'] = None
     if status:
         update_params['status'] = status
     if finalized_start_date:

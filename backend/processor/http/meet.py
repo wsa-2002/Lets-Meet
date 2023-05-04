@@ -17,6 +17,7 @@ from service.meet import EditMeetInput, AddMemberMeetAvailableTimeInput, \
     ConfirmMeetInput, DeleteMeetMemberAvailableTimeInput
 import exceptions as exc  # noqa
 from security import hash_password, verify_password
+from service.calendar import GoogleCalendar
 
 
 from .util import parse_filter, parse_sorter, timezone_validate, update_status, compose_host_and_member_info, MemberInfo
@@ -53,12 +54,12 @@ class ReadMeetOutput(BaseModel):
     meet_name: str
     invite_code: str
     gen_meet_url: bool
+    meet_url: Optional[str] = None
     voting_end_time: Optional[datetime] = None
     finalized_start_date: Optional[date] = None
     finalized_end_date: Optional[date] = None
     finalized_start_time_slot_id: Optional[int] = None
     finalized_end_time_slot_id: Optional[int] = None
-    meet_url: Optional[str] = None
     description: Optional[str] = None
     host_info: Optional[MemberInfo] = None
     member_infos: Optional[Sequence[MemberInfo]] = None
@@ -82,6 +83,13 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
     if not 0 < data.start_time_slot_id < 49 and not 0 < data.end_time_slot_id < 49:
         raise exc.IllegalInput
 
+    host_account = await db.account.read(host_account_id)
+    meet_url = None
+    if data.gen_meet_url and not host_account.is_google_login:
+        raise exc.IllegalInput
+    if data.gen_meet_url and host_account.is_google_login:
+        meet_url = await GoogleCalendar(account_id=host_account.id).get_google_meet_url()
+
     invite_code = ''.join(random.choice(const.AVAILABLE_CODE_CHAR)
                           for _ in range(const.INVITE_CODE_LENGTH))
     meet_id = await db.meet.add(
@@ -93,6 +101,7 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
         end_time_slot_id=data.end_time_slot_id,
         voting_end_time=converted_voting_end_time,
         gen_meet_url=data.gen_meet_url,
+        meet_url=meet_url,
         host_member_id=host_account_id,
         member_ids=data.member_ids,
         description=data.description,

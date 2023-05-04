@@ -10,6 +10,7 @@ from processor.http.util import timezone_validate
 import persistence.database as db
 import exceptions as exc  # noqa
 from security import verify_password
+from service.calendar import GoogleCalendar
 
 
 class EditMeetInput(BaseModel):
@@ -24,7 +25,6 @@ class EditMeetInput(BaseModel):
 
 
 async def edit_meet(meet_id: int, data: EditMeetInput):
-
     meet = await db.meet.read(meet_id=meet_id)
     meet.start_date = data.start_date or meet.start_date
     meet.end_date = data.end_date or meet.end_date
@@ -38,9 +38,20 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
     if meet.start_time_slot_id > meet.end_time_slot_id:
         raise exc.IllegalInput
 
+    if not (0 < meet.start_time_slot_id < 49 and 0 < meet.end_time_slot_id < 49):
+        raise exc.IllegalInput
+
     status = enums.StatusType.voting
-    if meet.voting_end_time and meet.voting_end_time < request.time:
+    if meet.voting_end_time and timezone_validate(meet.voting_end_time) < request.time:
         status = enums.StatusType.waiting_for_confirm
+
+    host_account = await db.account.read(request.account.id)
+    meet_url = None
+    if data.gen_meet_url and not host_account.is_google_login:
+        raise exc.IllegalInput
+    if data.gen_meet_url and host_account.is_google_login and not meet.meet_url:
+        meet_url = await GoogleCalendar(account_id=host_account.id).get_google_meet_url()
+
     await db.meet.edit(
         meet_id=meet_id,
         title=data.title,
@@ -51,6 +62,7 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
         description=data.description,
         voting_end_time=timezone_validate(meet.voting_end_time),
         gen_meet_url=data.gen_meet_url,
+        meet_url=meet_url,
         status=status,
     )
 
@@ -143,14 +155,9 @@ class ConfirmMeetInput(BaseModel):
 
 
 async def confirm(meet_id: int, data: ConfirmMeetInput):
-    await db.meet.edit(
-        meet_id=meet_id,
-        finalized_start_time_slot_id=data.start_time_slot_id,
-        finalized_end_time_slot_id=data.end_time_slot_id,
-        finalized_start_date=data.start_date,
-        finalized_end_date=data.end_date,
-        status=enums.StatusType.confirmed,
-    )
+    await db.meet.edit(meet_id=meet_id, status=enums.StatusType.confirmed, finalized_start_date=data.start_date,
+                       finalized_end_date=data.end_date, finalized_start_time_slot_id=data.start_time_slot_id,
+                       finalized_end_time_slot_id=data.end_time_slot_id)
 
     meet_member_available_times = await db.available_time.browse_by_meet_id(meet_id=meet_id)
     member_time = defaultdict(list)
