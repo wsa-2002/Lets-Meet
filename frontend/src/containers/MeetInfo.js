@@ -201,8 +201,12 @@ const MeetInfo = () => {
       navigate("/");
     } else {
       try {
-        const { data, error } = await leaveMeet(code, cookies.token);
-        console.log(data, error);
+        setLoading(true);
+        const { error } = await leaveMeet(code, cookies.token);
+        if (!error) {
+          setLoading(false);
+          navigate("/meets");
+        }
       } catch (error) {
         throw error;
       }
@@ -316,7 +320,7 @@ const MeetInfo = () => {
             <ContentContainer.GroupAvailability>
               {t("groupAva")}
             </ContentContainer.GroupAvailability>
-            {/* {DATERANGE.length && TIMESLOTIDS.length && (
+            {DATERANGE.length && TIMESLOTIDS.length && (
               <ScrollSync>
                 <GroupAvailability.VotingContainer>
                   <ScrollSyncPane>
@@ -403,7 +407,7 @@ const MeetInfo = () => {
                   ))}
                 </GroupAvailability.VotingContainer>
               </ScrollSync>
-            )} */}
+            )}
           </Base.FullContainer.ContentContainer>
         )}
         <Modal
