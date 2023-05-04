@@ -11,7 +11,7 @@ import exceptions as exc  # noqa
 
 
 class MemberInfo(pydantic.BaseModel):
-    member_id: Optional[int]
+    account_id: Optional[int]
     name: Optional[str]
 
 
@@ -104,8 +104,8 @@ async def compose_host_and_member_info(meet_id: int) -> Tuple[MemberInfo, typing
         if not name:
             name = (await db.account.read(account_id=id_)).username
         if v:
-            host = MemberInfo(member_id=id_, name=name)
+            host = MemberInfo(account_id=id_, name=name)
         else:
-            member_infos.append(MemberInfo(member_id=id_, name=name))
+            member_infos.append(MemberInfo(account_id=id_, name=name))
 
     return host, member_infos
