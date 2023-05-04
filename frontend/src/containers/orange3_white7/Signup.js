@@ -1,9 +1,8 @@
 /*TODO:********************************************************************************************
   1. RWD, 頁面縮過小時的錯誤
-  Component DONE! 
 **************************************************************************************************/
 import React, { useState, useEffect } from "react";
-import { Divider, notification, Typography } from "antd";
+import { Divider, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import * as AXIOS from "../../middleware";
@@ -11,7 +10,8 @@ import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import Button from "../../components/Button";
 import Base from "../../components/Base/orange3_white7";
 import { RWD, ANIME } from "../../constant";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
+import Notification from "../../components/Notification";
 const {
   RightContainer,
   RightContainer: { InfoContainer },
@@ -40,9 +40,8 @@ const SignUp = () => {
     Password: "",
     "Confirm Password": "",
   });
+  const [notification, setNotification] = useState({});
   const [validName, setValidName] = useState(true);
-  const [description, setDescription] = useState("");
-  const [api, contextHolder] = notification.useNotification();
   const navigate = useNavigate();
 
   const CONTENTNAME = {
@@ -69,52 +68,46 @@ const SignUp = () => {
   };
 
   const handleSignUpClick = async () => {
-    if (signupData.Password !== signupData["Confirm Password"]) {
-      console.log("請輸入相同密碼");
-    } else if (signupData.Username && signupData.Password && signupData.Email) {
-      try {
-        const { data, error } = await AXIOS.signup({
-          username: signupData.Username,
-          password: signupData.Password,
-          email: signupData.Email,
-        });
-        if (error) {
-          switch (error) {
-            case "UsernameExists":
-              setDescription(t("usernameExists"));
-              break;
-            case "EmailExist":
-              setDescription(t("emailExist"));
-              break;
-            default:
-              break;
-          }
-        } else {
-          api.open({
-            message: t("verSent"),
-            description: t("checkMail"),
-            style: {},
-          });
+    try {
+      const { error } = await AXIOS.signup({
+        username: signupData.Username,
+        password: signupData.Password,
+        email: signupData.Email,
+      });
+      if (error) {
+        switch (error) {
+          case "UsernameExists":
+            setNotification({
+              title: t("signupFailed"),
+              message: t("usernameExists"),
+            });
+            break;
+          case "EmailExist":
+            setNotification({
+              title: t("signupFailed"),
+              message: t("emailExist"),
+            });
+            break;
+          default:
+            break;
         }
-      } catch (e) {
-        alert(e);
+      } else {
+        setNotification({
+          title: t("verSent"),
+          message: t("checkMail"),
+        });
       }
+    } catch (e) {
+      alert(e);
     }
   };
 
-  useEffect(() => {
-    if (description) {
-      api.open({
-        message: t("signupFailed"),
-        description, // 總共有三個 description
-        style: {},
-      });
-    }
-  }, [description]);
-
   return (
     <>
-      {contextHolder}
+      <Notification
+        notification={notification}
+        setNotification={setNotification}
+      />
       <Base>
         <Base.RightContainer>
           <RightContainer.InfoContainer style={{ height: RWDHeight(688) }}>

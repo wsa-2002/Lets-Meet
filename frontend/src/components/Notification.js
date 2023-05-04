@@ -1,19 +1,28 @@
-import { notification, ConfigProvider } from "antd";
+import { notification as AntdNotification, ConfigProvider } from "antd";
 import React, { useEffect, useState, useMemo } from "react";
 import { RWD } from "../constant";
 const { RWDFontSize } = RWD;
 
-const Notification = ({ message, description, setDescription }) => {
-  const [api, contextHolder] = notification.useNotification();
-  const [margin, setMargin] = useState(0);
+const Notification = ({ message, notification, setNotification }) => {
+  const [api, contextHolder] = AntdNotification.useNotification();
+  const [margin, setMargin] = useState(undefined);
 
   useEffect(() => {
-    if (description !== undefined) {
+    if (notification?.message !== undefined) {
+      setMargin(notification?.message ? { number: 8 } : { number: 0 });
+    }
+  }, [notification]);
+
+  useEffect(() => {
+    if (margin !== undefined) {
+      console.log(margin.number);
       api.open({
-        message,
-        description,
+        message: notification?.title,
+        description: (
+          <div style={{ fontWeight: 400 }}>{notification?.message}</div>
+        ),
         placement: "top",
-        duration: 1,
+        duration: 20,
         closeIcon: <></>,
         style: {
           fontSize: RWDFontSize(20),
@@ -25,16 +34,15 @@ const Notification = ({ message, description, setDescription }) => {
           boxShadow: "none",
         },
       });
-      setMargin(description ? 8 : 0);
-      setDescription(undefined);
+      setNotification({ title: undefined, message: undefined });
     }
-  }, [description]);
+  }, [margin]);
 
   return (
     <ConfigProvider
       theme={{
         token: {
-          marginXS: margin,
+          marginXS: margin?.number,
           borderRadiusLG: 15,
         },
       }}

@@ -2,16 +2,16 @@
   1. RWD, 頁面縮過小時的錯誤
   Component DONE! 
 **************************************************************************************************/
-import React, { useState, useEffect } from "react";
 import { Typography, Divider } from "antd";
-import { useNavigate, useLocation } from "react-router-dom";
-import * as AXIOS from "../../middleware";
-import { useMeet } from "../hooks/useMeet";
-import Button from "../../components/Button";
-import Base from "../../components/Base/orange3_white7";
-import { RWD } from "../../constant";
-import Notification from "../../components/Notification";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useMeet } from "../hooks/useMeet";
+import { RWD } from "../../constant";
+import Base from "../../components/Base/orange3_white7";
+import Button from "../../components/Button";
+import Notification from "../../components/Notification";
+import * as AXIOS from "../../middleware";
 const {
   RightContainer,
   RightContainer: { InfoContainer },
@@ -30,7 +30,7 @@ const LogIn = () => {
   const { login, GLOBAL_LOGIN, setError } = useMeet();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [description, setDescription] = useState(undefined);
+  const [notification, setNotification] = useState({});
 
   useEffect(() => {
     if (login) {
@@ -52,16 +52,13 @@ const LogIn = () => {
       if (error) {
         switch (error) {
           case "LoginFailed":
-            setDescription(
-              <div style={{ fontWeight: "normal" }}>
-                Username/Email has already been linked to Google. Please login
-                with Google.
-              </div>
-              // <></>
-            );
+            setNotification({ title: t("loginFailed"), message: "" });
             break;
           case "EmailRegisteredByGoogle":
-            setDescription(t("linkedGoogle"));
+            setNotification({
+              title: t("loginFailed"),
+              message: t("linkedGoogle"),
+            });
             break;
           default:
             break;
@@ -86,9 +83,8 @@ const LogIn = () => {
   return (
     <>
       <Notification
-        message={t("loginFailed")}
-        description={description}
-        setDescription={setDescription}
+        notification={notification}
+        setNotification={setNotification}
       />
       <Base>
         <Base.RightContainer>
@@ -171,9 +167,9 @@ const LogIn = () => {
                   style={{
                     color: "#B76A00",
                     fontSize: RWDFontSize(16),
-                    marginLeft: "5px",
                   }}
                 >
+                  {" "}
                   {t("signup")}
                 </Link>
               </Text>

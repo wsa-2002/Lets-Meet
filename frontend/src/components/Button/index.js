@@ -3,9 +3,11 @@
 **************************************************************************************************/
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { Button as AntdButton, Tooltip, Image, ConfigProvider } from "antd";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
-import { RWD } from "../constant";
-import { googleLogin } from "../middleware";
+import BUTTONTHEME from "./theme";
+import { RWD } from "../../constant";
+import { googleLogin } from "../../middleware";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 
 const BUTTONTYPE = ["primary", "secondary", "google", "back", "modal", "rect"];
@@ -23,6 +25,7 @@ const PrimaryButton = styled(BaseButton)`
   min-width: ${RWDWidth(130)};
   height: ${RWDHeight(55)};
   width: fit-content;
+
   /* color: "#000000"; */
   /* &:disabled {
     cursor: default;
@@ -42,8 +45,7 @@ const GoogleButton = styled(BaseButton)`
 `;
 
 const BackButton = styled(BaseButton)`
-  border-color: white;
-  color: #808080;
+  border-radius: 50%;
 `;
 
 const ModalButton = styled(BaseButton)`
@@ -59,15 +61,78 @@ const RectButton = styled(ModalButton)`
   font-weight: 700;
 `;
 
-export default (type = "primary") =>
-  (prop) => {
+export default (type = "primary") => {
+  let tempTheme;
+  let tempVariant;
+  switch (type) {
+    case "primary":
+      tempTheme = "#B3DEE5";
+      tempVariant = "solid";
+      break;
+    case "back":
+      tempTheme = "#D8D8D8";
+      tempVariant = "round";
+      break;
+    default:
+      tempVariant = "hollow";
+      break;
+  }
+  return ({ buttonTheme = tempTheme, variant = tempVariant, ...prop }) => {
     if (!BUTTONTYPE.includes(type)) {
       throw new Error(
-        `請定義 Btton 種類，有以下可以選擇：\n${BUTTONTYPE.join(", ")}`
+        `請定義 Button 種類，有以下可以選擇：\n${BUTTONTYPE.join(", ")}`
       );
     }
+    if (
+      type !== "google" &&
+      !Object.keys(BUTTONTHEME[variant]).includes(buttonTheme)
+    ) {
+      throw new Error(
+        `請定義 ${variant} Button 主題顏色，有以下可以選擇：\n${Object.keys(
+          BUTTONTHEME[variant]
+        ).join(", ")}`
+      );
+    }
+    const [theme, setTheme] = useState({
+      ...BUTTONTHEME?.[variant]?.[buttonTheme],
+      fontColor: BUTTONTHEME?.[variant]?.[buttonTheme]?.default?.color,
+      borderColor: BUTTONTHEME?.[variant]?.[buttonTheme]?.default?.border,
+    });
+    const [down, setDown] = useState(false);
+
+    const ThemeAlongMouseMove = (temp) => {
+      setTheme((prev) => ({
+        ...prev,
+        fontColor: BUTTONTHEME?.[variant]?.[buttonTheme]?.[temp]?.color,
+        borderColor: BUTTONTHEME?.[variant]?.[buttonTheme]?.[temp]?.border,
+      }));
+    };
+
+    document.addEventListener("mouseup", () => {
+      if (down) {
+        ThemeAlongMouseMove("default");
+      }
+      setDown(false);
+    });
+
+    prop.style = { ...prop.style, border: `1px solid ${theme.borderColor}` };
+
+    prop.onMouseEnter = () => {
+      if (!down) {
+        ThemeAlongMouseMove("hover");
+      }
+    };
+    prop.onMouseDown = () => {
+      setDown(true);
+      ThemeAlongMouseMove("active");
+    };
+    prop.onMouseLeave = () => {
+      if (!down) {
+        ThemeAlongMouseMove("default");
+      }
+    };
+
     let Component;
-    let ButtonStyle;
     switch (type) {
       case "google":
         return (
@@ -79,7 +144,7 @@ export default (type = "primary") =>
           >
             <Image
               width={RWDFontSize(30)}
-              src={require("../resources/google.png")}
+              src={require("./google.png")}
               preview={false}
             />
             {prop.children}
@@ -93,16 +158,11 @@ export default (type = "primary") =>
             </PrimaryButton>
           </Tooltip>
         );
-        ButtonStyle = {
-          colorPrimary: "#B3DEE5",
-          colorPrimaryHover: "#D6F7F6",
-          colorPrimaryActive: "#5A8EA4",
-          colorTextLightSolid: "#000000",
-        };
         break;
       case "back":
-        Component = <BackButton icon={<ArrowLeftOutlined />} {...prop} />;
-        ButtonStyle = { controlTmpOutline: "rgba(0, 0, 0, 0)" };
+        Component = (
+          <BackButton type="primary" icon={<ArrowLeftOutlined />} {...prop} />
+        );
         break;
       case "modal":
         Component = (
@@ -110,12 +170,13 @@ export default (type = "primary") =>
             {prop.children}
           </ModalButton>
         );
-        ButtonStyle = {
-          colorTextLightSolid: prop.style.color ?? "#000000",
-        };
         break;
       case "rect":
-        Component = <RectButton {...prop}>{prop.children}</RectButton>;
+        Component = (
+          <RectButton type="primary" {...prop}>
+            {prop.children}
+          </RectButton>
+        );
       default:
         break;
     }
@@ -126,7 +187,10 @@ export default (type = "primary") =>
             Button: {
               controlTmpOutline: "rgba(0, 0, 0, 0)",
               controlOutline: "rgba(0, 0, 0, 0)",
-              ...ButtonStyle,
+              colorPrimary: theme?.default?.backgroundColor,
+              colorPrimaryHover: theme?.hover?.backgroundColor,
+              colorPrimaryActive: theme?.active?.backgroundColor,
+              colorTextLightSolid: theme?.fontColor,
             },
           },
         }}
@@ -135,3 +199,4 @@ export default (type = "primary") =>
       </ConfigProvider>
     );
   };
+};

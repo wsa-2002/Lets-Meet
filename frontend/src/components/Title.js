@@ -1,10 +1,12 @@
 import { forwardRef } from "react";
 import styled from "styled-components";
+import { RWD } from "../constant";
+const { RWDFontSize } = RWD;
 
 const TitleComponent = styled.div`
   font-style: normal;
   font-weight: 500;
-  font-size: 4.2vw;
+  font-size: ${RWDFontSize(80)};
   color: #ffa601;
   font-family: "Lobster";
   width: fit-content;

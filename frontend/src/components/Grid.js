@@ -1,9 +1,14 @@
 /*TODO:********************************************************************************************
   1.Grid, line-name 可以設定成 header start /end 和 footer start / end。
 **************************************************************************************************/
+import Backdrop from "@mui/material/Backdrop";
+import _ from "lodash";
 import React from "react";
 import styled from "styled-components";
-import _ from "lodash";
+import { useMeet } from "../containers/hooks/useMeet";
+import { ANIME, RWD } from "../constant";
+import Title from "./Title";
+const { RWDVmin } = RWD;
 
 const GridContainer = styled.div`
   display: grid;
@@ -12,8 +17,21 @@ const GridContainer = styled.div`
   grid-template-rows: ${({ gridRow }) => gridRow};
 `;
 
+const Loading = styled.div`
+  ${ANIME.Rotate}
+  width: ${RWDVmin(300)};
+  height: ${RWDVmin(300)};
+  background-color: #fdf3d1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+`;
+
 const Grid = (prop) => {
   const { column, row, children } = prop;
+  const { loading } = useMeet();
+
   if (
     !column ||
     !row ||
@@ -40,6 +58,14 @@ const Grid = (prop) => {
 
   return (
     <GridContainer {...prop} gridColumn={gridColumn} gridRow={gridRow}>
+      <Backdrop
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <Loading>
+          <Title style>Let's Meet</Title>
+        </Loading>
+      </Backdrop>
       {children}
     </GridContainer>
   );

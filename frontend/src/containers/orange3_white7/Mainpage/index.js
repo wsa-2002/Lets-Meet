@@ -233,6 +233,7 @@ const Mainpage = () => {
             handleMeetDataChange={handleMeetDataChange}
             login={login}
             setMeetData={setMeetData}
+            rawMeetInfo={meetData}
           ></MeetInfo>
         </div>
         <PrimaryButton
