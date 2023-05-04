@@ -33,7 +33,7 @@ async def get_google_event(start_date: date, end_date: date):
 
 @router.get('/google-meet-url')
 @enveloped
-async def get_google_meet_code():
+async def get_google_meet_url():
     account_id = request.account.id
     google_calendar = GoogleCalendar(account_id)
     return await google_calendar.get_google_meet_url()
