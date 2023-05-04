@@ -170,7 +170,7 @@ async def delete_meet(meet_id: int) -> None:
     await service.meet.delete_meet(meet_id=meet_id)
 
 
-@router.patch('/meet/[meet_id}')
+@router.patch('/meet/{meet_id}')
 @enveloped
 async def edit_meet(meet_id: int, data: EditMeetInput) -> None:
     await service.meet.edit_meet(meet_id=meet_id, data=data)

@@ -142,6 +142,10 @@ async def delete(meet_id: int) -> None:
 
 
 async def get_member_id_and_auth(meet_id: int) -> dict[Tuple[int, Optional[str]], bool]:
+    """
+    @param meet_id:
+    @return: {(account_id, name): is_host}
+    """
     sql, params = pyformat2psql(
         sql=fr"SELECT member_id, name, is_host"
             fr"  FROM meet_member"

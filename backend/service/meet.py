@@ -13,7 +13,7 @@ from security import verify_password
 
 
 class EditMeetInput(BaseModel):
-    title: Optional[str] = None
+    meet_name: Optional[str] = None
     start_date: Optional[date] = None
     end_date: Optional[date] = None
     start_time_slot_id: Optional[int] = None
@@ -21,6 +21,8 @@ class EditMeetInput(BaseModel):
     description: Optional[str] = None
     voting_end_time: Optional[datetime] = None
     gen_meet_url: Optional[bool] = False
+    member_ids: Optional[Sequence[int]] = None
+    emails: Optional[Sequence[str]] = None
 
 
 async def edit_meet(meet_id: int, data: EditMeetInput):
@@ -41,9 +43,17 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
     status = enums.StatusType.voting
     if meet.voting_end_time and meet.voting_end_time < request.time:
         status = enums.StatusType.waiting_for_confirm
+
+    meet_members = await db.meet_member.browse_meet_members_with_names(meet_id=meet_id)
+    meet_member_ids = set(meet_member.member_id for meet_member in meet_members)
+    removed_ids = list(meet_member_ids - set(data.member_ids))
+    added_ids = list(set(data.member_ids) - meet_member_ids)
+
+    await db.meet_member.edit(meet_id=meet_id, removed_member_ids=removed_ids, added_member_ids=added_ids)
+
     await db.meet.edit(
         meet_id=meet_id,
-        title=data.title,
+        title=data.meet_name,
         start_date=data.start_date,
         end_date=data.end_date,
         start_time_slot_id=data.start_time_slot_id,
