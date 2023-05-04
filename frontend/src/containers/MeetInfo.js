@@ -51,11 +51,11 @@ const MeetInfo = () => {
   const ref = useRef(); //偵測星期三的高度與寬度
   const [DATERANGE, setDATERANGE] = useState([]);
   const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
-  const [VOTINGINFO, setVOTINGINFO] = useState([]);
+  const [groupAvailabilityInfo, setGroupAvailabilityInfo] = useState([]);
   const [CELLCOLOR, setCELLCOLOR] = useState([]);
 
   const [meetInfo, setMeetInfo] = useState({
-    EventName: "",
+    "Meet Name": "",
     "Start / End Date": "",
     "Start / End Time": "",
     Host: "",
@@ -65,10 +65,11 @@ const MeetInfo = () => {
     "Invitation URL": "",
     "Google Meet URL": "",
   });
-  const [editMeetInfo, setEditMeetInfo] = useState({});
+  const [rawMeetInfo, setRawMeetInfo] = useState({});
+  const [forMemberDataFormat, setForMemberDataFormat] = useState([]);
   const [editMode, setEditMode] = useState(false);
 
-  const { login, cookies, setError } = useMeet();
+  const { login, cookies, setError, setLoading } = useMeet();
   const navigate = useNavigate();
   const location = useLocation();
   const { code } = useParams();
@@ -76,12 +77,12 @@ const MeetInfo = () => {
 
   const handleMeetInfo = async () => {
     try {
+      setLoading(true);
       const { data: votingData } = await getGroupAvailability(
         code,
         cookies.token
       );
-      setVOTINGINFO(votingData.data);
-      console.log(votingData.data);
+      setGroupAvailabilityInfo(votingData.data);
       const {
         data: {
           meet_name,
@@ -97,8 +98,11 @@ const MeetInfo = () => {
           meet_url,
         },
       } = await getMeetInfo(code, cookies.token);
+      setForMemberDataFormat(
+        member_infos.map((m) => ({ username: m.name, id: m.member_id }))
+      );
       setMeetInfo({
-        EventName: meet_name,
+        "Meet Name": meet_name,
         "Start / End Date":
           start_date.replaceAll("-", "/") +
           " ~ " +
@@ -109,7 +113,9 @@ const MeetInfo = () => {
           slotIDProcessing(end_time_slot_id + 1),
         Host: (
           <MemberTag style={{ fontSize: RWDFontSize(16) }}>
-            {host_info?.name ?? host_info?.id ?? location.state.guestName}
+            {host_info?.name ??
+              host_info?.member_id ??
+              location.state.guestName}
           </MemberTag>
         ),
         Member: (
@@ -132,16 +138,18 @@ const MeetInfo = () => {
           ? moment(voting_end_time).format("YYYY/MM/DD HH:mm:ss")
           : "None",
         "Invitation URL": `https://lets.meet.com?invite=${invite_code}`,
-        "Google Meet URL": meet_url ?? "https://meet.google.com/vft-xolb-mog",
+        "Google Meet URL": meet_url ?? "None",
       });
-      setEditMeetInfo({
-        title: meet_name,
+      setRawMeetInfo({
+        meet_name,
         start_date,
         end_date,
         start_time_slot_id,
         end_time_slot_id,
         description,
         voting_end_time,
+        gen_meet_url: meet_url ? true : false,
+        member_ids: member_infos.map((m) => m.member_id),
       });
       setDATERANGE(
         [...moment.range(moment(start_date), moment(end_date)).by("day")].map(
@@ -149,6 +157,7 @@ const MeetInfo = () => {
         )
       );
       setTIMESLOTIDS(_.range(start_time_slot_id, end_time_slot_id + 2));
+      setLoading(false);
     } catch (error) {
       setError(error.message);
     }
@@ -173,19 +182,19 @@ const MeetInfo = () => {
   }, [code]);
 
   useEffect(() => {
-    if (VOTINGINFO.length) {
+    if (groupAvailabilityInfo.length) {
       const allMembersNum =
-        VOTINGINFO?.[0]?.available_members.length +
-        VOTINGINFO?.[0]?.unavailable_members.length;
+        groupAvailabilityInfo?.[0]?.available_members.length +
+        groupAvailabilityInfo?.[0]?.unavailable_members.length;
       const gap =
         Math.floor(allMembersNum / 5) < 1 ? 1 : Math.floor(allMembersNum / 5);
       setCELLCOLOR(
-        VOTINGINFO.map(
+        groupAvailabilityInfo.map(
           (v) => COLORS.orange[Math.ceil(v.available_members.length / gap)]
         )
       );
     }
-  }, [VOTINGINFO]); //設定 time cell 顏色
+  }, [groupAvailabilityInfo]); //設定 time cell 顏色
 
   const handleLeaveYes = async () => {
     if (!login) {
@@ -222,9 +231,9 @@ const MeetInfo = () => {
     (func, ...name) =>
     (e) => {
       if (name.length === 1) {
-        setEditMeetInfo((prev) => ({ ...prev, [name[0]]: func(e) }));
+        setRawMeetInfo((prev) => ({ ...prev, [name[0]]: func(e) }));
       } else {
-        setEditMeetInfo((prev) => ({
+        setRawMeetInfo((prev) => ({
           ...prev,
           [name[0]]: func(e[0], 1),
           [name[1]]: func(e[1], 0),
@@ -235,67 +244,48 @@ const MeetInfo = () => {
   return (
     <Base login={login}>
       <Base.FullContainer>
-        {meetInfo?.EventName && (
+        {meetInfo?.["Meet Name"] && (
           <Base.FullContainer.ContentContainer>
             <ContentContainer.Title style={{ columnGap: RWDWidth(10) }}>
-              <BackButton
-                style={{
-                  position: "absolute",
-                  right: "100%",
-                  marginRight: RWDWidth(30),
-                }}
-                onClick={() => {
-                  if (cookies.token) {
-                    navigate("/meets");
-                  } else {
-                    navigate("/");
-                  }
-                }}
-              />
-              <span>{meetInfo.EventName}</span>
-              <EditFilled
-                onClick={() => {
-                  setEditMode((prev) => !prev);
-                }}
-              />
+              {editMode ? (
+                "Edit Meet"
+              ) : (
+                <>
+                  <BackButton
+                    style={{
+                      position: "absolute",
+                      right: "100%",
+                      marginRight: RWDWidth(30),
+                    }}
+                    onClick={() => {
+                      if (cookies.token) {
+                        navigate("/meets");
+                      } else {
+                        navigate("/");
+                      }
+                    }}
+                  />
+                  {meetInfo["Meet Name"]}
+                  <EditFilled
+                    onClick={() => {
+                      setEditMode((prev) => !prev);
+                    }}
+                  />
+                </>
+              )}
             </ContentContainer.Title>
             <ContentContainer.InfoContainer>
-              {editMode ? (
-                <MeetInfoEdit
-                  handleMeetDataChange={handleMeetDataChange}
-                  columnGap={20}
-                  rowGap={22}
-                  login={login}
-                  setMeetData={setEditMeetInfo}
-                />
-              ) : (
-                <ContentContainer.InfoContainer.Info>
-                  {Object.keys(meetInfo)
-                    .filter((m) => m !== "EventName")
-                    .map((title, index) => (
-                      <Fragment key={index}>
-                        <div
-                          style={{
-                            gridColumn: "1/2",
-                            gridRow: `${index + 1}/${index + 2}`,
-                          }}
-                        >
-                          {title}
-                        </div>
-                        <div
-                          style={{
-                            gridColumn: "2/3",
-                            gridRow: `${index + 1}/${index + 2}`,
-                            fontWeight: "normal",
-                            fontSize: RWDFontSize(16),
-                          }}
-                        >
-                          {meetInfo[title]}
-                        </div>
-                      </Fragment>
-                    ))}
-                </ContentContainer.InfoContainer.Info>
-              )}
+              <MeetInfoEdit
+                handleMeetDataChange={handleMeetDataChange}
+                columnGap={20}
+                rowGap={30}
+                login={login}
+                setMeetData={setRawMeetInfo}
+                meetInfo={meetInfo}
+                rawMeetInfo={rawMeetInfo}
+                reviseMode={editMode}
+                member={forMemberDataFormat}
+              />
               <div
                 style={{
                   display: "flex",
@@ -305,10 +295,8 @@ const MeetInfo = () => {
                 }}
               >
                 <RectButton
-                  style={{
-                    borderColor: "#FEE9DD",
-                    color: "#F25C54",
-                  }}
+                  buttonTheme="#FBAE98"
+                  variant="hollow"
                   onClick={() => {
                     setIsModalLeaveOpen(true);
                   }}
@@ -316,11 +304,8 @@ const MeetInfo = () => {
                   Leave Meet
                 </RectButton>
                 <RectButton
-                  style={{
-                    background: "#DB8600",
-                    borderColor: "#DB8600",
-                    color: "white",
-                  }}
+                  buttonTheme="#DB8600"
+                  variant="solid"
                   type="primary"
                   onClick={handleVote}
                 >
@@ -331,7 +316,7 @@ const MeetInfo = () => {
             <ContentContainer.GroupAvailability>
               {t("groupAva")}
             </ContentContainer.GroupAvailability>
-            {DATERANGE.length && TIMESLOTIDS.length && (
+            {/* {DATERANGE.length && TIMESLOTIDS.length && (
               <ScrollSync>
                 <GroupAvailability.VotingContainer>
                   <ScrollSyncPane>
@@ -385,7 +370,7 @@ const MeetInfo = () => {
                                     >
                                       Availble
                                     </div>
-                                    {VOTINGINFO?.[
+                                    {groupAvailabilityInfo?.[
                                       w_index * (TIMESLOTIDS.length - 1) +
                                         t_index
                                     ]?.available_members.map((m, index) => (
@@ -401,7 +386,7 @@ const MeetInfo = () => {
                                     >
                                       Unavailble
                                     </div>
-                                    {VOTINGINFO?.[
+                                    {groupAvailabilityInfo?.[
                                       w_index * (TIMESLOTIDS.length - 1) +
                                         t_index
                                     ]?.unavailable_members.map((m, index) => (
@@ -418,7 +403,7 @@ const MeetInfo = () => {
                   ))}
                 </GroupAvailability.VotingContainer>
               </ScrollSync>
-            )}
+            )} */}
           </Base.FullContainer.ContentContainer>
         )}
         <Modal
@@ -434,7 +419,8 @@ const MeetInfo = () => {
               }}
             >
               <ModalButton
-                style={{ backgroundColor: "#B8D8BA" }}
+                buttonTheme="#B8D8BA"
+                variant="solid"
                 onClick={() => {
                   setIsModalLeaveOpen(false);
                 }}
@@ -442,12 +428,9 @@ const MeetInfo = () => {
                 NO
               </ModalButton>
               <ModalButton
-                style={{
-                  backgroundColor: "#FFFFFF",
-                  borderColor: "#B8D8BA",
-                }}
+                buttonTheme="#B8D8BA"
+                variant="hollow"
                 onClick={handleLeaveYes}
-                type="default"
               >
                 YES
               </ModalButton>
@@ -510,7 +493,8 @@ const MeetInfo = () => {
             <Form.Item style={{ margin: 0, alignSelf: "flex-end" }}>
               <ModalButton
                 htmlType="submit"
-                style={{ backgroundColor: "#B8D8BA" }}
+                buttonTheme="#B8D8BA"
+                variant="solid"
               >
                 OK
               </ModalButton>

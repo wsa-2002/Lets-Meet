@@ -23,7 +23,7 @@ const Base = (prop) => {
       row={["7.5vh", "minmax(84vh, auto)", "8.5vh"]}
     >
       <Header
-        style={{ gridRow: "1/2", gridColumn: "1/3", zIndex: 600000 }}
+        style={{ gridRow: "1/2", gridColumn: "1/3" }}
         show={{ title: login, navbar: login, login }}
       />
       <div

@@ -34,10 +34,10 @@ const MenuItem = styled.div`
   scrollbar-width: none; */
 `;
 
-const Member = ({ setMeetData, Input }) => {
+const Member = ({ setMeetData, Input, rawMember = [] }) => {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
-  const [member, setMember] = useState([]);
+  const [member, setMember] = useState(rawMember);
   const [currentMember, setCurrentMember] = useState({
     username: "",
     id: "",

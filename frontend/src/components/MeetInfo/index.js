@@ -6,12 +6,14 @@ import {
   Switch,
   Tooltip,
 } from "antd";
+import dayjs from "dayjs";
 import moment from "moment";
 import React, { useState, Fragment } from "react";
 import styled, { css } from "styled-components";
 import Member from "./Member";
 import Input from "../Input";
 import { RWD } from "../../constant";
+import slotIDProcessing from "../../util/slotIDProcessing";
 const ThinnerInput = Input("thinner");
 const { RWDWidth, RWDHeight, RWDFontSize, RWDRadius } = RWD;
 
@@ -41,14 +43,14 @@ const MeetInfoContainer = Object.assign(
     grid-template-columns: repeat(2, max-content);
     grid-template-rows: repeat(7, max-content);
     grid-column-gap: ${({ columnGap }) => RWDWidth(columnGap)};
-    grid-row-gap: ${({ rowGap }) => RWDWidth(rowGap)};
+    grid-row-gap: ${({ rowGap }) => RWDHeight(rowGap)};
   `,
   {
     Content: Object.assign(
       styled.div`
         display: flex;
         align-items: center;
-        font-size: ${RWDFontSize(16)};
+        font-size: ${RWDFontSize(20)};
         font-weight: bold;
       `,
       {
@@ -88,16 +90,27 @@ const MeetInfo = ({
   handleMeetDataChange,
   login,
   setMeetData,
+  meetInfo,
+  rawMeetInfo,
+  reviseMode = true,
+  member,
+  ...prop
 }) => {
-  const [votingddl, setVotingddl] = useState(false);
+  const [votingddl, setVotingddl] = useState(
+    rawMeetInfo.voting_end_time ? true : false
+  );
+  console.log(
+    moment(rawMeetInfo.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
+  );
   const CONTENTMENU = {
     "Meet Name": (
       <ThinnerInput
         onChange={handleMeetDataChange((i) => i.target.value, "meet_name")}
         data-required={true}
+        value={rawMeetInfo.meet_name}
       />
     ),
-    "Start/End Date": (
+    "Start / End Date": (
       <MeetInfoContainer.Content.DateRangePicker
         onChange={handleMeetDataChange(
           (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
@@ -105,9 +118,15 @@ const MeetInfo = ({
           "end_date"
         )}
         data-required={true}
+        // value={[undefined, undefined]}
+        value={
+          rawMeetInfo.start_date
+            ? [dayjs(rawMeetInfo.start_date), dayjs(rawMeetInfo.end_date)]
+            : undefined
+        }
       />
     ),
-    "Start/End Time": (
+    "Start / End Time": (
       <MeetInfoContainer.Content.TimeRangePicker
         onChange={handleMeetDataChange(
           (i, plus) => (i.hour() * 60 + i.minute()) / 30 + plus,
@@ -117,18 +136,35 @@ const MeetInfo = ({
         minuteStep={30}
         format={"HH:mm"}
         data-required={true}
+        value={
+          rawMeetInfo.start_time_slot_id
+            ? [
+                dayjs(
+                  slotIDProcessing(rawMeetInfo.start_time_slot_id),
+                  "HH-mm"
+                ),
+                dayjs(
+                  slotIDProcessing(rawMeetInfo.end_time_slot_id + 1),
+                  "HH-mm"
+                ),
+              ]
+            : undefined
+        }
       />
     ),
+    Host: null,
     Member: (
       <Member
         setMeetData={setMeetData}
         Input={ThinnerInput}
         TextArea={TextAreaStyle}
+        rawMember={member}
       />
     ),
     Description: (
       <MeetInfoContainer.Content.TextArea
         onChange={handleMeetDataChange((i) => i.target.value, "description")}
+        value={rawMeetInfo.description}
       />
     ),
     "Voting Deadline": (
@@ -143,6 +179,7 @@ const MeetInfo = ({
           onChange={() => {
             setVotingddl((prev) => !prev);
           }}
+          checked={votingddl}
         />
         {votingddl && (
           <>
@@ -151,80 +188,87 @@ const MeetInfo = ({
                 (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
                 "voting_end_date"
               )}
+              value={dayjs(rawMeetInfo.voting_end_time)}
             />
             <MeetInfoContainer.Content.TimePicker
               onChange={handleMeetDataChange(
                 (i) => moment(i.toISOString()).format("HH-mm-ss"),
                 "voting_end_time"
               )}
+              value={dayjs(rawMeetInfo.voting_end_time)}
             />
           </>
         )}
       </div>
     ),
+    "Invitation URL": null,
     "Google Meet URL": (
       <Switch
         data-info={!login}
         disabled={!login}
         onChange={handleMeetDataChange((i) => i, "gen_meet_url")}
+        checked={rawMeetInfo.gen_meet_url}
       />
     ),
   };
 
   return (
-    <MeetInfoContainer columnGap={columnGap} rowGap={rowGap}>
-      {Object.keys(CONTENTMENU).map((title, index) => (
-        <Fragment key={index}>
-          <MeetInfoContainer.Content
-            style={{
-              gridColumn: "1/2",
-              gridRow: `${index + 1}/${index + 2}`,
-              alignSelf:
-                (title === "Description" || title === "Member") && "flex-start",
-              columnGap: RWDWidth(4),
-            }}
-          >
-            <div>{title}</div>
-            {CONTENTMENU[title].props["data-required"] && (
-              <div
-                style={{
-                  fontFamily: "Courier New",
-                  alignSelf: "flex-start",
-                }}
-              >
-                &#1645;
-              </div>
-            )}
-            {CONTENTMENU[title].props["data-info"] && (
-              <Tooltip
-                title="Registered users only"
-                color="#FFFFFF"
-                overlayInnerStyle={{
-                  color: "#000000",
-                }}
-              >
-                <InfoCircleOutlined
+    <MeetInfoContainer columnGap={columnGap} rowGap={rowGap} {...prop}>
+      {Object.keys(CONTENTMENU)
+        .filter((m) => (reviseMode ? CONTENTMENU[m] : m !== "Meet Name"))
+        .map((title, index) => (
+          <Fragment key={index}>
+            <MeetInfoContainer.Content
+              style={{
+                gridColumn: "1/2",
+                gridRow: `${index + 1}/${index + 2}`,
+                alignSelf:
+                  (title === "Description" || title === "Member") &&
+                  "flex-start",
+                columnGap: RWDWidth(4),
+              }}
+            >
+              <div>{title}</div>
+              {reviseMode && CONTENTMENU[title]?.props["data-required"] && (
+                <div
                   style={{
-                    marginLeft: RWDWidth(4),
-                    cursor: "pointer",
-                    color: "darkgray",
-                    fontWeight: "bold",
+                    fontFamily: "Courier New",
+                    alignSelf: "flex-start",
                   }}
-                />
-              </Tooltip>
-            )}
-          </MeetInfoContainer.Content>
-          <MeetInfoContainer.Content
-            style={{
-              gridColumn: "2/3",
-              gridRow: `${index + 1}/${index + 2}`,
-              fontWeight: "normal",
-            }}
-          >
-            {CONTENTMENU[title]}
-          </MeetInfoContainer.Content>
-        </Fragment>
-      ))}
+                >
+                  &#1645;
+                </div>
+              )}
+              {reviseMode && CONTENTMENU[title]?.props["data-info"] && (
+                <Tooltip
+                  title="Registered users only"
+                  color="#FFFFFF"
+                  overlayInnerStyle={{
+                    color: "#000000",
+                  }}
+                >
+                  <InfoCircleOutlined
+                    style={{
+                      marginLeft: RWDWidth(4),
+                      cursor: "pointer",
+                      color: "darkgray",
+                      fontWeight: "bold",
+                    }}
+                  />
+                </Tooltip>
+              )}
+            </MeetInfoContainer.Content>
+            <MeetInfoContainer.Content
+              style={{
+                gridColumn: "2/3",
+                gridRow: `${index + 1}/${index + 2}`,
+                fontWeight: "normal",
+              }}
+            >
+              {reviseMode ? CONTENTMENU[title] : meetInfo[title]}
+            </MeetInfoContainer.Content>
+          </Fragment>
+        ))}
     </MeetInfoContainer>
   );
 };

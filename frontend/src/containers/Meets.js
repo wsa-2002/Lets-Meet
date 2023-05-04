@@ -46,7 +46,7 @@ const MeetContainer = styled.div`
 const Meets = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { cookies, login } = useMeet();
+  const { cookies, login, setLoading } = useMeet();
   const [data, setData] = useState([]);
   const [isVoting, setIsVoting] = useState(true);
   const [showData, setShowData] = useState(data);
@@ -76,6 +76,7 @@ const Meets = () => {
   useEffect(() => {
     (async () => {
       if (cookies.token) {
+        setLoading(true);
         const result = await browseMeet(undefined, cookies.token);
         const data = result.data.map((d) => ({
           key: d.meet_id,
@@ -92,6 +93,7 @@ const Meets = () => {
         }));
         setData(data);
         setShowData(data.filter((ele) => ele.status.includes("ote"))); // default display voting
+        setLoading(false);
       } else {
         navigate("/");
       }
