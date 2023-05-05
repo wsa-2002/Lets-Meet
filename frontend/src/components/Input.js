@@ -23,9 +23,12 @@ const BaseInput = styled(AntdInput)`
 
 const BasePassword = styled(AntdInput.Password)`
   ${InputStyle};
-  input::-ms-reveal,
-  input::-ms-clear {
-    display: none;
+  input {
+    &::-ms-reveal,
+    &::-ms-clear {
+      display: none;
+    }
+    height: 90%;
   }
 `;
 
@@ -38,16 +41,16 @@ const Input = (type) =>
         `請定義 Input 種類，有以下可以選擇：\n${INPUTTYPE.join(", ")}`
       );
     }
-    let style;
+    let { style } = prop;
     switch (type) {
       case "main":
-        style = { height: RWDHeight(45) };
+        style = { height: RWDHeight(45), ...style };
         break;
       case "thinner":
-        style = { height: RWDHeight(35) };
+        style = { height: RWDHeight(35), ...style };
         break;
       case "shorter":
-        style = { height: RWDHeight(45), width: RWDWidth(250) };
+        style = { height: RWDHeight(45), width: RWDWidth(250), ...style };
         break;
       default:
         break;
@@ -78,16 +81,16 @@ Input.Password = (type) =>
         `請定義 Input 種類，有以下可以選擇：\n${INPUTTYPE.join(", ")}`
       );
     }
-    let style;
+    let { style } = prop;
     switch (type) {
       case "main":
-        style = { height: RWDHeight(45) };
+        style = { height: RWDHeight(45), ...style };
         break;
       case "thinner":
-        style = { height: RWDHeight(35) };
+        style = { height: RWDHeight(35), ...style };
         break;
       case "shorter":
-        style = { height: RWDHeight(45), width: RWDWidth(250) };
+        style = { height: RWDHeight(45), width: RWDWidth(250), ...style };
         break;
       default:
         break;

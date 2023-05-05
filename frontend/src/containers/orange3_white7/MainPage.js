@@ -1,27 +1,28 @@
 /*TODO:********************************************************************************************
   1.RWD, 在頁面高度縮小時 create meet 的欄位要產生 scroll, 在小到無法容下 create button 時要浮動 button
-  2.RWD, 解決 Footer 在頁面長度和高度縮小時的錯誤, 推測是由 Grid 造成的
-  3.功能, 供選擇 23:59
 **************************************************************************************************/
+import { ArrowRightOutlined } from "@ant-design/icons";
+import { Form } from "antd";
+import _ from "lodash";
 import React, { useRef, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Button as AntdButton, Input, Modal, Form } from "antd";
-import { ArrowRightOutlined } from "@ant-design/icons";
-import Base from "../../../components/Base/orange3_white7";
-import Button from "../../../components/Button";
-import MeetInfo from "../../../components/MeetInfo";
-import Title from "../../../components/Title";
-import { useMeet } from "../../hooks/useMeet";
-import moment from "moment";
-import * as AXIOS from "../../../middleware";
-import _ from "lodash";
-import { RWD } from "../../../constant";
-import { useTranslation } from "react-i18next";
+import { useMeet } from "../hooks/useMeet";
+import Base from "../../components/Base/orange3_white7";
+import Button from "../../components/Button";
+import Input from "../../components/Input";
+import MeetInfo from "../../components/MeetInfo";
+import Modal from "../../components/Modal";
+import Title from "../../components/Title";
+import { addMeet, meet } from "../../middleware";
+import { RWD } from "../../constant";
 const { RWDHeight, RWDFontSize, RWDWidth, RWDRadius } = RWD;
 const PrimaryButton = Button();
+const ShortInput = Input("shorter");
 const RectButton = Button("rect");
-const joinMeet = AXIOS.meet("join");
+const joinMeet = meet("join");
+const GuestNameModal = Modal("guestName");
 
 const JoinMeet = Object.assign(
   styled.div`
@@ -44,19 +45,8 @@ const JoinMeet = Object.assign(
         column-gap: ${RWDWidth(10)};
       `,
       {
-        Input: styled(Input)`
-          width: ${RWDWidth(250)};
-          height: ${RWDHeight(45)};
+        Input: styled(ShortInput)`
           border-radius: ${RWDRadius(10)};
-          font-size: ${RWDFontSize(16)};
-        `,
-        Button: styled(AntdButton)`
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          background-color: #ffd466;
-          width: ${RWDFontSize(50)};
-          height: ${RWDFontSize(45)};
           font-size: ${RWDFontSize(16)};
         `,
       }
@@ -65,9 +55,6 @@ const JoinMeet = Object.assign(
 );
 
 const Mainpage = () => {
-  const ref = useRef(null); //追蹤LetMEET
-  const { t } = useTranslation();
-  const [width, setWidth] = useState(ref?.current?.offsetWidth);
   const [meetData, setMeetData] = useState({
     meet_name: "", //<String>
     start_date: "", //<String>
@@ -80,11 +67,29 @@ const Mainpage = () => {
     member_ids: [], //[Number]
     emails: [], //[String]
   });
+  const [guestCreateModalOpen, setGuestCreateModalOpen] = useState(false);
+
   const { login, cookies, setError } = useMeet();
-  const [guestModal, setGuestModalOpen] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const invite = useRef(null);
   const [form] = Form.useForm();
+
+  /*調整 invitation area 套組*/
+  const ref = useRef(null); //追蹤LetMEET
+  const [width, setWidth] = useState(ref?.current?.offsetWidth);
+
+  const throttledHandleResize = _.throttle(() => {
+    setWidth(ref?.current?.offsetWidth);
+  }, 500);
+
+  useEffect(() => {
+    window.addEventListener("resize", throttledHandleResize);
+    return () => {
+      window.removeEventListener("resize", throttledHandleResize);
+    };
+  }, []);
+  /******************************************************/
 
   const handleInvite = async (e) => {
     if (!invite?.current?.input?.value) {
@@ -122,10 +127,10 @@ const Mainpage = () => {
   const handleMeetCreate = async () => {
     try {
       if (!login) {
-        setGuestModalOpen(true);
+        setGuestCreateModalOpen(true);
         return;
       }
-      const { data } = await AXIOS.addMeet(meetData, cookies.token);
+      const { data } = await addMeet(meetData, cookies.token);
       navigate(`/meets/${data.invite_code}`);
     } catch (error) {
       setError(error.message);
@@ -133,10 +138,9 @@ const Mainpage = () => {
   };
 
   const handleOk = async () => {
-    // 你這邊再加上ok後要做的動作
     try {
       if (!form.getFieldValue().name) return;
-      const { data } = await AXIOS.addMeet(
+      const { data } = await addMeet(
         {
           ...meetData,
           guest_name: form.getFieldValue().name,
@@ -151,17 +155,6 @@ const Mainpage = () => {
       setError(error.message);
     }
   };
-
-  const throttledHandleResize = _.throttle(() => {
-    setWidth(ref?.current?.offsetWidth);
-  }, 500);
-
-  useEffect(() => {
-    window.addEventListener("resize", throttledHandleResize);
-    return () => {
-      window.removeEventListener("resize", throttledHandleResize);
-    };
-  }, []);
 
   return (
     <Base title_disable={true} login={login}>
@@ -220,7 +213,7 @@ const Mainpage = () => {
             login={login}
             setMeetData={setMeetData}
             rawMeetInfo={meetData}
-          ></MeetInfo>
+          />
         </div>
         <PrimaryButton
           style={{ position: "relative", top: RWDHeight(8) }}
@@ -229,31 +222,12 @@ const Mainpage = () => {
           {t("create")}
         </PrimaryButton>
       </Base.RightContainer>
-      <Modal
-        title=""
-        open={guestModal}
-        onOk={handleOk}
-        onCancel={() => {
-          setGuestModalOpen(false);
-        }}
-        okText="Ok"
-        cancelText="Cancel"
-      >
-        <Form form={form} layout="vertical" name="form_in_modal">
-          <Form.Item
-            name="name"
-            label="Please enter your name"
-            rules={[
-              {
-                required: true,
-                message: "Error: Please enter your name!",
-              },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal>
+      <GuestNameModal
+        form={form}
+        open={guestCreateModalOpen}
+        setOpen={setGuestCreateModalOpen}
+        handleVoteOk={handleOk}
+      ></GuestNameModal>
     </Base>
   );
 };

@@ -6,5 +6,3 @@ export default axios.create({
     process.env.REACT_APP_SERVER_PORT
   }`,
 });
-
-// console.log(bool(strtobool(process.env.REACT_APP_SERVER_USE_HTTPS)));

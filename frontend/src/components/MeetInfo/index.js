@@ -8,6 +8,7 @@ import {
 } from "antd";
 import dayjs from "dayjs";
 import moment from "moment";
+import { range } from "lodash";
 import React, { useState, Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import styled, { css } from "styled-components";
@@ -89,7 +90,7 @@ const MeetInfo = ({
   handleMeetDataChange,
   login,
   setMeetData,
-  meetInfo,
+  ElementMeetInfo,
   rawMeetInfo,
   reviseMode = true,
   member,
@@ -127,11 +128,19 @@ const MeetInfo = ({
     "Start / End Time": (
       <MeetInfoContainer.Content.TimeRangePicker
         onChange={handleMeetDataChange(
-          (i, plus) => (i.hour() * 60 + i.minute()) / 30 + plus,
+          (i, plus) =>
+            i.minute() === 59 ? 48 : (i.hour() * 60 + i.minute()) / 30 + plus,
           "start_time_slot_id",
           "end_time_slot_id"
         )}
-        minuteStep={30}
+        disabledTime={() => ({
+          disabledMinutes: (hour) =>
+            range(60).filter(
+              (minute) =>
+                minute !== 0 && minute !== 30 && (hour !== 23 || minute !== 59)
+            ),
+        })}
+        hideDisabledOptions={true}
         format={"HH:mm"}
         data-required={true}
         value={
@@ -303,7 +312,7 @@ const MeetInfo = ({
                 fontWeight: "normal",
               }}
             >
-              {reviseMode ? CONTENTMENU[title] : meetInfo[title]}
+              {reviseMode ? CONTENTMENU[title] : ElementMeetInfo[title]}
             </MeetInfoContainer.Content>
           </Fragment>
         ))}

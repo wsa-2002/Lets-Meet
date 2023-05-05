@@ -4,15 +4,15 @@ import { motion } from "framer-motion";
 import _ from "lodash";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
-import React, { Fragment, useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import { useMeet } from "./hooks/useMeet";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
-import Input from "../components/Input";
 import MeetInfoEdit from "../components/MeetInfo";
+import Test from "../components/Modal";
 import Tag from "../components/Tag";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
 import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
@@ -21,14 +21,16 @@ const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
 const MemberTag = Tag("member");
 const InfoCell = TimeCell("info");
 const moment = extendMoment(Moment);
-const MainInput = Input("main");
-const MainPassword = Input.Password("main");
 const BackButton = Button("back");
 const ModalButton = Button("modal");
 const RectButton = Button("rect");
+const GuestNameModal = Test("guestName");
+
+/*AXIOS 串接 API tool*/
 const getMeetInfo = meet("read");
 const joinMeet = meet("join");
 const leaveMeet = meet("leave");
+/******************************************************/
 
 const { ContentContainer } = Base.FullContainer;
 
@@ -55,7 +57,7 @@ const MeetInfo = () => {
   const [groupAvailabilityInfo, setGroupAvailabilityInfo] = useState([]);
   const [CELLCOLOR, setCELLCOLOR] = useState([]);
 
-  const [meetInfo, setMeetInfo] = useState({
+  const [elementMeetInfo, setElementMeetInfo] = useState({
     "Meet Name": "",
     "Start / End Date": "",
     "Start / End Time": "",
@@ -105,7 +107,7 @@ const MeetInfo = () => {
       setForMemberDataFormat(
         member_infos.map((m) => ({ username: m.name, id: m.member_id }))
       );
-      setMeetInfo({
+      setElementMeetInfo({
         "Meet Name": meet_name,
         "Start / End Date":
           start_date.replaceAll("-", "/") +
@@ -241,7 +243,7 @@ const MeetInfo = () => {
     >
       <Base login={login}>
         <Base.FullContainer>
-          {meetInfo?.["Meet Name"] && (
+          {elementMeetInfo?.["Meet Name"] && (
             <Base.FullContainer.ContentContainer>
               <ContentContainer.Title style={{ columnGap: RWDWidth(10) }}>
                 {editMode ? (
@@ -262,7 +264,7 @@ const MeetInfo = () => {
                         }
                       }}
                     />
-                    {meetInfo["Meet Name"]}
+                    {elementMeetInfo["Meet Name"]}
                     {host && (
                       <EditFilled
                         onClick={() => {
@@ -280,7 +282,7 @@ const MeetInfo = () => {
                   rowGap={30}
                   login={login}
                   setMeetData={setRawMeetInfo}
-                  meetInfo={meetInfo}
+                  ElementMeetInfo={elementMeetInfo}
                   rawMeetInfo={rawMeetInfo}
                   reviseMode={editMode}
                   member={forMemberDataFormat}
@@ -463,55 +465,12 @@ const MeetInfo = () => {
               </div>
             }
           />
-          <Modal
-            centered
-            closable={false}
-            footer={null}
-            onCancel={() => {
-              setIsModalVoteOpen(false);
-            }}
+          <GuestNameModal
+            form={form}
             open={isModalVoteOpen}
-            title=""
-            width={RWDWidth(450)}
-          >
-            <Form
-              form={form}
-              style={{
-                width: RWDWidth(393),
-                height: RWDHeight(192),
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                margin: "15px 0",
-              }}
-            >
-              <Form.Item
-                name="username"
-                rules={[
-                  {
-                    required: true,
-                    message: "Username is required",
-                  },
-                ]}
-                style={{ margin: 0 }}
-              >
-                <MainInput placeholder="Your name" />
-              </Form.Item>
-              <Form.Item name="password" style={{ margin: 0 }}>
-                <MainPassword placeholder="Password (optional)" />
-              </Form.Item>
-              <Form.Item style={{ margin: 0, alignSelf: "flex-end" }}>
-                <ModalButton
-                  htmlType="submit"
-                  buttonTheme="#B8D8BA"
-                  variant="solid"
-                  onClick={handleVoteOk}
-                >
-                  OK
-                </ModalButton>
-              </Form.Item>
-            </Form>
-          </Modal>
+            setOpen={setIsModalVoteOpen}
+            handleVoteOk={handleVoteOk}
+          ></GuestNameModal>
         </Base.FullContainer>
       </Base>
     </motion.div>

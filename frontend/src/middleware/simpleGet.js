@@ -13,7 +13,7 @@ export default Object.keys(URL).reduce((acc, curr) => {
     route = undefined
   ) => {
     try {
-      console.log("req:", params ?? token ?? route);
+      console.log("GET", URL[curr], "req:", params ?? token ?? route);
       const { data: result } = await instance.get(
         `${URL[curr]}${route ? `/${route}` : ""}`,
         {
@@ -21,7 +21,7 @@ export default Object.keys(URL).reduce((acc, curr) => {
           params,
         }
       );
-      console.log("res", result);
+      console.log("GET", URL[curr], "res", result);
       return result;
     } catch (error) {
       throw error;
