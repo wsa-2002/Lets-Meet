@@ -2,15 +2,16 @@
   1. RWD, 頁面縮過小時的錯誤
   Component DONE! 
 **************************************************************************************************/
+import { Typography, Divider } from "antd";
 import React, { useState, useEffect } from "react";
-import { Typography, Divider, notification } from "antd";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
-import * as AXIOS from "../../middleware";
 import { useMeet } from "../hooks/useMeet";
-import Button from "../../components/Button";
-import Base from "../../components/Base/orange3_white7";
 import { RWD } from "../../constant";
-import { useTranslation } from 'react-i18next';
+import Base from "../../components/Base/orange3_white7";
+import Button from "../../components/Button";
+import Notification from "../../components/Notification";
+import * as AXIOS from "../../middleware";
 const {
   RightContainer,
   RightContainer: { InfoContainer },
@@ -29,8 +30,7 @@ const LogIn = () => {
   const { login, GLOBAL_LOGIN, setError } = useMeet();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [api, contextHolder] = notification.useNotification();
-  const [description, setDescription] = useState("");
+  const [notification, setNotification] = useState({});
 
   useEffect(() => {
     if (login) {
@@ -45,25 +45,6 @@ const LogIn = () => {
     }
   }, [login]);
 
-  useEffect(() => {
-    if (description) {
-      api.open({
-        message: t("loginFailed"),
-        description,
-        placement: "top",
-        duration: 160,
-        style: {
-          fontSize: RWDFontSize(20),
-          fontWeight: 700,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        },
-      });
-      setDescription("");
-    }
-  }, [description]);
-
   const handleLoginClick = async () => {
     try {
       console.log(loginData);
@@ -71,12 +52,13 @@ const LogIn = () => {
       if (error) {
         switch (error) {
           case "LoginFailed":
-            setDescription(<></>);
+            setNotification({ title: t("loginFailed"), message: "" });
             break;
           case "EmailRegisteredByGoogle":
-            setDescription(
-              t("linkedGoogle")
-            );
+            setNotification({
+              title: t("loginFailed"),
+              message: t("linkedGoogle"),
+            });
             break;
           default:
             break;
@@ -100,7 +82,10 @@ const LogIn = () => {
 
   return (
     <>
-      {contextHolder}
+      <Notification
+        notification={notification}
+        setNotification={setNotification}
+      />
       <Base>
         <Base.RightContainer>
           <RightContainer.InfoContainer
@@ -179,8 +164,12 @@ const LogIn = () => {
                   onClick={() => {
                     navigate("/signup");
                   }}
-                  style={{ color: "#B76A00", fontSize: RWDFontSize(16) }}
+                  style={{
+                    color: "#B76A00",
+                    fontSize: RWDFontSize(16),
+                  }}
                 >
+                  {" "}
                   {t("signup")}
                 </Link>
               </Text>

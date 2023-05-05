@@ -114,11 +114,20 @@ export const RWD = {
 export const ANIME = {
   FadeIn: css`
     animation-name: ${keyframes`
-                      from { opacity: 0; }
-                      to { opacity: 1; }
-                     `};
+        from { opacity: 0; }
+        to { opacity: 1; }
+      `};
     animation-duration: 0.5s;
     animation-iteration-count: 1;
+    animation-timing-function: linear;
+  `,
+  Rotate: css`
+    animation-name: ${keyframes`
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    `};
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
     animation-timing-function: linear;
   `,
 };

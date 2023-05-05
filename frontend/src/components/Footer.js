@@ -6,7 +6,7 @@ import styled from "styled-components";
 const FooterContainer = styled.div`
   display: flex;
   justify-content: center;
-  z-index: 20000;
+  /* z-index: ; */
   min-height: 8.5vh;
 `;
 

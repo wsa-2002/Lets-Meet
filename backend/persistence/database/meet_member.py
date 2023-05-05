@@ -1,3 +1,5 @@
+import asyncpg
+
 from base import do
 from typing import Optional, Sequence, Tuple
 import exceptions as exc  # noqa
@@ -55,3 +57,33 @@ async def read_by_meet_id_and_name(meet_id: int, name: str) -> Tuple[int, str, s
     except TypeError:
         raise exc.NotFound
     return id_, name, pass_hash
+
+
+async def edit(meet_id: int, added_member_ids: Sequence[int], removed_member_ids: Sequence[int]):
+    conn: asyncpg.connection.Connection = await pool_handler.pool.acquire()
+    print(added_member_ids, removed_member_ids)
+    try:
+        if removed_member_ids:
+            await conn.executemany(
+                "DELETE FROM meet_member_available_time"
+                " WHERE meet_member_id IN ("
+                "       SELECT id"
+                "         FROM meet_member"
+                "        WHERE member_id = $1"
+                ")",
+                args=[removed_member_ids],
+            )
+            await conn.executemany(
+                "DELETE FROM meet_member"
+                " WHERE member_id = $1",
+                args=[removed_member_ids],
+            )
+        if added_member_ids:
+            await conn.executemany(
+                "INSERT INTO meet_member"
+                "            (member_id, meet_id)"
+                "     VALUES ($1, $2)",
+                args=[(member_id, meet_id) for member_id in added_member_ids]
+            )
+    finally:
+        await pool_handler.pool.release(conn)

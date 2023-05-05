@@ -366,7 +366,7 @@ Base.FullContainer = Object.assign(
                     grid-column: 2/3;
                     display: flex;
                     column-gap: ${RWDWidth(5)};
-                    max-width: ${RWDWidth(690)};
+                    max-width: ${RWDWidth(880)};
                     overflow-x: auto;
                     &::-webkit-scrollbar {
                       display: none;

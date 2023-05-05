@@ -139,6 +139,10 @@ async def delete(meet_id: int) -> None:
 
 
 async def get_member_id_and_auth(meet_id: int) -> dict[Tuple[int, Optional[str]], bool]:
+    """
+    @param meet_id:
+    @return: {(account_id, name): is_host}
+    """
     sql, params = pyformat2psql(
         sql=fr"SELECT member_id, name, is_host"
             fr"  FROM meet_member"
@@ -225,7 +229,8 @@ async def edit(meet_id: int, title: Optional[str] = None, start_date: Optional[d
     await pool_handler.pool.execute(sql, *params)
 
 
-async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter], sorters: Sequence[model.Sorter]) \
+async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter], sorters: Sequence[model.Sorter],
+                               include_deleted: bool = False) \
         -> list[vo.BrowseMeetByAccount]:
     column_mapper = {
         'name': 'meet.title',
@@ -252,6 +257,7 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
             fr"  LEFT JOIN account host"
             fr"         ON host.id = tbl2.member_id"
             fr"        AND NOT is_deleted"
+            fr"     {f'AND NOT meet.is_deleted' if not include_deleted else ''}"
             fr"   {f'WHERE {cond_sql}' if cond_sql else ''}"
             fr"   {f'ORDER BY {sort_sql}' if sort_sql else ''}",
         **cond_params, account_id=account_id,

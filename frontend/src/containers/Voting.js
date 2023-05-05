@@ -12,7 +12,7 @@ import { RWD, COLORS } from "../constant";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import {
   getGroupAvailability,
   getMyAvailability,
@@ -37,6 +37,7 @@ const InfoCell = TimeCell("info");
 const moment = extendMoment(Moment);
 
 const Voting = () => {
+  const [title, setTitle] = useState("");
   const [DATERANGE, setDATERANGE] = useState([]);
   const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
   const [VOTINGINFO, setVOTINGINFO] = useState([]);
@@ -52,7 +53,7 @@ const Voting = () => {
 
   /*可拖曳 time cell 套組*/
   const [cell, setCell] = useState([]);
-  const { t } = useTranslation();
+
   const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
   const [startIndex, setStartIndex] = useState([]); //選取方塊位置
   const oriCell = useMemo(() => cell, [startDrag]);
@@ -74,11 +75,13 @@ const Voting = () => {
   /******************************************************/
 
   const { code } = useParams();
-  const { cookies, login } = useMeet();
+  const { cookies, login, setLoading } = useMeet();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleMeetInfo = async () => {
     try {
+      setLoading(true);
       const { data: votingData } = await getGroupAvailability(
         code,
         cookies.token
@@ -89,6 +92,7 @@ const Voting = () => {
       setROUTINE(routine);
 
       const { data } = await getMeetInfo(code, cookies.token);
+      setTitle(data.meet_name);
       setDATERANGE(
         [
           ...moment
@@ -126,6 +130,7 @@ const Voting = () => {
             )
           )
         );
+        setLoading(false);
       }
     })();
   }, [DATERANGE, TIMESLOTIDS]);
@@ -215,13 +220,13 @@ const Voting = () => {
                     navigate(`/meets/${code}`);
                   }}
                 ></BackButton>
-                <span>{"SDM"}</span>
+                {title}
               </ContentContainer.Title>
               <ContentContainer.MyAvailability>
                 {t("myAva")}
               </ContentContainer.MyAvailability>
               <ContentContainer.GroupAvailability>
-              {t("groupAva")}
+                {t("groupAva")}
               </ContentContainer.GroupAvailability>
               <ContentContainer.MyAvailability.VotingContainer>
                 <ContentContainer.MyAvailability.VotingContainer.TimeContainer
@@ -235,49 +240,53 @@ const Voting = () => {
                     </div>
                   ))}
                 </ContentContainer.MyAvailability.VotingContainer.TimeContainer>
-                <ContentContainer.MyAvailability.VotingContainer.CellsContainer>
-                  {DATERANGE.map((m, d_index) => (
-                    <ContentContainer.MyAvailability.VotingContainer.CellsContainer.DayColumn
-                      key={d_index}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                        ref={WeekdayRef}
+                <ScrollSyncPane>
+                  <ContentContainer.MyAvailability.VotingContainer.CellsContainer>
+                    {DATERANGE.map((m, d_index) => (
+                      <ContentContainer.MyAvailability.VotingContainer.CellsContainer.DayColumn
+                        key={d_index}
                       >
-                        <div style={{ userSelect: "none" }}>
-                          {moment(m).format("MMM D")}
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                          ref={WeekdayRef}
+                        >
+                          <div style={{ userSelect: "none" }}>
+                            {moment(m).format("MMM D")}
+                          </div>
+                          <div
+                            style={{ userSelect: "none", fontWeight: "700" }}
+                          >
+                            {moment(m).format("ddd")}
+                          </div>
                         </div>
-                        <div style={{ userSelect: "none", fontWeight: "700" }}>
-                          {moment(m).format("ddd")}
-                        </div>
-                      </div>
-                      {TIMESLOTIDS.map(
-                        (_, t_index) =>
-                          t_index !== TIMESLOTIDS.length - 1 && (
-                            <DraggableCell
-                              style={{
-                                background:
-                                  cell[d_index][t_index] === null
-                                    ? "#808080"
-                                    : cell[d_index][t_index]
-                                    ? "#94C9CD"
-                                    : "#F0F0F0",
-                              }}
-                              // ref={t === 43 ? ref : null}
-                              drag={drag}
-                              index={[d_index, t_index]}
-                              key={t_index}
-                              ref={TimeCellRef}
-                            />
-                          )
-                      )}
-                    </ContentContainer.MyAvailability.VotingContainer.CellsContainer.DayColumn>
-                  ))}
-                </ContentContainer.MyAvailability.VotingContainer.CellsContainer>
+                        {TIMESLOTIDS.map(
+                          (_, t_index) =>
+                            t_index !== TIMESLOTIDS.length - 1 && (
+                              <DraggableCell
+                                style={{
+                                  background:
+                                    cell[d_index][t_index] === null
+                                      ? "#808080"
+                                      : cell[d_index][t_index]
+                                      ? "#94C9CD"
+                                      : "#F0F0F0",
+                                }}
+                                // ref={t === 43 ? ref : null}
+                                drag={drag}
+                                index={[d_index, t_index]}
+                                key={t_index}
+                                ref={TimeCellRef}
+                              />
+                            )
+                        )}
+                      </ContentContainer.MyAvailability.VotingContainer.CellsContainer.DayColumn>
+                    ))}
+                  </ContentContainer.MyAvailability.VotingContainer.CellsContainer>
+                </ScrollSyncPane>
               </ContentContainer.MyAvailability.VotingContainer>
               <ContentContainer.MyAvailability.VotingContainer
                 style={{ gridColumn: "2/3" }}
@@ -293,79 +302,84 @@ const Voting = () => {
                     </div>
                   ))}
                 </ContentContainer.MyAvailability.VotingContainer.TimeContainer>
-                <ContentContainer.MyAvailability.VotingContainer.CellsContainer>
-                  {DATERANGE.map((m, d_index) => (
-                    <ContentContainer.MyAvailability.VotingContainer.CellsContainer.DayColumn
-                      key={d_index}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                        ref={WeekdayRef}
+                <ScrollSyncPane>
+                  <ContentContainer.MyAvailability.VotingContainer.CellsContainer>
+                    {DATERANGE.map((m, d_index) => (
+                      <ContentContainer.MyAvailability.VotingContainer.CellsContainer.DayColumn
+                        key={d_index}
                       >
-                        <div style={{ userSelect: "none" }}>
-                          {moment(m).format("MMM D")}
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                          ref={WeekdayRef}
+                        >
+                          <div style={{ userSelect: "none" }}>
+                            {moment(m).format("MMM D")}
+                          </div>
+                          <div
+                            style={{ userSelect: "none", fontWeight: "700" }}
+                          >
+                            {moment(m).format("ddd")}
+                          </div>
                         </div>
-                        <div style={{ userSelect: "none", fontWeight: "700" }}>
-                          {moment(m).format("ddd")}
-                        </div>
-                      </div>
-                      {TIMESLOTIDS.map(
-                        (_, t_index) =>
-                          t_index !== TIMESLOTIDS.length - 1 && (
-                            <InfoCell
-                              key={t_index}
-                              style={{
-                                backgroundColor:
-                                  CELLCOLOR[
-                                    d_index * (TIMESLOTIDS.length - 1) + t_index
-                                  ],
-                              }}
-                              info={
-                                <CellHoverContainer>
-                                  <CellHoverContainer.CellHoverInfo>
-                                    <div
-                                      style={{
-                                        fontWeight: "bold",
-                                        textDecoration: "underline",
-                                      }}
-                                    >
-                                      Availble
-                                    </div>
-                                    {VOTINGINFO?.[
+                        {TIMESLOTIDS.map(
+                          (_, t_index) =>
+                            t_index !== TIMESLOTIDS.length - 1 && (
+                              <InfoCell
+                                key={t_index}
+                                style={{
+                                  backgroundColor:
+                                    CELLCOLOR[
                                       d_index * (TIMESLOTIDS.length - 1) +
                                         t_index
-                                    ]?.available_members.map((m, index) => (
-                                      <div key={index}>{m}</div>
-                                    ))}
-                                  </CellHoverContainer.CellHoverInfo>
-                                  <CellHoverContainer.CellHoverInfo>
-                                    <div
-                                      style={{
-                                        fontWeight: "bold",
-                                        textDecoration: "underline",
-                                      }}
-                                    >
-                                      Unavailble
-                                    </div>
-                                    {VOTINGINFO?.[
-                                      d_index * (TIMESLOTIDS.length - 1) +
-                                        t_index
-                                    ]?.unavailable_members.map((m, index) => (
-                                      <div key={index}>{m}</div>
-                                    ))}
-                                  </CellHoverContainer.CellHoverInfo>
-                                </CellHoverContainer>
-                              }
-                            />
-                          )
-                      )}
-                    </ContentContainer.MyAvailability.VotingContainer.CellsContainer.DayColumn>
-                  ))}
-                </ContentContainer.MyAvailability.VotingContainer.CellsContainer>
+                                    ],
+                                }}
+                                info={
+                                  <CellHoverContainer>
+                                    <CellHoverContainer.CellHoverInfo>
+                                      <div
+                                        style={{
+                                          fontWeight: "bold",
+                                          textDecoration: "underline",
+                                        }}
+                                      >
+                                        Availble
+                                      </div>
+                                      {VOTINGINFO?.[
+                                        d_index * (TIMESLOTIDS.length - 1) +
+                                          t_index
+                                      ]?.available_members.map((m, index) => (
+                                        <div key={index}>{m}</div>
+                                      ))}
+                                    </CellHoverContainer.CellHoverInfo>
+                                    <CellHoverContainer.CellHoverInfo>
+                                      <div
+                                        style={{
+                                          fontWeight: "bold",
+                                          textDecoration: "underline",
+                                        }}
+                                      >
+                                        Unavailble
+                                      </div>
+                                      {VOTINGINFO?.[
+                                        d_index * (TIMESLOTIDS.length - 1) +
+                                          t_index
+                                      ]?.unavailable_members.map((m, index) => (
+                                        <div key={index}>{m}</div>
+                                      ))}
+                                    </CellHoverContainer.CellHoverInfo>
+                                  </CellHoverContainer>
+                                }
+                              />
+                            )
+                        )}
+                      </ContentContainer.MyAvailability.VotingContainer.CellsContainer.DayColumn>
+                    ))}
+                  </ContentContainer.MyAvailability.VotingContainer.CellsContainer>
+                </ScrollSyncPane>
               </ContentContainer.MyAvailability.VotingContainer>
             </Base.FullContainer.ContentContainer>
           )}
