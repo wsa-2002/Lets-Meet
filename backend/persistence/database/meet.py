@@ -199,7 +199,7 @@ async def edit(meet_id: int, title: Optional[str] = None, start_date: Optional[d
         update_params['gen_meet_url'] = gen_meet_url
     if meet_url:
         update_params['meet_url'] = meet_url
-    if not gen_meet_url:
+    if gen_meet_url is False:
         update_params['meet_url'] = None
     if status:
         update_params['status'] = status
