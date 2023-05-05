@@ -84,6 +84,14 @@ class S3File:
 
 @dataclass
 class AccountMail:
-    id: int
     username: str
     email: str
+
+
+@dataclass
+class MeetAndAccountMail:
+    meet_title: str
+    username: str
+    email: str
+    time: time
+    meet_code: str
