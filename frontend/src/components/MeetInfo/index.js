@@ -75,8 +75,6 @@ const MeetInfoContainer = Object.assign(
   }
 );
 
-// MeetInfoContainer.
-
 /**
  * @example
  * const CreateMeet = styled.div`

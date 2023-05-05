@@ -3,7 +3,7 @@
   2. Style, hover 時的特效。
 **************************************************************************************************/
 import { ArrowRightOutlined } from "@ant-design/icons";
-import { Button, Table, ConfigProvider } from "antd";
+import { Table, ConfigProvider } from "antd";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -11,14 +11,15 @@ import styled from "styled-components";
 import { useMeet } from "./hooks/useMeet";
 import { RWD } from "../constant";
 import Base from "../components/Base/145MeetRelated";
-import Test from "../components/Button";
+import Button from "../components/Button";
 import Tag from "../components/Tag";
 
 import { browseMeet } from "../middleware";
 const { RWDHeight, RWDWidth } = RWD;
 const MemberTag = Tag("member");
 const StatusTag = Tag("status");
-const RoundButton = Test("round");
+const RoundButton = Button("round");
+const RectButton = Button("rect");
 
 const tagMap = {
   Voted: {
@@ -67,9 +68,8 @@ const CONFIRMTAG = ["Confirming", "Confirmed", "Need Confirmation"];
 const Meets = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { cookies, login, setLoading } = useMeet();
+  const { cookies, setLoading } = useMeet();
   const [meetsData, setMeetsData] = useState({});
-  const [isVoting, setIsVoting] = useState(true);
   const [view, setView] = useState("Voting");
 
   const customizeRenderEmpty = () => (
@@ -87,10 +87,10 @@ const Meets = () => {
       if (cookies.token) {
         setLoading(true);
         const { data } = await browseMeet(undefined, cookies.token);
-
         setMeetsData(
           data.reduce(
             (acc, curr) => {
+              console.log();
               const target = {
                 key: curr.meet_id,
                 name: curr.title,
@@ -151,9 +151,9 @@ const Meets = () => {
       ),
     },
     {
-      title: isVoting ? t("votingDeadline") : t("meetingTime"),
-      dataIndex: isVoting ? "votingDeadline" : "meetingTime",
-      key: isVoting ? "votingDeadline" : "meetingTime",
+      title: view === "Voting" ? t("votingDeadline") : t("meetingTime"),
+      dataIndex: view === "Voting" ? "votingDeadline" : "meetingTime",
+      key: view === "Voting" ? "votingDeadline" : "meetingTime",
       width: RWDWidth(200),
     },
     {
@@ -169,7 +169,7 @@ const Meets = () => {
           style={{ color: "black", textDecoration: "underline" }}
         >
           {url}
-        </Link> // 跳轉到新的頁面
+        </Link> // TODO: 跳轉到新的頁面
       ),
     },
     {
@@ -214,28 +214,24 @@ const Meets = () => {
                 alignItems: "center",
               }}
             >
-              <Button
-                style={{
-                  backgroundColor: isVoting ? "#5A8EA4" : "white",
-                  color: isVoting ? "white" : "#5A8EA4",
-                }}
+              <RectButton
+                buttonTheme="#5A8EA4"
+                variant={view === "Voting" ? "solid" : "hollow"}
                 onClick={() => {
                   setView("Voting");
                 }}
               >
                 {t("voting")}
-              </Button>
-              <Button
-                style={{
-                  backgroundColor: isVoting ? "white" : "#5A8EA4",
-                  color: isVoting ? "#5A8EA4" : "white",
-                }}
-                onClick={(e) => {
+              </RectButton>
+              <RectButton
+                buttonTheme="#5A8EA4"
+                variant={view === "Voting" ? "hollow" : "solid"}
+                onClick={() => {
                   setView("Ended Votes");
                 }}
               >
                 {t("endedVotes")}
-              </Button>
+              </RectButton>
             </div>
           </div>
           <ConfigProvider
@@ -244,6 +240,7 @@ const Meets = () => {
               components: {
                 Table: {
                   borderRadiusLG: 0,
+                  colorFillAlter: "#F0F0F0",
                 },
               },
             }}
