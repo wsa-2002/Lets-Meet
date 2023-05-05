@@ -1,6 +1,5 @@
 /*TODO:********************************************************************************************
   1. RWD, 頁面縮過小時的錯誤
-  Component DONE! 
 **************************************************************************************************/
 import { Typography, Divider } from "antd";
 import React, { useState, useEffect } from "react";
@@ -10,6 +9,7 @@ import { useMeet } from "../hooks/useMeet";
 import { RWD } from "../../constant";
 import Base from "../../components/Base/orange3_white7";
 import Button from "../../components/Button";
+import Link from "../../components/Link";
 import Notification from "../../components/Notification";
 import * as AXIOS from "../../middleware";
 const {
@@ -18,8 +18,6 @@ const {
 } = Base;
 const GoogleButton = Button("google");
 const { RWDHeight, RWDFontSize } = RWD;
-
-const { Text, Link } = Typography;
 
 const LogIn = () => {
   const [loginData, setLoginData] = useState({
@@ -128,9 +126,9 @@ const LogIn = () => {
                     navigate("/reset");
                   }}
                   style={{
-                    color: "#B76A00",
                     fontSize: RWDFontSize(16),
                   }}
+                  linkTheme="#DB8600"
                 >
                   {t("forgot")}
                 </Link>
@@ -158,21 +156,20 @@ const LogIn = () => {
                 height: RWDHeight(92),
               }}
             >
-              <Text type="secondary">
-                {t("newToMeet")}
+              <Typography.Text type="secondary">
+                {t("newToMeet") + " "}
                 <Link
                   onClick={() => {
                     navigate("/signup");
                   }}
                   style={{
-                    color: "#B76A00",
                     fontSize: RWDFontSize(16),
                   }}
+                  linkTheme="#DB8600"
                 >
-                  {" "}
                   {t("signup")}
                 </Link>
-              </Text>
+              </Typography.Text>
             </InfoContainer.InputContainer>
           </RightContainer.InfoContainer>
         </Base.RightContainer>

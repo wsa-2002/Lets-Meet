@@ -185,8 +185,8 @@ export default (type = "primary") => {
         theme={{
           components: {
             Button: {
-              controlTmpOutline: "rgba(0, 0, 0, 0)",
-              controlOutline: "rgba(0, 0, 0, 0)",
+              controlTmpOutline: "none",
+              controlOutline: "none",
               colorPrimary: theme?.default?.backgroundColor,
               colorPrimaryHover: theme?.hover?.backgroundColor,
               colorPrimaryActive: theme?.active?.backgroundColor,

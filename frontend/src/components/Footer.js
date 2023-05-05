@@ -1,7 +1,10 @@
 import { Button, Divider } from "antd";
 import i18n from "i18next";
 import React from "react";
+import { RWD } from "../constant";
 import styled from "styled-components";
+import Link from "./Link";
+const { RWDFontSize } = RWD;
 
 const FooterContainer = styled.div`
   display: flex;
@@ -15,12 +18,8 @@ const FooterInnerContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 92%;
-  & > div {
-    font-style: normal;
-    font-weight: 400;
-    font-size: 1.3vmin;
-    color: #808080;
-  }
+  font-size: ${RWDFontSize(14)};
+  color: #808080;
 `;
 
 const Footer = (prop) => {
@@ -29,13 +28,13 @@ const Footer = (prop) => {
       <FooterInnerContainer>
         {/* <div>中文 | English</div> */}
         <div>
-          <Button type="link" onClick={() => i18n.changeLanguage("zh")}>
+          <Link onClick={() => i18n.changeLanguage("zh")} linkTheme="#808080">
             中文
-          </Button>
+          </Link>
           <Divider type="vertical" />
-          <Button type="link" onClick={() => i18n.changeLanguage("en")}>
+          <Link onClick={() => i18n.changeLanguage("en")} linkTheme="#808080">
             English
-          </Button>
+          </Link>
         </div>
         <div>Copyright 2023</div>
       </FooterInnerContainer>

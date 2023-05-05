@@ -3,7 +3,7 @@
 **************************************************************************************************/
 import styled, { css } from "styled-components";
 import { forwardRef } from "react";
-import { Input as AntdInput, Form } from "antd";
+import { Input as AntdInput, Form, ConfigProvider } from "antd";
 import { RWD } from "../constant";
 const { RWDVmin, RWDWidth, RWDHeight, RWDFontSize, RWDRadius } = RWD;
 
@@ -53,9 +53,21 @@ const Input = (type) =>
         break;
     }
     return (
-      <Form autoComplete="off">
+      <ConfigProvider
+        theme={{
+          components: {
+            Input: {
+              controlTmpOutline: "rgba(0, 0, 0, 0)",
+              controlOutline: "rgba(0, 0, 0, 0)",
+              colorPrimaryHover: "#B76A00",
+            },
+          },
+        }}
+      >
+        {/* <Form autoComplete="off"> */}
         <BaseInput {...prop} ref={ref} style={style} />
-      </Form>
+        {/* </Form> */}
+      </ConfigProvider>
     );
   });
 
@@ -81,9 +93,21 @@ Input.Password = (type) =>
         break;
     }
     return (
-      <Form autoComplete="off">
+      <ConfigProvider
+        theme={{
+          components: {
+            Input: {
+              controlTmpOutline: "rgba(0, 0, 0, 0)",
+              controlOutline: "rgba(0, 0, 0, 0)",
+              colorPrimaryHover: "#B76A00",
+            },
+          },
+        }}
+      >
+        {/* <Form autoComplete="off"> */}
         <BasePassword {...prop} ref={ref} style={style} />
-      </Form>
+        {/* </Form> */}
+      </ConfigProvider>
     );
   });
 

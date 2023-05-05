@@ -9,6 +9,7 @@ import {
 import dayjs from "dayjs";
 import moment from "moment";
 import React, { useState, Fragment } from "react";
+import { useTranslation } from "react-i18next";
 import styled, { css } from "styled-components";
 import Member from "./Member";
 import Input from "../Input";
@@ -96,11 +97,10 @@ const MeetInfo = ({
   member,
   ...prop
 }) => {
+  const { t } = useTranslation();
+
   const [votingddl, setVotingddl] = useState(
     rawMeetInfo.voting_end_time ? true : false
-  );
-  console.log(
-    moment(rawMeetInfo.voting_end_time).format("YYYY/MM/DD HH:mm:ss")
   );
   const CONTENTMENU = {
     "Meet Name": (
@@ -185,17 +185,47 @@ const MeetInfo = ({
           <>
             <MeetInfoContainer.Content.DatePicker
               onChange={handleMeetDataChange(
-                (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
-                "voting_end_date"
+                (i) =>
+                  i
+                    ? rawMeetInfo.voting_end_time
+                      ? moment(
+                          `${moment(i.toISOString()).format(
+                            "YYYY-MM-DD"
+                          )} ${moment(rawMeetInfo.voting_end_time).format(
+                            "HH-mm-ss"
+                          )}`,
+                          "YYYY-MM-DD HH-mm-ss"
+                        ).toISOString()
+                      : i.toISOString()
+                    : undefined,
+                "voting_end_time"
               )}
-              value={dayjs(rawMeetInfo.voting_end_time)}
+              value={
+                rawMeetInfo.voting_end_time
+                  ? dayjs(rawMeetInfo.voting_end_time)
+                  : undefined
+              }
             />
             <MeetInfoContainer.Content.TimePicker
               onChange={handleMeetDataChange(
-                (i) => moment(i.toISOString()).format("HH-mm-ss"),
+                (i) =>
+                  i
+                    ? rawMeetInfo.voting_end_time
+                      ? moment(
+                          `${moment(rawMeetInfo.voting_end_time).format(
+                            "YYYY-MM-DD"
+                          )} ${moment(i.toISOString()).format("HH-mm-ss")}`,
+                          "YYYY-MM-DD HH-mm-ss"
+                        ).toISOString()
+                      : i.toISOString()
+                    : undefined,
                 "voting_end_time"
               )}
-              value={dayjs(rawMeetInfo.voting_end_time)}
+              value={
+                rawMeetInfo.voting_end_time
+                  ? dayjs(rawMeetInfo.voting_end_time)
+                  : undefined
+              }
             />
           </>
         )}
@@ -210,6 +240,16 @@ const MeetInfo = ({
         checked={rawMeetInfo.gen_meet_url}
       />
     ),
+  };
+
+  const CONTENTNAME = {
+    "Meet Name": t("meetName"),
+    "Start / End Date": t("startDate"),
+    "Start / End Time": t("startTime"),
+    Member: t("member"),
+    Description: t("description"),
+    "Voting Deadline": t("votingDeadline"),
+    "Google Meet URL": t("url"),
   };
 
   return (
@@ -228,7 +268,7 @@ const MeetInfo = ({
                 columnGap: RWDWidth(4),
               }}
             >
-              <div>{title}</div>
+              <div>{CONTENTNAME[title] ?? title}</div>
               {reviseMode && CONTENTMENU[title]?.props["data-required"] && (
                 <div
                   style={{

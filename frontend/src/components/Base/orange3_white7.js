@@ -5,11 +5,9 @@ import Grid from "../Grid.js";
 import Header from "../Header";
 import Input from "../Input";
 import Title from "../Title.js";
-import { RWD, FONTS } from "../../constant";
+import { RWD } from "../../constant";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
-const { main } = FONTS;
 const MainInput = Input("main");
-const ThinnerInput = Input("thinner");
 const PrimaryButton = Button("primary");
 const MainPassword = Input.Password("main");
 
@@ -133,7 +131,6 @@ Base.RightContainer = Object.assign(
           `;
         */
         Title: styled.h1`
-          ${main}
           font-weight: bold;
           font-size: ${RWDFontSize(30)};
           padding: 0;

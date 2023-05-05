@@ -24,7 +24,7 @@ export const getMyAvailability = async (
     console.log("req:", code, name);
     const { data: result } = await instance.get(
       `/meet/code/${code}/available_time`,
-      token && { headers: { "auth-token": token } }
+      { headers: token && { "auth-token": token }, params: name && { name } }
     );
     console.log("res", result);
     return result;
