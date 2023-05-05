@@ -100,14 +100,6 @@ export default (type = "primary") => {
     });
     const [down, setDown] = useState(false);
 
-    useEffect(() => {
-      setTheme({
-        ...BUTTONTHEME?.[variant]?.[buttonTheme],
-        fontColor: BUTTONTHEME?.[variant]?.[buttonTheme]?.default?.color,
-        borderColor: BUTTONTHEME?.[variant]?.[buttonTheme]?.default?.border,
-      });
-    }, [variant]);
-
     const ThemeAlongMouseMove = (temp) => {
       setTheme((prev) => ({
         ...prev,
@@ -120,17 +112,20 @@ export default (type = "primary") => {
       if (down) {
         ThemeAlongMouseMove("default");
       }
+      console.log(variant, "up");
       setDown(false);
     };
-
-    // window.addEventListener("mouseup", mouseup);
 
     useEffect(() => {
       window.addEventListener("mouseup", mouseup);
       return () => {
         window.removeEventListener("mouseup", mouseup);
       };
-    }, [down]);
+    }, []);
+
+    useEffect(() => {
+      console.log(variant);
+    }, [variant]);
 
     prop.style = { ...prop.style, border: `1px solid ${theme.borderColor}` };
 

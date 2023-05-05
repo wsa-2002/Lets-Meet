@@ -3,7 +3,7 @@
   2. Style, hover 時的特效。
 **************************************************************************************************/
 import { ArrowRightOutlined } from "@ant-design/icons";
-import { Button, Table, ConfigProvider } from "antd";
+import { Table, ConfigProvider } from "antd";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -11,17 +11,37 @@ import styled from "styled-components";
 import { useMeet } from "./hooks/useMeet";
 import { RWD } from "../constant";
 import Base from "../components/Base/145MeetRelated";
+import Button from "../components/Button";
 import Tag from "../components/Tag";
+
 import { browseMeet } from "../middleware";
 const { RWDHeight, RWDWidth } = RWD;
 const MemberTag = Tag("member");
 const StatusTag = Tag("status");
+const RoundButton = Button("round");
+const RectButton = Button("rect");
 
 const tagMap = {
-  Voted: { color: "#808080", border: "1px solid #D8D8D8" },
-  Confirming: { color: "#808080", border: "1px solid #D8D8D8" },
-  Unvoted: { color: "#FFA601", border: "1px solid #FFA601" },
-  Comfirmed: { color: "#FFA601", border: "1px solid #FFA601" },
+  Voted: {
+    color: "#808080",
+    border: "1px solid #D8D8D8",
+    backgroundColor: "#FFFFFF",
+  },
+  Confirming: {
+    color: "#808080",
+    border: "1px solid #D8D8D8",
+    backgroundColor: "#FFFFFF",
+  },
+  Unvoted: {
+    color: "#FFA601",
+    border: "1px solid #FFA601",
+    backgroundColor: "#FFFFFF",
+  },
+  Confirmed: {
+    color: "#FFA601",
+    border: "1px solid #FFA601",
+    backgroundColor: "#FFFFFF",
+  },
   "Need Confirmation": {
     color: "#FFFFFF",
     border: "none",
@@ -32,7 +52,7 @@ const tagMap = {
 const MeetContainer = styled.div`
   width: ${RWDWidth(1488)};
   position: relative;
-  top: ${RWDHeight(100)};
+  margin-top: ${RWDHeight(100)};
   display: flex;
   flex-direction: column;
   row-gap: ${RWDHeight(30)};
@@ -43,13 +63,14 @@ const MeetContainer = styled.div`
   }
 `;
 
+const CONFIRMTAG = ["Confirming", "Confirmed", "Need Confirmation"];
+
 const Meets = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { cookies, login, setLoading } = useMeet();
-  const [data, setData] = useState([]);
-  const [isVoting, setIsVoting] = useState(true);
-  const [showData, setShowData] = useState(data);
+  const { cookies, setLoading } = useMeet();
+  const [meetsData, setMeetsData] = useState({});
+  const [view, setView] = useState("Voting");
 
   const customizeRenderEmpty = () => (
     <div style={{ textAlign: "center" }}>
@@ -61,38 +82,36 @@ const Meets = () => {
     navigate(`/meets/${code}`);
   };
 
-  const handleIsVote = () => {
-    setIsVoting(true);
-    const temp = data.filter((ele) => ele.status.includes("ote"));
-    setShowData(temp);
-  };
-
-  const handleEndVote = () => {
-    setIsVoting(false);
-    const temp = data.filter((ele) => ele.status.includes("onfirm"));
-    setShowData(temp);
-  };
-
   useEffect(() => {
     (async () => {
       if (cookies.token) {
         setLoading(true);
-        const result = await browseMeet(undefined, cookies.token);
-        const data = result.data.map((d) => ({
-          key: d.meet_id,
-          name: d.title,
-          host: d.host_username,
-          code: d.invite_code,
-          votingPeriod: `${d.start_date.replaceAll(
-            "-",
-            "/"
-          )} ~ ${d.end_date.replaceAll("-", "/")}`,
-          status: d.status,
-          meetingTime: "2023/04/15",
-          url: d.meet_url ?? "https://meet.google.com/vft-xolb-mog",
-        }));
-        setData(data);
-        setShowData(data.filter((ele) => ele.status.includes("ote"))); // default display voting
+        const { data } = await browseMeet(undefined, cookies.token);
+        setMeetsData(
+          data.reduce(
+            (acc, curr) => {
+              console.log();
+              const target = {
+                key: curr.meet_id,
+                name: curr.title,
+                host: curr.host_username,
+                code: curr.invite_code,
+                votingPeriod: `${curr.start_date.replaceAll(
+                  "-",
+                  "/"
+                )} ~ ${curr.end_date.replaceAll("-", "/")}`,
+                status: curr.status,
+                meetingTime: "2023/04/15",
+                url: curr.meet_url ?? "https://meet.google.com/vft-xolb-mog",
+              };
+              acc[
+                CONFIRMTAG.includes(curr.status) ? "Ended Votes" : "Voting"
+              ].push(target);
+              return acc;
+            },
+            { Voting: [], "Ended Votes": [] }
+          )
+        );
         setLoading(false);
       } else {
         navigate("/");
@@ -132,9 +151,9 @@ const Meets = () => {
       ),
     },
     {
-      title: isVoting ? t("votingDeadline") : t("meetingTime"),
-      dataIndex: isVoting ? "votingDeadline" : "meetingTime",
-      key: isVoting ? "votingDeadline" : "meetingTime",
+      title: view === "Voting" ? t("votingDeadline") : t("meetingTime"),
+      dataIndex: view === "Voting" ? "votingDeadline" : "meetingTime",
+      key: view === "Voting" ? "votingDeadline" : "meetingTime",
       width: RWDWidth(200),
     },
     {
@@ -150,18 +169,18 @@ const Meets = () => {
           style={{ color: "black", textDecoration: "underline" }}
         >
           {url}
-        </Link> // 跳轉到新的頁面
+        </Link> // TODO: 跳轉到新的頁面
       ),
     },
     {
       title: "",
       dataIndex: "action",
       align: "right",
-      render: (_, record) => (
-        <Button
-          type="link"
+      render: () => (
+        <RoundButton
+          variant="icon"
+          buttonTheme="#D8D8D8"
           icon={<ArrowRightOutlined />}
-          style={{ color: "#D8D8D8" }}
           // onClick={handleMeetInfoClick}
         />
       ),
@@ -195,24 +214,24 @@ const Meets = () => {
                 alignItems: "center",
               }}
             >
-              <Button
-                style={{
-                  backgroundColor: isVoting ? "white" : "#5A8EA4",
-                  color: isVoting ? "#5A8EA4" : "white",
+              <RectButton
+                buttonTheme="#5A8EA4"
+                variant={view === "Voting" ? "solid" : "hollow"}
+                onClick={() => {
+                  setView("Voting");
                 }}
-                onClick={handleEndVote}
-              >
-                {t("endedVotes")}
-              </Button>
-              <Button
-                style={{
-                  backgroundColor: isVoting ? "#5A8EA4" : "white",
-                  color: isVoting ? "white" : "#5A8EA4",
-                }}
-                onClick={handleIsVote}
               >
                 {t("voting")}
-              </Button>
+              </RectButton>
+              <RectButton
+                buttonTheme="#5A8EA4"
+                variant={view === "Voting" ? "hollow" : "solid"}
+                onClick={() => {
+                  setView("Ended Votes");
+                }}
+              >
+                {t("endedVotes")}
+              </RectButton>
             </div>
           </div>
           <ConfigProvider
@@ -221,13 +240,14 @@ const Meets = () => {
               components: {
                 Table: {
                   borderRadiusLG: 0,
+                  colorFillAlter: "#F0F0F0",
                 },
               },
             }}
           >
             <Table
               style={{ width: "100%", overflowX: "auto" }}
-              dataSource={showData}
+              dataSource={meetsData[view]}
               columns={columns}
               onRow={(record) => {
                 return {

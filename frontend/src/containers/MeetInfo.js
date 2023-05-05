@@ -68,9 +68,10 @@ const MeetInfo = () => {
   });
   const [rawMeetInfo, setRawMeetInfo] = useState({});
   const [forMemberDataFormat, setForMemberDataFormat] = useState([]);
+  const [host, setHost] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
-  const { login, cookies, setError, setLoading } = useMeet();
+  const { login, cookies, ID, setError, setLoading } = useMeet();
   const navigate = useNavigate();
   const location = useLocation();
   const { code } = useParams();
@@ -99,6 +100,8 @@ const MeetInfo = () => {
           meet_url,
         },
       } = await getMeetInfo(code, cookies.token);
+      console.log(host_info.account_id, ID);
+      setHost(host_info.account_id === ID);
       setForMemberDataFormat(
         member_infos.map((m) => ({ username: m.name, id: m.member_id }))
       );
@@ -114,7 +117,7 @@ const MeetInfo = () => {
           slotIDProcessing(end_time_slot_id + 1),
         Host: (
           <MemberTag style={{ fontSize: RWDFontSize(16) }}>
-            {host_info?.name ?? location.state.guestName}
+            {host_info?.name ?? location.state?.guestName}
           </MemberTag>
         ),
         Member: (
@@ -159,6 +162,7 @@ const MeetInfo = () => {
       setLoading(false);
     } catch (error) {
       setError(error.message);
+      console.log(error);
     }
   };
 
@@ -169,7 +173,7 @@ const MeetInfo = () => {
         handleMeetInfo();
       }
     })();
-  }, [code]);
+  }, [code, ID]);
 
   useEffect(() => {
     if (groupAvailabilityInfo.length) {
@@ -259,11 +263,13 @@ const MeetInfo = () => {
                       }}
                     />
                     {meetInfo["Meet Name"]}
-                    <EditFilled
-                      onClick={() => {
-                        setEditMode((prev) => !prev);
-                      }}
-                    />
+                    {host && (
+                      <EditFilled
+                        onClick={() => {
+                          setEditMode((prev) => !prev);
+                        }}
+                      />
+                    )}
                   </>
                 )}
               </ContentContainer.Title>
@@ -297,7 +303,7 @@ const MeetInfo = () => {
                       setIsModalLeaveOpen(true);
                     }}
                   >
-                    Leave Meet
+                    {host ? "Delete" : "Leave"} Meet
                   </RectButton>
                   <RectButton
                     buttonTheme="#DB8600"

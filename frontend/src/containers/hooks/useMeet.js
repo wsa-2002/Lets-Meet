@@ -20,11 +20,14 @@ const MeetProvider = (props) => {
     console.log(decoded);
     setCookie("token", token, { path: "/", expires: new Date(decoded.expire) });
     setLogin(true);
+    setID(decoded.account_id);
   };
 
   useEffect(() => {
     if (cookies.token) {
       setLogin(true);
+      console.log(jwt(cookies.token).account_id);
+      setID(jwt(cookies.token).account_id);
     }
   }, [cookies]);
 
@@ -35,6 +38,7 @@ const MeetProvider = (props) => {
         cookies,
         error,
         loading,
+        ID,
         setError,
         setLogin,
         setLoading,
