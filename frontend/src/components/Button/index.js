@@ -10,7 +10,7 @@ import { RWD } from "../../constant";
 import { googleLogin } from "../../middleware";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 
-const BUTTONTYPE = ["primary", "secondary", "google", "back", "modal", "rect"];
+const BUTTONTYPE = ["primary", "google", "back", "modal", "rect", "round"];
 
 const BaseButton = styled(AntdButton)`
   display: flex;
@@ -44,7 +44,7 @@ const GoogleButton = styled(BaseButton)`
   font-weight: 900;
 `;
 
-const BackButton = styled(BaseButton)`
+const RoundButton = styled(BaseButton)`
   border-radius: 50%;
 `;
 
@@ -71,7 +71,7 @@ export default (type = "primary") => {
       break;
     case "back":
       tempTheme = "#D8D8D8";
-      tempVariant = "round";
+      tempVariant = "icon";
       break;
     default:
       tempVariant = "hollow";
@@ -161,7 +161,7 @@ export default (type = "primary") => {
         break;
       case "back":
         Component = (
-          <BackButton type="primary" icon={<ArrowLeftOutlined />} {...prop} />
+          <RoundButton type="primary" icon={<ArrowLeftOutlined />} {...prop} />
         );
         break;
       case "modal":
@@ -177,6 +177,9 @@ export default (type = "primary") => {
             {prop.children}
           </RectButton>
         );
+      case "round":
+        Component = <RoundButton type="primary" {...prop} />;
+        break;
       default:
         break;
     }

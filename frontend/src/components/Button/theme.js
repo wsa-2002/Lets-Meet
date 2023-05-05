@@ -192,7 +192,7 @@ export default {
       },
     },
   },
-  round: {
+  icon: {
     "#D8D8D8": {
       default: {
         backgroundColor: "none",

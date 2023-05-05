@@ -11,17 +11,36 @@ import styled from "styled-components";
 import { useMeet } from "./hooks/useMeet";
 import { RWD } from "../constant";
 import Base from "../components/Base/145MeetRelated";
+import Test from "../components/Button";
 import Tag from "../components/Tag";
+
 import { browseMeet } from "../middleware";
 const { RWDHeight, RWDWidth } = RWD;
 const MemberTag = Tag("member");
 const StatusTag = Tag("status");
+const RoundButton = Test("round");
 
 const tagMap = {
-  Voted: { color: "#808080", border: "1px solid #D8D8D8" },
-  Confirming: { color: "#808080", border: "1px solid #D8D8D8" },
-  Unvoted: { color: "#FFA601", border: "1px solid #FFA601" },
-  Comfirmed: { color: "#FFA601", border: "1px solid #FFA601" },
+  Voted: {
+    color: "#808080",
+    border: "1px solid #D8D8D8",
+    backgroundColor: "#FFFFFF",
+  },
+  Confirming: {
+    color: "#808080",
+    border: "1px solid #D8D8D8",
+    backgroundColor: "#FFFFFF",
+  },
+  Unvoted: {
+    color: "#FFA601",
+    border: "1px solid #FFA601",
+    backgroundColor: "#FFFFFF",
+  },
+  Confirmed: {
+    color: "#FFA601",
+    border: "1px solid #FFA601",
+    backgroundColor: "#FFFFFF",
+  },
   "Need Confirmation": {
     color: "#FFFFFF",
     border: "none",
@@ -32,7 +51,7 @@ const tagMap = {
 const MeetContainer = styled.div`
   width: ${RWDWidth(1488)};
   position: relative;
-  top: ${RWDHeight(100)};
+  margin-top: ${RWDHeight(100)};
   display: flex;
   flex-direction: column;
   row-gap: ${RWDHeight(30)};
@@ -43,13 +62,15 @@ const MeetContainer = styled.div`
   }
 `;
 
+const CONFIRMTAG = ["Confirming", "Confirmed", "Need Confirmation"];
+
 const Meets = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { cookies, login, setLoading } = useMeet();
-  const [data, setData] = useState([]);
+  const [meetsData, setMeetsData] = useState({});
   const [isVoting, setIsVoting] = useState(true);
-  const [showData, setShowData] = useState(data);
+  const [view, setView] = useState("Voting");
 
   const customizeRenderEmpty = () => (
     <div style={{ textAlign: "center" }}>
@@ -61,38 +82,36 @@ const Meets = () => {
     navigate(`/meets/${code}`);
   };
 
-  const handleIsVote = () => {
-    setIsVoting(true);
-    const temp = data.filter((ele) => ele.status.includes("ote"));
-    setShowData(temp);
-  };
-
-  const handleEndVote = () => {
-    setIsVoting(false);
-    const temp = data.filter((ele) => ele.status.includes("onfirm"));
-    setShowData(temp);
-  };
-
   useEffect(() => {
     (async () => {
       if (cookies.token) {
         setLoading(true);
-        const result = await browseMeet(undefined, cookies.token);
-        const data = result.data.map((d) => ({
-          key: d.meet_id,
-          name: d.title,
-          host: d.host_username,
-          code: d.invite_code,
-          votingPeriod: `${d.start_date.replaceAll(
-            "-",
-            "/"
-          )} ~ ${d.end_date.replaceAll("-", "/")}`,
-          status: d.status,
-          meetingTime: "2023/04/15",
-          url: d.meet_url ?? "https://meet.google.com/vft-xolb-mog",
-        }));
-        setData(data);
-        setShowData(data.filter((ele) => ele.status.includes("ote"))); // default display voting
+        const { data } = await browseMeet(undefined, cookies.token);
+
+        setMeetsData(
+          data.reduce(
+            (acc, curr) => {
+              const target = {
+                key: curr.meet_id,
+                name: curr.title,
+                host: curr.host_username,
+                code: curr.invite_code,
+                votingPeriod: `${curr.start_date.replaceAll(
+                  "-",
+                  "/"
+                )} ~ ${curr.end_date.replaceAll("-", "/")}`,
+                status: curr.status,
+                meetingTime: "2023/04/15",
+                url: curr.meet_url ?? "https://meet.google.com/vft-xolb-mog",
+              };
+              acc[
+                CONFIRMTAG.includes(curr.status) ? "Ended Votes" : "Voting"
+              ].push(target);
+              return acc;
+            },
+            { Voting: [], "Ended Votes": [] }
+          )
+        );
         setLoading(false);
       } else {
         navigate("/");
@@ -157,11 +176,11 @@ const Meets = () => {
       title: "",
       dataIndex: "action",
       align: "right",
-      render: (_, record) => (
-        <Button
-          type="link"
+      render: () => (
+        <RoundButton
+          variant="icon"
+          buttonTheme="#D8D8D8"
           icon={<ArrowRightOutlined />}
-          style={{ color: "#D8D8D8" }}
           // onClick={handleMeetInfoClick}
         />
       ),
@@ -197,21 +216,25 @@ const Meets = () => {
             >
               <Button
                 style={{
-                  backgroundColor: isVoting ? "white" : "#5A8EA4",
-                  color: isVoting ? "#5A8EA4" : "white",
-                }}
-                onClick={handleEndVote}
-              >
-                {t("endedVotes")}
-              </Button>
-              <Button
-                style={{
                   backgroundColor: isVoting ? "#5A8EA4" : "white",
                   color: isVoting ? "white" : "#5A8EA4",
                 }}
-                onClick={handleIsVote}
+                onClick={() => {
+                  setView("Voting");
+                }}
               >
                 {t("voting")}
+              </Button>
+              <Button
+                style={{
+                  backgroundColor: isVoting ? "white" : "#5A8EA4",
+                  color: isVoting ? "#5A8EA4" : "white",
+                }}
+                onClick={(e) => {
+                  setView("Ended Votes");
+                }}
+              >
+                {t("endedVotes")}
               </Button>
             </div>
           </div>
@@ -227,7 +250,7 @@ const Meets = () => {
           >
             <Table
               style={{ width: "100%", overflowX: "auto" }}
-              dataSource={showData}
+              dataSource={meetsData[view]}
               columns={columns}
               onRow={(record) => {
                 return {
