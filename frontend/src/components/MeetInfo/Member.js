@@ -27,11 +27,6 @@ const MenuItem = styled.div`
       /* background-color: ; */
     }
   }
-  /* &::-webkit-scrollbar {
-    display: none;
-  }
-  -ms-overflow-style: none;
-  scrollbar-width: none; */
 `;
 
 const Member = ({ setMeetData, Input, rawMember = [] }) => {
@@ -48,7 +43,6 @@ const Member = ({ setMeetData, Input, rawMember = [] }) => {
   const [input, setInput] = useState(""); //Input 裡的文字
 
   const handleSearchMember = async (key) => {
-    console.log(key);
     try {
       const {
         data: { accounts },

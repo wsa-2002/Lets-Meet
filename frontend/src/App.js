@@ -3,7 +3,7 @@ import { message } from "antd";
 import { AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import { useMeet } from "./containers/hooks/useMeet";
-import Main from "./containers/orange3_white7/Mainpage";
+import Main from "./containers/orange3_white7/MainPage";
 import Login from "./containers/orange3_white7/Login";
 import Signup from "./containers/orange3_white7/Signup";
 import Reset from "./containers/orange3_white7/ResetPassword";
@@ -23,7 +23,7 @@ function App() {
       messageApi.open({
         type: "error",
         content: error,
-        duration: 1,
+        duration: 3,
       });
       setError("");
     }
