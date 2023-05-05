@@ -1,10 +1,12 @@
 import { InfoCircleFilled, EditFilled } from "@ant-design/icons";
 import { Modal, Form } from "antd";
+import { motion } from "framer-motion";
 import _ from "lodash";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
 import React, { Fragment, useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
 import { useMeet } from "./hooks/useMeet";
 import Base from "../components/Base/145MeetRelated";
@@ -13,9 +15,8 @@ import Input from "../components/Input";
 import MeetInfoEdit from "../components/MeetInfo";
 import Tag from "../components/Tag";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
-import { RWD, COLORS } from "../constant";
+import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
 import { meet, getGroupAvailability } from "../middleware";
-import { useTranslation } from "react-i18next";
 const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
 const MemberTag = Tag("member");
 const InfoCell = TimeCell("info");
@@ -33,7 +34,7 @@ const { ContentContainer } = Base.FullContainer;
 
 const {
   GroupAvailability,
-  GroupAvailability: { VotingContainer },
+  GroupAvailability: { VotingArea, VotingContainer },
   GroupAvailability: {
     VotingContainer: { DayContainer },
   },
@@ -113,9 +114,7 @@ const MeetInfo = () => {
           slotIDProcessing(end_time_slot_id + 1),
         Host: (
           <MemberTag style={{ fontSize: RWDFontSize(16) }}>
-            {host_info?.name ??
-              host_info?.member_id ??
-              location.state.guestName}
+            {host_info?.name ?? location.state.guestName}
           </MemberTag>
         ),
         Member: (
@@ -163,22 +162,13 @@ const MeetInfo = () => {
     }
   };
 
-  const CONTENTNAME = {
-    "Meet Name": t("meetName"),
-    "Start / End Date": t("startDate"),
-    "Start / End Time": t("startTime"),
-    Host: t("host"),
-    Member: t("member"),
-    Description: t("description"),
-    "Voting Deadline": t("votingDeadline"),
-    "Invitation URL": t("invitation"),
-    "Google Meet URL": t("url"),
-  };
-
   useEffect(() => {
-    if (code) {
-      handleMeetInfo();
-    }
+    (async () => {
+      if (code) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        handleMeetInfo();
+      }
+    })();
   }, [code]);
 
   useEffect(() => {
@@ -197,19 +187,15 @@ const MeetInfo = () => {
   }, [groupAvailabilityInfo]); //設定 time cell 顏色
 
   const handleLeaveYes = async () => {
-    if (!login) {
-      navigate("/");
-    } else {
-      try {
-        setLoading(true);
-        const { error } = await leaveMeet(code, cookies.token);
-        if (!error) {
-          setLoading(false);
-          navigate("/meets");
-        }
-      } catch (error) {
-        throw error;
+    try {
+      setLoading(true);
+      const { error } = await leaveMeet(code, cookies.token);
+      if (!error) {
+        setLoading(false);
+        navigate("/meets");
       }
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -218,17 +204,17 @@ const MeetInfo = () => {
       setIsModalVoteOpen(true);
       return;
     }
-    navigate(`/voting/${code}`);
+    navigate(`/voting/${code}`, {
+      state: { guestName: location?.state?.guestName },
+    });
   };
 
   const handleVoteOk = async (e) => {
-    // console.log(form);
-    await joinMeet(
-      { invite_code: code, name: form.getFieldValue().name },
-      cookies.token
-    );
-    navigate(`/voting/${code}`);
-    setIsModalVoteOpen(false);
+    const { username, password } = form.getFieldValue();
+    console.log(form.getFieldValue());
+    await joinMeet(code, cookies.token, { name: username, password });
+    // navigate(`/voting/${code}`);
+    // setIsModalVoteOpen(false);
   };
 
   const handleMeetDataChange =
@@ -246,267 +232,283 @@ const MeetInfo = () => {
     };
 
   return (
-    <Base login={login}>
-      <Base.FullContainer>
-        {meetInfo?.["Meet Name"] && (
-          <Base.FullContainer.ContentContainer>
-            <ContentContainer.Title style={{ columnGap: RWDWidth(10) }}>
-              {editMode ? (
-                "Edit Meet"
-              ) : (
-                <>
-                  <BackButton
-                    style={{
-                      position: "absolute",
-                      right: "100%",
-                      marginRight: RWDWidth(30),
-                    }}
+    <motion.div
+    //  {...PAGE_TRANSITION.RightSlideIn}
+    >
+      <Base login={login}>
+        <Base.FullContainer>
+          {meetInfo?.["Meet Name"] && (
+            <Base.FullContainer.ContentContainer>
+              <ContentContainer.Title style={{ columnGap: RWDWidth(10) }}>
+                {editMode ? (
+                  "Edit Meet"
+                ) : (
+                  <>
+                    <BackButton
+                      style={{
+                        position: "absolute",
+                        right: "100%",
+                        marginRight: RWDWidth(30),
+                      }}
+                      onClick={() => {
+                        if (cookies.token) {
+                          navigate("/meets");
+                        } else {
+                          navigate("/");
+                        }
+                      }}
+                    />
+                    {meetInfo["Meet Name"]}
+                    <EditFilled
+                      onClick={() => {
+                        setEditMode((prev) => !prev);
+                      }}
+                    />
+                  </>
+                )}
+              </ContentContainer.Title>
+              <ContentContainer.InfoContainer>
+                <MeetInfoEdit
+                  handleMeetDataChange={handleMeetDataChange}
+                  columnGap={20}
+                  rowGap={30}
+                  login={login}
+                  setMeetData={setRawMeetInfo}
+                  meetInfo={meetInfo}
+                  rawMeetInfo={rawMeetInfo}
+                  reviseMode={editMode}
+                  member={forMemberDataFormat}
+                />
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    alignSelf: "flex-end",
+                    columnGap: RWDWidth(15),
+                  }}
+                >
+                  <RectButton
+                    buttonTheme="#FBAE98"
+                    variant="hollow"
                     onClick={() => {
-                      if (cookies.token) {
-                        navigate("/meets");
-                      } else {
+                      if (!login) {
                         navigate("/");
                       }
+                      setIsModalLeaveOpen(true);
                     }}
-                  />
-                  {meetInfo["Meet Name"]}
-                  <EditFilled
-                    onClick={() => {
-                      setEditMode((prev) => !prev);
-                    }}
-                  />
-                </>
+                  >
+                    Leave Meet
+                  </RectButton>
+                  <RectButton
+                    buttonTheme="#DB8600"
+                    variant="solid"
+                    type="primary"
+                    onClick={handleVote}
+                  >
+                    Vote
+                  </RectButton>
+                </div>
+              </ContentContainer.InfoContainer>
+              <ContentContainer.GroupAvailability>
+                {t("groupAva")}
+              </ContentContainer.GroupAvailability>
+              {DATERANGE.length && TIMESLOTIDS.length && (
+                <ScrollSync>
+                  <VotingArea>
+                    <GroupAvailability.VotingContainer>
+                      <ScrollSyncPane>
+                        <VotingContainer.DayContainer>
+                          <DayContainer.TimeContainer
+                            style={{ paddingTop: RWDHeight(30) }}
+                          >
+                            {slotIDProcessing(TIMESLOTIDS[0])}
+                          </DayContainer.TimeContainer>
+                          {DATERANGE.map((w, index) => (
+                            <DayContainer.CellContainer
+                              key={index}
+                              // ref={w === "WED" ? ref : null}
+                            >
+                              <div style={{ userSelect: "none" }}>
+                                {moment(w).format("MMM DD")}
+                              </div>
+                              <div
+                                style={{
+                                  userSelect: "none",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                {moment(w).format("ddd")}
+                              </div>
+                            </DayContainer.CellContainer>
+                          ))}
+                        </VotingContainer.DayContainer>
+                      </ScrollSyncPane>
+
+                      {TIMESLOTIDS.slice(1).map((t, t_index) => (
+                        <ScrollSyncPane key={t_index}>
+                          <VotingContainer.DayContainer>
+                            <DayContainer.TimeContainer>
+                              {slotIDProcessing(t)}
+                            </DayContainer.TimeContainer>
+                            {DATERANGE.map((_, w_index) => (
+                              <DayContainer.CellContainer key={w_index}>
+                                <InfoCell
+                                  style={{
+                                    backgroundColor:
+                                      CELLCOLOR[
+                                        w_index * (TIMESLOTIDS.length - 1) +
+                                          t_index
+                                      ],
+                                  }}
+                                  info={
+                                    <DayContainer.CellHoverContainer>
+                                      <CellHoverContainer.CellHoverInfo>
+                                        <div
+                                          style={{
+                                            fontWeight: "bold",
+                                            textDecoration: "underline",
+                                          }}
+                                        >
+                                          Availble
+                                        </div>
+                                        {groupAvailabilityInfo?.[
+                                          w_index * (TIMESLOTIDS.length - 1) +
+                                            t_index
+                                        ]?.available_members.map((m, index) => (
+                                          <div key={index}>{m}</div>
+                                        ))}
+                                      </CellHoverContainer.CellHoverInfo>
+                                      <CellHoverContainer.CellHoverInfo>
+                                        <div
+                                          style={{
+                                            fontWeight: "bold",
+                                            textDecoration: "underline",
+                                          }}
+                                        >
+                                          Unavailble
+                                        </div>
+                                        {groupAvailabilityInfo?.[
+                                          w_index * (TIMESLOTIDS.length - 1) +
+                                            t_index
+                                        ]?.unavailable_members.map(
+                                          (m, index) => (
+                                            <div key={index}>{m}</div>
+                                          )
+                                        )}
+                                      </CellHoverContainer.CellHoverInfo>
+                                    </DayContainer.CellHoverContainer>
+                                  }
+                                />
+                              </DayContainer.CellContainer>
+                            ))}
+                          </VotingContainer.DayContainer>
+                        </ScrollSyncPane>
+                      ))}
+                    </GroupAvailability.VotingContainer>
+                  </VotingArea>
+                </ScrollSync>
               )}
-            </ContentContainer.Title>
-            <ContentContainer.InfoContainer>
-              <MeetInfoEdit
-                handleMeetDataChange={handleMeetDataChange}
-                columnGap={20}
-                rowGap={30}
-                login={login}
-                setMeetData={setRawMeetInfo}
-                meetInfo={meetInfo}
-                rawMeetInfo={rawMeetInfo}
-                reviseMode={editMode}
-                member={forMemberDataFormat}
-              />
+            </Base.FullContainer.ContentContainer>
+          )}
+          <Modal
+            bodyStyle={{ height: RWDHeight(30) }}
+            centered
+            closable={false}
+            footer={
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                }}
+              >
+                <ModalButton
+                  buttonTheme="#B8D8BA"
+                  variant="solid"
+                  onClick={() => {
+                    setIsModalLeaveOpen(false);
+                  }}
+                >
+                  NO
+                </ModalButton>
+                <ModalButton
+                  buttonTheme="#B8D8BA"
+                  variant="hollow"
+                  onClick={handleLeaveYes}
+                >
+                  YES
+                </ModalButton>
+              </div>
+            }
+            onCancel={() => {
+              setIsModalLeaveOpen(false);
+            }}
+            open={isModalLeaveOpen}
+            title={
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  alignSelf: "flex-end",
-                  columnGap: RWDWidth(15),
+                  columnGap: RWDWidth(12),
                 }}
               >
-                <RectButton
-                  buttonTheme="#FBAE98"
-                  variant="hollow"
-                  onClick={() => {
-                    setIsModalLeaveOpen(true);
-                  }}
-                >
-                  Leave Meet
-                </RectButton>
-                <RectButton
-                  buttonTheme="#DB8600"
-                  variant="solid"
-                  type="primary"
-                  onClick={handleVote}
-                >
-                  Vote
-                </RectButton>
+                <InfoCircleFilled style={{ color: "#FAAD14" }} />
+                <span>Are you sure you want to leave this meet?</span>
               </div>
-            </ContentContainer.InfoContainer>
-            <ContentContainer.GroupAvailability>
-              {t("groupAva")}
-            </ContentContainer.GroupAvailability>
-            {DATERANGE.length && TIMESLOTIDS.length && (
-              <ScrollSync>
-                <GroupAvailability.VotingContainer>
-                  <ScrollSyncPane>
-                    <VotingContainer.DayContainer>
-                      <DayContainer.TimeContainer
-                        style={{ paddingTop: RWDHeight(30) }}
-                      >
-                        {slotIDProcessing(TIMESLOTIDS[0])}
-                      </DayContainer.TimeContainer>
-                      {DATERANGE.map((w, index) => (
-                        <DayContainer.CellContainer
-                          key={index}
-                          // ref={w === "WED" ? ref : null}
-                        >
-                          <div style={{ userSelect: "none" }}>
-                            {moment(w).format("MMM DD")}
-                          </div>
-                          <div
-                            style={{ userSelect: "none", fontWeight: "bold" }}
-                          >
-                            {moment(w).format("ddd")}
-                          </div>
-                        </DayContainer.CellContainer>
-                      ))}
-                    </VotingContainer.DayContainer>
-                  </ScrollSyncPane>
-
-                  {TIMESLOTIDS.slice(1).map((t, t_index) => (
-                    <ScrollSyncPane key={t_index}>
-                      <VotingContainer.DayContainer>
-                        <DayContainer.TimeContainer>
-                          {slotIDProcessing(t)}
-                        </DayContainer.TimeContainer>
-                        {DATERANGE.map((_, w_index) => (
-                          <DayContainer.CellContainer key={w_index}>
-                            <InfoCell
-                              style={{
-                                backgroundColor:
-                                  CELLCOLOR[
-                                    w_index * (TIMESLOTIDS.length - 1) + t_index
-                                  ],
-                              }}
-                              info={
-                                <DayContainer.CellHoverContainer>
-                                  <CellHoverContainer.CellHoverInfo>
-                                    <div
-                                      style={{
-                                        fontWeight: "bold",
-                                        textDecoration: "underline",
-                                      }}
-                                    >
-                                      Availble
-                                    </div>
-                                    {groupAvailabilityInfo?.[
-                                      w_index * (TIMESLOTIDS.length - 1) +
-                                        t_index
-                                    ]?.available_members.map((m, index) => (
-                                      <div key={index}>{m}</div>
-                                    ))}
-                                  </CellHoverContainer.CellHoverInfo>
-                                  <CellHoverContainer.CellHoverInfo>
-                                    <div
-                                      style={{
-                                        fontWeight: "bold",
-                                        textDecoration: "underline",
-                                      }}
-                                    >
-                                      Unavailble
-                                    </div>
-                                    {groupAvailabilityInfo?.[
-                                      w_index * (TIMESLOTIDS.length - 1) +
-                                        t_index
-                                    ]?.unavailable_members.map((m, index) => (
-                                      <div key={index}>{m}</div>
-                                    ))}
-                                  </CellHoverContainer.CellHoverInfo>
-                                </DayContainer.CellHoverContainer>
-                              }
-                            />
-                          </DayContainer.CellContainer>
-                        ))}
-                      </VotingContainer.DayContainer>
-                    </ScrollSyncPane>
-                  ))}
-                </GroupAvailability.VotingContainer>
-              </ScrollSync>
-            )}
-          </Base.FullContainer.ContentContainer>
-        )}
-        <Modal
-          bodyStyle={{ height: RWDHeight(30) }}
-          centered
-          closable={false}
-          footer={
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                alignItems: "center",
-              }}
-            >
-              <ModalButton
-                buttonTheme="#B8D8BA"
-                variant="solid"
-                onClick={() => {
-                  setIsModalLeaveOpen(false);
-                }}
-              >
-                NO
-              </ModalButton>
-              <ModalButton
-                buttonTheme="#B8D8BA"
-                variant="hollow"
-                onClick={handleLeaveYes}
-              >
-                YES
-              </ModalButton>
-            </div>
-          }
-          onCancel={() => {
-            setIsModalLeaveOpen(false);
-          }}
-          open={isModalLeaveOpen}
-          title={
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                columnGap: RWDWidth(12),
-              }}
-            >
-              <InfoCircleFilled style={{ color: "#FAAD14" }} />
-              <span>Are you sure you want to leave this meet?</span>
-            </div>
-          }
-        />
-        <Modal
-          centered
-          closable={false}
-          footer={null}
-          onCancel={() => {
-            setIsModalVoteOpen(false);
-          }}
-          open={isModalVoteOpen}
-          title=""
-          width={RWDWidth(450)}
-        >
-          <Form
-            form={form}
-            style={{
-              width: RWDWidth(393),
-              height: RWDHeight(192),
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              margin: "15px 0",
+            }
+          />
+          <Modal
+            centered
+            closable={false}
+            footer={null}
+            onCancel={() => {
+              setIsModalVoteOpen(false);
             }}
+            open={isModalVoteOpen}
+            title=""
+            width={RWDWidth(450)}
           >
-            <Form.Item
-              name="username"
-              rules={[
-                {
-                  required: true,
-                  message: "Username is required",
-                },
-              ]}
-              style={{ margin: 0 }}
+            <Form
+              form={form}
+              style={{
+                width: RWDWidth(393),
+                height: RWDHeight(192),
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                margin: "15px 0",
+              }}
             >
-              <MainInput placeholder="Your name" />
-            </Form.Item>
-            <Form.Item name="password" style={{ margin: 0 }}>
-              <MainPassword placeholder="Password (optional)" />
-            </Form.Item>
-            <Form.Item style={{ margin: 0, alignSelf: "flex-end" }}>
-              <ModalButton
-                htmlType="submit"
-                buttonTheme="#B8D8BA"
-                variant="solid"
+              <Form.Item
+                name="username"
+                rules={[
+                  {
+                    required: true,
+                    message: "Username is required",
+                  },
+                ]}
+                style={{ margin: 0 }}
               >
-                OK
-              </ModalButton>
-            </Form.Item>
-          </Form>
-        </Modal>
-      </Base.FullContainer>
-    </Base>
+                <MainInput placeholder="Your name" />
+              </Form.Item>
+              <Form.Item name="password" style={{ margin: 0 }}>
+                <MainPassword placeholder="Password (optional)" />
+              </Form.Item>
+              <Form.Item style={{ margin: 0, alignSelf: "flex-end" }}>
+                <ModalButton
+                  htmlType="submit"
+                  buttonTheme="#B8D8BA"
+                  variant="solid"
+                  onClick={handleVoteOk}
+                >
+                  OK
+                </ModalButton>
+              </Form.Item>
+            </Form>
+          </Modal>
+        </Base.FullContainer>
+      </Base>
+    </motion.div>
   );
 };
 

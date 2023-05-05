@@ -34,7 +34,7 @@ const Error = () => {
         style={{
           gridColumn: "1/4",
           gridRow: "2/4",
-          backgroundColor: "#FEFCEF",
+          backgroundColor: "#FDF3D1",
         }}
       >
         <ErrorContainer>

@@ -56,6 +56,20 @@ export default {
         color: "#FFFFFF",
       },
     },
+    "#FFA601": {
+      default: {
+        backgroundColor: "#FFA601",
+        color: "#FFFFFF",
+      },
+      hover: {
+        backgroundColor: "#FFD466",
+        color: "#FFFFFF",
+      },
+      active: {
+        backgroundColor: "#935000",
+        color: "#FFFFFF",
+      },
+    },
   },
   hollow: {
     "#FFA601": {

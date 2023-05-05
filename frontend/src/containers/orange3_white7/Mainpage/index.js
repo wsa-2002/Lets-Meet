@@ -20,6 +20,7 @@ import { RWD } from "../../../constant";
 import { useTranslation } from "react-i18next";
 const { RWDHeight, RWDFontSize, RWDWidth, RWDRadius } = RWD;
 const PrimaryButton = Button();
+const RectButton = Button("rect");
 const joinMeet = AXIOS.meet("join");
 
 const JoinMeet = Object.assign(
@@ -68,15 +69,16 @@ const Mainpage = () => {
   const { t } = useTranslation();
   const [width, setWidth] = useState(ref?.current?.offsetWidth);
   const [meetData, setMeetData] = useState({
-    meet_name: "",
-    start_date: "",
-    end_date: "",
-    start_time_slot_id: 0,
-    end_time_slot_id: 0,
-    gen_meet_url: false,
-    description: "",
-    member_ids: [],
-    emails: [],
+    meet_name: "", //<String>
+    start_date: "", //<String>
+    end_date: "", //<String>
+    start_time_slot_id: 0, //<Number (0, 48]>
+    end_time_slot_id: 0, //<Number (0, 48]>
+    gen_meet_url: false, //<Boolean>
+    voting_end_time: "", //<string ISOString>
+    description: "", //<String>
+    member_ids: [], //[Number]
+    emails: [], //[String]
   });
   const { login, cookies, setError } = useMeet();
   const [guestModal, setGuestModalOpen] = useState(false);
@@ -123,15 +125,7 @@ const Mainpage = () => {
         setGuestModalOpen(true);
         return;
       }
-      let temp = {
-        ...meetData,
-        voting_end_time: moment(
-          meetData.voting_end_date + " " + meetData.voting_end_time,
-          "YYYY-MM-DD HH-mm-ss"
-        ).toISOString(),
-      };
-      delete temp["voting_end_date"];
-      const { data } = await AXIOS.addMeet(temp, cookies.token);
+      const { data } = await AXIOS.addMeet(meetData, cookies.token);
       navigate(`/meets/${data.invite_code}`);
     } catch (error) {
       setError(error.message);
@@ -146,30 +140,16 @@ const Mainpage = () => {
         {
           ...meetData,
           guest_name: form.getFieldValue().name,
-          voting_end_time: moment(
-            meetData.voting_end_date + " " + meetData.voting_end_time,
-            "YYYY-MM-DD HH-mm-ss"
-          ).toISOString(),
+          guest_password: form.getFieldValue().password,
         },
         cookies.token
       );
-      // console.log(data.id);
       navigate(`/meets/${data.invite_code}`, {
         state: { guestName: form.getFieldValue().name },
       });
     } catch (error) {
       setError(error.message);
     }
-  };
-
-  const CONTENTNAME = {
-    "Meet Name": t("meetName"),
-    "Start/End Date": t("startDate"),
-    "Start/End Time": t("startTime"),
-    Member: t("member"),
-    Description: t("description"),
-    "Voting Deadline": t("votingDeadline"),
-    "Google Meet URL": t("url"),
   };
 
   const throttledHandleResize = _.throttle(() => {
@@ -201,10 +181,16 @@ const Mainpage = () => {
               ref={invite}
               onKeyDown={handleInvite}
             />
-            <JoinMeet.InvitationArea.Button
-              type="primary"
+            <RectButton
+              buttonTheme="#FFA601"
+              variant="solid"
               icon={<ArrowRightOutlined />}
               onClick={handleInvite}
+              style={{
+                width: RWDFontSize(50),
+                height: RWDFontSize(45),
+                fontSize: RWDFontSize(16),
+              }}
             />
           </JoinMeet.InvitationArea>
         </JoinMeet>

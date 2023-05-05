@@ -1,8 +1,8 @@
-import React, { forwardRef } from "react";
+import { Tooltip } from "antd";
+import _ from "lodash";
+import React, { forwardRef, useState } from "react";
 import styled from "styled-components";
 import { RWD } from "../constant";
-import _ from "lodash";
-import { Tooltip } from "antd";
 const { RWDRadius, RWDVmin } = RWD;
 
 const CELLTYPE = ["draggable", "info"];
@@ -21,6 +21,8 @@ const TimeCell = (type) =>
         `請定義 Tag 種類，有以下可以選擇：\n${CELLTYPE.join(", ")}`
       );
     }
+    const [block, setBlock] = useState(false);
+
     switch (type) {
       case "draggable":
         const {
@@ -36,11 +38,11 @@ const TimeCell = (type) =>
           setUpdatedCell,
         } = prop.drag;
 
-        // delete prop.drag;
-
         const handleCellMouseDown = (index) => (e) => {
+          setBlock(false);
           if (cell[index[0]][index[1]] === null) {
             setMode(true);
+            setBlock(true);
           }
           e.preventDefault();
           setStartDrag(true);
@@ -64,6 +66,9 @@ const TimeCell = (type) =>
             let allNewCells = JSON.parse(JSON.stringify(oriCell));
             for (const d_index of _.range(xRange[0], xRange[1] + 1)) {
               for (const t_index of _.range(yRange[0], yRange[1] + 1)) {
+                if (!block && oriCell[d_index][t_index] === null) {
+                  continue;
+                }
                 if (oriCell[d_index][t_index] !== mode) {
                   updatedCell.push([d_index, t_index]);
                 }
