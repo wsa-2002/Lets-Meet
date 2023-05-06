@@ -71,12 +71,12 @@ async def edit(meet_id: int, added_member_ids: Sequence[int], removed_member_ids
                 "         FROM meet_member"
                 "        WHERE member_id = $1"
                 ")",
-                args=[removed_member_ids],
+                args=[[removed_id] for removed_id in removed_member_ids],
             )
             await conn.executemany(
                 "DELETE FROM meet_member"
                 " WHERE member_id = $1",
-                args=[removed_member_ids],
+                args=[[removed_id] for removed_id in removed_member_ids],
             )
         if added_member_ids:
             await conn.executemany(
