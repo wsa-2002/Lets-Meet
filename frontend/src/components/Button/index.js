@@ -106,7 +106,7 @@ export default (type = "primary") => {
         fontColor: BUTTONTHEME?.[variant]?.[buttonTheme]?.default?.color,
         borderColor: BUTTONTHEME?.[variant]?.[buttonTheme]?.default?.border,
       });
-    }, [variant]);
+    }, [variant, buttonTheme]);
 
     const ThemeAlongMouseMove = (temp) => {
       setTheme((prev) => ({

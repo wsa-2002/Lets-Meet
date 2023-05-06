@@ -43,27 +43,29 @@ const LogIn = () => {
     }
   }, [login]);
 
-  const handleLoginClick = async () => {
+  const handleLoginClick = async (e) => {
     try {
-      console.log(loginData);
-      const { data, error } = await AXIOS.login(loginData);
-      if (error) {
-        switch (error) {
-          case "LoginFailed":
-            setNotification({ title: t("loginFailed"), message: "" });
-            break;
-          case "EmailRegisteredByGoogle":
-            setNotification({
-              title: t("loginFailed"),
-              message: t("linkedGoogle"),
-            });
-            break;
-          default:
-            break;
+      if (e?.key === "Enter" || !e.key) {
+        if (!loginData.user_identifier || !loginData.password) return;
+        const { data, error } = await AXIOS.login(loginData);
+        if (error) {
+          switch (error) {
+            case "LoginFailed":
+              setNotification({ title: t("loginFailed"), message: "" });
+              break;
+            case "EmailRegisteredByGoogle":
+              setNotification({
+                title: t("loginFailed"),
+                message: t("linkedGoogle"),
+              });
+              break;
+            default:
+              break;
+          }
+        } else {
+          console.log(data);
+          GLOBAL_LOGIN(data.token);
         }
-      } else {
-        console.log(data);
-        GLOBAL_LOGIN(data.token);
       }
     } catch (error) {
       setError(error.message);
@@ -100,11 +102,13 @@ const LogIn = () => {
                 placeholder="Username/Email"
                 name="user_identifier"
                 onChange={handleLoginChange}
+                onKeyDown={handleLoginClick}
               />
               <InfoContainer.Password
                 placeholder="Password"
                 name="password"
                 onChange={handleLoginChange}
+                onKeyDown={handleLoginClick}
               />
             </InfoContainer.InputContainer>
             <InfoContainer.InputContainer

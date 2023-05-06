@@ -54,7 +54,7 @@ const Voting = () => {
 
   /*可拖曳 time cell 套組*/
   const [cell, setCell] = useState([]);
-
+  const [block, setBlock] = useState(false);
   const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
   const [startIndex, setStartIndex] = useState([]); //選取方塊位置
   const oriCell = useMemo(() => cell, [startDrag]);
@@ -66,6 +66,8 @@ const Voting = () => {
     startDrag,
     setStartDrag,
     startIndex,
+    block,
+    setBlock,
     setStartIndex,
     mode,
     setMode,

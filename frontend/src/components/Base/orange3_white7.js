@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import styled from "styled-components";
 import Button from "../Button";
 import Footer from "../Footer.js";
@@ -5,11 +6,18 @@ import Grid from "../Grid.js";
 import Header from "../Header";
 import Input from "../Input";
 import Title from "../Title.js";
-import { RWD } from "../../constant";
+import { RWD, PAGE_TRANSITION } from "../../constant";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 const MainInput = Input("main");
 const PrimaryButton = Button("primary");
 const MainPassword = Input.Password("main");
+const { FadeIn } = PAGE_TRANSITION;
+
+const FadeInContainer = (prop) => (
+  <motion.div {...prop} variants={FadeIn} initial="initial" animate="animate">
+    {prop.children}
+  </motion.div>
+);
 
 const Base = (prop) => {
   const { children, title_disable = false, login = undefined } = prop;
@@ -94,8 +102,7 @@ Base.RightContainer = Object.assign(
       `;
      */
     InfoContainer: Object.assign(
-      //login
-      styled.div`
+      styled(FadeInContainer)`
         width: ${RWDWidth(470)};
         height: auto;
         border: 1px solid #d8d8d8;

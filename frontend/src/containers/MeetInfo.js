@@ -1,10 +1,13 @@
+/*TODO:********************************************************************************************
+  1. 更新時 voting end time 和 description 的資料型態
+**************************************************************************************************/
 import { InfoCircleFilled, EditFilled } from "@ant-design/icons";
 import { Modal, Form } from "antd";
 import { motion } from "framer-motion";
 import _ from "lodash";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
@@ -30,6 +33,7 @@ const GuestNameModal = Test("guestName");
 const getMeetInfo = meet("read");
 const joinMeet = meet("join");
 const leaveMeet = meet("leave");
+const editMeet = meet("update");
 /******************************************************/
 
 const { ContentContainer } = Base.FullContainer;
@@ -72,20 +76,24 @@ const MeetInfo = () => {
   const [forMemberDataFormat, setForMemberDataFormat] = useState([]);
   const [host, setHost] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [exist, setExist] = useState(undefined);
 
   const { login, cookies, ID, setError, setLoading } = useMeet();
   const navigate = useNavigate();
   const location = useLocation();
   const { code } = useParams();
   const [form] = Form.useForm();
+  // const oriRawMeetInfo = useMemo(() => rawMeetInfo, [editMode]);
 
   const handleMeetInfo = async () => {
     try {
       setLoading(true);
-      const { data: votingData } = await getGroupAvailability(
+      const { data: votingData, error } = await getGroupAvailability(
         code,
         cookies.token
       );
+      if (error) throw new Error(error);
+
       setGroupAvailabilityInfo(votingData.data);
       const {
         data: {
@@ -102,10 +110,9 @@ const MeetInfo = () => {
           meet_url,
         },
       } = await getMeetInfo(code, cookies.token);
-      console.log(host_info.account_id, ID);
-      setHost(host_info.account_id === ID);
+      setHost(host_info?.account_id === ID);
       setForMemberDataFormat(
-        member_infos.map((m) => ({ username: m.name, id: m.member_id }))
+        member_infos.map((m) => ({ username: m.name, id: m.account_id }))
       );
       setElementMeetInfo({
         "Meet Name": meet_name,
@@ -150,10 +157,10 @@ const MeetInfo = () => {
         end_date,
         start_time_slot_id,
         end_time_slot_id,
-        description,
+        description: description ?? "",
         voting_end_time,
         gen_meet_url: meet_url ? true : false,
-        member_ids: member_infos.map((m) => m.member_id),
+        member_ids: member_infos.map((m) => m.account_id),
       });
       setDATERANGE(
         [...moment.range(moment(start_date), moment(end_date)).by("day")].map(
@@ -164,18 +171,34 @@ const MeetInfo = () => {
       setLoading(false);
     } catch (error) {
       setError(error.message);
+      // setLoading(false);
       console.log(error);
     }
   };
 
   useEffect(() => {
     (async () => {
-      if (code) {
+      if (code && exist) {
         await new Promise((resolve) => setTimeout(resolve, 100));
-        handleMeetInfo();
+        await handleMeetInfo();
+        setLoading(false);
       }
     })();
   }, [code, ID]);
+
+  useEffect(() => {
+    (async () => {
+      if (exist === undefined) {
+        const { error } = await getMeetInfo(code, cookies.token);
+        if (error) {
+          setExist(false);
+          setError(error);
+          return;
+        }
+        setExist(true);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     if (groupAvailabilityInfo.length) {
@@ -237,6 +260,18 @@ const MeetInfo = () => {
       }
     };
 
+  const handleEditDone = async () => {
+    try {
+      const data = await editMeet(code, cookies.token, rawMeetInfo);
+      console.log(data);
+      await handleMeetInfo();
+      setLoading(false);
+      setEditMode(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <motion.div
     //  {...PAGE_TRANSITION.RightSlideIn}
@@ -295,26 +330,49 @@ const MeetInfo = () => {
                     columnGap: RWDWidth(15),
                   }}
                 >
-                  <RectButton
-                    buttonTheme="#FBAE98"
-                    variant="hollow"
-                    onClick={() => {
-                      if (!login) {
-                        navigate("/");
-                      }
-                      setIsModalLeaveOpen(true);
-                    }}
-                  >
-                    {host ? "Delete" : "Leave"} Meet
-                  </RectButton>
-                  <RectButton
-                    buttonTheme="#DB8600"
-                    variant="solid"
-                    type="primary"
-                    onClick={handleVote}
-                  >
-                    Vote
-                  </RectButton>
+                  {editMode ? (
+                    <>
+                      <RectButton
+                        buttonTheme="#D8D8D8"
+                        variant="hollow"
+                        onClick={() => {
+                          setEditMode(false);
+                        }}
+                      >
+                        Cancel
+                      </RectButton>
+                      <RectButton
+                        buttonTheme="#5A8EA4"
+                        variant="solid"
+                        onClick={handleEditDone}
+                        // disabled={_.isEqual(rawMeetInfo, oriRawMeetInfo)}
+                      >
+                        Done
+                      </RectButton>
+                    </>
+                  ) : (
+                    <>
+                      <RectButton
+                        buttonTheme="#FBAE98"
+                        variant="hollow"
+                        onClick={() => {
+                          if (!login) {
+                            navigate("/");
+                          }
+                          setIsModalLeaveOpen(true);
+                        }}
+                      >
+                        {host ? "Delete" : "Leave"} Meet
+                      </RectButton>
+                      <RectButton
+                        buttonTheme="#DB8600"
+                        variant="solid"
+                        onClick={handleVote}
+                      >
+                        Vote
+                      </RectButton>
+                    </>
+                  )}
                 </div>
               </ContentContainer.InfoContainer>
               <ContentContainer.GroupAvailability>
@@ -461,7 +519,10 @@ const MeetInfo = () => {
                 }}
               >
                 <InfoCircleFilled style={{ color: "#FAAD14" }} />
-                <span>Are you sure you want to leave this meet?</span>
+                <span>
+                  Are you sure you want to {host ? "delete" : "leave"} this
+                  meet?
+                </span>
               </div>
             }
           />
