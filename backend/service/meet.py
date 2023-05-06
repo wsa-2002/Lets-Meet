@@ -50,8 +50,10 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
 
     meet_members = await db.meet_member.browse_meet_members_with_names(meet_id=meet_id)
     meet_member_ids = set(meet_member.member_id for meet_member in meet_members)
-    removed_ids = list(meet_member_ids - set(data.member_ids))
-    added_ids = list(set(data.member_ids) - meet_member_ids)
+    member_ids = list(data.member_ids)
+    member_ids.append(request.account.id)
+    removed_ids = list(meet_member_ids - set(member_ids))
+    added_ids = list(set(member_ids) - meet_member_ids)
 
     await db.meet_member.edit(meet_id=meet_id, removed_member_ids=removed_ids, added_member_ids=added_ids)
 
