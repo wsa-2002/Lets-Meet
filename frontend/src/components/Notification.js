@@ -22,7 +22,7 @@ const Notification = ({ message, notification, setNotification }) => {
           <div style={{ fontWeight: 400 }}>{notification?.message}</div>
         ),
         placement: "top",
-        duration: 20,
+        duration: 2,
         closeIcon: <></>,
         style: {
           fontSize: RWDFontSize(20),

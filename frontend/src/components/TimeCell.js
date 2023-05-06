@@ -21,7 +21,6 @@ const TimeCell = (type) =>
         `請定義 Tag 種類，有以下可以選擇：\n${CELLTYPE.join(", ")}`
       );
     }
-    const [block, setBlock] = useState(false);
 
     switch (type) {
       case "draggable":
@@ -31,6 +30,8 @@ const TimeCell = (type) =>
           startDrag,
           setStartDrag,
           startIndex,
+          block,
+          setBlock,
           setStartIndex,
           mode,
           setMode,
@@ -39,7 +40,10 @@ const TimeCell = (type) =>
         } = prop.drag;
 
         const handleCellMouseDown = (index) => (e) => {
-          setBlock(false);
+          if (setBlock) {
+            setBlock(false);
+          }
+          setMode(!cell[index[0]][index[1]]);
           if (cell[index[0]][index[1]] === null) {
             setMode(true);
             setBlock(true);
@@ -47,7 +51,6 @@ const TimeCell = (type) =>
           e.preventDefault();
           setStartDrag(true);
           setStartIndex(index);
-          setMode(!cell[index[0]][index[1]]);
           setCell((prev) => {
             let result = JSON.parse(JSON.stringify(prev));
             result[index[0]][index[1]] = !result[index[0]][index[1]];
@@ -61,7 +64,6 @@ const TimeCell = (type) =>
           if (startDrag) {
             const xRange = [startIndex[0], index[0]].sort((a, b) => a - b);
             const yRange = [startIndex[1], index[1]].sort((a, b) => a - b);
-
             let updatedCell = [[startIndex[0], startIndex[1]]];
             let allNewCells = JSON.parse(JSON.stringify(oriCell));
             for (const d_index of _.range(xRange[0], xRange[1] + 1)) {

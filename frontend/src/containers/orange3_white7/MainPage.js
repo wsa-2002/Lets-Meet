@@ -139,17 +139,19 @@ const Mainpage = () => {
 
   const handleOk = async () => {
     try {
-      if (!form.getFieldValue().name) return;
+      const { username: guest_name, password: guest_password } =
+        form.getFieldValue();
+      if (!guest_name) return;
       const { data } = await addMeet(
         {
           ...meetData,
-          guest_name: form.getFieldValue().name,
-          guest_password: form.getFieldValue().password,
+          guest_name,
+          guest_password,
         },
         cookies.token
       );
       navigate(`/meets/${data.invite_code}`, {
-        state: { guestName: form.getFieldValue().name },
+        state: { guestName: guest_name },
       });
     } catch (error) {
       setError(error.message);

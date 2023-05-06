@@ -129,6 +129,7 @@ const Header = (prop) => {
               width: "calc(100% * 10 / 35)",
               height: "100%",
               cursor: "pointer",
+              zIndex: 2,
               backgroundColor: "#ffffff",
             }}
             onClick={() => {

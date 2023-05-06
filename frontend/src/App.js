@@ -18,16 +18,16 @@ function App() {
   const [messageApi, contextHolder] = message.useMessage();
   const { error, setError } = useMeet();
 
-  useEffect(() => {
-    if (error) {
-      messageApi.open({
-        type: "error",
-        content: error,
-        duration: 3,
-      });
-      setError("");
-    }
-  }, [error]);
+  // useEffect(() => {
+  //   if (error) {
+  //     messageApi.open({
+  //       type: "error",
+  //       content: error,
+  //       duration: 3,
+  //     });
+  //     setError("");
+  //   }
+  // }, [error]);
 
   return (
     // <CssBaseline />
@@ -38,12 +38,18 @@ function App() {
           <Routes>
             <Route element={<Main />} path="/" />
             <Route element={<Meets />} path="/meets" />
-            <Route element={<MeetInfo />} path="/meets/:code"></Route>
+            <Route
+              element={error ? <Error /> : <MeetInfo />}
+              path="/meets/:code"
+            ></Route>
             <Route element={<Login />} path="/login" />
             <Route element={<Signup />} path="/signup" />
             <Route element={<Reset />} path="/reset" />
             <Route element={<Change />} path="/reset-password" />
-            <Route element={<Voting />} path="/voting/:code" />
+            <Route
+              element={error ? <Error /> : <Voting />}
+              path="/voting/:code"
+            />
             <Route element={<Routine />} path="/routine" />
             <Route element={<Test />} path="/test" />
             <Route element={<Error />} path="*"></Route>
