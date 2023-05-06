@@ -82,13 +82,13 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
 
     if not 0 < data.start_time_slot_id < 49 and not 0 < data.end_time_slot_id < 49:
         raise exc.IllegalInput
-
-    host_account = await db.account.read(host_account_id)
     meet_url = None
-    if data.gen_meet_url and not host_account.is_google_login:
-        raise exc.IllegalInput
-    if data.gen_meet_url and host_account.is_google_login:
-        meet_url = await GoogleCalendar(account_id=host_account.id).get_google_meet_url()
+    if host_account_id:
+        host_account = await db.account.read(host_account_id)
+        if data.gen_meet_url and not host_account.is_google_login:
+            raise exc.IllegalInput
+        if data.gen_meet_url and host_account.is_google_login:
+            meet_url = await GoogleCalendar(account_id=host_account.id).get_google_meet_url()
 
     invite_code = ''.join(random.choice(const.AVAILABLE_CODE_CHAR)
                           for _ in range(const.INVITE_CODE_LENGTH))

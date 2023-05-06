@@ -241,6 +241,8 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
         'voting_end_time': 'voting_end_time'
     }
     filters = [model.Filter(field=column_mapper[f.field], op=f.op, value=f.value) for f in filters]
+    if not include_deleted:
+        filters.append(model.Filter(field='meet.is_deleted', op=enums.FilterOperator.eq, value=False))
     cond_sql, cond_params = compile_filters(filters=filters)
     sort_sql = ' ,'.join(f"{sorter.field} {sorter.order}" for sorter in sorters)
     sql, params = pyformat2psql(
@@ -257,7 +259,6 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
             fr"  LEFT JOIN account host"
             fr"         ON host.id = tbl2.member_id"
             fr"        AND NOT is_deleted"
-            fr"     {f'AND NOT meet.is_deleted' if not include_deleted else ''}"
             fr"   {f'WHERE {cond_sql}' if cond_sql else ''}"
             fr"   {f'ORDER BY {sort_sql}' if sort_sql else ''}",
         **cond_params, account_id=account_id,
