@@ -248,7 +248,7 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
     sql, params = pyformat2psql(
         sql=fr"SELECT meet.id, invite_code, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,"
             fr"       voting_end_time, meet_url, tbl1.member_id, "
-            fr"       host.username"
+            fr"       host.username, tbl2.name"
             fr"  FROM meet"
             fr" INNER JOIN meet_member tbl1"
             fr"         ON meet.id = tbl1.meet_id"
@@ -265,11 +265,11 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
     )
     records = await pool_handler.pool.fetch(sql, *params)
     return [vo.BrowseMeetByAccount(meet_id=meet_id, invite_code=invite_code, host_account_id=host_account_id,
-                                   host_username=host_username, title=title, start_date=start_date, end_date=end_date,
+                                   host_username=host_username or guest_host_username, title=title, start_date=start_date, end_date=end_date,
                                    start_time_slot_id=start_time_slot_id, end_time_slot_id=end_time_slot_id,
                                    status=enums.StatusType(status), voting_end_time=voting_end_time, meet_url=meet_url)
             for meet_id, invite_code, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,
-                voting_end_time, meet_url, host_account_id, host_username in records]  # noqa
+                voting_end_time, meet_url, host_account_id, host_username, guest_host_username in records]  # noqa
 
 
 async def has_voted(meet_id: int, account_id: int) -> bool:
