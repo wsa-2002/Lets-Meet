@@ -74,9 +74,11 @@ const MeetInfo = () => {
   });
   const [rawMeetInfo, setRawMeetInfo] = useState({});
   const [forMemberDataFormat, setForMemberDataFormat] = useState([]);
-  const [host, setHost] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [exist, setExist] = useState(undefined);
+  const [host, setHost] = useState(false); //是否為 host
+  const [confirmed, setConfirmed] = useState(false); // meet 的狀態 (Confirmed)
+  const [confirmedTime, setConfirmedTime] = useState({ date: "", timeID: [] });
+  const [editMode, setEditMode] = useState(false); //是否為編輯模式
+  const [exist, setExist] = useState(undefined); // meet是否存在
 
   const { login, cookies, ID, setError, setLoading } = useMeet();
   const navigate = useNavigate();
@@ -108,9 +110,23 @@ const MeetInfo = () => {
           voting_end_time,
           invite_code,
           meet_url,
+          status,
+          finalized_start_date,
+          finalized_start_time_slot_id,
+          finalized_end_time_slot_id,
         },
       } = await getMeetInfo(code, cookies.token);
-      setHost(host_info?.account_id === ID);
+      setHost(ID ? host_info?.account_id === ID : false);
+      setConfirmed(status === "Confirmed");
+      setConfirmedTime({
+        date: finalized_start_date,
+        timeID: finalized_start_time_slot_id
+          ? _.range(
+              finalized_start_time_slot_id,
+              finalized_end_time_slot_id + 1
+            )
+          : [],
+      });
       setForMemberDataFormat(
         member_infos.map((m) => ({ username: m.name, id: m.account_id }))
       );
@@ -184,7 +200,7 @@ const MeetInfo = () => {
         setLoading(false);
       }
     })();
-  }, [code, ID]);
+  }, [code, ID, exist]);
 
   useEffect(() => {
     (async () => {
@@ -238,12 +254,12 @@ const MeetInfo = () => {
     });
   };
 
-  const handleVoteOk = async (e) => {
+  const handleModalOk = async (e) => {
     const { username, password } = form.getFieldValue();
     console.log(form.getFieldValue());
     await joinMeet(code, cookies.token, { name: username, password });
-    // navigate(`/voting/${code}`);
-    // setIsModalVoteOpen(false);
+    navigate(`/voting/${code}`);
+    setIsModalVoteOpen(false);
   };
 
   const handleMeetDataChange =
@@ -280,7 +296,9 @@ const MeetInfo = () => {
         <Base.FullContainer>
           {elementMeetInfo?.["Meet Name"] && (
             <Base.FullContainer.ContentContainer>
-              <ContentContainer.Title style={{ columnGap: RWDWidth(10) }}>
+              <ContentContainer.Title
+                style={{ columnGap: RWDWidth(10), position: "relative" }}
+              >
                 {editMode ? (
                   "Edit Meet"
                 ) : (
@@ -301,11 +319,25 @@ const MeetInfo = () => {
                     />
                     {elementMeetInfo["Meet Name"]}
                     {host && (
-                      <EditFilled
-                        onClick={() => {
-                          setEditMode((prev) => !prev);
-                        }}
-                      />
+                      <>
+                        <EditFilled
+                          onClick={() => {
+                            setEditMode((prev) => !prev);
+                          }}
+                        />
+                        {!confirmed && (
+                          <RectButton
+                            buttonTheme="#DB8600"
+                            variant="solid"
+                            onClick={() => {
+                              navigate(`/confirm/${code}`);
+                            }}
+                            style={{ position: "absolute", right: 0 }}
+                          >
+                            Confirm Meet
+                          </RectButton>
+                        )}
+                      </>
                     )}
                   </>
                 )}
@@ -364,13 +396,15 @@ const MeetInfo = () => {
                       >
                         {host ? "Delete" : "Leave"} Meet
                       </RectButton>
-                      <RectButton
-                        buttonTheme="#DB8600"
-                        variant="solid"
-                        onClick={handleVote}
-                      >
-                        Vote
-                      </RectButton>
+                      {!confirmed && (
+                        <RectButton
+                          buttonTheme="#DB8600"
+                          variant="solid"
+                          onClick={handleVote}
+                        >
+                          Vote
+                        </RectButton>
+                      )}
                     </>
                   )}
                 </div>
@@ -416,15 +450,18 @@ const MeetInfo = () => {
                             <DayContainer.TimeContainer>
                               {slotIDProcessing(t)}
                             </DayContainer.TimeContainer>
-                            {DATERANGE.map((_, w_index) => (
+                            {DATERANGE.map((date, w_index) => (
                               <DayContainer.CellContainer key={w_index}>
                                 <InfoCell
                                   style={{
                                     backgroundColor:
-                                      CELLCOLOR[
-                                        w_index * (TIMESLOTIDS.length - 1) +
-                                          t_index
-                                      ],
+                                      date === confirmedTime.date &&
+                                      confirmedTime.timeID.includes(t - 1)
+                                        ? "#F25C54"
+                                        : CELLCOLOR[
+                                            w_index * (TIMESLOTIDS.length - 1) +
+                                              t_index
+                                          ],
                                   }}
                                   info={
                                     <DayContainer.CellHoverContainer>
@@ -530,7 +567,7 @@ const MeetInfo = () => {
             form={form}
             open={isModalVoteOpen}
             setOpen={setIsModalVoteOpen}
-            handleVoteOk={handleVoteOk}
+            handleModalOk={handleModalOk}
           ></GuestNameModal>
         </Base.FullContainer>
       </Base>

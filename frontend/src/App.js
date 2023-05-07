@@ -11,6 +11,7 @@ import Change from "./containers/orange3_white7/ChangePassword";
 import Meets from "./containers/Meets";
 import MeetInfo from "./containers/MeetInfo";
 import Voting from "./containers/Voting";
+import Confirm from "./containers/Confirm";
 import Routine from "./containers/orange3_white7/Routine";
 import Error from "./containers/Error";
 import Test from "./test/Calendar";
@@ -41,7 +42,7 @@ function App() {
             <Route
               element={error ? <Error /> : <MeetInfo />}
               path="/meets/:code"
-            ></Route>
+            />
             <Route element={<Login />} path="/login" />
             <Route element={<Signup />} path="/signup" />
             <Route element={<Reset />} path="/reset" />
@@ -50,9 +51,13 @@ function App() {
               element={error ? <Error /> : <Voting />}
               path="/voting/:code"
             />
+            <Route
+              element={error ? <Error /> : <Confirm />}
+              path="/confirm/:code"
+            />
             <Route element={<Routine />} path="/routine" />
             <Route element={<Test />} path="/test" />
-            <Route element={<Error />} path="*"></Route>
+            <Route element={<Error />} path="*" />
           </Routes>
         </AnimatePresence>
       </BrowserRouter>
