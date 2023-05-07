@@ -24,5 +24,6 @@ export {
   getMyAvailability,
   addMyAvailability,
   deleteMyAvailability,
+  confirmMeet,
 } from "./votingTable";
 export { default as meet } from "./meet";

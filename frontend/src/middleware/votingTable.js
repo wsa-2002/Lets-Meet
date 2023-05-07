@@ -63,3 +63,18 @@ export const deleteMyAvailability = async (code, data, token = undefined) => {
     throw error;
   }
 };
+
+export const confirmMeet = async (code, data, token = undefined) => {
+  try {
+    console.log("POST", `/meet/code/${code}/confirm`, "req:", data);
+    const { data: result } = await instance.post(
+      `/meet/code/${code}/confirm`,
+      data,
+      token && { headers: { "auth-token": token } }
+    );
+    console.log("POST", `/meet/code/${code}/confirm`, "res", result);
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};

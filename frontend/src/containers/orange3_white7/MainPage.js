@@ -228,7 +228,7 @@ const Mainpage = () => {
         form={form}
         open={guestCreateModalOpen}
         setOpen={setGuestCreateModalOpen}
-        handleVoteOk={handleOk}
+        handleModalOk={handleOk}
       ></GuestNameModal>
     </Base>
   );

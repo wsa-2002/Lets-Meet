@@ -352,54 +352,6 @@ Base.FullContainer = Object.assign(
               justify-content: center;
               position: relative;
             `,
-            VotingContainer: Object.assign(
-              styled.div`
-                display: grid;
-                grid-template-columns: min-content min-content;
-                grid-column-gap: ${RWDWidth(6)};
-                justify-content: center;
-                max-width: ${RWDWidth(840)};
-                /* border: 1px solid #000000; */
-              `,
-              {
-                TimeContainer: styled.div`
-                  grid-column: 1/2;
-                  display: flex;
-                  flex-direction: column;
-                  font-size: ${RWDFontSize(12)};
-                  div {
-                    height: calc(${RWDHeight(5)} + ${RWDVmin(25)});
-                  }
-                `,
-                CellsContainer: Object.assign(
-                  styled.div`
-                    grid-column: 2/3;
-                    display: flex;
-                    column-gap: ${RWDWidth(5)};
-                    max-width: ${RWDWidth(760)};
-                    overflow-x: auto;
-                    &::-webkit-scrollbar {
-                      display: none;
-                    }
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                  `,
-                  {
-                    DayColumn: styled.div`
-                      display: flex;
-                      flex-shrink: 0;
-                      flex-direction: column;
-                      align-items: center;
-                      row-gap: ${RWDHeight(5)};
-                      div {
-                        font-size: ${RWDFontSize(14)};
-                        text-align: center;
-                      }
-                    `,
-                  }
-                ),
-              }
-            ),
           }
         ),
       }

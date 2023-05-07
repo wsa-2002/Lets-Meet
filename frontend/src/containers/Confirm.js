@@ -13,18 +13,13 @@ import { useMeet } from "./hooks/useMeet";
 import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
+import Modal from "../components/Modal";
 import Vote from "../components/Vote";
-import TimeCell from "../components/TimeCell";
-import {
-  getGroupAvailability,
-  getMyAvailability,
-  addMyAvailability,
-  deleteMyAvailability,
-  meet,
-  getRoutine,
-} from "../middleware";
+import TimeCell, { slotIDProcessing } from "../components/TimeCell";
+import { getGroupAvailability, meet, confirmMeet } from "../middleware";
 const getMeetInfo = meet("read");
 const BackButton = Button("back");
+const ConfirmModal = Modal("confirm");
 const { ContentContainer } = Base.FullContainer;
 const {
   GroupAvailability: {
@@ -34,17 +29,17 @@ const {
   },
 } = ContentContainer;
 const { RWDWidth } = RWD;
-const DraggableCell = TimeCell("draggable");
-const InfoCell = TimeCell("info");
+const ConfirmCell = TimeCell("confirm");
 const moment = extendMoment(Moment);
 
 const Voting = () => {
   const [title, setTitle] = useState("");
+  const [time, setTime] = useState("");
   const [DATERANGE, setDATERANGE] = useState([]);
   const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
   const [VOTINGINFO, setVOTINGINFO] = useState([]);
   const [CELLCOLOR, setCELLCOLOR] = useState([]);
-  const [ROUTINE, setROUTINE] = useState("");
+  const [open, setOpen] = useState(false);
 
   /*可拖曳 time cell 套組*/
   const [cell, setCell] = useState([]);
@@ -86,13 +81,6 @@ const Voting = () => {
       );
       setVOTINGINFO(votingData.data);
 
-      if (cookies.token) {
-        const { data: routine } = await getRoutine(undefined, cookies.token);
-        setROUTINE(routine);
-      } else {
-        setROUTINE([]);
-      }
-
       const { data } = await getMeetInfo(code, cookies.token);
       setTitle(data.meet_name);
       setDATERANGE(
@@ -112,27 +100,8 @@ const Voting = () => {
 
   useEffect(() => {
     (async () => {
-      if (DATERANGE.length && TIMESLOTIDS.length && ROUTINE) {
-        const { data: myAvailability } = await getMyAvailability(
-          code,
-          cookies.token,
-          location?.state?.guestName
-        );
-        setCell(
-          DATERANGE.map((w) =>
-            TIMESLOTIDS.map((t) =>
-              myAvailability.find((d) => d.date === w && d.time_slot_id === t)
-                ? true
-                : ROUTINE.find(
-                    (r) =>
-                      r.weekday === moment(w).format("ddd").toUpperCase() &&
-                      r.time_slot_id === t
-                  )
-                ? null
-                : false
-            )
-          )
-        );
+      if (DATERANGE.length && TIMESLOTIDS.length) {
+        setCell(DATERANGE.map(() => TIMESLOTIDS.map(() => false)));
         setLoading(false);
       }
     })();
@@ -168,36 +137,55 @@ const Voting = () => {
       if (!updatedCell) {
         return;
       }
+      setTime(
+        `${moment(DATERANGE[updatedCell?.[0]?.[0]], "YYYY-MM-DD").format(
+          "MMM D"
+        )} ${slotIDProcessing(updatedCell?.[0]?.[1] + 1)} ~ ${slotIDProcessing(
+          updatedCell?.[updatedCell?.length - 1]?.[1] + 2
+        )}`
+      );
       setStartDrag(false);
-      const API = mode ? addMyAvailability : deleteMyAvailability;
-      await API(
+      setOpen(true);
+      console.log();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleCancel = () => {
+    setUpdatedCell("");
+    setCell(DATERANGE.map(() => TIMESLOTIDS.map(() => false)));
+    setOpen(false);
+  };
+
+  const handleConfirm = async () => {
+    try {
+      console.log(updatedCell);
+      await confirmMeet(
         code,
         {
-          time_slots: updatedCell.map((u) => ({
-            date: DATERANGE[u[0]],
-            time_slot_id: u[1] + 1,
-          })),
+          start_date: DATERANGE[updatedCell[0][0]],
+          end_date: DATERANGE[updatedCell[0][0]],
+          start_time_slot_id: updatedCell[0][1] + 1,
+          end_time_slot_id: updatedCell[updatedCell.length - 1][1] + 1,
         },
         cookies.token
       );
-      const { data: votingData } = await getGroupAvailability(
-        code,
-        cookies.token
-      );
-      setVOTINGINFO(votingData.data);
+      navigate(`/meets/${code}`);
     } catch (error) {
-      throw error;
-    } finally {
-      setUpdatedCell("");
+      console.log(error);
     }
   };
+
   return (
     <ScrollSync>
       <motion.div {...PAGE_TRANSITION.RightSlideIn}>
         <Base login={login} onMouseUp={handleCellMouseUp}>
           <Base.FullContainer>
             {cell.length > 0 && (
-              <Base.FullContainer.ContentContainer>
+              <Base.FullContainer.ContentContainer
+                style={{ gridTemplateColumns: "8fr 1fr" }}
+              >
                 <ContentContainer.Title>
                   <BackButton
                     style={{
@@ -212,49 +200,26 @@ const Voting = () => {
                   {title}
                 </ContentContainer.Title>
                 <ContentContainer.MyAvailability>
-                  {t("myAva")}
-                </ContentContainer.MyAvailability>
-                <ContentContainer.GroupAvailability>
                   {t("groupAva")}
-                </ContentContainer.GroupAvailability>
-                <ContentContainer.MyAvailability.VotingArea>
-                  <Vote
-                    DATERANGE={DATERANGE}
-                    TIMESLOTIDS={TIMESLOTIDS}
-                    Cells={DATERANGE.map((_, d_index) =>
-                      TIMESLOTIDS.map((_, t_index) => (
-                        <DraggableCell
-                          style={{
-                            background:
-                              cell[d_index][t_index] === null
-                                ? "#808080"
-                                : cell[d_index][t_index]
-                                ? "#94C9CD"
-                                : "#F0F0F0",
-                          }}
-                          drag={drag}
-                          index={[d_index, t_index]}
-                          key={t_index}
-                        />
-                      ))
-                    )}
-                  />
-                </ContentContainer.MyAvailability.VotingArea>
+                </ContentContainer.MyAvailability>
                 <ContentContainer.MyAvailability.VotingArea
-                  style={{ gridColumn: "2/3" }}
+                  style={{ gridColumn: "1/2" }}
                 >
                   <Vote
                     DATERANGE={DATERANGE}
                     TIMESLOTIDS={TIMESLOTIDS}
                     Cells={DATERANGE.map((_, d_index) =>
                       TIMESLOTIDS.map((_, t_index) => (
-                        <InfoCell
+                        <ConfirmCell
+                          drag={drag}
+                          index={[d_index, t_index]}
                           key={t_index}
                           style={{
-                            backgroundColor:
-                              CELLCOLOR[
-                                d_index * (TIMESLOTIDS.length - 1) + t_index
-                              ],
+                            backgroundColor: cell[d_index][t_index]
+                              ? "#F25C54"
+                              : CELLCOLOR[
+                                  d_index * (TIMESLOTIDS.length - 1) + t_index
+                                ],
                           }}
                           info={
                             <CellHoverContainer>
@@ -297,6 +262,15 @@ const Voting = () => {
                 </ContentContainer.MyAvailability.VotingArea>
               </Base.FullContainer.ContentContainer>
             )}
+
+            <ConfirmModal
+              open={open}
+              setOpen={setOpen}
+              meetName={title}
+              time={time}
+              onCancel={handleCancel}
+              handleModalOk={handleConfirm}
+            />
           </Base.FullContainer>
         </Base>
       </motion.div>
