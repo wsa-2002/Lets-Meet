@@ -18,4 +18,4 @@ def register_routers(app: fastapi.FastAPI):
     app.include_router(routine.router)
     app.include_router(meet.router)
     app.include_router(calendar.router)
-    app.include_router(schedular.router)
+    app.include_router(scheduler.router)
