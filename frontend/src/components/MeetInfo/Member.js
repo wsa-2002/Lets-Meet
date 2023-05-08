@@ -1,15 +1,18 @@
 /*TODO:********************************************************************************************
   1.Style, hover 時框框的 border
 **************************************************************************************************/
-import { Button, Dropdown, Spin, ConfigProvider } from "antd";
+import { Dropdown, Spin, ConfigProvider, Tooltip } from "antd";
 import _, { parseInt } from "lodash";
 import { useCallback, useState, useEffect } from "react";
 import styled from "styled-components";
 import Tag from "../Tag";
+import Button from "../../components/Button";
 import { RWD } from "../../constant";
+import { useMeet } from "../../containers/hooks/useMeet";
 import { searchMember } from "../../middleware";
 const { RWDHeight, RWDFontSize, RWDWidth, RWDRadius } = RWD;
 const MemberTag = Tag("member");
+const RectButton = Button("rect");
 
 const MenuItem = styled.div`
   width: ${RWDWidth(290)};
@@ -27,17 +30,12 @@ const MenuItem = styled.div`
       /* background-color: ; */
     }
   }
-  /* &::-webkit-scrollbar {
-    display: none;
-  }
-  -ms-overflow-style: none;
-  scrollbar-width: none; */
 `;
 
-const Member = ({ setMeetData, Input }) => {
+const Member = ({ setMeetData, Input, rawMember = [] }) => {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
-  const [member, setMember] = useState([]);
+  const [member, setMember] = useState(rawMember);
   const [currentMember, setCurrentMember] = useState({
     username: "",
     id: "",
@@ -46,9 +44,9 @@ const Member = ({ setMeetData, Input }) => {
   const [selectedKeys, setSelectedKeys] = useState([]); //MouseDown 設置
   const [open, setOpen] = useState(false); //打開 dropdown
   const [input, setInput] = useState(""); //Input 裡的文字
+  const { ID } = useMeet();
 
   const handleSearchMember = async (key) => {
-    console.log(key);
     try {
       const {
         data: { accounts },
@@ -118,7 +116,7 @@ const Member = ({ setMeetData, Input }) => {
   const handleMemberJoin = () => {
     setMeetData((prev) => ({
       ...prev,
-      member_ids: [...prev.member_ids, parseInt(Number(currentMember?.id))],
+      member_ids: [...prev.member_ids, currentMember?.id],
     }));
     setMember((prev) => [...prev, currentMember]);
 
@@ -132,7 +130,7 @@ const Member = ({ setMeetData, Input }) => {
 
   const handleMemberClick = (e) => {
     const { username, id, email } = e.domEvent.target.dataset;
-    setCurrentMember({ username, id, email });
+    setCurrentMember({ username, id: parseInt(Number(id)), email });
     setInput(username);
     setOpen(false);
   };
@@ -140,9 +138,7 @@ const Member = ({ setMeetData, Input }) => {
   const handleMemberDelete = (item) => () => {
     setMeetData((prev) => ({
       ...prev,
-      member_ids: prev.member_ids.filter(
-        (m) => m.id !== parseInt(Number(item.id))
-      ),
+      member_ids: prev.member_ids.filter((id) => id !== item.id),
     }));
     setMember((prev) => prev.filter((m) => m.id !== item.id));
   };
@@ -171,11 +167,6 @@ const Member = ({ setMeetData, Input }) => {
                 borderRadiusSM: 0,
                 borderRadiusOuter: 10,
               },
-              Button: {
-                colorBgContainer: "#5A8EA4",
-                colorPrimaryActive: "#FFFFFF",
-                colorPrimaryHover: "#FFFFFF",
-              },
             },
           }}
         >
@@ -192,20 +183,35 @@ const Member = ({ setMeetData, Input }) => {
           >
             <Input value={input} onChange={handleInputChange} />
           </Dropdown>
-          <Button
-            style={{
-              width: RWDWidth(42),
-              height: RWDHeight(35),
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              fontSize: RWDFontSize(24),
-            }}
-            onClick={handleMemberJoin}
-            disabled={!currentMember.username}
+          <Tooltip
+            open={
+              member.find((m) => m?.id === currentMember?.id) ||
+              ID === currentMember?.id
+            }
+            title={
+              ID === currentMember?.id
+                ? "連你自己都不認識嗎？ㄏㄚˋㄌㄚˋ"
+                : "already as member"
+            }
           >
-            +
-          </Button>
+            <RectButton
+              buttonTheme="#5A8EA4"
+              variant="solid"
+              style={{
+                width: RWDWidth(42),
+                height: RWDHeight(35),
+                fontSize: RWDFontSize(24),
+              }}
+              onClick={handleMemberJoin}
+              disabled={
+                !currentMember.username ||
+                ID === currentMember?.id ||
+                member.find((m) => m?.id === currentMember?.id)
+              }
+            >
+              +
+            </RectButton>
+          </Tooltip>
         </ConfigProvider>
       </div>
 

@@ -77,7 +77,7 @@ const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const TIMESLOTIDS = _.range(1, 50); //記得加 1
 
 const Routine = () => {
-  const { cookies, login } = useMeet();
+  const { cookies, login, setLoading } = useMeet();
   const navigate = useNavigate();
 
   const [cell, setCell] = useState([]);
@@ -105,6 +105,7 @@ const Routine = () => {
         if (!login) {
           navigate("/");
         } else {
+          setLoading(true);
           const { data } = await getRoutine(undefined, cookies.token);
           setCell(
             WEEKDAYS.map((w) =>
@@ -117,6 +118,7 @@ const Routine = () => {
               )
             )
           );
+          setLoading(false);
         }
       } catch (error) {
         console.log(error);

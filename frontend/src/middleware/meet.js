@@ -16,8 +16,8 @@ export default (method) =>
     }
     instance.defaults.headers["auth-token"] = token;
     try {
-      console.log(code, token, data);
       const route = `/meet/code/${code}`;
+      console.log(method, route, "req", data);
       const { data: result } = await METHOD[method](route, data);
       console.log("res", result);
       return result;

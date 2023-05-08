@@ -3,7 +3,7 @@
 **************************************************************************************************/
 import styled, { css } from "styled-components";
 import { forwardRef } from "react";
-import { Input as AntdInput, Form } from "antd";
+import { Input as AntdInput, Form, ConfigProvider } from "antd";
 import { RWD } from "../constant";
 const { RWDVmin, RWDWidth, RWDHeight, RWDFontSize, RWDRadius } = RWD;
 
@@ -23,9 +23,12 @@ const BaseInput = styled(AntdInput)`
 
 const BasePassword = styled(AntdInput.Password)`
   ${InputStyle};
-  input::-ms-reveal,
-  input::-ms-clear {
-    display: none;
+  input {
+    &::-ms-reveal,
+    &::-ms-clear {
+      display: none;
+    }
+    height: 90%;
   }
 `;
 
@@ -38,24 +41,36 @@ const Input = (type) =>
         `請定義 Input 種類，有以下可以選擇：\n${INPUTTYPE.join(", ")}`
       );
     }
-    let style;
+    let { style } = prop;
     switch (type) {
       case "main":
-        style = { height: RWDHeight(45) };
+        style = { height: RWDHeight(45), ...style };
         break;
       case "thinner":
-        style = { height: RWDHeight(35) };
+        style = { height: RWDHeight(35), ...style };
         break;
       case "shorter":
-        style = { height: RWDHeight(45), width: RWDWidth(250) };
+        style = { height: RWDHeight(45), width: RWDWidth(250), ...style };
         break;
       default:
         break;
     }
     return (
-      <Form autoComplete="off">
+      <ConfigProvider
+        theme={{
+          components: {
+            Input: {
+              controlTmpOutline: "rgba(0, 0, 0, 0)",
+              controlOutline: "rgba(0, 0, 0, 0)",
+              colorPrimaryHover: "#B76A00",
+            },
+          },
+        }}
+      >
+        {/* <Form autoComplete="off"> */}
         <BaseInput {...prop} ref={ref} style={style} />
-      </Form>
+        {/* </Form> */}
+      </ConfigProvider>
     );
   });
 
@@ -66,24 +81,36 @@ Input.Password = (type) =>
         `請定義 Input 種類，有以下可以選擇：\n${INPUTTYPE.join(", ")}`
       );
     }
-    let style;
+    let { style } = prop;
     switch (type) {
       case "main":
-        style = { height: RWDHeight(45) };
+        style = { height: RWDHeight(45), ...style };
         break;
       case "thinner":
-        style = { height: RWDHeight(35) };
+        style = { height: RWDHeight(35), ...style };
         break;
       case "shorter":
-        style = { height: RWDHeight(45), width: RWDWidth(250) };
+        style = { height: RWDHeight(45), width: RWDWidth(250), ...style };
         break;
       default:
         break;
     }
     return (
-      <Form autoComplete="off">
+      <ConfigProvider
+        theme={{
+          components: {
+            Input: {
+              controlTmpOutline: "rgba(0, 0, 0, 0)",
+              controlOutline: "rgba(0, 0, 0, 0)",
+              colorPrimaryHover: "#B76A00",
+            },
+          },
+        }}
+      >
+        {/* <Form autoComplete="off"> */}
         <BasePassword {...prop} ref={ref} style={style} />
-      </Form>
+        {/* </Form> */}
+      </ConfigProvider>
     );
   });
 

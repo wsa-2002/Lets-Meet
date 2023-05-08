@@ -1,13 +1,9 @@
-/**************************************************************************************************
- DONE!
-**************************************************************************************************/
 import React, { useState } from "react";
-import { notification } from "antd";
-import { CheckCircleFilled } from "@ant-design/icons";
-import * as AXIOS from "../../middleware";
-import Base from "../../components/Base/orange3_white7";
+import { useTranslation } from "react-i18next";
 import { RWD } from "../../constant";
-import { useTranslation } from 'react-i18next';
+import Base from "../../components/Base/orange3_white7";
+import Notification from "../../components/Notification";
+import * as AXIOS from "../../middleware";
 const {
   RightContainer,
   RightContainer: { InfoContainer },
@@ -17,16 +13,7 @@ const { RWDHeight } = RWD;
 const ResetPassword = () => {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
-  const [api, contextHolder] = notification.useNotification();
-  const openNotification = (placement) => {
-    api.info({
-      message: t("verSent"),
-      description: t("checkMail"),
-      placement,
-      duration: 1.5,
-      icon: <CheckCircleFilled style={{ color: "green" }} />,
-    });
-  };
+  const [notification, setNotification] = useState({});
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -34,19 +21,39 @@ const ResetPassword = () => {
 
   const handleVerifyClick = async () => {
     try {
-      openNotification("top");
-      const result = await AXIOS.forgetPassword({
+      const { error } = await AXIOS.forgetPassword({
         email,
       });
-      console.log(result);
-    } catch (e) {
-      alert(e);
+      if (error) {
+        switch (error) {
+          case "NotFound":
+            setNotification({
+              title: "Email not registered",
+              message: "Please check the email address you entered.",
+            });
+            break;
+          case "EmailRegisteredByGoogle":
+            setNotification({
+              title: "Email already been linked to Google",
+              message: "Please check the email address you entered.",
+            });
+          default:
+            break;
+        }
+      } else {
+        setNotification({ title: t("verSent"), message: t("checkMail") });
+      }
+    } catch (error) {
+      alert(error);
     }
   };
 
   return (
     <>
-      {contextHolder}
+      <Notification
+        notification={notification}
+        setNotification={setNotification}
+      />
       <Base>
         <Base.RightContainer>
           <RightContainer.InfoContainer

@@ -24,6 +24,7 @@ const URLContainer = styled.div`
   height: 100%;
   align-items: center;
   background-color: #ffffff;
+  z-index: 2;
   > div {
     width: calc(100% / 3);
     max-width: calc(100% / 3); //很可疑
@@ -128,6 +129,7 @@ const Header = (prop) => {
               width: "calc(100% * 10 / 35)",
               height: "100%",
               cursor: "pointer",
+              zIndex: 2,
               backgroundColor: "#ffffff",
             }}
             onClick={() => {
