@@ -64,4 +64,7 @@ smtp_handler = SMTPHandler()
 from . import (
     verification,
     forget_password,
+    invite_to_meet,
+    voting_notification,
+    meet_reminding,
 )

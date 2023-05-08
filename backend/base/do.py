@@ -80,3 +80,18 @@ class S3File:
     uuid: UUID
     key: str
     bucket: str
+
+
+@dataclass
+class AccountMail:
+    username: str
+    email: str
+
+
+@dataclass
+class MeetAndAccountMail:
+    meet_title: str
+    username: str
+    email: str
+    time: time
+    meet_code: str
