@@ -219,6 +219,6 @@ async def is_authed(meet_id: int, name: Optional[str] = None, password: Optional
         if pass_hash and not verify_password(password, pass_hash):
             return False
         return True
-    if not db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
         return False
     return True
