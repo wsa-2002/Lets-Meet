@@ -273,7 +273,7 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
                                    status=enums.StatusType(status), voting_end_time=voting_end_time, meet_url=meet_url,
                                    finalized_start_date=finalized_start_date, finalized_end_date=finalized_end_date,
                                    finalized_start_time_slot_id=finalized_start_time_slot_id,
-                                   finalized_end_time_slot_id=finalized_end_time_slot_id)
+                                   finalized_end_time_slot_id=finalized_end_time_slot_id, title=title)
             for meet_id, invite_code, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,
                 voting_end_time, meet_url,
                 finalized_start_date, finalized_end_date,
