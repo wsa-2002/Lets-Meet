@@ -23,6 +23,7 @@ const PrimaryButton = Button();
 const ShortInput = Input("shorter");
 const RectButton = Button("rect");
 const joinMeet = meet("join");
+const getMeetInfo = meet("read");
 const GuestNameModal = Modal("guestName");
 
 const JoinMeet = Object.assign(
@@ -108,6 +109,23 @@ const Mainpage = () => {
             title: "Invitation code error",
             message: "The invitation code is invalid.",
           });
+          return;
+        }
+        if (error && error !== "UniqueViolationError") {
+          setError(error);
+          return;
+        }
+      } else {
+        const { error } = await getMeetInfo(
+          invite.current.input.value,
+          cookies.token
+        );
+        if (error && error === "NotFound") {
+          setNotification({
+            title: "Invitation code error",
+            message: "The invitation code is invalid.",
+          });
+          return;
         }
         if (error && error !== "UniqueViolationError") {
           setError(error);
