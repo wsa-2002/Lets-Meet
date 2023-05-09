@@ -129,6 +129,9 @@ export default (type) => {
                 },
               ]}
               style={{ margin: 0 }}
+              onChange={() => {
+                console.log(form.getFieldValue());
+              }}
             >
               <MainInput placeholder="Your name" />
             </Form.Item>
@@ -141,6 +144,7 @@ export default (type) => {
                 buttonTheme="#B8D8BA"
                 variant="solid"
                 onClick={handleModalOk}
+                disabled={!form.getFieldValue().username}
               >
                 OK
               </ModalButton>
@@ -187,6 +191,7 @@ export default (type) => {
     }
     return (
       <Modal
+        forceRender
         centered
         closable={false}
         footer={null}
