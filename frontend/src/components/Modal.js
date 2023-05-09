@@ -129,9 +129,6 @@ export default (type) => {
                 },
               ]}
               style={{ margin: 0 }}
-              onChange={() => {
-                console.log(form.getFieldValue());
-              }}
             >
               <MainInput placeholder="Your name" />
             </Form.Item>
