@@ -13,6 +13,7 @@ import { RWD } from "../constant";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import Tag from "../components/Tag";
+import slotIDProcessing from "../util/slotIDProcessing";
 
 import { browseMeet } from "../middleware";
 const { RWDHeight, RWDWidth } = RWD;
@@ -106,8 +107,11 @@ const Meets = () => {
                   "/"
                 )} ~ ${curr.end_date.replaceAll("-", "/")}`,
                 status: curr.status,
-                meetingTime: "2023/04/15",
-                url: curr.meet_url ?? "https://meet.google.com/vft-xolb-mog",
+                meetingTime: curr.finalized_start_date
+                  ? `${curr.finalized_start_date} ` +
+                    slotIDProcessing(curr.finalized_start_time_slot_id)
+                  : "",
+                url: curr.meet_url,
               };
               acc[
                 CONFIRMTAG.includes(curr.status) ? "Ended Votes" : "Voting"
@@ -166,16 +170,18 @@ const Meets = () => {
       dataIndex: "url",
       key: "url",
       width: "fit-content",
-      render: (url) => (
-        <Link
-          type="link"
-          href={url}
-          target="_blank"
-          style={{ color: "black", textDecoration: "underline" }}
-        >
-          {url}
-        </Link> // TODO: 跳轉到新的頁面
-      ),
+      render: (url) =>
+        url ? (
+          <a
+            target="_blank"
+            href={url}
+            style={{ color: "#000000", textDecoration: "underline" }}
+          >
+            {url}
+          </a>
+        ) : (
+          "None"
+        ),
     },
     {
       title: "",
@@ -186,7 +192,6 @@ const Meets = () => {
           variant="icon"
           buttonTheme="#D8D8D8"
           icon={<ArrowRightOutlined />}
-          y
           // onClick={handleMeetInfoClick}
         />
       ),
