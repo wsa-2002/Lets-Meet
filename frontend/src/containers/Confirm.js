@@ -20,14 +20,8 @@ import { getGroupAvailability, meet, confirmMeet } from "../middleware";
 const getMeetInfo = meet("read");
 const BackButton = Button("back");
 const ConfirmModal = Modal("confirm");
+const InfoTooltip = Modal("info");
 const { ContentContainer } = Base.FullContainer;
-const {
-  GroupAvailability: {
-    VotingContainer: {
-      DayContainer: { CellHoverContainer },
-    },
-  },
-} = ContentContainer;
 const { RWDWidth } = RWD;
 const ConfirmCell = TimeCell("confirm");
 const moment = extendMoment(Moment);
@@ -137,11 +131,14 @@ const Voting = () => {
       if (!updatedCell) {
         return;
       }
+      console.log(updatedCell);
       setTime(
         `${moment(DATERANGE[updatedCell?.[0]?.[0]], "YYYY-MM-DD").format(
           "MMM D"
-        )} ${slotIDProcessing(updatedCell?.[0]?.[1] + 1)} ~ ${slotIDProcessing(
-          updatedCell?.[updatedCell?.length - 1]?.[1] + 2
+        )} ${slotIDProcessing(
+          TIMESLOTIDS[updatedCell?.[0]?.[1]]
+        )} ~ ${slotIDProcessing(
+          TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1]]
         )}`
       );
       setStartDrag(false);
@@ -222,38 +219,18 @@ const Voting = () => {
                                 ],
                           }}
                           info={
-                            <CellHoverContainer>
-                              <CellHoverContainer.CellHoverInfo>
-                                <div
-                                  style={{
-                                    fontWeight: "bold",
-                                    textDecoration: "underline",
-                                  }}
-                                >
-                                  Availble
-                                </div>
-                                {VOTINGINFO?.[
+                            <InfoTooltip
+                              available_members={
+                                VOTINGINFO?.[
                                   d_index * (TIMESLOTIDS.length - 1) + t_index
-                                ]?.available_members.map((m, index) => (
-                                  <div key={index}>{m}</div>
-                                ))}
-                              </CellHoverContainer.CellHoverInfo>
-                              <CellHoverContainer.CellHoverInfo>
-                                <div
-                                  style={{
-                                    fontWeight: "bold",
-                                    textDecoration: "underline",
-                                  }}
-                                >
-                                  Unavailble
-                                </div>
-                                {VOTINGINFO?.[
+                                ]?.available_members
+                              }
+                              unavailable_members={
+                                VOTINGINFO?.[
                                   d_index * (TIMESLOTIDS.length - 1) + t_index
-                                ]?.unavailable_members.map((m, index) => (
-                                  <div key={index}>{m}</div>
-                                ))}
-                              </CellHoverContainer.CellHoverInfo>
-                            </CellHoverContainer>
+                                ]?.unavailable_members
+                              }
+                            />
                           }
                         />
                       ))

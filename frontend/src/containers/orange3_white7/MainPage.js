@@ -62,7 +62,7 @@ const Mainpage = () => {
     start_time_slot_id: 0, //<Number (0, 48]>
     end_time_slot_id: 0, //<Number (0, 48]>
     gen_meet_url: false, //<Boolean>
-    voting_end_time: "", //<string ISOString>
+    voting_end_time: undefined, //<string ISOString>
     description: "", //<String>
     member_ids: [], //[Number]
     emails: [], //[String]
@@ -101,7 +101,7 @@ const Mainpage = () => {
           invite.current.input.value,
           cookies.token
         );
-        if (error) {
+        if (error && error !== "UniqueViolationError") {
           setError(error);
           return;
         }

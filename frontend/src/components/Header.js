@@ -52,7 +52,7 @@ const URLContainer = styled.div`
  * @param   {boolean} prop.show.login login 狀態
  */
 const Header = (prop) => {
-  const { removeCookie, setLogin } = useMeet();
+  const { removeCookie, setLogin, setID } = useMeet();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const ref = useRef(); //追蹤 header 們距離有無太擠
@@ -210,6 +210,7 @@ const Header = (prop) => {
                 onClick={() => {
                   removeCookie("token");
                   setLogin(false);
+                  setID(0);
                 }}
               />
             </>

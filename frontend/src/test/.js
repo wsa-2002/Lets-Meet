@@ -1,3 +1,4 @@
-const c = { a: 1, b: 2 };
-const { a, ...f } = c;
-console.log(a, f);
+const b = null;
+const a = ["1", "2", b];
+
+console.log(a.filter((m) => m).join("or"));

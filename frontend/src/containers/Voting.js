@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import _ from "lodash";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { ScrollSync } from "react-scroll-sync";
@@ -13,6 +13,7 @@ import { useMeet } from "./hooks/useMeet";
 import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
+import Modal from "../components/Modal";
 import Vote from "../components/Vote";
 import TimeCell from "../components/TimeCell";
 import {
@@ -26,17 +27,11 @@ import {
 const getMeetInfo = meet("read");
 const BackButton = Button("back");
 const { ContentContainer } = Base.FullContainer;
-const {
-  GroupAvailability: {
-    VotingContainer: {
-      DayContainer: { CellHoverContainer },
-    },
-  },
-} = ContentContainer;
 const { RWDWidth } = RWD;
 const DraggableCell = TimeCell("draggable");
 const InfoCell = TimeCell("info");
 const moment = extendMoment(Moment);
+const InfoTooltip = Modal("info");
 
 const Voting = () => {
   const [title, setTitle] = useState("");
@@ -45,6 +40,8 @@ const Voting = () => {
   const [VOTINGINFO, setVOTINGINFO] = useState([]);
   const [CELLCOLOR, setCELLCOLOR] = useState([]);
   const [ROUTINE, setROUTINE] = useState("");
+  const [undo, setUndo] = useState([]);
+  const [redo, setRedo] = useState([]);
 
   /*可拖曳 time cell 套組*/
   const [cell, setCell] = useState([]);
@@ -72,7 +69,7 @@ const Voting = () => {
   /******************************************************/
 
   const { code } = useParams();
-  const { cookies, login, setLoading } = useMeet();
+  const { cookies, login, loading, setLoading } = useMeet();
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -109,6 +106,8 @@ const Voting = () => {
       console.log(error);
     }
   };
+
+  // window.addEventListener("keydown")
 
   useEffect(() => {
     (async () => {
@@ -169,14 +168,31 @@ const Voting = () => {
         return;
       }
       setStartDrag(false);
+      console.log(TIMESLOTIDS, updatedCell);
       const API = mode ? addMyAvailability : deleteMyAvailability;
+      setUndo((prev) => [
+        {
+          api: mode ? "add" : "delete",
+          data: {
+            time_slots: updatedCell.map((u) => ({
+              date: DATERANGE[u[0]],
+              time_slot_id: TIMESLOTIDS[u[1]],
+            })),
+            name: location?.state?.guestName ?? null,
+            password: location?.state?.guestPassword ?? null,
+          },
+        },
+        ...prev,
+      ]);
       await API(
         code,
         {
           time_slots: updatedCell.map((u) => ({
             date: DATERANGE[u[0]],
-            time_slot_id: u[1] + 1,
+            time_slot_id: TIMESLOTIDS[u[1]],
           })),
+          name: location?.state?.guestName ?? null,
+          password: location?.state?.guestPassword ?? null,
         },
         cookies.token
       );
@@ -191,6 +207,87 @@ const Voting = () => {
       setUpdatedCell("");
     }
   };
+
+  const handleUndoRedo = async (e) => {
+    console.log(loading);
+    let opr;
+    if (e.ctrlKey) {
+      switch (e.key) {
+        case "\u001a":
+          if (undo.length) {
+            opr = undo[0];
+            setRedo((prev) => [undo[0], ...prev]);
+            setUndo((prev) => prev.slice(1));
+          }
+          break;
+        // case "\u0019":
+        //   if (redo.length) {
+        //     opr = redo[0];
+        //     setUndo((prev) => [redo[0], ...prev]);
+        //     setRedo((prev) => prev.slice(1));
+        //   }
+        //   break;
+        default:
+          break;
+      }
+    }
+    if (opr && !loading) {
+      try {
+        let API;
+        setLoading(true);
+        const { api, data } = opr;
+        if (e.key === "\u001a") {
+          API = api === "delete" ? addMyAvailability : deleteMyAvailability;
+        } else {
+          API = api === "delete" ? deleteMyAvailability : addMyAvailability;
+        }
+        await API(code, data, cookies.token);
+        const { data: votingData } = await getGroupAvailability(
+          code,
+          cookies.token
+        );
+        setVOTINGINFO(votingData.data);
+        const { data: myAvailability } = await getMyAvailability(
+          code,
+          cookies.token,
+          location?.state?.guestName
+        );
+        setCell(
+          DATERANGE.map((w) =>
+            TIMESLOTIDS.map((t) =>
+              myAvailability.find((d) => d.date === w && d.time_slot_id === t)
+                ? true
+                : ROUTINE.find(
+                    (r) =>
+                      r.weekday === moment(w).format("ddd").toUpperCase() &&
+                      r.time_slot_id === t
+                  )
+                ? null
+                : false
+            )
+          )
+        );
+      } catch (error) {
+        alert(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const throttlehandleUndoRedo = useCallback(_.throttle(handleUndoRedo, 1000), [
+    undo,
+    redo,
+    loading,
+  ]);
+
+  useEffect(() => {
+    window.addEventListener("keypress", throttlehandleUndoRedo);
+    return () => {
+      window.removeEventListener("keypress", throttlehandleUndoRedo);
+    };
+  }, [undo, redo, loading]);
+
   return (
     <ScrollSync>
       <motion.div {...PAGE_TRANSITION.RightSlideIn}>
@@ -257,38 +354,18 @@ const Voting = () => {
                               ],
                           }}
                           info={
-                            <CellHoverContainer>
-                              <CellHoverContainer.CellHoverInfo>
-                                <div
-                                  style={{
-                                    fontWeight: "bold",
-                                    textDecoration: "underline",
-                                  }}
-                                >
-                                  Availble
-                                </div>
-                                {VOTINGINFO?.[
+                            <InfoTooltip
+                              available_members={
+                                VOTINGINFO?.[
                                   d_index * (TIMESLOTIDS.length - 1) + t_index
-                                ]?.available_members.map((m, index) => (
-                                  <div key={index}>{m}</div>
-                                ))}
-                              </CellHoverContainer.CellHoverInfo>
-                              <CellHoverContainer.CellHoverInfo>
-                                <div
-                                  style={{
-                                    fontWeight: "bold",
-                                    textDecoration: "underline",
-                                  }}
-                                >
-                                  Unavailble
-                                </div>
-                                {VOTINGINFO?.[
+                                ]?.available_members
+                              }
+                              unavailable_members={
+                                VOTINGINFO?.[
                                   d_index * (TIMESLOTIDS.length - 1) + t_index
-                                ]?.unavailable_members.map((m, index) => (
-                                  <div key={index}>{m}</div>
-                                ))}
-                              </CellHoverContainer.CellHoverInfo>
-                            </CellHoverContainer>
+                                ]?.unavailable_members
+                              }
+                            />
                           }
                         />
                       ))

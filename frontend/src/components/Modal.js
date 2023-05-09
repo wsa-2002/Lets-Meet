@@ -1,14 +1,14 @@
 import { Modal, Form } from "antd";
-import React from "react";
-import styled, { css } from "styled-components";
-import { RWD } from "../constant";
-import Input from "./Input";
+import React, { useRef, useState } from "react";
+import styled from "styled-components";
 import Button from "./Button";
-const { RWDWidth, RWDHeight } = RWD;
-const MainInput = Input("main");
+import Input from "./Input";
+import { RWD } from "../constant";
 const ModalButton = Button("modal");
 const RectButton = Button("rect");
+const MainInput = Input("main");
 const MainPassword = Input.Password("main");
+const { RWDWidth, RWDHeight } = RWD;
 
 const ContentContainer = Object.assign(
   styled(Form)`
@@ -29,7 +29,43 @@ const ContentContainer = Object.assign(
   }
 );
 
-const MODALTYPE = ["guestName", "confirm"];
+/**
+ * @example
+ * const CellHoverContainer = styled.div`
+    width: ${RWDWidth(165)};
+    display: flex;
+    justify-content: space-between;
+    color: #000000;
+  `;
+*/
+const CellHoverContainer = Object.assign(
+  styled.div`
+    min-width: 165px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* justify-content: space-between; */
+    color: #000000;
+  `,
+  {
+    /**
+     * @example
+     * const CellHoverInfo = styled.div`
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        row-gap: ${RWDHeight(5)};
+      `;
+    */
+    CellHoverInfo: styled.div`
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      row-gap: ${RWDHeight(5)};
+    `,
+  }
+);
+
+const MODALTYPE = ["guestName", "confirm", "info"];
 
 export default (type) => {
   if (!MODALTYPE.includes(type)) {
@@ -37,9 +73,43 @@ export default (type) => {
       `請定義 Modal 種類，有以下可以選擇：\n${MODALTYPE.join(", ")}`
     );
   }
+
   return ({ open, setOpen, handleModalOk, onCancel, ...prop }) => {
     let Component;
     switch (type) {
+      case "info":
+        const { available_members = [], unavailable_members = [] } = prop;
+        return (
+          <CellHoverContainer>
+            <CellHoverContainer.CellHoverInfo style={{ gridColumn: "1/2" }}>
+              <div
+                style={{
+                  fontWeight: "bold",
+                  textDecoration: "underline",
+                }}
+              >
+                Availble
+              </div>
+              {available_members.map((m, index) => (
+                <div key={index}>{m}</div>
+              ))}
+            </CellHoverContainer.CellHoverInfo>
+            <CellHoverContainer.CellHoverInfo style={{ gridColumn: "2/3" }}>
+              <div
+                style={{
+                  fontWeight: "bold",
+                  textDecoration: "underline",
+                }}
+              >
+                Unavailble
+              </div>
+              {unavailable_members.map((m, index) => (
+                <div key={index}>{m}</div>
+              ))}
+            </CellHoverContainer.CellHoverInfo>
+          </CellHoverContainer>
+        );
+
       case "guestName":
         const { form } = prop;
         Component = (
