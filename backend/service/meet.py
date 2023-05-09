@@ -8,6 +8,7 @@ from base import enums, do
 from middleware.context import request
 from processor.http.util import timezone_validate
 import persistence.database as db
+import persistence.email as email
 import exceptions as exc  # noqa
 from security import verify_password
 from service.calendar import GoogleCalendar
@@ -23,6 +24,7 @@ class EditMeetInput(BaseModel):
     voting_end_time: Optional[datetime] = None
     gen_meet_url: Optional[bool] = False
     member_ids: Optional[Sequence[int]] = None
+    remove_guest_names: Optional[Sequence[str]] = None
     emails: Optional[Sequence[str]] = None
 
 
@@ -63,8 +65,11 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
     removed_ids = list(meet_member_ids - set(member_ids))
     added_ids = list(set(member_ids) - meet_member_ids)
 
-    await db.meet_member.edit(meet_id=meet_id, removed_member_ids=removed_ids, added_member_ids=added_ids)
-
+    await db.meet_member.edit(meet_id=meet_id, removed_member_ids=removed_ids,
+                              added_member_ids=added_ids, remove_guest_names=data.remove_guest_names)
+    if data.emails:
+        for user_email in data.emails:
+            await email.invite_to_meet.send(to=user_email, meet_code=meet.invite_code)
 
     host_account = await db.account.read(request.account.id)
     meet_url = None
