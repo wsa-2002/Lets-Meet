@@ -266,6 +266,7 @@ const MeetInfo = () => {
   const handleMeetDataChange =
     (func, ...name) =>
     (e) => {
+      console.log(e);
       if (name.length === 1) {
         setRawMeetInfo((prev) => ({ ...prev, [name[0]]: func(e) }));
       } else {
