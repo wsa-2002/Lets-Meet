@@ -155,7 +155,8 @@ class AddMemberMeetAvailableTimeInput(BaseModel):
 
 async def add_member_meet_available_time(meet_id: int, data: AddMemberMeetAvailableTimeInput):
     meet_member = await db.meet_member.read(meet_id=meet_id, account_id=request.account.id, name=data.name)
-
+    if not meet_member.has_voted:
+        await db.meet_member.update(meet_member_id=meet_member.id, has_voted=True)
     await db.available_time.batch_add(
         meet_member_id=meet_member.id,
         time_slots=[(time_slot.date, time_slot.time_slot_id) for time_slot in data.time_slots],
