@@ -89,7 +89,6 @@ const MeetInfo = () => {
   const handleFormChange = (name) => (e) => {
     setForm((prev) => ({ ...prev, [name]: e.target.value }));
   };
-
   /******************************************************/
 
   const handleMeetInfo = async () => {
@@ -424,7 +423,13 @@ const MeetInfo = () => {
                           buttonTheme="#5A8EA4"
                           variant="solid"
                           onClick={handleEditDone}
-                          // disabled={_.isEqual(rawMeetInfo, oriRawMeetInfo)}
+                          disabled={
+                            !rawMeetInfo.meet_name ||
+                            !rawMeetInfo.start_date ||
+                            !rawMeetInfo.end_date ||
+                            !rawMeetInfo.start_time_slot_id ||
+                            !rawMeetInfo.end_time_slot_id
+                          }
                         >
                           {t("done")}
                         </RectButton>
