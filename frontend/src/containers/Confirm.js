@@ -185,8 +185,9 @@ const Voting = () => {
         {
           start_date: DATERANGE[updatedCell[0][0]],
           end_date: DATERANGE[updatedCell[0][0]],
-          start_time_slot_id: updatedCell[0][1] + 1,
-          end_time_slot_id: updatedCell[updatedCell.length - 1][1] + 1,
+          start_time_slot_id: TIMESLOTIDS[updatedCell?.[0]?.[1]],
+          end_time_slot_id:
+            TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1]],
         },
         cookies.token
       );
