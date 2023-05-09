@@ -160,7 +160,9 @@ const MeetInfo = () => {
         "Voting Deadline": voting_end_time
           ? moment(voting_end_time).format("YYYY/MM/DD HH:mm:ss")
           : "None",
-        "Invitation URL": `https://lets.meet.com?invite=${invite_code}`,
+        "Invitation URL": `${
+          process.env.REACT_APP_SERVER_USE_HTTPS === "true" ? "https" : "http"
+        }://${process.env.REACT_APP_SERVER_DOMAIN}/meets/${invite_code}`,
         "Google Meet URL": meet_url ?? "None",
       });
       setRawMeetInfo({
