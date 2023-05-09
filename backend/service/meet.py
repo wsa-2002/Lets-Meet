@@ -68,7 +68,7 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
     await db.meet_member.edit(meet_id=meet_id, removed_member_ids=removed_ids,
                               added_member_ids=added_ids, remove_guest_names=data.remove_guest_names)
     if data.emails:
-        for user_email in data.emails:
+        for _, user_email in enumerate(set(data.emails)):
             await email.invite_to_meet.send(to=user_email, meet_code=meet.invite_code)
 
     host_account = await db.account.read(request.account.id)
