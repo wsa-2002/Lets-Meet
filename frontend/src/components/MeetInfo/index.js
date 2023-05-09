@@ -245,8 +245,8 @@ const MeetInfo = ({
     "Invitation URL": null,
     "Google Meet URL": (
       <Switch
-        data-info={!login}
-        disabled={!login}
+        data-info={login !== "google"}
+        disabled={login !== "google"}
         onChange={handleMeetDataChange((i) => i, "gen_meet_url")}
         checked={rawMeetInfo.gen_meet_url}
       />
@@ -292,7 +292,7 @@ const MeetInfo = ({
               )}
               {reviseMode && CONTENTMENU[title]?.props["data-info"] && (
                 <Tooltip
-                  title="Registered users only"
+                  title="Connect with Google to enable"
                   color="#FFFFFF"
                   overlayInnerStyle={{
                     color: "#000000",
