@@ -169,6 +169,7 @@ const MeetInfo = () => {
               target="_blank"
               href={meet_url}
               style={{ color: "#000000", textDecoration: "underline" }}
+              rel="noreferrer"
             >
               {meet_url}
             </a>
@@ -360,7 +361,7 @@ const MeetInfo = () => {
                               }}
                               style={{ position: "absolute", right: 0 }}
                             >
-                              Confirm Meet
+                              {t("confirmMeet")}
                             </RectButton>
                           )}
                         </>
@@ -397,7 +398,7 @@ const MeetInfo = () => {
                             setEditMode(false);
                           }}
                         >
-                          Cancel
+                          {t("cancel")}
                         </RectButton>
                         <RectButton
                           buttonTheme="#5A8EA4"
@@ -405,7 +406,7 @@ const MeetInfo = () => {
                           onClick={handleEditDone}
                           // disabled={_.isEqual(rawMeetInfo, oriRawMeetInfo)}
                         >
-                          Done
+                          {t("done")}
                         </RectButton>
                       </>
                     ) : (
@@ -420,7 +421,7 @@ const MeetInfo = () => {
                             setIsModalLeaveOpen(true);
                           }}
                         >
-                          {host ? "Delete" : "Leave"} Meet
+                          {host ? t("deleteMeet") : t("leaveMeet")}
                         </RectButton>
                         {!confirmed && (
                           <RectButton
@@ -428,7 +429,7 @@ const MeetInfo = () => {
                             variant="solid"
                             onClick={handleVote}
                           >
-                            Vote
+                            {t("vote")}
                           </RectButton>
                         )}
                       </>
@@ -539,14 +540,14 @@ const MeetInfo = () => {
                       setIsModalLeaveOpen(false);
                     }}
                   >
-                    NO
+                    {t("no")}
                   </ModalButton>
                   <ModalButton
                     buttonTheme="#B8D8BA"
                     variant="hollow"
                     onClick={handleLeaveYes}
                   >
-                    YES
+                    {t("yes")}
                   </ModalButton>
                 </div>
               }
@@ -563,10 +564,7 @@ const MeetInfo = () => {
                   }}
                 >
                   <InfoCircleFilled style={{ color: "#FAAD14" }} />
-                  <span>
-                    Are you sure you want to {host ? "delete" : "leave"} this
-                    meet?
-                  </span>
+                  <span>{host ? t("deleteConfirm") : t("leaveConfirm")}</span>
                 </div>
               }
             />

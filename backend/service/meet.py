@@ -8,6 +8,7 @@ from base import enums, do
 from middleware.context import request
 from processor.http.util import timezone_validate
 import persistence.database as db
+import persistence.email as email
 import exceptions as exc  # noqa
 from security import verify_password
 from service.calendar import GoogleCalendar
@@ -23,17 +24,25 @@ class EditMeetInput(BaseModel):
     voting_end_time: Optional[datetime] = None
     gen_meet_url: Optional[bool] = False
     member_ids: Optional[Sequence[int]] = None
+    remove_guest_names: Optional[Sequence[str]] = None
     emails: Optional[Sequence[str]] = None
 
 
 async def edit_meet(meet_id: int, data: EditMeetInput):
 
     meet = await db.meet.read(meet_id=meet_id)
+    if meet.status is enums.StatusType.confirmed and (
+        meet.start_time_slot_id is not data.start_time_slot_id
+        or meet.end_time_slot_id is not data.end_time_slot_id
+        or meet.start_date is not data.start_date or meet.end_date is not data.end_date
+        or meet.voting_end_time is not data.voting_end_time
+    ):
+        raise exc.IllegalInput
     meet.start_date = data.start_date or meet.start_date
     meet.end_date = data.end_date or meet.end_date
     meet.start_time_slot_id = data.start_time_slot_id or meet.start_time_slot_id
     meet.end_time_slot_id = data.end_time_slot_id or meet.end_time_slot_id
-    meet.voting_end_time = data.voting_end_time or meet.voting_end_time
+    meet.voting_end_time = data.voting_end_time
 
     if meet.start_date > meet.end_date:
         raise exc.IllegalInput
@@ -47,7 +56,8 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
     status = enums.StatusType.voting
     if meet.voting_end_time and timezone_validate(meet.voting_end_time) < request.time:
         status = enums.StatusType.waiting_for_confirm
-
+    if meet.status is enums.StatusType.confirmed:
+        status = meet.status
     meet_members = await db.meet_member.browse_meet_members_with_names(meet_id=meet_id)
     meet_member_ids = set(meet_member.member_id for meet_member in meet_members)
     member_ids = list(data.member_ids) if data.member_ids else []
@@ -55,8 +65,11 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
     removed_ids = list(meet_member_ids - set(member_ids))
     added_ids = list(set(member_ids) - meet_member_ids)
 
-    await db.meet_member.edit(meet_id=meet_id, removed_member_ids=removed_ids, added_member_ids=added_ids)
-
+    await db.meet_member.edit(meet_id=meet_id, removed_member_ids=removed_ids,
+                              added_member_ids=added_ids, remove_guest_names=data.remove_guest_names)
+    if data.emails:
+        for _, user_email in enumerate(set(data.emails)):
+            await email.invite_to_meet.send(to=user_email, meet_code=meet.invite_code)
 
     host_account = await db.account.read(request.account.id)
     meet_url = None
@@ -100,9 +113,8 @@ async def browse_all_member_available_time(meet_id: int) \
     meet_info = await db.meet.read(meet_id=meet_id)
 
     arranged_available_time = defaultdict(list)
-    if member_id_name_map:
-        for available_time in available_times:
-            name = member_id_name_map[available_time.meet_member_id]
+    for available_time in available_times:
+        if name := member_id_name_map.get(available_time.meet_member_id, None):
             arranged_available_time[(available_time.date, available_time.time_slot_id)].append(name)
 
     ret = []

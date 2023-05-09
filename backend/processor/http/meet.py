@@ -105,15 +105,15 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
         host_member_id=host_account_id,
         member_ids=data.member_ids,
         description=data.description,
-        guest_name=f"guest_{data.guest_name}",
+        guest_name=f"guest_{data.guest_name}" if data.guest_name else None,
         guest_passhash=hash_password(data.guest_password) if data.guest_password else None,
     )
     if data.member_ids:
-        for id in data.member_ids:
+        for _, id in enumerate(set(data.member_ids)):
             account = await db.account.get_email(member_id=id)
             await email.invite_to_meet.send(to=account.email, meet_code=invite_code)
     if data.emails:
-        for user_email in data.emails:
+        for _,  user_email in enumerate(set(data.emails)):
             await email.invite_to_meet.send(to=user_email, meet_code=invite_code)
 
     meet = await db.meet.read(meet_id=meet_id)
@@ -244,7 +244,7 @@ async def join_meet_by_invite_code(code: str, data: JoinMeetInput):
     if data.name in names:
         raise exc.UsernameExists
     await db.meet.add_member(meet_id=meet.id, account_id=account_id,
-                             name=f"guest_{data.name}",
+                             name=data.name,
                              pass_hash=hash_password(data.password) if data.password else None)
 
     meet.status = await update_status(meet.id, meet, request.time, account_id)
@@ -310,8 +310,6 @@ async def browse_member_available_time_by_meet_id(meet_id: int, name: Optional[s
         -> Sequence[do.MeetMemberAvailableTime]:
     account_id = request.account.id
     if not account_id and not name:
-        raise exc.NoPermission
-    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
         raise exc.NoPermission
 
     return await service.meet.browse_member_available_time(meet_id=meet_id, name=name)
@@ -387,8 +385,6 @@ async def browse_member_available_time_by_code(code: str, name: Optional[str] = 
     if not account_id and not name:
         raise exc.NoPermission
     meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
-    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
-        raise exc.NoPermission
 
     return await service.meet.browse_member_available_time(meet_id=meet_id, name=name)
 

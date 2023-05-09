@@ -111,6 +111,7 @@ const MeetInfo = ({
     ),
     "Start / End Date": (
       <MeetInfoContainer.Content.DateRangePicker
+        placeholder={[t("startDate"), t("endDate")]}
         onChange={handleMeetDataChange(
           (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
           "start_date",
@@ -131,6 +132,7 @@ const MeetInfo = ({
     ),
     "Start / End Time": (
       <MeetInfoContainer.Content.TimeRangePicker
+        placeholder={[t("startTime"), t("endTime")]}
         onChange={handleMeetDataChange(
           (i, plus) =>
             i.minute() === 59 ? 48 : (i.hour() * 60 + i.minute()) / 30 + plus,
@@ -195,6 +197,7 @@ const MeetInfo = ({
         {votingddl && (
           <>
             <MeetInfoContainer.Content.DatePicker
+              placeholder={t("selectDate")}
               onChange={handleMeetDataChange(
                 (i) =>
                   i
@@ -222,6 +225,7 @@ const MeetInfo = ({
               }
             />
             <MeetInfoContainer.Content.TimePicker
+              placeholder={t("selectTime")}
               onChange={handleMeetDataChange(
                 (i) =>
                   i
@@ -261,9 +265,11 @@ const MeetInfo = ({
     "Meet Name": t("meetName"),
     "Start / End Date": t("startDate"),
     "Start / End Time": t("startTime"),
+    Host: t("host"),
     Member: t("member"),
     Description: t("description"),
     "Voting Deadline": t("votingDeadline"),
+    "Invitation URL": t("invitationURL"),
     "Google Meet URL": t("url"),
   };
 

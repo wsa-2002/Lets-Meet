@@ -14,8 +14,8 @@ import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import Tag from "../components/Tag";
 import slotIDProcessing from "../util/slotIDProcessing";
-
 import { browseMeet } from "../middleware";
+
 const { RWDHeight, RWDWidth } = RWD;
 const MemberTag = Tag("member");
 const StatusTag = Tag("status");
@@ -77,6 +77,23 @@ const Meets = () => {
   const { cookies, setLoading } = useMeet();
   const [meetsData, setMeetsData] = useState({});
   const [view, setView] = useState("Voting");
+
+  const tagLangMapping = (status) => {
+    switch (status) {
+      case "Voted":
+        return t("voted");
+      case "Unvoted":
+        return t("unvoted");
+      case "Confirmed":
+        return t("confirmed");
+      case "Confirming":
+        return t("confirming");
+      case "Need Confirmation":
+        return t("needConfirmation");
+      default:
+        return;
+    }
+  };
 
   const customizeRenderEmpty = () => (
     <div style={{ textAlign: "center" }}>
@@ -155,7 +172,7 @@ const Meets = () => {
       width: RWDWidth(200),
       render: (tag) => (
         <StatusTag key={tag} style={tagMap[tag]}>
-          {tag}
+          {tagLangMapping(tag)}
         </StatusTag>
       ),
     },
@@ -176,6 +193,7 @@ const Meets = () => {
             target="_blank"
             href={url}
             style={{ color: "#000000", textDecoration: "underline" }}
+            rel="noreferrer"
           >
             {url}
           </a>
