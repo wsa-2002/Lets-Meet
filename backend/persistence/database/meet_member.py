@@ -9,6 +9,7 @@ from . import pool_handler
 
 
 async def read(meet_id: int, account_id: Optional[int] = None, name: Optional[str] = None) -> do.MeetMember:
+    name = f"guest_{name}" if name else None
     sql, params = pyformat2psql(
         sql=fr"SELECT id, meet_id, is_host, name, member_id, has_voted"
             fr"  FROM meet_member"
@@ -38,7 +39,7 @@ async def browse_meet_members_with_names(meet_id: int) -> Sequence[do.MeetMember
                 id=id_,
                 meet_id=meet_id,
                 is_host=is_host,
-                name=name or username,
+                name=name.replace('guest_', '') if name else username,
                 member_id=member_id,
                 has_voted=has_voted,
             )
@@ -46,6 +47,7 @@ async def browse_meet_members_with_names(meet_id: int) -> Sequence[do.MeetMember
 
 
 async def read_by_meet_id_and_name(meet_id: int, name: str) -> Tuple[int, str, str]:
+    name = f"guest_{name}"
     sql, params = pyformat2psql(
         sql=fr"SELECT id, name, pass_hash"
             fr"  FROM meet_member"
