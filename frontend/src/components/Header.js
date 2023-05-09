@@ -211,6 +211,7 @@ const Header = (prop) => {
                   removeCookie("token");
                   setLogin(false);
                   setID(0);
+                  navigate("/");
                 }}
               />
             </>
