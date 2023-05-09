@@ -76,7 +76,6 @@ const Mainpage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const invite = useRef(null);
-  const [form] = Form.useForm();
 
   useEffect(() => {
     setMeetData({
@@ -107,6 +106,13 @@ const Mainpage = () => {
       window.removeEventListener("resize", throttledHandleResize);
     };
   }, []);
+  /******************************************************/
+
+  /*調整 guest name 套組*/
+  const [form, setForm] = useState({ username: "", password: "" });
+  const handleFormChange = (name) => (e) => {
+    setForm((prev) => ({ ...prev, [name]: e.target.value }));
+  };
   /******************************************************/
 
   useEffect(() => {
@@ -184,8 +190,7 @@ const Mainpage = () => {
 
   const handleOk = async () => {
     try {
-      const { username: guest_name, password: guest_password } =
-        form.getFieldValue();
+      const { username: guest_name, password: guest_password } = form;
       if (!guest_name) return;
       const { data } = await addMeet(
         {
@@ -289,7 +294,8 @@ const Mainpage = () => {
           open={guestCreateModalOpen}
           setOpen={setGuestCreateModalOpen}
           handleModalOk={handleOk}
-        ></GuestNameModal>
+          handleFormChange={handleFormChange}
+        />
       </Base>
     </>
   );
