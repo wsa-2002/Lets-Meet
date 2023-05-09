@@ -78,6 +78,21 @@ const Mainpage = () => {
   const invite = useRef(null);
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    setMeetData({
+      meet_name: "",
+      start_date: "",
+      end_date: "",
+      start_time_slot_id: 0,
+      end_time_slot_id: 0,
+      gen_meet_url: false,
+      voting_end_time: undefined,
+      description: "",
+      member_ids: [],
+      emails: [],
+    });
+  }, [login]);
+
   /*調整 invitation area 套組*/
   const ref = useRef(null); //追蹤LetMEET
   const [width, setWidth] = useState(ref?.current?.offsetWidth);
