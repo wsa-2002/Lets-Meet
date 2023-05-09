@@ -311,8 +311,6 @@ async def browse_member_available_time_by_meet_id(meet_id: int, name: Optional[s
     account_id = request.account.id
     if not account_id and not name:
         raise exc.NoPermission
-    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
-        raise exc.NoPermission
 
     return await service.meet.browse_member_available_time(meet_id=meet_id, name=name)
 
@@ -387,8 +385,6 @@ async def browse_member_available_time_by_code(code: str, name: Optional[str] = 
     if not account_id and not name:
         raise exc.NoPermission
     meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
-    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
-        raise exc.NoPermission
 
     return await service.meet.browse_member_available_time(meet_id=meet_id, name=name)
 
