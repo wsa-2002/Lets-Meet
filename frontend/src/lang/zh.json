@@ -42,6 +42,8 @@
   "leaveMeet": "離開會議",
   "deleteMeet": "刪除會議",
   "meetName": "會議名稱",
+  "selectDate": "選擇日期",
+  "selectTime": "選擇時間",
   "startDate": "起始日期",
   "endDate": "結束日期",
   "startTime": "起始日期",
