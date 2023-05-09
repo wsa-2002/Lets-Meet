@@ -4,7 +4,7 @@ import React from "react";
 import { RWD } from "../constant";
 import styled from "styled-components";
 import Link from "./Link";
-const { RWDFontSize } = RWD;
+const { RWDFontSize, RWDWidth } = RWD;
 
 const FooterContainer = styled.div`
   display: flex;
@@ -17,7 +17,7 @@ const FooterInnerContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 92%;
+  width: ${RWDWidth(1720)};
   font-size: ${RWDFontSize(14)};
   color: #808080;
 `;
