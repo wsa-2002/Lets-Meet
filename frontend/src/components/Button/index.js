@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import BUTTONTHEME from "./theme";
 import { RWD } from "../../constant";
+import "./test.css";
 import { googleLogin } from "../../middleware";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 
@@ -16,6 +17,9 @@ const BaseButton = styled(AntdButton)`
   display: flex;
   justify-content: center;
   align-items: center;
+  div {
+    display: none;
+  }
 `;
 
 const PrimaryButton = styled(BaseButton)`
