@@ -100,9 +100,8 @@ async def browse_all_member_available_time(meet_id: int) \
     meet_info = await db.meet.read(meet_id=meet_id)
 
     arranged_available_time = defaultdict(list)
-    if member_id_name_map:
-        for available_time in available_times:
-            name = member_id_name_map[available_time.meet_member_id]
+    for available_time in available_times:
+        if name := member_id_name_map.get(available_time.meet_member_id, None):
             arranged_available_time[(available_time.date, available_time.time_slot_id)].append(name)
 
     ret = []
