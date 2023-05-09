@@ -94,14 +94,16 @@ async def browse_all_member_available_time(meet_id: int) \
         -> BrowseAllMemberAvailableTimeOutput:
     available_times = await db.available_time.browse_by_meet_id(meet_id)
     meet_members = await db.meet_member.browse_meet_members_with_names(meet_id=meet_id)
+    meet_members = [meet_member for meet_member in meet_members if meet_member.has_voted is True]
     member_id_name_map = {meet_member.id: meet_member.name for meet_member in meet_members}
 
     meet_info = await db.meet.read(meet_id=meet_id)
 
     arranged_available_time = defaultdict(list)
-    for available_time in available_times:
-        name = member_id_name_map[available_time.meet_member_id]
-        arranged_available_time[(available_time.date, available_time.time_slot_id)].append(name)
+    if member_id_name_map:
+        for available_time in available_times:
+            name = member_id_name_map[available_time.meet_member_id]
+            arranged_available_time[(available_time.date, available_time.time_slot_id)].append(name)
 
     ret = []
     start_date = meet_info.start_date
@@ -153,6 +155,7 @@ class AddMemberMeetAvailableTimeInput(BaseModel):
 
 async def add_member_meet_available_time(meet_id: int, data: AddMemberMeetAvailableTimeInput):
     meet_member = await db.meet_member.read(meet_id=meet_id, account_id=request.account.id, name=data.name)
+
     await db.available_time.batch_add(
         meet_member_id=meet_member.id,
         time_slots=[(time_slot.date, time_slot.time_slot_id) for time_slot in data.time_slots],
@@ -207,6 +210,8 @@ class DeleteMeetMemberAvailableTimeInput(BaseModel):
 
 async def delete_meet_member_available_time(meet_id: int, data: DeleteMeetMemberAvailableTimeInput):
     meet_member = await db.meet_member.read(meet_id=meet_id, account_id=request.account.id, name=data.name)
+    if not meet_member.has_voted:
+        await db.meet_member.update(meet_member_id=meet_member.id, has_voted=True)
     await db.available_time.batch_delete(
         meet_member_id=meet_member.id,
         time_slots=[(time_slot.date, time_slot.time_slot_id) for time_slot in data.time_slots],
