@@ -163,7 +163,16 @@ const MeetInfo = () => {
         "Invitation URL": `${
           process.env.REACT_APP_SERVER_USE_HTTPS === "true" ? "https" : "http"
         }://${process.env.REACT_APP_SERVER_DOMAIN}/meets/${invite_code}`,
-        "Google Meet URL": meet_url ?? "None",
+        "Google Meet URL":
+          (
+            <a
+              target="_blank"
+              href={meet_url}
+              style={{ color: "#000000", textDecoration: "underline" }}
+            >
+              {meet_url}
+            </a>
+          ) ?? "None",
       });
       setRawMeetInfo({
         meet_name,

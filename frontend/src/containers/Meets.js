@@ -101,7 +101,7 @@ const Meets = () => {
                 name: curr.title,
                 host: curr.host_username,
                 code: curr.invite_code,
-                votingDeadline: `${curr.start_date.replaceAll(
+                votingPeriod: `${curr.start_date.replaceAll(
                   "-",
                   "/"
                 )} ~ ${curr.end_date.replaceAll("-", "/")}`,
@@ -142,7 +142,7 @@ const Meets = () => {
       title: t("votingPeriod"),
       dataIndex: "votingPeriod",
       key: "votingPeriod",
-      width: RWDWidth(220),
+      width: "fit-content",
     },
     {
       title: t("status"),
@@ -165,7 +165,7 @@ const Meets = () => {
       title: t("url"),
       dataIndex: "url",
       key: "url",
-      width: RWDWidth(300),
+      width: "fit-content",
       render: (url) => (
         <Link
           type="link"
@@ -186,7 +186,7 @@ const Meets = () => {
           variant="icon"
           buttonTheme="#D8D8D8"
           icon={<ArrowRightOutlined />}
-          style={{ position: "absolute", right: 0 }}
+          y
           // onClick={handleMeetInfoClick}
         />
       ),

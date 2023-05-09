@@ -19,13 +19,13 @@ const MeetProvider = (props) => {
     const decoded = jwt(token);
     console.log(decoded);
     setCookie("token", token, { path: "/", expires: new Date(decoded.expire) });
-    setLogin(true);
+    setLogin(decoded.is_google_login ? "google" : "notGoogle");
     setID(decoded.account_id);
   };
 
   useEffect(() => {
     if (cookies.token) {
-      setLogin(true);
+      setLogin(jwt(cookies.token).is_google_login ? "google" : "notGoogle");
       setID(jwt(cookies.token).account_id);
     }
   }, [cookies]);
