@@ -19,7 +19,7 @@ router = APIRouter(
     dependencies=[Depends(get_auth_token)]
 )
 
-USERNAME_PROHIBITED_CHARS = r'`#$%&*\/?'
+USERNAME_PROHIBITED_CHARS = r'@`#$%&*\/?'
 
 
 class AddAccountInput(BaseModel):
