@@ -120,10 +120,16 @@ export default (type) => {
             }}
           >
             <Form.Item
+              name="username"
               rules={[
                 {
                   required: true,
                   message: "Username is required",
+                },
+                {
+                  pattern: /^[^#$%&*/?@]*$/,
+                  validateTrigger: "onChange",
+                  message: "Please avoid `#$%&*/?@",
                 },
               ]}
               style={{ margin: 0 }}
@@ -143,7 +149,9 @@ export default (type) => {
                 buttonTheme="#B8D8BA"
                 variant="solid"
                 onClick={handleModalOk}
-                disabled={!form.username}
+                disabled={
+                  !form.username || !/^[^#$%&*/?@]*$/.test(form.username)
+                }
               >
                 OK
               </ModalButton>

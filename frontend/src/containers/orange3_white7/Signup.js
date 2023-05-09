@@ -1,8 +1,8 @@
 /*TODO:********************************************************************************************
   1. RWD, 頁面縮過小時的錯誤
 **************************************************************************************************/
-import React, { useState, useEffect } from "react";
-import { Divider, Typography } from "antd";
+import React, { useState } from "react";
+import { Divider, Typography, Form } from "antd";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import * as AXIOS from "../../middleware";
@@ -41,7 +41,6 @@ const SignUp = () => {
     "Confirm Password": "",
   });
   const [notification, setNotification] = useState({});
-  const [validName, setValidName] = useState(true);
   const navigate = useNavigate();
 
   const CONTENTNAME = {
@@ -57,14 +56,6 @@ const SignUp = () => {
       ...prev,
       [name]: value,
     }));
-    if (name === "Username") {
-      if (/[#$%&\*\\\/]/.test(value)) {
-        setValidName(false);
-        console.log("bad");
-      } else {
-        setValidName(true);
-      }
-    }
   };
 
   const handleSignUpClick = async () => {
@@ -119,7 +110,26 @@ const SignUp = () => {
                   const Component = m.includes("Password")
                     ? InfoContainer.Password
                     : InfoContainer.Input;
-                  return (
+                  return m.includes("name") ? (
+                    <Form.Item
+                      name="username"
+                      rules={[
+                        {
+                          pattern: /^[^#$%&*/?@]*$/,
+                          validateTrigger: "onChange",
+                          message: "Please avoid `#$%&*/?@",
+                        },
+                      ]}
+                      style={{ margin: 0 }}
+                    >
+                      <Component
+                        placeholder={CONTENTNAME[m]}
+                        name={m}
+                        onChange={handleSignupChange}
+                        key={index}
+                      />
+                    </Form.Item>
+                  ) : (
                     <Component
                       placeholder={CONTENTNAME[m]}
                       name={m}
@@ -165,7 +175,8 @@ const SignUp = () => {
                   !signupData.Password ||
                   !signupData.Email ||
                   !signupData["Confirm Password"] ||
-                  signupData.Password !== signupData["Confirm Password"]
+                  signupData.Password !== signupData["Confirm Password"] ||
+                  !/^[^#$%&*/?@]*$/.test(signupData.Username)
                 }
                 onClick={handleSignUpClick}
               >
