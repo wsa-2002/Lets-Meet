@@ -105,7 +105,7 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
         host_member_id=host_account_id,
         member_ids=data.member_ids,
         description=data.description,
-        guest_name=f"guest_{data.guest_name}",
+        guest_name=f"guest_{data.guest_name}" if data.guest_name else None,
         guest_passhash=hash_password(data.guest_password) if data.guest_password else None,
     )
     if data.member_ids:
