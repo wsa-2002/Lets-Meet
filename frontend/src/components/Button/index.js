@@ -45,6 +45,9 @@ const GoogleButton = styled(BaseButton)`
   column-gap: ${RWDWidth(20)};
   font-size: ${RWDFontSize(21)};
   font-weight: 900;
+  div {
+    display: block;
+  }
 `;
 
 const RoundButton = styled(BaseButton)`
