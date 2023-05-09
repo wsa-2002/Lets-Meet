@@ -111,17 +111,15 @@ export default (type) => {
         );
 
       case "guestName":
-        const { form } = prop;
+        const { handleFormChange, form } = prop;
         Component = (
           <ContentContainer
-            form={form}
             style={{
               position: "relative",
               rowGap: RWDHeight(35),
             }}
           >
             <Form.Item
-              name="username"
               rules={[
                 {
                   required: true,
@@ -129,10 +127,14 @@ export default (type) => {
                 },
               ]}
               style={{ margin: 0 }}
+              onChange={handleFormChange("username")}
             >
               <MainInput placeholder="Your name" />
             </Form.Item>
-            <Form.Item name="password" style={{ margin: 0 }}>
+            <Form.Item
+              style={{ margin: 0 }}
+              onChange={handleFormChange("password")}
+            >
               <MainPassword placeholder="Password (optional)" />
             </Form.Item>
             <Form.Item style={{ margin: 0, alignSelf: "flex-end" }}>
@@ -141,7 +143,7 @@ export default (type) => {
                 buttonTheme="#B8D8BA"
                 variant="solid"
                 onClick={handleModalOk}
-                disabled={!form.getFieldValue().username}
+                disabled={!form.username}
               >
                 OK
               </ModalButton>

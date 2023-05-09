@@ -82,8 +82,15 @@ const MeetInfo = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { code } = useParams();
-  const [form] = Form.useForm();
   // const oriRawMeetInfo = useMemo(() => rawMeetInfo, [editMode]);
+
+  /*調整 guest name 套組*/
+  const [form, setForm] = useState({ username: "", password: "" });
+  const handleFormChange = (name) => (e) => {
+    setForm((prev) => ({ ...prev, [name]: e.target.value }));
+  };
+
+  /******************************************************/
 
   const handleMeetInfo = async () => {
     try {
@@ -271,7 +278,7 @@ const MeetInfo = () => {
   };
 
   const handleModalOk = async () => {
-    const { username, password } = form.getFieldValue();
+    const { username, password } = form;
     const { error } = await joinMeet(code, cookies.token, {
       name: username,
       password,
@@ -586,6 +593,7 @@ const MeetInfo = () => {
               open={isModalVoteOpen}
               setOpen={setIsModalVoteOpen}
               handleModalOk={handleModalOk}
+              handleFormChange={handleFormChange}
             />
           </Base.FullContainer>
         </Base>
