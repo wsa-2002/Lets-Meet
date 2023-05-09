@@ -289,8 +289,8 @@ const MeetInfo = () => {
       } else {
         setRawMeetInfo((prev) => ({
           ...prev,
-          [name[0]]: func(e[0], 1),
-          [name[1]]: func(e[1], 0),
+          [name[0]]: e ? func(e[0], 1) : undefined,
+          [name[1]]: e ? func(e[1], 0) : undefined,
         }));
       }
     };
