@@ -23,6 +23,7 @@ const PrimaryButton = Button();
 const ShortInput = Input("shorter");
 const RectButton = Button("rect");
 const joinMeet = meet("join");
+const getMeetInfo = meet("read");
 const GuestNameModal = Modal("guestName");
 
 const JoinMeet = Object.assign(
@@ -77,6 +78,21 @@ const Mainpage = () => {
   const invite = useRef(null);
   const [form] = Form.useForm();
 
+  useEffect(() => {
+    setMeetData({
+      meet_name: "",
+      start_date: "",
+      end_date: "",
+      start_time_slot_id: 0,
+      end_time_slot_id: 0,
+      gen_meet_url: false,
+      voting_end_time: undefined,
+      description: "",
+      member_ids: [],
+      emails: [],
+    });
+  }, [login]);
+
   /*調整 invitation area 套組*/
   const ref = useRef(null); //追蹤LetMEET
   const [width, setWidth] = useState(ref?.current?.offsetWidth);
@@ -108,6 +124,23 @@ const Mainpage = () => {
             title: "Invitation code error",
             message: "The invitation code is invalid.",
           });
+          return;
+        }
+        if (error && error !== "UniqueViolationError") {
+          setError(error);
+          return;
+        }
+      } else {
+        const { error } = await getMeetInfo(
+          invite.current.input.value,
+          cookies.token
+        );
+        if (error && error === "NotFound") {
+          setNotification({
+            title: "Invitation code error",
+            message: "The invitation code is invalid.",
+          });
+          return;
         }
         if (error && error !== "UniqueViolationError") {
           setError(error);

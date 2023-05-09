@@ -113,11 +113,16 @@ const Voting = () => {
   useEffect(() => {
     (async () => {
       if (DATERANGE.length && TIMESLOTIDS.length && ROUTINE) {
-        const { data: myAvailability } = await getMyAvailability(
+        const { data: myAvailability, error } = await getMyAvailability(
           code,
           cookies.token,
           location?.state?.guestName
         );
+        if (error) {
+          setError(error);
+          setExist(false);
+          return;
+        }
         setCell(
           DATERANGE.map((w) =>
             TIMESLOTIDS.map((t) =>

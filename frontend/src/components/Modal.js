@@ -141,6 +141,7 @@ export default (type) => {
                 buttonTheme="#B8D8BA"
                 variant="solid"
                 onClick={handleModalOk}
+                disabled={!form.getFieldValue().username}
               >
                 OK
               </ModalButton>
@@ -187,6 +188,7 @@ export default (type) => {
     }
     return (
       <Modal
+        forceRender
         centered
         closable={false}
         footer={null}
