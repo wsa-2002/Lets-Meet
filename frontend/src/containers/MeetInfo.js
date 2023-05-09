@@ -270,13 +270,17 @@ const MeetInfo = () => {
 
   const handleModalOk = async () => {
     const { username, password } = form.getFieldValue();
-    await joinMeet(code, cookies.token, { name: username, password });
-    navigate(`/voting/${code}`, {
-      state: {
-        guestName: username,
-        guestPassword: password,
-      },
+    const { error } = await joinMeet(code, cookies.token, {
+      name: username,
+      password,
     });
+    console.log(error);
+    // navigate(`/voting/${code}`, {
+    //   state: {
+    //     guestName: username,
+    //     guestPassword: password,
+    //   },
+    // });
     setIsModalVoteOpen(false);
   };
 
