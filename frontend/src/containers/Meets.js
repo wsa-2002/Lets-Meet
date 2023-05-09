@@ -101,7 +101,7 @@ const Meets = () => {
                 name: curr.title,
                 host: curr.host_username,
                 code: curr.invite_code,
-                votingPeriod: `${curr.start_date.replaceAll(
+                votingDeadline: `${curr.start_date.replaceAll(
                   "-",
                   "/"
                 )} ~ ${curr.end_date.replaceAll("-", "/")}`,
