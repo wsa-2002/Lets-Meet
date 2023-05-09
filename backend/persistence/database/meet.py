@@ -115,7 +115,7 @@ async def read(meet_id: int, include_deleted: bool = False) -> do.Meet:
 async def is_authed(meet_id: int, member_id: int = None, name: str = None, only_host: bool = False) -> bool:
     if not member_id and not name:
         return False
-
+    name = f"guest_{name}" if name else None
     sql, params = pyformat2psql(
         sql=fr"SELECT * FROM meet_member"
             fr" WHERE meet_id = %(meet_id)s"
@@ -306,6 +306,7 @@ async def update_status(meet_id: int, status: enums.StatusType) -> None:
 
 async def add_member(meet_id: int, account_id: Optional[int] = None,
                      name: Optional[str] = None, pass_hash: Optional[str] = None) -> None:
+    name = f"guest_{name}" if name else None
     sql, params = pyformat2psql(
         sql=fr'INSERT INTO meet_member'
             fr'            (name, member_id, meet_id, pass_hash)'

@@ -244,7 +244,7 @@ async def join_meet_by_invite_code(code: str, data: JoinMeetInput):
     if data.name in names:
         raise exc.UsernameExists
     await db.meet.add_member(meet_id=meet.id, account_id=account_id,
-                             name=f"guest_{data.name}" if data.name else None,
+                             name=data.name,
                              pass_hash=hash_password(data.password) if data.password else None)
 
     meet.status = await update_status(meet.id, meet, request.time, account_id)
