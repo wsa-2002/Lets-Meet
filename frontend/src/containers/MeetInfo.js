@@ -401,6 +401,7 @@ const MeetInfo = () => {
                     ElementMeetInfo={elementMeetInfo}
                     rawMeetInfo={rawMeetInfo}
                     reviseMode={editMode}
+                    confirmed={confirmed}
                     member={forMemberDataFormat}
                   />
                   <div
