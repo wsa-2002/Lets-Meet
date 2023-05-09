@@ -61,6 +61,11 @@ const MeetContainer = styled.div`
     color: #7a3e00 !important;
     border-bottom: 1px solid #7a3e00 !important;
   }
+  tbody .icon {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
 `;
 
 const CONFIRMTAG = ["Confirming", "Confirmed", "Need Confirmation"];
@@ -181,11 +186,15 @@ const Meets = () => {
           variant="icon"
           buttonTheme="#D8D8D8"
           icon={<ArrowRightOutlined />}
+          style={{ position: "absolute", right: 0 }}
           // onClick={handleMeetInfoClick}
         />
       ),
     },
-  ].map((m) => ({ ...m, className: "meetTableColumn" }));
+  ].map((m) => ({
+    ...m,
+    className: m ? "meetTableColumn" : "meetTableColumn icon",
+  }));
 
   return (
     <Base login={true}>

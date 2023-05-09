@@ -14,6 +14,7 @@ import Button from "../../components/Button";
 import Input from "../../components/Input";
 import MeetInfo from "../../components/MeetInfo";
 import Modal from "../../components/Modal";
+import Notification from "../../components/Notification";
 import Title from "../../components/Title";
 import { addMeet, meet } from "../../middleware";
 import { RWD } from "../../constant";
@@ -68,6 +69,7 @@ const Mainpage = () => {
     emails: [], //[String]
   });
   const [guestCreateModalOpen, setGuestCreateModalOpen] = useState(false);
+  const [notification, setNotification] = useState({});
 
   const { login, cookies, setError } = useMeet();
   const navigate = useNavigate();
@@ -101,6 +103,12 @@ const Mainpage = () => {
           invite.current.input.value,
           cookies.token
         );
+        if (error && error === "NotFound") {
+          setNotification({
+            title: "Invitation code error",
+            message: "The invitation code is invalid.",
+          });
+        }
         if (error && error !== "UniqueViolationError") {
           setError(error);
           return;
@@ -159,78 +167,87 @@ const Mainpage = () => {
   };
 
   return (
-    <Base title_disable={true} login={login}>
-      <Base.LeftContainer
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <JoinMeet>
-          <JoinMeet.Title>{t("joinMeet")}</JoinMeet.Title>
-          <JoinMeet.InvitationArea style={{ maxWidth: width }}>
-            <JoinMeet.InvitationArea.Input
-              placeholder={t("invitation")}
-              ref={invite}
-              onKeyDown={handleInvite}
-            />
-            <RectButton
-              buttonTheme="#FFA601"
-              variant="solid"
-              icon={<ArrowRightOutlined />}
-              onClick={handleInvite}
-              style={{
-                width: RWDFontSize(50),
-                height: RWDFontSize(45),
-                fontSize: RWDFontSize(16),
-              }}
-            />
-          </JoinMeet.InvitationArea>
-        </JoinMeet>
-        <Title ref={ref} style={{ position: "relative", bottom: "20%" }}>
-          Let's meet
-        </Title>
-      </Base.LeftContainer>
-      <Base.RightContainer
-        style={{ justifyContent: "flex-start", flexDirection: "column" }}
-      >
-        <div
+    <>
+      <Notification
+        notification={notification}
+        setNotification={setNotification}
+      />
+      <Base title_disable={true} login={login}>
+        <Base.LeftContainer
           style={{
-            position: "relative",
-            marginLeft: RWDWidth(120),
-            marginTop: RWDHeight(180),
-            alignSelf: "flex-start",
             display: "flex",
             flexDirection: "column",
-            rowGap: RWDHeight(35),
+            // alignItems: "center",
+            paddingLeft: RWDWidth(101),
+            justifyContent: "space-between",
           }}
         >
-          <MeetInfo.Title>{t("createMeet")}</MeetInfo.Title>
-          <MeetInfo
-            rowGap={30}
-            columnGap={55}
-            handleMeetDataChange={handleMeetDataChange}
-            login={login}
-            setMeetData={setMeetData}
-            rawMeetInfo={meetData}
-          />
-        </div>
-        <PrimaryButton
-          style={{ position: "relative", top: RWDHeight(8) }}
-          onClick={handleMeetCreate}
+          <JoinMeet>
+            <JoinMeet.Title>{t("joinMeet")}</JoinMeet.Title>
+            <JoinMeet.InvitationArea style={{ maxWidth: width }}>
+              <JoinMeet.InvitationArea.Input
+                placeholder={t("invitation")}
+                ref={invite}
+                onKeyDown={handleInvite}
+              />
+              <RectButton
+                buttonTheme="#FFA601"
+                variant="solid"
+                icon={<ArrowRightOutlined />}
+                onClick={handleInvite}
+                style={{
+                  width: RWDFontSize(50),
+                  height: RWDFontSize(45),
+                  fontSize: RWDFontSize(16),
+                }}
+              />
+            </JoinMeet.InvitationArea>
+          </JoinMeet>
+          <Title ref={ref} style={{ position: "relative", bottom: "20%" }}>
+            Let's meet
+          </Title>
+        </Base.LeftContainer>
+        <Base.RightContainer
+          style={{ justifyContent: "flex-start", flexDirection: "column" }}
         >
-          {t("create")}
-        </PrimaryButton>
-      </Base.RightContainer>
-      <GuestNameModal
-        form={form}
-        open={guestCreateModalOpen}
-        setOpen={setGuestCreateModalOpen}
-        handleModalOk={handleOk}
-      ></GuestNameModal>
-    </Base>
+          <div
+            style={{
+              position: "relative",
+              marginLeft: RWDWidth(120),
+              marginTop: RWDHeight(180),
+              alignSelf: "flex-start",
+              display: "flex",
+              flexDirection: "column",
+              rowGap: RWDHeight(35),
+            }}
+          >
+            <MeetInfo.Title>{t("createMeet")}</MeetInfo.Title>
+            <MeetInfo
+              rowGap={30}
+              columnGap={55}
+              handleMeetDataChange={handleMeetDataChange}
+              login={login}
+              setMeetData={setMeetData}
+              rawMeetInfo={meetData}
+            />
+            <PrimaryButton
+              style={{
+                alignSelf: "flex-end",
+              }}
+              onClick={handleMeetCreate}
+            >
+              {t("create")}
+            </PrimaryButton>
+          </div>
+        </Base.RightContainer>
+        <GuestNameModal
+          form={form}
+          open={guestCreateModalOpen}
+          setOpen={setGuestCreateModalOpen}
+          handleModalOk={handleOk}
+        ></GuestNameModal>
+      </Base>
+    </>
   );
 };
 

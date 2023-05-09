@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Base from "../components/Base/145MeetRelated";
 import { useMeet } from "../containers/hooks/useMeet";
 import "./styles.css";
@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { RWD } from "../constant";
 import CustomTuiCalendar from "./components/CustomTuiCalendar";
 // import CustomTuiModal from "./components/CustomTuiModal";
+import { getCalendar } from "../middleware";
 const { RWDWidth, RWDHeight, RWDVmin } = RWD;
 
 const CalendarContainer = styled.div`
@@ -153,7 +154,18 @@ export default function App() {
   const [modal, setModal] = useState(false);
   const [event, setEvent] = useState(null);
   const childRef = useRef();
-  const { login } = useMeet();
+  const { login, cookies } = useMeet();
+
+  useEffect(() => {
+    (async () => {
+      if (login) {
+        const { data } = await getCalendar(
+          { start_date: "2023-01-01", end_date: "2023-01-07" },
+          cookies.token
+        );
+      }
+    })();
+  }, [login]);
 
   const toggle = () => {
     setModal(!modal);

@@ -4,6 +4,7 @@ const URL = {
   browseMeet: "/meet",
   emailVerification: "/email-verification",
   getRoutine: "/routine",
+  getCalendar: "/meet-calendar",
 };
 
 export default Object.keys(URL).reduce((acc, curr) => {
