@@ -172,7 +172,8 @@ const Member = ({ setMeetData, Input, rawMember = [] }) => {
   };
 
   const handleMemberSelect = (e) => {
-    setSelectedKeys([e.target.firstChild.data]);
+    console.log(e);
+    setSelectedKeys([e.target.firstChild.dataset.username]);
   };
 
   const handleMemberClick = (e) => {
