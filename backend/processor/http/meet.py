@@ -109,11 +109,11 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
         guest_passhash=hash_password(data.guest_password) if data.guest_password else None,
     )
     if data.member_ids:
-        for id in data.member_ids:
+        for _, id in enumerate(set(data.member_ids)):
             account = await db.account.get_email(member_id=id)
             await email.invite_to_meet.send(to=account.email, meet_code=invite_code)
     if data.emails:
-        for user_email in data.emails:
+        for _,  user_email in enumerate(set(data.emails)):
             await email.invite_to_meet.send(to=user_email, meet_code=invite_code)
 
     meet = await db.meet.read(meet_id=meet_id)
