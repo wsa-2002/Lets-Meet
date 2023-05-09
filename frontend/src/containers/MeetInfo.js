@@ -19,6 +19,7 @@ import Test from "../components/Modal";
 import Tag from "../components/Tag";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
 import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
+import Error from "./Error";
 import { meet, getGroupAvailability } from "../middleware";
 const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
 const MemberTag = Tag("member");
@@ -74,9 +75,8 @@ const MeetInfo = () => {
   const [confirmed, setConfirmed] = useState(false); // meet 的狀態 (Confirmed)
   const [confirmedTime, setConfirmedTime] = useState({ date: "", timeID: [] });
   const [editMode, setEditMode] = useState(false); //是否為編輯模式
-  const [exist, setExist] = useState(undefined); // meet是否存在
 
-  const { login, cookies, ID, setError, setLoading } = useMeet();
+  const { login, cookies, setLoading } = useMeet();
   const navigate = useNavigate();
   const location = useLocation();
   const { code } = useParams();
@@ -190,6 +190,10 @@ const MeetInfo = () => {
     }
   };
 
+  /*檢驗身分*/
+  const [exist, setExist] = useState(undefined); // meet是否存在
+  const { ID, error, setError } = useMeet();
+
   useEffect(() => {
     (async () => {
       if (code && exist) {
@@ -205,14 +209,16 @@ const MeetInfo = () => {
       if (exist === undefined) {
         const { error } = await getMeetInfo(code, cookies.token);
         if (error) {
-          setExist(false);
           setError(error);
+          setExist(false);
           return;
         }
+        setError("");
         setExist(true);
       }
     })();
   }, []);
+  /******************************************************/
 
   useEffect(() => {
     if (groupAvailabilityInfo.length) {
@@ -293,269 +299,275 @@ const MeetInfo = () => {
   };
 
   return (
-    <motion.div
-    //  {...PAGE_TRANSITION.RightSlideIn}
-    >
-      <Base login={login}>
-        <Base.FullContainer>
-          {elementMeetInfo?.["Meet Name"] && (
-            <Base.FullContainer.ContentContainer>
-              <ContentContainer.Title
-                style={{ columnGap: RWDWidth(10), position: "relative" }}
-              >
-                {editMode ? (
-                  "Edit Meet"
-                ) : (
-                  <>
-                    <BackButton
-                      style={{
-                        position: "absolute",
-                        right: "100%",
-                        marginRight: RWDWidth(30),
-                      }}
-                      onClick={() => {
-                        if (cookies.token) {
-                          navigate("/meets");
-                        } else {
-                          navigate("/");
-                        }
-                      }}
-                    />
-                    {elementMeetInfo["Meet Name"]}
-                    {host && (
+    exist !== undefined &&
+    (error ? (
+      <Error />
+    ) : (
+      <motion.div
+      //  {...PAGE_TRANSITION.RightSlideIn}
+      >
+        <Base login={login}>
+          <Base.FullContainer>
+            {elementMeetInfo?.["Meet Name"] && (
+              <Base.FullContainer.ContentContainer>
+                <ContentContainer.Title
+                  style={{ columnGap: RWDWidth(10), position: "relative" }}
+                >
+                  {editMode ? (
+                    "Edit Meet"
+                  ) : (
+                    <>
+                      <BackButton
+                        style={{
+                          position: "absolute",
+                          right: "100%",
+                          marginRight: RWDWidth(30),
+                        }}
+                        onClick={() => {
+                          if (cookies.token) {
+                            navigate("/meets");
+                          } else {
+                            navigate("/");
+                          }
+                        }}
+                      />
+                      {elementMeetInfo["Meet Name"]}
+                      {host && (
+                        <>
+                          <EditFilled
+                            onClick={() => {
+                              setEditMode((prev) => !prev);
+                            }}
+                          />
+                          {!confirmed && (
+                            <RectButton
+                              buttonTheme="#DB8600"
+                              variant="solid"
+                              onClick={() => {
+                                navigate(`/confirm/${code}`);
+                              }}
+                              style={{ position: "absolute", right: 0 }}
+                            >
+                              Confirm Meet
+                            </RectButton>
+                          )}
+                        </>
+                      )}
+                    </>
+                  )}
+                </ContentContainer.Title>
+                <ContentContainer.InfoContainer>
+                  <MeetInfoEdit
+                    handleMeetDataChange={handleMeetDataChange}
+                    columnGap={20}
+                    rowGap={30}
+                    login={login}
+                    setMeetData={setRawMeetInfo}
+                    ElementMeetInfo={elementMeetInfo}
+                    rawMeetInfo={rawMeetInfo}
+                    reviseMode={editMode}
+                    member={forMemberDataFormat}
+                  />
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      alignSelf: "flex-end",
+                      columnGap: RWDWidth(15),
+                    }}
+                  >
+                    {editMode ? (
                       <>
-                        <EditFilled
+                        <RectButton
+                          buttonTheme="#D8D8D8"
+                          variant="hollow"
                           onClick={() => {
-                            setEditMode((prev) => !prev);
+                            setEditMode(false);
                           }}
-                        />
+                        >
+                          Cancel
+                        </RectButton>
+                        <RectButton
+                          buttonTheme="#5A8EA4"
+                          variant="solid"
+                          onClick={handleEditDone}
+                          // disabled={_.isEqual(rawMeetInfo, oriRawMeetInfo)}
+                        >
+                          Done
+                        </RectButton>
+                      </>
+                    ) : (
+                      <>
+                        <RectButton
+                          buttonTheme="#FBAE98"
+                          variant="hollow"
+                          onClick={() => {
+                            if (!login) {
+                              navigate("/");
+                            }
+                            setIsModalLeaveOpen(true);
+                          }}
+                        >
+                          {host ? "Delete" : "Leave"} Meet
+                        </RectButton>
                         {!confirmed && (
                           <RectButton
                             buttonTheme="#DB8600"
                             variant="solid"
-                            onClick={() => {
-                              navigate(`/confirm/${code}`);
-                            }}
-                            style={{ position: "absolute", right: 0 }}
+                            onClick={handleVote}
                           >
-                            Confirm Meet
+                            Vote
                           </RectButton>
                         )}
                       </>
                     )}
-                  </>
-                )}
-              </ContentContainer.Title>
-              <ContentContainer.InfoContainer>
-                <MeetInfoEdit
-                  handleMeetDataChange={handleMeetDataChange}
-                  columnGap={20}
-                  rowGap={30}
-                  login={login}
-                  setMeetData={setRawMeetInfo}
-                  ElementMeetInfo={elementMeetInfo}
-                  rawMeetInfo={rawMeetInfo}
-                  reviseMode={editMode}
-                  member={forMemberDataFormat}
-                />
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    alignSelf: "flex-end",
-                    columnGap: RWDWidth(15),
-                  }}
-                >
-                  {editMode ? (
-                    <>
-                      <RectButton
-                        buttonTheme="#D8D8D8"
-                        variant="hollow"
-                        onClick={() => {
-                          setEditMode(false);
-                        }}
-                      >
-                        Cancel
-                      </RectButton>
-                      <RectButton
-                        buttonTheme="#5A8EA4"
-                        variant="solid"
-                        onClick={handleEditDone}
-                        // disabled={_.isEqual(rawMeetInfo, oriRawMeetInfo)}
-                      >
-                        Done
-                      </RectButton>
-                    </>
-                  ) : (
-                    <>
-                      <RectButton
-                        buttonTheme="#FBAE98"
-                        variant="hollow"
-                        onClick={() => {
-                          if (!login) {
-                            navigate("/");
-                          }
-                          setIsModalLeaveOpen(true);
-                        }}
-                      >
-                        {host ? "Delete" : "Leave"} Meet
-                      </RectButton>
-                      {!confirmed && (
-                        <RectButton
-                          buttonTheme="#DB8600"
-                          variant="solid"
-                          onClick={handleVote}
-                        >
-                          Vote
-                        </RectButton>
-                      )}
-                    </>
-                  )}
-                </div>
-              </ContentContainer.InfoContainer>
-              <ContentContainer.GroupAvailability>
-                {t("groupAva")}
-              </ContentContainer.GroupAvailability>
-              {DATERANGE.length && TIMESLOTIDS.length && (
-                <ScrollSync>
-                  <VotingArea>
-                    <GroupAvailability.VotingContainer>
-                      <ScrollSyncPane>
-                        <VotingContainer.DayContainer>
-                          <DayContainer.TimeContainer
-                            style={{ paddingTop: RWDHeight(30) }}
-                          >
-                            {slotIDProcessing(TIMESLOTIDS[0])}
-                          </DayContainer.TimeContainer>
-                          {DATERANGE.map((w, index) => (
-                            <DayContainer.CellContainer
-                              key={index}
-                              // ref={w === "WED" ? ref : null}
-                            >
-                              <div style={{ userSelect: "none" }}>
-                                {moment(w).format("MMM DD")}
-                              </div>
-                              <div
-                                style={{
-                                  userSelect: "none",
-                                  fontWeight: "bold",
-                                }}
-                              >
-                                {moment(w).format("ddd")}
-                              </div>
-                            </DayContainer.CellContainer>
-                          ))}
-                        </VotingContainer.DayContainer>
-                      </ScrollSyncPane>
-
-                      {TIMESLOTIDS.slice(1).map((t, t_index) => (
-                        <ScrollSyncPane key={t_index}>
+                  </div>
+                </ContentContainer.InfoContainer>
+                <ContentContainer.GroupAvailability>
+                  {t("groupAva")}
+                </ContentContainer.GroupAvailability>
+                {DATERANGE.length && TIMESLOTIDS.length && (
+                  <ScrollSync>
+                    <VotingArea>
+                      <GroupAvailability.VotingContainer>
+                        <ScrollSyncPane>
                           <VotingContainer.DayContainer>
-                            <DayContainer.TimeContainer>
-                              {slotIDProcessing(t)}
+                            <DayContainer.TimeContainer
+                              style={{ paddingTop: RWDHeight(30) }}
+                            >
+                              {slotIDProcessing(TIMESLOTIDS[0])}
                             </DayContainer.TimeContainer>
-                            {DATERANGE.map((date, w_index) => (
-                              <DayContainer.CellContainer key={w_index}>
-                                <InfoCell
+                            {DATERANGE.map((w, index) => (
+                              <DayContainer.CellContainer
+                                key={index}
+                                // ref={w === "WED" ? ref : null}
+                              >
+                                <div style={{ userSelect: "none" }}>
+                                  {moment(w).format("MMM DD")}
+                                </div>
+                                <div
                                   style={{
-                                    backgroundColor:
-                                      date === confirmedTime.date &&
-                                      confirmedTime.timeID.includes(t - 1)
-                                        ? "#F25C54"
-                                        : confirmed
-                                        ? "#F0F0F0"
-                                        : CELLCOLOR[
-                                            w_index * (TIMESLOTIDS.length - 1) +
-                                              t_index
-                                          ],
+                                    userSelect: "none",
+                                    fontWeight: "bold",
                                   }}
-                                  info={
-                                    <InfoTooltip
-                                      available_members={
-                                        groupAvailabilityInfo?.[
-                                          w_index * (TIMESLOTIDS.length - 1) +
-                                            t_index
-                                        ]?.available_members
-                                      }
-                                      unavailable_members={
-                                        groupAvailabilityInfo?.[
-                                          w_index * (TIMESLOTIDS.length - 1) +
-                                            t_index
-                                        ]?.unavailable_members
-                                      }
-                                    />
-                                  }
-                                />
+                                >
+                                  {moment(w).format("ddd")}
+                                </div>
                               </DayContainer.CellContainer>
                             ))}
                           </VotingContainer.DayContainer>
                         </ScrollSyncPane>
-                      ))}
-                    </GroupAvailability.VotingContainer>
-                  </VotingArea>
-                </ScrollSync>
-              )}
-            </Base.FullContainer.ContentContainer>
-          )}
-          <Modal
-            bodyStyle={{ height: RWDHeight(30) }}
-            centered
-            closable={false}
-            footer={
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                }}
-              >
-                <ModalButton
-                  buttonTheme="#B8D8BA"
-                  variant="solid"
-                  onClick={() => {
-                    setIsModalLeaveOpen(false);
+
+                        {TIMESLOTIDS.slice(1).map((t, t_index) => (
+                          <ScrollSyncPane key={t_index}>
+                            <VotingContainer.DayContainer>
+                              <DayContainer.TimeContainer>
+                                {slotIDProcessing(t)}
+                              </DayContainer.TimeContainer>
+                              {DATERANGE.map((date, w_index) => (
+                                <DayContainer.CellContainer key={w_index}>
+                                  <InfoCell
+                                    style={{
+                                      backgroundColor:
+                                        date === confirmedTime.date &&
+                                        confirmedTime.timeID.includes(t - 1)
+                                          ? "#F25C54"
+                                          : confirmed
+                                          ? "#F0F0F0"
+                                          : CELLCOLOR[
+                                              w_index *
+                                                (TIMESLOTIDS.length - 1) +
+                                                t_index
+                                            ],
+                                    }}
+                                    info={
+                                      <InfoTooltip
+                                        available_members={
+                                          groupAvailabilityInfo?.[
+                                            w_index * (TIMESLOTIDS.length - 1) +
+                                              t_index
+                                          ]?.available_members
+                                        }
+                                        unavailable_members={
+                                          groupAvailabilityInfo?.[
+                                            w_index * (TIMESLOTIDS.length - 1) +
+                                              t_index
+                                          ]?.unavailable_members
+                                        }
+                                      />
+                                    }
+                                  />
+                                </DayContainer.CellContainer>
+                              ))}
+                            </VotingContainer.DayContainer>
+                          </ScrollSyncPane>
+                        ))}
+                      </GroupAvailability.VotingContainer>
+                    </VotingArea>
+                  </ScrollSync>
+                )}
+              </Base.FullContainer.ContentContainer>
+            )}
+            <Modal
+              bodyStyle={{ height: RWDHeight(30) }}
+              centered
+              closable={false}
+              footer={
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
                   }}
                 >
-                  NO
-                </ModalButton>
-                <ModalButton
-                  buttonTheme="#B8D8BA"
-                  variant="hollow"
-                  onClick={handleLeaveYes}
+                  <ModalButton
+                    buttonTheme="#B8D8BA"
+                    variant="solid"
+                    onClick={() => {
+                      setIsModalLeaveOpen(false);
+                    }}
+                  >
+                    NO
+                  </ModalButton>
+                  <ModalButton
+                    buttonTheme="#B8D8BA"
+                    variant="hollow"
+                    onClick={handleLeaveYes}
+                  >
+                    YES
+                  </ModalButton>
+                </div>
+              }
+              onCancel={() => {
+                setIsModalLeaveOpen(false);
+              }}
+              open={isModalLeaveOpen}
+              title={
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    columnGap: RWDWidth(12),
+                  }}
                 >
-                  YES
-                </ModalButton>
-              </div>
-            }
-            onCancel={() => {
-              setIsModalLeaveOpen(false);
-            }}
-            open={isModalLeaveOpen}
-            title={
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  columnGap: RWDWidth(12),
-                }}
-              >
-                <InfoCircleFilled style={{ color: "#FAAD14" }} />
-                <span>
-                  Are you sure you want to {host ? "delete" : "leave"} this
-                  meet?
-                </span>
-              </div>
-            }
-          />
-          <GuestNameModal
-            form={form}
-            open={isModalVoteOpen}
-            setOpen={setIsModalVoteOpen}
-            handleModalOk={handleModalOk}
-          ></GuestNameModal>
-        </Base.FullContainer>
-      </Base>
-    </motion.div>
+                  <InfoCircleFilled style={{ color: "#FAAD14" }} />
+                  <span>
+                    Are you sure you want to {host ? "delete" : "leave"} this
+                    meet?
+                  </span>
+                </div>
+              }
+            />
+            <GuestNameModal
+              form={form}
+              open={isModalVoteOpen}
+              setOpen={setIsModalVoteOpen}
+              handleModalOk={handleModalOk}
+            ></GuestNameModal>
+          </Base.FullContainer>
+        </Base>
+      </motion.div>
+    ))
   );
 };
 

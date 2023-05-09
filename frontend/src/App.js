@@ -39,10 +39,7 @@ function App() {
           <Routes>
             <Route element={<Main />} path="/" />
             <Route element={<Meets />} path="/meets" />
-            <Route
-              element={error ? <Error /> : <MeetInfo />}
-              path="/meets/:code"
-            />
+            <Route element={<MeetInfo />} path="/meets/:code" />
             <Route element={<Login />} path="/login" />
             <Route element={<Signup />} path="/signup" />
             <Route element={<Reset />} path="/reset" />

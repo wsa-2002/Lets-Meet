@@ -26,7 +26,6 @@ const MeetProvider = (props) => {
   useEffect(() => {
     if (cookies.token) {
       setLogin(true);
-      console.log(jwt(cookies.token).account_id);
       setID(jwt(cookies.token).account_id);
     }
   }, [cookies]);
