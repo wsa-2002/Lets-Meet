@@ -16,6 +16,7 @@ import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import MeetInfoEdit from "../components/MeetInfo";
 import Test from "../components/Modal";
+import Notification from "../components/Notification";
 import Tag from "../components/Tag";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
 import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
@@ -57,6 +58,7 @@ const MeetInfo = () => {
   const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
   const [groupAvailabilityInfo, setGroupAvailabilityInfo] = useState([]);
   const [CELLCOLOR, setCELLCOLOR] = useState([]);
+  const [notification, setNotification] = useState({});
 
   const [elementMeetInfo, setElementMeetInfo] = useState({
     "Meet Name": "",
@@ -275,13 +277,20 @@ const MeetInfo = () => {
       password,
     });
     console.log(error);
-    // navigate(`/voting/${code}`, {
-    //   state: {
-    //     guestName: username,
-    //     guestPassword: password,
-    //   },
-    // });
-    setIsModalVoteOpen(false);
+    if (error) {
+      setNotification({
+        title: "Incorrect password",
+        message: "The password you entered is incorrect.",
+      });
+    } else {
+      navigate(`/voting/${code}`, {
+        state: {
+          guestName: username,
+          guestPassword: password,
+        },
+      });
+      setIsModalVoteOpen(false);
+    }
   };
 
   const handleMeetDataChange =
@@ -319,6 +328,10 @@ const MeetInfo = () => {
       <motion.div
       //  {...PAGE_TRANSITION.RightSlideIn}
       >
+        <Notification
+          notification={notification}
+          setNotification={setNotification}
+        />
         <Base login={login}>
           <Base.FullContainer>
             {elementMeetInfo?.["Meet Name"] && (
