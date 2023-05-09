@@ -1,3 +1,4 @@
+import { Form } from "antd";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import Button from "../Button";
@@ -121,7 +122,7 @@ Base.RightContainer = Object.assign(
             flex-direction: column;
           `;
         */
-        InputContainer: styled.div`
+        InputContainer: styled(Form)`
           width: ${RWDWidth(350)};
           gap: ${RWDHeight(30)};
           display: flex;

@@ -149,7 +149,7 @@ const MeetInfo = () => {
             {host_info?.name ?? location.state?.guestName}
           </MemberTag>
         ),
-        Member: (
+        Member: member_infos.length ? (
           <div
             style={{
               display: "flex",
@@ -163,6 +163,8 @@ const MeetInfo = () => {
               <MemberTag key={index}>{m.name}</MemberTag>
             ))}
           </div>
+        ) : (
+          "None"
         ),
         Description: description ? description : "None",
         "Voting Deadline": voting_end_time
