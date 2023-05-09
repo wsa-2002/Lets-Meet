@@ -84,7 +84,7 @@ async def login(data: LoginInput, response: Response) -> LoginOutput:
     if not verify_password(data.password, pass_hash):
         raise exc.LoginFailed
 
-    token = encode_jwt(account_id=account_id)
+    token = encode_jwt(account_id=account_id, is_google_login=is_google_login)
     response.set_cookie(key="account_id", value=str(account_id))
     response.set_cookie(key="token", value=str(token))
     return LoginOutput(account_id=account_id, token=token)

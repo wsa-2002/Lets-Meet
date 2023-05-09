@@ -13,9 +13,10 @@ _jwt_encoder = partial(jwt.encode, key=jwt_config.jwt_secret, algorithm=jwt_conf
 _jwt_decoder = partial(jwt.decode, key=jwt_config.jwt_secret, algorithms=[jwt_config.jwt_encode_algorithm])
 
 
-def encode_jwt(account_id: int, expire: timedelta = jwt_config.login_expire) -> str:
+def encode_jwt(account_id: int, is_google_login: bool, expire: timedelta = jwt_config.login_expire) -> str:
     return _jwt_encoder({
         'account_id': account_id,
+        'is_google_login': is_google_login,
         'expire': (datetime.now() + expire).isoformat(),
     })
 
