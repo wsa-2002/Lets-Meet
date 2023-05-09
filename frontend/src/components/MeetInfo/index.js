@@ -219,6 +219,10 @@ const MeetInfo = ({
                   ? dayjs(rawMeetInfo.voting_end_time)
                   : undefined
               }
+              disabledDate={(current) =>
+                // Can not select days before today and today
+                current && current < moment().subtract(1, "days").endOf("day")
+              }
             />
             <MeetInfoContainer.Content.TimePicker
               placeholder={t("selectTime")}
