@@ -16,6 +16,7 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Vote from "../components/Vote";
 import TimeCell from "../components/TimeCell";
+import Error from "./Error";
 import {
   getGroupAvailability,
   getMyAvailability,
@@ -138,15 +139,6 @@ const Voting = () => {
   }, [DATERANGE, TIMESLOTIDS]);
 
   useEffect(() => {
-    (async () => {
-      if (code) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        handleMeetInfo();
-      }
-    })();
-  }, [code]);
-
-  useEffect(() => {
     if (VOTINGINFO.length) {
       const allMembersNum =
         VOTINGINFO?.[0]?.available_members.length +
@@ -160,6 +152,36 @@ const Voting = () => {
       );
     }
   }, [VOTINGINFO]); //設定 time cell 顏色
+
+  /*檢驗身分*/
+  const [exist, setExist] = useState(undefined); // meet是否存在
+  const { ID, error, setError } = useMeet();
+
+  useEffect(() => {
+    (async () => {
+      if (code && exist) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await handleMeetInfo();
+        setLoading(false);
+      }
+    })();
+  }, [code, ID, exist]);
+
+  useEffect(() => {
+    (async () => {
+      if (exist === undefined) {
+        const { error } = await getMeetInfo(code, cookies.token);
+        if (error) {
+          setError(error);
+          setExist(false);
+          return;
+        }
+        setError("");
+        setExist(true);
+      }
+    })();
+  }, []);
+  /******************************************************/
 
   const handleCellMouseUp = async (e) => {
     e.preventDefault();
@@ -289,95 +311,100 @@ const Voting = () => {
   }, [undo, redo, loading]);
 
   return (
-    <ScrollSync>
-      <motion.div {...PAGE_TRANSITION.RightSlideIn}>
-        <Base login={login} onMouseUp={handleCellMouseUp}>
-          <Base.FullContainer>
-            {cell.length > 0 && (
-              <Base.FullContainer.ContentContainer>
-                <ContentContainer.Title>
-                  <BackButton
-                    style={{
-                      position: "absolute",
-                      right: "100%",
-                      marginRight: RWDWidth(30),
-                    }}
-                    onClick={() => {
-                      navigate(`/meets/${code}`);
-                    }}
-                  ></BackButton>
-                  {title}
-                </ContentContainer.Title>
-                <ContentContainer.MyAvailability>
-                  {t("myAva")}
-                </ContentContainer.MyAvailability>
-                <ContentContainer.GroupAvailability>
-                  {t("groupAva")}
-                </ContentContainer.GroupAvailability>
-                <ContentContainer.MyAvailability.VotingArea>
-                  <Vote
-                    DATERANGE={DATERANGE}
-                    TIMESLOTIDS={TIMESLOTIDS}
-                    Cells={DATERANGE.map((_, d_index) =>
-                      TIMESLOTIDS.map((_, t_index) => (
-                        <DraggableCell
-                          style={{
-                            background:
-                              cell[d_index][t_index] === null
-                                ? "#808080"
-                                : cell[d_index][t_index]
-                                ? "#94C9CD"
-                                : "#F0F0F0",
-                          }}
-                          drag={drag}
-                          index={[d_index, t_index]}
-                          key={t_index}
-                        />
-                      ))
-                    )}
-                  />
-                </ContentContainer.MyAvailability.VotingArea>
-                <ContentContainer.MyAvailability.VotingArea
-                  style={{ gridColumn: "2/3" }}
-                >
-                  <Vote
-                    DATERANGE={DATERANGE}
-                    TIMESLOTIDS={TIMESLOTIDS}
-                    Cells={DATERANGE.map((_, d_index) =>
-                      TIMESLOTIDS.map((_, t_index) => (
-                        <InfoCell
-                          key={t_index}
-                          style={{
-                            backgroundColor:
-                              CELLCOLOR[
-                                d_index * (TIMESLOTIDS.length - 1) + t_index
-                              ],
-                          }}
-                          info={
-                            <InfoTooltip
-                              available_members={
-                                VOTINGINFO?.[
+    exist !== undefined &&
+    (error ? (
+      <Error />
+    ) : (
+      <ScrollSync>
+        <motion.div {...PAGE_TRANSITION.RightSlideIn}>
+          <Base login={login} onMouseUp={handleCellMouseUp}>
+            <Base.FullContainer>
+              {cell.length > 0 && (
+                <Base.FullContainer.ContentContainer>
+                  <ContentContainer.Title>
+                    <BackButton
+                      style={{
+                        position: "absolute",
+                        right: "100%",
+                        marginRight: RWDWidth(30),
+                      }}
+                      onClick={() => {
+                        navigate(`/meets/${code}`);
+                      }}
+                    ></BackButton>
+                    {title}
+                  </ContentContainer.Title>
+                  <ContentContainer.MyAvailability>
+                    {t("myAva")}
+                  </ContentContainer.MyAvailability>
+                  <ContentContainer.GroupAvailability>
+                    {t("groupAva")}
+                  </ContentContainer.GroupAvailability>
+                  <ContentContainer.MyAvailability.VotingArea>
+                    <Vote
+                      DATERANGE={DATERANGE}
+                      TIMESLOTIDS={TIMESLOTIDS}
+                      Cells={DATERANGE.map((_, d_index) =>
+                        TIMESLOTIDS.map((_, t_index) => (
+                          <DraggableCell
+                            style={{
+                              background:
+                                cell[d_index][t_index] === null
+                                  ? "#808080"
+                                  : cell[d_index][t_index]
+                                  ? "#94C9CD"
+                                  : "#F0F0F0",
+                            }}
+                            drag={drag}
+                            index={[d_index, t_index]}
+                            key={t_index}
+                          />
+                        ))
+                      )}
+                    />
+                  </ContentContainer.MyAvailability.VotingArea>
+                  <ContentContainer.MyAvailability.VotingArea
+                    style={{ gridColumn: "2/3" }}
+                  >
+                    <Vote
+                      DATERANGE={DATERANGE}
+                      TIMESLOTIDS={TIMESLOTIDS}
+                      Cells={DATERANGE.map((_, d_index) =>
+                        TIMESLOTIDS.map((_, t_index) => (
+                          <InfoCell
+                            key={t_index}
+                            style={{
+                              backgroundColor:
+                                CELLCOLOR[
                                   d_index * (TIMESLOTIDS.length - 1) + t_index
-                                ]?.available_members
-                              }
-                              unavailable_members={
-                                VOTINGINFO?.[
-                                  d_index * (TIMESLOTIDS.length - 1) + t_index
-                                ]?.unavailable_members
-                              }
-                            />
-                          }
-                        />
-                      ))
-                    )}
-                  />
-                </ContentContainer.MyAvailability.VotingArea>
-              </Base.FullContainer.ContentContainer>
-            )}
-          </Base.FullContainer>
-        </Base>
-      </motion.div>
-    </ScrollSync>
+                                ],
+                            }}
+                            info={
+                              <InfoTooltip
+                                available_members={
+                                  VOTINGINFO?.[
+                                    d_index * (TIMESLOTIDS.length - 1) + t_index
+                                  ]?.available_members
+                                }
+                                unavailable_members={
+                                  VOTINGINFO?.[
+                                    d_index * (TIMESLOTIDS.length - 1) + t_index
+                                  ]?.unavailable_members
+                                }
+                              />
+                            }
+                          />
+                        ))
+                      )}
+                    />
+                  </ContentContainer.MyAvailability.VotingArea>
+                </Base.FullContainer.ContentContainer>
+              )}
+            </Base.FullContainer>
+          </Base>
+        </motion.div>
+      </ScrollSync>
+    ))
   );
 };
 
