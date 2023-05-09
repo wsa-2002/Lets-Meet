@@ -197,6 +197,7 @@ const MeetInfo = ({
         {votingddl && (
           <>
             <MeetInfoContainer.Content.DatePicker
+              placeholder={t("selectDate")}
               onChange={handleMeetDataChange(
                 (i) =>
                   i
@@ -220,6 +221,7 @@ const MeetInfo = ({
               }
             />
             <MeetInfoContainer.Content.TimePicker
+              placeholder={t("selectTime")}
               onChange={handleMeetDataChange(
                 (i) =>
                   i
