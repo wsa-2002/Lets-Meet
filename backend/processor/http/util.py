@@ -101,6 +101,8 @@ async def compose_host_and_member_info(meet_id: int) -> Tuple[MemberInfo, typing
     host = None
     member_infos = []
     for (id_, name), v in member_auth.items():
+        if name.startswith('guest_'):
+            name = name.replace('guest_', '', 1)
         if not name:
             name = (await db.account.read(account_id=id_)).username
         if v:

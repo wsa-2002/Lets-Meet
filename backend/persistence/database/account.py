@@ -152,6 +152,7 @@ async def read(account_id: int) -> do.Account:
     return do.Account(id=id_, email=email, username=username, line_token=line_token,
                       notification_preference=notification_preference, is_google_login=is_google_login)
 
+
 async def get_google_token(account_id: int):
     sql, params = pyformat2psql(
         sql=fr"  SELECT access_token, refresh_token"
@@ -166,7 +167,7 @@ async def get_google_token(account_id: int):
     return access_token, refresh_token
 
 
-async def get_email(member_id: int) -> do.Account:
+async def get_email(member_id: int) -> do.AccountMail:
     sql, params = pyformat2psql(
         sql=fr"SELECT email, username"
             fr"  FROM account"
@@ -179,7 +180,8 @@ async def get_email(member_id: int) -> do.Account:
         raise exc.NotFound
     return do.AccountMail(email=email, username=username)
 
-async def get_not_yet_vote_emails(start_time: datetime, end_time: datetime) -> do.Account:
+
+async def get_not_yet_vote_emails(start_time: datetime, end_time: datetime) -> Sequence[do.MeetAndAccountMail]:
     sql, params = pyformat2psql(
         sql=fr"SELECT DISTINCT meet.title, account.email, account.username, CAST(meet.voting_end_time AS DATE), meet.invite_code"
             fr"           FROM meet"
@@ -207,7 +209,8 @@ async def get_not_yet_vote_emails(start_time: datetime, end_time: datetime) -> d
     return [do.MeetAndAccountMail(meet_title=title, username=username, email=email, time=voting_end_time, meet_code=invite_code)
             for title, email, username, voting_end_time, invite_code in records]
 
-async def get_event_member_emails(start_time: str, end_time: str, start_date: str) -> do.Account:
+
+async def get_event_member_emails(start_time: str, end_time: str, start_date: str) -> Sequence[do.MeetAndAccountMail]:
     sql, params = pyformat2psql(
         sql=fr"SELECT DISTINCT meet.title, account.email, account.username, time_slot.start_time, meet.invite_code"
             fr"           FROM event"
@@ -227,3 +230,14 @@ async def get_event_member_emails(start_time: str, end_time: str, start_date: st
         raise exc.NotFound
     return [do.MeetAndAccountMail(meet_title=title, username=username, email=email, time=start_time, meet_code=invite_code)
             for title, email, username, start_time, invite_code in records]
+
+
+async def is_valid_username(username: str) -> bool:
+    sql, params = pyformat2psql(
+        sql=fr"SELECT COUNT(*)"
+            fr"  FROM account"
+            fr" WHERE username = %(username)s",
+        username=username,
+    )
+    cnt, = await pool_handler.pool.fetchrow(sql, *params)
+    return cnt == 0

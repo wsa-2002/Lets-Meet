@@ -105,10 +105,10 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
         host_member_id=host_account_id,
         member_ids=data.member_ids,
         description=data.description,
-        guest_name=data.guest_name,
+        guest_name=f"guest_{data.guest_name}",
         guest_passhash=hash_password(data.guest_password) if data.guest_password else None,
     )
-    # TODO: send email to members and emails
+
     for id in data.member_ids:
         account = await db.account.get_email(member_id=id)
         await email.invite_to_meet.send(to=account.email, meet_code=invite_code)
@@ -237,8 +237,15 @@ async def join_meet_by_invite_code(code: str, data: JoinMeetInput):
         raise exc.IllegalInput
 
     meet = await db.meet.read_meet_by_code(invite_code=code)
+    if not await db.account.is_valid_username(data.name):
+        raise exc.UsernameExists
+    members = await db.meet_member.browse_meet_members_with_names(meet_id=meet.id)
+    names = [member.name for member in members]
+    if data.name in names:
+        raise exc.UsernameExists
     await db.meet.add_member(meet_id=meet.id, account_id=account_id,
-                             name=data.name, pass_hash=hash_password(data.password) if data.password else None)
+                             name=f"guest_{data.name}",
+                             pass_hash=hash_password(data.password) if data.password else None)
 
     meet.status = await update_status(meet.id, meet, request.time, account_id)
     host, member_infos = await compose_host_and_member_info(meet_id=meet.id)
