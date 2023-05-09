@@ -19,6 +19,12 @@ import slotIDProcessing from "../../util/slotIDProcessing";
 const ThinnerInput = Input("thinner");
 const { RWDWidth, RWDHeight, RWDFontSize, RWDRadius } = RWD;
 
+const CONFIRM_INEDITABLE = [
+  "Start / End Date",
+  "Start / End Time",
+  "Voting Deadline",
+];
+
 const RangeStyle = css`
   width: ${RWDWidth(350)};
   height: ${RWDHeight(32)};
@@ -93,6 +99,7 @@ const MeetInfo = ({
   ElementMeetInfo,
   rawMeetInfo,
   reviseMode = true,
+  confirmed = false,
   member,
   ...prop
 }) => {
@@ -326,7 +333,9 @@ const MeetInfo = ({
                 fontWeight: "normal",
               }}
             >
-              {reviseMode ? CONTENTMENU[title] : ElementMeetInfo[title]}
+              {reviseMode && (!confirmed || !CONFIRM_INEDITABLE.includes(title))
+                ? CONTENTMENU[title]
+                : ElementMeetInfo[title]}
             </MeetInfoContainer.Content>
           </Fragment>
         ))}
