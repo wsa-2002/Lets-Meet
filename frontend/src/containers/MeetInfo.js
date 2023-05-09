@@ -269,7 +269,6 @@ const MeetInfo = () => {
 
   const handleModalOk = async () => {
     const { username, password } = form.getFieldValue();
-    console.log(form.getFieldValue());
     await joinMeet(code, cookies.token, { name: username, password });
     navigate(`/voting/${code}`, {
       state: {
@@ -572,7 +571,7 @@ const MeetInfo = () => {
               open={isModalVoteOpen}
               setOpen={setIsModalVoteOpen}
               handleModalOk={handleModalOk}
-            ></GuestNameModal>
+            />
           </Base.FullContainer>
         </Base>
       </motion.div>
