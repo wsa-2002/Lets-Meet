@@ -169,11 +169,9 @@ export default (type = "primary") => {
         );
       case "primary":
         Component = (
-          <Tooltip title={"待補"} placement="bottom">
-            <PrimaryButton {...prop} type="primary">
-              {prop.children}
-            </PrimaryButton>
-          </Tooltip>
+          <PrimaryButton {...prop} type="primary">
+            {prop.children}
+          </PrimaryButton>
         );
         break;
       case "back":

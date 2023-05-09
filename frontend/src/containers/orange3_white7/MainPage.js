@@ -121,7 +121,6 @@ const Mainpage = () => {
   const handleMeetDataChange =
     (func, ...name) =>
     (e) => {
-      console.log(e);
       if (name.length === 1) {
         setMeetData((prev) => ({ ...prev, [name[0]]: func(e) }));
       } else {
@@ -232,10 +231,17 @@ const Mainpage = () => {
               rawMeetInfo={meetData}
             />
             <PrimaryButton
+              onClick={handleMeetCreate}
+              disabled={
+                !meetData.meet_name ||
+                !meetData.start_date ||
+                !meetData.end_date ||
+                !meetData.start_time_slot_id ||
+                !meetData.end_time_slot_id
+              }
               style={{
                 alignSelf: "flex-end",
               }}
-              onClick={handleMeetCreate}
             >
               {t("create")}
             </PrimaryButton>

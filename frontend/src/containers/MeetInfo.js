@@ -156,7 +156,7 @@ const MeetInfo = () => {
             ))}
           </div>
         ),
-        Description: description ?? "None",
+        Description: description ? description : "None",
         "Voting Deadline": voting_end_time
           ? moment(voting_end_time).format("YYYY/MM/DD HH:mm:ss")
           : "None",
