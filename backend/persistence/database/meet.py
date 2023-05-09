@@ -275,10 +275,10 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
                                    finalized_start_time_slot_id=finalized_start_time_slot_id,
                                    finalized_end_time_slot_id=finalized_end_time_slot_id, title=title)
             for meet_id, invite_code, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,
-                voting_end_time, meet_url,
+                voting_end_time, meet_url, host_account_id,
                 finalized_start_date, finalized_end_date,
                 finalized_start_time_slot_id, finalized_end_time_slot_id,
-                host_account_id, host_username, guest_host_username in records]  # noqa
+                host_username, guest_host_username in records]  # noqa
 
 
 async def has_voted(meet_id: int, account_id: int) -> bool:
