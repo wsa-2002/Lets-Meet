@@ -7,7 +7,6 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import BUTTONTHEME from "./theme";
 import { RWD } from "../../constant";
-import "./test.css";
 import { googleLogin } from "../../middleware";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 
