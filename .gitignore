@@ -3,6 +3,7 @@ node_module/
 .idea/
 db_data/
 git.js
+desktop.ini
 package.json
 yarn.lock
 .idea/
