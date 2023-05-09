@@ -138,7 +138,7 @@ const Voting = () => {
         )} ${slotIDProcessing(
           TIMESLOTIDS[updatedCell?.[0]?.[1]]
         )} ~ ${slotIDProcessing(
-          TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1]]
+          TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1] + 1]
         )}`
       );
       setStartDrag(false);
