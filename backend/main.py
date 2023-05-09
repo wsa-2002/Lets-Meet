@@ -3,11 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import app_config
 
+
 app = FastAPI(
     title=app_config.title,
     docs_url=app_config.docs_url,
     redoc_url=app_config.redoc_url,
 )
+
 
 origins = [
     'http://localhost',
@@ -29,7 +31,7 @@ async def app_startup():
     from config import db_config
     from persistence.database import pool_handler
     await pool_handler.initialize(db_config=db_config)
-
+    print('fwejfwefj')
     from config import smtp_config
     from persistence.email import smtp_handler
     await smtp_handler.initialize(smtp_config=smtp_config)

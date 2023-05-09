@@ -1,6 +1,7 @@
 from base import do, enums
 from typing import Tuple, Sequence
 import exceptions as exc  # noqa
+from datetime import datetime
 
 import asyncpg
 
@@ -154,7 +155,7 @@ async def read(account_id: int) -> do.Account:
 async def get_google_token(account_id: int):
     sql, params = pyformat2psql(
         sql=fr"  SELECT access_token, refresh_token"
-            fr"  FROM account"
+            fr"    FROM account"
             fr"  WHERE id = %(account_id)s",
         account_id=account_id
     )  
@@ -163,3 +164,66 @@ async def get_google_token(account_id: int):
     except TypeError:
         raise exc.NotFound
     return access_token, refresh_token
+
+
+async def get_email(member_id: int) -> do.Account:
+    sql, params = pyformat2psql(
+        sql=fr"SELECT email, username"
+            fr"  FROM account"
+            fr" WHERE id = %(member_id)s",
+        member_id=member_id
+    )
+    try:
+        email, username = await pool_handler.pool.fetchrow(sql, *params)
+    except TypeError:
+        raise exc.NotFound
+    return do.AccountMail(email=email, username=username)
+
+async def get_not_yet_vote_emails(start_time: datetime, end_time: datetime) -> do.Account:
+    sql, params = pyformat2psql(
+        sql=fr"SELECT DISTINCT meet.title, account.email, account.username, CAST(meet.voting_end_time AS DATE), meet.invite_code"
+            fr"           FROM meet"
+            fr"     INNER JOIN meet_member"
+            fr"             ON meet.id = meet_member.meet_id"
+            fr"     INNER JOIN account"
+            fr"             ON account.id = meet_member.member_id"
+            fr"          WHERE meet.voting_end_time BETWEEN %(start_time)s AND %(end_time)s"
+            fr"         EXCEPT ("
+            fr"SELECT DISTINCT meet.title, account.email, account.username, CAST(meet.voting_end_time AS DATE), meet.invite_code"
+            fr"           FROM meet"
+            fr"     INNER JOIN meet_member"
+            fr"             ON meet.id = meet_member.meet_id"
+            fr"     INNER JOIN meet_member_available_time"
+            fr"             ON meet_member.id = meet_member_available_time.meet_member_id"
+            fr"     INNER JOIN account"
+            fr"             ON account.id = meet_member.member_id"
+            fr"          WHERE meet.voting_end_time BETWEEN %(start_time)s AND %(end_time)s)",
+        start_time=start_time, end_time=end_time
+    )
+    try:
+        records = await pool_handler.pool.fetch(sql, *params)
+    except TypeError:
+        raise exc.NotFound
+    return [do.MeetAndAccountMail(meet_title=title, username=username, email=email, time=voting_end_time, meet_code=invite_code)
+            for title, email, username, voting_end_time, invite_code in records]
+
+async def get_event_member_emails(start_time: str, end_time: str, start_date: str) -> do.Account:
+    sql, params = pyformat2psql(
+        sql=fr"SELECT DISTINCT meet.title, account.email, account.username, time_slot.start_time, meet.invite_code"
+            fr"           FROM event"
+            fr"     INNER JOIN meet"
+            fr"             ON meet.id = event.meet_id"
+            fr"     INNER JOIN account"
+            fr"             ON event.account_id = account.id"
+            fr"     INNER JOIN time_slot"
+            fr"             ON meet.finalized_start_time_slot_id = time_slot.id"
+            fr"          WHERE time_slot.start_time BETWEEN %(start_time)s AND %(end_time)s"
+            fr"            AND meet.finalized_start_date = %(start_date)s",
+        start_time=start_time, end_time=end_time, start_date=start_date,
+    )
+    try:
+        records = await pool_handler.pool.fetch(sql, *params)
+    except TypeError:
+        raise exc.NotFound
+    return [do.MeetAndAccountMail(meet_title=title, username=username, email=email, time=start_time, meet_code=invite_code)
+            for title, email, username, start_time, invite_code in records]

@@ -50,7 +50,7 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
 
     meet_members = await db.meet_member.browse_meet_members_with_names(meet_id=meet_id)
     meet_member_ids = set(meet_member.member_id for meet_member in meet_members)
-    member_ids = list(data.member_ids)
+    member_ids = list(data.member_ids) if data.member_ids else []
     member_ids.append(request.account.id)
     removed_ids = list(meet_member_ids - set(member_ids))
     added_ids = list(set(member_ids) - meet_member_ids)
@@ -64,7 +64,6 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
         raise exc.IllegalInput
     if data.gen_meet_url and host_account.is_google_login and not meet.meet_url:
         meet_url = await GoogleCalendar(account_id=host_account.id).get_google_meet_url()
-
     await db.meet.edit(
         meet_id=meet_id,
         title=data.meet_name,
@@ -73,7 +72,7 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
         start_time_slot_id=data.start_time_slot_id,
         end_time_slot_id=data.end_time_slot_id,
         description=data.description,
-        voting_end_time=timezone_validate(meet.voting_end_time),
+        voting_end_time=timezone_validate(meet.voting_end_time) if meet.voting_end_time else None,
         gen_meet_url=data.gen_meet_url,
         meet_url=meet_url,
         status=status,
@@ -220,6 +219,6 @@ async def is_authed(meet_id: int, name: Optional[str] = None, password: Optional
         if pass_hash and not verify_password(password, pass_hash):
             return False
         return True
-    if not db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
+    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, name=name):
         return False
     return True
