@@ -15,7 +15,7 @@ async def send(to: str, meet_code: str, subject="Invitation from Let's meet"):
                 <p style="color: black;">Hello,</p>
                 <p style="color: black;">You are invited to the meeting on Let's Meet.</p>
                 <p style="color: black;">Click the link to join the meeting!</p>
-                <p style="color: black;">{service_config.url}/{meet_code}</p>
+                <a href="{service_config.url}/meets/{meet_code}">Click here to join the meet!</a>
             </body>
         </html>
         """

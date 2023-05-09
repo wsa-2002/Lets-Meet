@@ -15,7 +15,7 @@ async def send(to: str, meet_code: str, meet_title: str, user_name: str, start_t
                 <p style="color: black;">Hello, {user_name}</p>
                 <p style="color: black;">Your event {meet_title} will be held at {start_time} tomorrow, please remember to participate in the event.</p>
                 <p style="color: black;">For more information about the event, click the link below.</p>
-                <p style="color: black;">{service_config.url}/{meet_code}</p>
+                <a href="{service_config.url}/meets/{meet_code}">Click here to check out your event!</a>
             </body>
         </html>
         """

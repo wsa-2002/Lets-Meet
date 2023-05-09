@@ -40,7 +40,7 @@ async def remind_event():
     accounts = await db.account.get_event_member_emails(start_time=start_time.time(),
                                                         end_time=end_time.time(), start_date=start_time.date())
     for account in accounts:
-        await email.meet_reminding.send(to=account.email, meet_title=account.meet_title,
+        await email.event_reminding.send(to=account.email, meet_title=account.meet_title,
                                         user_name=account.username, meet_code=account.meet_code,
                                         start_time=account.time)
 
