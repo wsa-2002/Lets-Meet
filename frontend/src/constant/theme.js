@@ -53,7 +53,7 @@ export const ANIME = {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     `};
-    animation-duration: 1s;
+    animation-duration: 2s;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
   `,

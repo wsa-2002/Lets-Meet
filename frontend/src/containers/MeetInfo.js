@@ -28,6 +28,7 @@ const BackButton = Button("back");
 const ModalButton = Button("modal");
 const RectButton = Button("rect");
 const GuestNameModal = Test("guestName");
+const InfoTooltip = Test("info");
 
 /*AXIOS 串接 API tool*/
 const getMeetInfo = meet("read");
@@ -43,11 +44,6 @@ const {
   GroupAvailability: { VotingArea, VotingContainer },
   GroupAvailability: {
     VotingContainer: { DayContainer },
-  },
-  GroupAvailability: {
-    VotingContainer: {
-      DayContainer: { CellHoverContainer },
-    },
   },
 } = ContentContainer;
 
@@ -254,11 +250,16 @@ const MeetInfo = () => {
     });
   };
 
-  const handleModalOk = async (e) => {
+  const handleModalOk = async () => {
     const { username, password } = form.getFieldValue();
     console.log(form.getFieldValue());
     await joinMeet(code, cookies.token, { name: username, password });
-    navigate(`/voting/${code}`);
+    navigate(`/voting/${code}`, {
+      state: {
+        guestName: username,
+        guestPassword: password,
+      },
+    });
     setIsModalVoteOpen(false);
   };
 
@@ -458,48 +459,28 @@ const MeetInfo = () => {
                                       date === confirmedTime.date &&
                                       confirmedTime.timeID.includes(t - 1)
                                         ? "#F25C54"
+                                        : confirmed
+                                        ? "#F0F0F0"
                                         : CELLCOLOR[
                                             w_index * (TIMESLOTIDS.length - 1) +
                                               t_index
                                           ],
                                   }}
                                   info={
-                                    <DayContainer.CellHoverContainer>
-                                      <CellHoverContainer.CellHoverInfo>
-                                        <div
-                                          style={{
-                                            fontWeight: "bold",
-                                            textDecoration: "underline",
-                                          }}
-                                        >
-                                          Availble
-                                        </div>
-                                        {groupAvailabilityInfo?.[
+                                    <InfoTooltip
+                                      available_members={
+                                        groupAvailabilityInfo?.[
                                           w_index * (TIMESLOTIDS.length - 1) +
                                             t_index
-                                        ]?.available_members.map((m, index) => (
-                                          <div key={index}>{m}</div>
-                                        ))}
-                                      </CellHoverContainer.CellHoverInfo>
-                                      <CellHoverContainer.CellHoverInfo>
-                                        <div
-                                          style={{
-                                            fontWeight: "bold",
-                                            textDecoration: "underline",
-                                          }}
-                                        >
-                                          Unavailble
-                                        </div>
-                                        {groupAvailabilityInfo?.[
+                                        ]?.available_members
+                                      }
+                                      unavailable_members={
+                                        groupAvailabilityInfo?.[
                                           w_index * (TIMESLOTIDS.length - 1) +
                                             t_index
-                                        ]?.unavailable_members.map(
-                                          (m, index) => (
-                                            <div key={index}>{m}</div>
-                                          )
-                                        )}
-                                      </CellHoverContainer.CellHoverInfo>
-                                    </DayContainer.CellHoverContainer>
+                                        ]?.unavailable_members
+                                      }
+                                    />
                                   }
                                 />
                               </DayContainer.CellContainer>

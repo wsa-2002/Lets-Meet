@@ -82,7 +82,9 @@ const TimeCell = (type) =>
                 allNewCells[d_index][t_index] = mode;
               }
             }
-            setUpdatedCell(updatedCell);
+            setUpdatedCell(
+              updatedCell.sort((a, b) => a[0] - b[0] || a[1] - b[1])
+            );
             setCell(allNewCells);
           } else {
             setHover(true);

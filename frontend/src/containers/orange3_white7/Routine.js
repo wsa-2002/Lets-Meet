@@ -148,7 +148,7 @@ const Routine = () => {
       await API(
         updatedCell.map((u) => ({
           weekday: WEEKDAYS[u[0]].toUpperCase(),
-          time_slot_id: u[1] + 1,
+          time_slot_id: TIMESLOTIDS[u[1]],
         })),
         cookies.token
       );

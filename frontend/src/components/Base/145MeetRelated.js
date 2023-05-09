@@ -296,40 +296,6 @@ Base.FullContainer = Object.assign(
                       align-items: center;
                       flex-shrink: 0;
                     `,
-                    /**
-                     * @example
-                     * const CellHoverContainer = styled.div`
-                        width: ${RWDWidth(165)};
-                        display: flex;
-                        justify-content: space-between;
-                        color: #000000;
-                      `;
-                    */
-                    CellHoverContainer: Object.assign(
-                      styled.div`
-                        width: 165px;
-                        display: flex;
-                        justify-content: space-between;
-                        color: #000000;
-                      `,
-                      {
-                        /**
-                         * @example
-                         * const CellHoverInfo = styled.div`
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            row-gap: ${RWDHeight(5)};
-                          `;
-                        */
-                        CellHoverInfo: styled.div`
-                          display: flex;
-                          flex-direction: column;
-                          align-items: center;
-                          row-gap: ${RWDHeight(5)};
-                        `,
-                      }
-                    ),
                   }
                 ),
               }
