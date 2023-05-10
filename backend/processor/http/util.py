@@ -84,16 +84,19 @@ MEET_STATUS_MAPPING = {
 async def update_status(meet_id: int, meet, now: datetime.datetime, account_id: int = None) -> str:
     if meet.status is enums.StatusType.confirmed:
         return MEET_STATUS_MAPPING[meet.status]
-    member = await db.meet_member.read(meet_id=meet_id, account_id=account_id)
+    try:
+        member = await db.meet_member.read(meet_id=meet_id, account_id=account_id)
+    except exc.NotFound:
+        member = None
     if meet.voting_end_time and now <= meet.voting_end_time:
-        if member.has_voted:
+        if member and member.has_voted:
             meet.status = enums.StatusType.voted
         else:
             meet.status = enums.StatusType.voting
     elif meet.voting_end_time and now > meet.voting_end_time and meet.status is enums.StatusType.voting:
         await db.meet.update_status(meet_id, enums.StatusType.waiting_for_confirm)
         meet.status = enums.StatusType.waiting_for_confirm
-    elif member.has_voted:
+    elif member and member.has_voted:
         meet.status = enums.StatusType.voted
     if account_id and meet.status is enums.StatusType.waiting_for_confirm and await db.meet.is_authed(meet_id=meet_id,
                                                                                                       member_id=account_id,
