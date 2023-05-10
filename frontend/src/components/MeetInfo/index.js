@@ -218,13 +218,13 @@ const MeetInfo = ({
                           "YYYY-MM-DD HH-mm-ss"
                         ).toISOString()
                       : i.toISOString()
-                    : null,
+                    : undefined,
                 "voting_end_time"
               )}
               value={
                 rawMeetInfo.voting_end_time
                   ? dayjs(rawMeetInfo.voting_end_time)
-                  : null
+                  : undefined
               }
               disabledDate={(current) =>
                 // Can not select days before today and today
@@ -244,7 +244,7 @@ const MeetInfo = ({
                           "YYYY-MM-DD HH-mm-ss"
                         ).toISOString()
                       : i.toISOString()
-                    : null,
+                    : undefined,
                 "voting_end_time"
               )}
               value={
