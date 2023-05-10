@@ -4,8 +4,9 @@
 **************************************************************************************************/
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { Table, ConfigProvider } from "antd";
+import moment from "moment";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useMeet } from "./hooks/useMeet";
@@ -101,7 +102,7 @@ const Meets = () => {
     </div>
   );
 
-  const handleMeetInfoClick = (code) => () => {
+  const handleMeetInfoClick = (code) => (e) => {
     navigate(`/meets/${code}`);
   };
 
@@ -123,6 +124,9 @@ const Meets = () => {
                   "-",
                   "/"
                 )} ~ ${curr.end_date.replaceAll("-", "/")}`,
+                votingDeadline: curr.voting_end_time
+                  ? moment(curr.voting_end_time).format("YYYY/MM/DD HH:mm")
+                  : "",
                 status: curr.status,
                 meetingTime: curr.finalized_start_date
                   ? `${curr.finalized_start_date} ` +
@@ -194,6 +198,9 @@ const Meets = () => {
             href={url}
             style={{ color: "#000000", textDecoration: "underline" }}
             rel="noreferrer"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
           >
             {url}
           </a>
