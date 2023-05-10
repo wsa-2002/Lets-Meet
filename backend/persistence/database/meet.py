@@ -184,7 +184,7 @@ async def edit(meet_id: int, title: Optional[str] = None, start_date: Optional[d
                finalized_start_date: Optional[date] = None, finalized_end_date: Optional[date] = None,
                finalized_start_time_slot_id: Optional[int] = None, finalized_end_time_slot_id: Optional[int] = None) \
         -> None:
-    update_params = {}
+    update_params = {'voting_end_time': voting_end_time}
     if title:
         update_params['title'] = title
     if start_date:
@@ -197,8 +197,6 @@ async def edit(meet_id: int, title: Optional[str] = None, start_date: Optional[d
         update_params['end_time_slot_id'] = end_time_slot_id
     if description:
         update_params['description'] = description
-    if voting_end_time:
-        update_params['voting_end_time'] = voting_end_time
     if gen_meet_url is not None:
         update_params['gen_meet_url'] = gen_meet_url
     if meet_url:

@@ -237,8 +237,8 @@ async def join_meet_by_invite_code(code: str, data: JoinMeetInput):
         raise exc.IllegalInput
 
     meet = await db.meet.read_meet_by_code(invite_code=code)
-    if not await db.account.is_valid_username(data.name):
-        raise exc.UsernameExists
+    # if not await db.account.is_valid_username(data.name):
+    #     raise exc.UsernameExists
     members = await db.meet_member.browse_meet_members_with_names(meet_id=meet.id)
     names = [member.name for member in members]
     if data.name in names:
