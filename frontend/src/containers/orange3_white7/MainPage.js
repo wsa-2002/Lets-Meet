@@ -72,7 +72,7 @@ const Mainpage = () => {
   const [guestCreateModalOpen, setGuestCreateModalOpen] = useState(false);
   const [notification, setNotification] = useState({});
 
-  const { login, cookies, setError } = useMeet();
+  const { login, cookies, setError, setLoading } = useMeet();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const invite = useRef(null);
@@ -181,7 +181,9 @@ const Mainpage = () => {
         setGuestCreateModalOpen(true);
         return;
       }
+      setLoading(true);
       const { data } = await addMeet(meetData, cookies.token);
+      // setLoading(false);
       navigate(`/meets/${data.invite_code}`);
     } catch (error) {
       setError(error.message);
@@ -192,6 +194,7 @@ const Mainpage = () => {
     try {
       const { username: guest_name, password: guest_password } = form;
       if (!guest_name) return;
+      setLoading(true);
       const { data } = await addMeet(
         {
           ...meetData,
@@ -200,6 +203,7 @@ const Mainpage = () => {
         },
         cookies.token
       );
+      // setLoading(false);
       navigate(`/meets/${data.invite_code}`, {
         state: { guestName: guest_name },
       });
