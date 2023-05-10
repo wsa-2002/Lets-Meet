@@ -193,6 +193,9 @@ const MeetInfo = ({
           display: "flex",
           columnGap: RWDWidth(20),
           alignItems: "center",
+          height: RWDHeight(32),
+          width: RWDWidth(400),
+          justifyContent: "space-between",
         }}
       >
         <Switch
