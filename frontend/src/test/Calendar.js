@@ -173,7 +173,7 @@ export default function App() {
   };
 
   function onBeforeCreateSchedule(event) {
-    // console.log('onBeforeCreateSchedule', event)
+    // //console.log('onBeforeCreateSchedule', event)
     event.guide.clearGuideElement();
     setModal(true);
     setEvent(event);
@@ -211,7 +211,7 @@ export default function App() {
   }
 
   function onBeforeUpdateSchedule(event) {
-    // console.log('onBeforeUpdateSchedule', event)
+    // //console.log('onBeforeUpdateSchedule', event)
 
     const { schedule, changes } = event;
 
@@ -270,7 +270,7 @@ export default function App() {
   }
 
   function onBeforeDeleteSchedule(event) {
-    // console.log('onBeforeDeleteSchedule', event)
+    // //console.log('onBeforeDeleteSchedule', event)
 
     // call api
     const result = true;
@@ -300,7 +300,7 @@ export default function App() {
               showMenu: true,
               useCreationPopup: false,
               // onCreate: () => {
-              //   console.log("create that!!!");
+              //   //console.log("create that!!!");
               //   childRef.current.getAlert();
               // },
               // createText: "Tao moi",

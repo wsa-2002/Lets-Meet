@@ -17,7 +17,7 @@ const MeetProvider = (props) => {
 
   const GLOBAL_LOGIN = (token) => {
     const decoded = jwt(token);
-    console.log(decoded);
+    //console.log(decoded);
     setCookie("token", token, { path: "/", expires: new Date(decoded.expire) });
     setLogin(decoded.is_google_login ? "google" : "notGoogle");
     setID(decoded.account_id);

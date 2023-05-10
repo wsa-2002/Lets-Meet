@@ -104,7 +104,7 @@ const Voting = () => {
         _.range(data.start_time_slot_id, data.end_time_slot_id + +2)
       );
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
@@ -195,7 +195,7 @@ const Voting = () => {
         return;
       }
       setStartDrag(false);
-      console.log(TIMESLOTIDS, updatedCell);
+      //console.log(TIMESLOTIDS, updatedCell);
       const API = mode ? addMyAvailability : deleteMyAvailability;
       setUndo((prev) => [
         {
@@ -236,7 +236,7 @@ const Voting = () => {
   };
 
   const handleUndoRedo = async (e) => {
-    console.log(loading);
+    //console.log(loading);
     let opr;
     if (e.ctrlKey) {
       switch (e.key) {
