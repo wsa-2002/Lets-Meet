@@ -132,7 +132,11 @@ const MeetInfo = () => {
           : [],
       });
       setForMemberDataFormat(
-        member_infos.map((m) => ({ username: m.name, id: m.account_id }))
+        member_infos.map((m) => ({
+          username: m.name,
+          id: m.account_id,
+          email: m.email,
+        }))
       );
       setElementMeetInfo({
         "Meet Name": meet_name,
@@ -195,7 +199,11 @@ const MeetInfo = () => {
         description: description ?? "",
         voting_end_time,
         gen_meet_url: meet_url ? true : false,
-        member_ids: member_infos.map((m) => m.account_id),
+        member_ids: member_infos
+          .filter((m) => m.account_id)
+          .map((m) => m.account_id),
+        remove_guest_names: [],
+        emails: [],
       });
       setDATERANGE(
         [...moment.range(moment(start_date), moment(end_date)).by("day")].map(

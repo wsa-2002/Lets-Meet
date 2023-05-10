@@ -173,7 +173,7 @@ const Member = ({ setMeetData, Input, rawMember = [] }) => {
 
   const handleMemberSelect = (e) => {
     console.log(e);
-    setSelectedKeys([e.target.firstChild.dataset.username]);
+    setSelectedKeys([e.target.dataset.username]);
   };
 
   const handleMemberClick = (e) => {
@@ -191,12 +191,18 @@ const Member = ({ setMeetData, Input, rawMember = [] }) => {
         member_ids: prev.member_ids.filter((id) => id !== item.id),
       }));
       setMember((prev) => prev.filter((m) => m.id !== item.id));
-    } else {
+    } else if (item.email) {
       setMeetData((prev) => ({
         ...prev,
         emails: prev.emails.filter((email) => email !== item.email),
       }));
       setMember((prev) => prev.filter((m) => m.email !== item.email));
+    } else {
+      setMeetData((prev) => ({
+        ...prev,
+        remove_guest_names: [...prev.remove_guest_names, item.username],
+      }));
+      setMember((prev) => prev.filter((m) => m.username !== item.username));
     }
   };
   const checkMemberInclude = () => {

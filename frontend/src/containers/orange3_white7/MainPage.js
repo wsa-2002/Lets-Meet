@@ -115,10 +115,6 @@ const Mainpage = () => {
   };
   /******************************************************/
 
-  useEffect(() => {
-    console.log(meetData.emails);
-  }, [meetData]);
-
   const handleInvite = async (e) => {
     if (!invite?.current?.input?.value) {
       return;
