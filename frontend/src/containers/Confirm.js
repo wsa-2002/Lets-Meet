@@ -89,7 +89,7 @@ const Voting = () => {
         _.range(data.start_time_slot_id, data.end_time_slot_id + +2)
       );
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
@@ -153,7 +153,7 @@ const Voting = () => {
       if (!updatedCell) {
         return;
       }
-      console.log(updatedCell);
+      //console.log(updatedCell);
       setTime(
         `${moment(DATERANGE[updatedCell?.[0]?.[0]], "YYYY-MM-DD").format(
           "MMM D"
@@ -165,7 +165,7 @@ const Voting = () => {
       );
       setStartDrag(false);
       setOpen(true);
-      console.log();
+      //console.log();
     } catch (error) {
       throw error;
     }
@@ -179,7 +179,7 @@ const Voting = () => {
 
   const handleConfirm = async () => {
     try {
-      console.log(updatedCell);
+      //console.log(updatedCell);
       await confirmMeet(
         code,
         {
@@ -193,7 +193,7 @@ const Voting = () => {
       );
       navigate(`/meets/${code}`);
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 

@@ -11,13 +11,13 @@ const URL = {
 export default Object.keys(URL).reduce((acc, curr) => {
   acc[curr] = async (data, token = undefined) => {
     try {
-      console.log("POST", URL[curr], "req:", data);
+      //console.log("POST", URL[curr], "req:", data);
       const { data: result } = await instance.post(
         URL[curr],
         data,
         token && { headers: { "auth-token": token } }
       );
-      console.log("POST", URL[curr], "res", result);
+      //console.log("POST", URL[curr], "res", result);
       return result;
     } catch (error) {
       throw error;

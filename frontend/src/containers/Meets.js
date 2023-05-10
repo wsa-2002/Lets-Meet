@@ -114,7 +114,7 @@ const Meets = () => {
         setMeetsData(
           data.reduce(
             (acc, curr) => {
-              console.log();
+              //console.log();
               const target = {
                 key: curr.meet_id,
                 name: curr.title,
@@ -291,7 +291,7 @@ const Meets = () => {
               onRow={(record) => {
                 return {
                   onMouseEnter: (e) => {
-                    // console.log(record);
+                    // //console.log(record);
                   },
                   onClick: handleMeetInfoClick(record.code),
                 };

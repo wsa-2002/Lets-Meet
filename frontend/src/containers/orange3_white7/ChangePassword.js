@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import * as AXIOS from "../../middleware";
 import Base from "../../components/Base/orange3_white7";
 import { RWD } from "../../constant";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 const { InfoContainer } = Base.RightContainer;
 const { RWDHeight } = RWD;
 
@@ -29,7 +29,7 @@ const ChangePassword = () => {
 
   const handleClick = async () => {
     try {
-      console.log(newPassword);
+      //console.log(newPassword);
       const result = await AXIOS.resetPassword({
         password: newPassword["New Password"],
         code: new URLSearchParams(search).get("code"),
@@ -37,7 +37,7 @@ const ChangePassword = () => {
       navigate("/login");
     } catch (e) {
       alert(e);
-      console.log(e);
+      //console.log(e);
     }
   };
 

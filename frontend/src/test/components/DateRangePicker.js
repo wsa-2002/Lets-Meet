@@ -48,13 +48,13 @@ const TuiDateRangePicker = forwardRef((props, ref) => {
       );
     } else {
       rangePicker.on("change:start", () => {
-        // console.log(`Start date: ${rangePicker.getStartDate()}`)
+        // //console.log(`Start date: ${rangePicker.getStartDate()}`)
         return typeof onChange === "function"
           ? onChange([rangePicker.getStartDate(), rangePicker.getEndDate()])
           : undefined;
       });
       rangePicker.on("change:end", () => {
-        // console.log(`End date: ${rangePicker.getStartDate()}`)
+        // //console.log(`End date: ${rangePicker.getStartDate()}`)
         return typeof onChange === "function"
           ? onChange([rangePicker.getStartDate(), rangePicker.getEndDate()])
           : undefined;

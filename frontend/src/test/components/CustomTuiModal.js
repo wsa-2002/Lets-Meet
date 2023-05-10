@@ -30,17 +30,17 @@ export default function CustomTuiModal({
   const handleClick = (e) => {
     if (wrapperSelectCalendarsRef.current?.contains(e.target)) {
       // inside click
-      // console.log("inside");
+      // //console.log("inside");
       return;
     }
     if (wrapperSelectAttendeesRef.current?.contains(e.target)) {
       // inside click
-      // console.log("inside");
+      // //console.log("inside");
       return;
     }
     // outside click
     // ... do whatever on click outside here ...
-    // console.log("outside");
+    // //console.log("outside");
     setOpenSelectCalendars(false);
     setOpenSelectAttendees(false);
   };
@@ -61,7 +61,7 @@ export default function CustomTuiModal({
           .id
       );
       setTitle(schedule.title);
-      // console.log(schedule.start.toDate(), schedule.end.toDate())
+      // //console.log(schedule.start.toDate(), schedule.end.toDate())
       setStart(schedule.start.toDate());
       setEnd(schedule.end.toDate());
       dateRangePickerRef.current.setStartDate(schedule.start.toDate());
@@ -223,7 +223,7 @@ export default function CustomTuiModal({
               inputType: "spinbox",
             }}
             onChange={(e) => {
-              // console.log(e[0], e[1])
+              // //console.log(e[0], e[1])
               setStart(e[0]);
               setEnd(e[1]);
             }}

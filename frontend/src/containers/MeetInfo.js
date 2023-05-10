@@ -215,7 +215,7 @@ const MeetInfo = () => {
     } catch (error) {
       setError(error.message);
       // setLoading(false);
-      console.log(error);
+      //console.log(error);
     }
   };
 
@@ -296,7 +296,7 @@ const MeetInfo = () => {
       name: username,
       password,
     });
-    console.log(error);
+    //console.log(error);
     if (error) {
       setNotification({
         title: "Incorrect password",
@@ -316,7 +316,7 @@ const MeetInfo = () => {
   const handleMeetDataChange =
     (func, ...name) =>
     (e) => {
-      console.log(e);
+      //console.log(e);
       if (name.length === 1) {
         setRawMeetInfo((prev) => ({ ...prev, [name[0]]: func(e) }));
       } else {
@@ -331,12 +331,12 @@ const MeetInfo = () => {
   const handleEditDone = async () => {
     try {
       const data = await editMeet(code, cookies.token, rawMeetInfo);
-      console.log(data);
+      //console.log(data);
       await handleMeetInfo();
       setLoading(false);
       setEditMode(false);
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
