@@ -25,7 +25,7 @@ async def read(meet_id: int, account_id: Optional[int] = None, name: Optional[st
     return do.MeetMember(id=id_, meet_id=meet_id, is_host=is_host, name=name, member_id=member_id, has_voted=has_voted)
 
 
-async def browse_meet_members_with_names(meet_id: int) -> Sequence[do.MeetMember]:
+async def browse_meet_members_with_names(meet_id: int, replace_guest: bool = True) -> Sequence[do.MeetMember]:
     sql, params = pyformat2psql(
         sql=fr"SELECT meet_member.id, meet_id, is_host, meet_member.name, member_id, account.username, has_voted"
             fr"  FROM meet_member"
@@ -39,7 +39,7 @@ async def browse_meet_members_with_names(meet_id: int) -> Sequence[do.MeetMember
                 id=id_,
                 meet_id=meet_id,
                 is_host=is_host,
-                name=name.replace('guest_', '') if name else username,
+                name=name.replace('guest_', '') if name and replace_guest else username,
                 member_id=member_id,
                 has_voted=has_voted,
             )
