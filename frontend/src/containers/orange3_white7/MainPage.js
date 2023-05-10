@@ -205,7 +205,7 @@ const Mainpage = () => {
       );
       // setLoading(false);
       navigate(`/meets/${data.invite_code}`, {
-        state: { guestName: guest_name },
+        state: { guestName: guest_name, guestPassword: guest_password },
       });
     } catch (error) {
       setError(error.message);

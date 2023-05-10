@@ -275,7 +275,10 @@ const MeetInfo = () => {
       return;
     }
     navigate(`/voting/${code}`, {
-      state: { guestName: location?.state?.guestName },
+      state: {
+        guestName: location?.state?.guestName,
+        guestPassword: location?.state?.guestPassword,
+      },
     });
   };
 
@@ -311,8 +314,8 @@ const MeetInfo = () => {
       } else {
         setRawMeetInfo((prev) => ({
           ...prev,
-          [name[0]]: e ? func(e[0], 1) : undefined,
-          [name[1]]: e ? func(e[1], 0) : undefined,
+          [name[0]]: e ? func(e[0], 1) : null,
+          [name[1]]: e ? func(e[1], 0) : null,
         }));
       }
     };
