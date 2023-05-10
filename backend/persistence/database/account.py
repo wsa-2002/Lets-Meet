@@ -49,9 +49,10 @@ async def update_token(account_id: int, access_token : str, refresh_token : str)
     sql, params = pyformat2psql(
         sql=fr"UPDATE account"
             fr"   SET access_token = %(access_token)s,"
-            fr"       refresh_token = %(refresh_token)s"
+            fr"       refresh_token = %(refresh_token)s,"
+            fr"       is_google_login = %(is_google_login)s"
             fr" WHERE id = %(account_id)s",
-        access_token=access_token, refresh_token=refresh_token, account_id=account_id,
+        access_token=access_token, refresh_token=refresh_token, account_id=account_id, is_google_login=True,
     )
     await pool_handler.pool.execute(sql, *params)
 
