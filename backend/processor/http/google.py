@@ -53,8 +53,8 @@ async def auth(request: Request):
         try:
             result = await db.account.read_by_email(user_email)
             account_id = result.id
-            await db.account.update_token(account_id, access_token=token_google['access_token'],
-                                          refresh_token=token_google['refresh_token'])
+            await db.account.update_google_token(account_id, access_token=token_google['access_token'],
+                                                 refresh_token=token_google['refresh_token'])
         except exc.NotFound:
             account_id = await db.account.add(username=str(uuid4()), email=user_email, is_google_login=True,
                                               access_token=token_google['access_token'],

@@ -6,8 +6,7 @@ import jwt
 from passlib.hash import argon2
 
 from config import jwt_config
-from base import enums
-import exceptions as exc
+import exceptions as exc  # noqa
 
 _jwt_encoder = partial(jwt.encode, key=jwt_config.jwt_secret, algorithm=jwt_config.jwt_encode_algorithm)
 _jwt_decoder = partial(jwt.decode, key=jwt_config.jwt_secret, algorithms=[jwt_config.jwt_encode_algorithm])
@@ -24,6 +23,7 @@ def encode_jwt(account_id: int, is_google_login: bool, expire: timedelta = jwt_c
 class Account(NamedTuple):
     time: datetime
     id: Optional[int] = None
+    is_google_login: Optional[bool] = False
 
 
 def decode_jwt(encoded: str, time: datetime) -> Account:
@@ -37,7 +37,16 @@ def decode_jwt(encoded: str, time: datetime) -> Account:
         raise exc.LoginExpired
 
     account_id = decoded['account_id']
-    return Account(id=account_id, time=time)
+    is_google_login = decoded['is_google_login']
+    return Account(id=account_id, time=time, is_google_login=is_google_login)
+
+
+def decode_jwt_without_verification(token: str):
+    try:
+        decoded_token = jwt.decode(token, options={"verify_signature": False})
+    except jwt.DecodeError:
+        raise exc.LoginFailed
+    return decoded_token
 
 
 def hash_password(password: str) -> str:

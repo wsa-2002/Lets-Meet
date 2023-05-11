@@ -10,14 +10,17 @@ from . import pool_handler
 
 
 async def add(username: str, pass_hash: str = None, notification_preference: str = enums.NotificationPreference.email,
-              email: str = None, access_token: str = None, refresh_token: str = None,is_google_login: bool = False) -> int:
+              email: str = None, access_token: str = None, refresh_token: str = None, is_google_login: bool = False) \
+        -> int:
     sql, params = pyformat2psql(
         sql=fr'INSERT INTO account'
-            fr'            (username, pass_hash, notification_preference, email, access_token, refresh_token, is_google_login)'
-            fr'     VALUES (%(username)s, %(pass_hash)s, %(notification_preference)s, %(email)s, %(access_token)s, %(refresh_token)s, %(is_google_login)s)'
+            fr'            (username, pass_hash, notification_preference, email, access_token, refresh_token, '
+            fr'             is_google_login)'
+            fr'     VALUES (%(username)s, %(pass_hash)s, %(notification_preference)s, %(email)s, %(access_token)s, '
+            fr'             %(refresh_token)s, %(is_google_login)s)'
             fr'  RETURNING id',
         username=username, pass_hash=pass_hash, notification_preference=notification_preference, email=email,
-        access_token=access_token, refresh_token=refresh_token,is_google_login=is_google_login,
+        access_token=access_token, refresh_token=refresh_token, is_google_login=is_google_login,
     )
     try:
         id_, = await pool_handler.pool.fetchrow(sql, *params)
@@ -44,8 +47,9 @@ async def update_username(account_id: int, username: str) -> None:
         username=username, account_id=account_id,
     )
     await pool_handler.pool.execute(sql, *params)
-    
-async def update_token(account_id: int, access_token : str, refresh_token : str) -> None:
+
+
+async def update_google_token(account_id: int, access_token: str, refresh_token: str) -> None:
     sql, params = pyformat2psql(
         sql=fr"UPDATE account"
             fr"   SET access_token = %(access_token)s,"
@@ -66,7 +70,8 @@ async def read_by_email(email: str, is_google_login: bool = None) -> do.Account:
         email=email, is_google_login=is_google_login,
     )
     try:
-        id_, email, username, line_token, notification_preference, is_google_login = await pool_handler.pool.fetchrow(sql, *params)
+        id_, email, username, line_token, notification_preference, is_google_login = \
+            await pool_handler.pool.fetchrow(sql, *params)
     except TypeError:
         raise exc.NotFound
     return do.Account(id=id_, email=email, username=username, line_token=line_token,
@@ -184,7 +189,8 @@ async def get_email(member_id: int) -> do.AccountMail:
 
 async def get_not_yet_vote_emails(start_time: datetime, end_time: datetime) -> Sequence[do.MeetAndAccountMail]:
     sql, params = pyformat2psql(
-        sql=fr"SELECT DISTINCT meet.title, account.email, account.username, CAST(meet.voting_end_time AS DATE), meet.invite_code"
+        sql=fr"SELECT DISTINCT meet.title, account.email, account.username, CAST(meet.voting_end_time AS DATE), "
+            fr"                meet.invite_code"
             fr"           FROM meet"
             fr"     INNER JOIN meet_member"
             fr"             ON meet.id = meet_member.meet_id"
@@ -192,7 +198,8 @@ async def get_not_yet_vote_emails(start_time: datetime, end_time: datetime) -> S
             fr"             ON account.id = meet_member.member_id"
             fr"          WHERE meet.voting_end_time BETWEEN %(start_time)s AND %(end_time)s"
             fr"         EXCEPT ("
-            fr"SELECT DISTINCT meet.title, account.email, account.username, CAST(meet.voting_end_time AS DATE), meet.invite_code"
+            fr"SELECT DISTINCT meet.title, account.email, account.username, CAST(meet.voting_end_time AS DATE), "
+            fr"                meet.invite_code"
             fr"           FROM meet"
             fr"     INNER JOIN meet_member"
             fr"             ON meet.id = meet_member.meet_id"
@@ -207,7 +214,8 @@ async def get_not_yet_vote_emails(start_time: datetime, end_time: datetime) -> S
         records = await pool_handler.pool.fetch(sql, *params)
     except TypeError:
         raise exc.NotFound
-    return [do.MeetAndAccountMail(meet_title=title, username=username, email=email, time=voting_end_time, meet_code=invite_code)
+    return [do.MeetAndAccountMail(meet_title=title, username=username, email=email, time=voting_end_time,
+                                  meet_code=invite_code)
             for title, email, username, voting_end_time, invite_code in records]
 
 
@@ -229,7 +237,8 @@ async def get_event_member_emails(start_time: str, end_time: str, start_date: st
         records = await pool_handler.pool.fetch(sql, *params)
     except TypeError:
         raise exc.NotFound
-    return [do.MeetAndAccountMail(meet_title=title, username=username, email=email, time=start_time, meet_code=invite_code)
+    return [do.MeetAndAccountMail(meet_title=title, username=username, email=email, time=start_time,
+                                  meet_code=invite_code)
             for title, email, username, start_time, invite_code in records]
 
 
@@ -242,3 +251,13 @@ async def is_valid_username(username: str) -> bool:
     )
     cnt, = await pool_handler.pool.fetchrow(sql, *params)
     return cnt == 0
+
+
+async def update_line_token(account_id: int, token: str) -> None:
+    sql, params = pyformat2psql(
+        sql=fr"UPDATE account"
+            fr"   SET line_token = %(token)s"
+            fr" WHERE id = %(account_id)s",
+        token=token, account_id=account_id,
+    )
+    await pool_handler.pool.execute(sql, *params)
