@@ -1,4 +1,5 @@
 import requests
+from string import Template
 
 from linebot import WebhookParser, LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage
@@ -10,14 +11,16 @@ from security import decode_jwt_without_verification
 
 class LineHandler:
     token_endpoint = 'https://api.line.me/oauth2/v2.1/token'
-    verify_endpoint = 'https://api.line.me/oauth2/v2.1/verify'
-    userinfo_endpoint = 'https://api.line.me/oauth2/v2.1/userinfo'
+    redirect_uri = Template(
+        'https://access.line.me/oauth2/v2.1/authorize?response_type=code'
+        '&client_id=$client_id&redirect_uri=$redirect_uri&state=$state&scope=profile%20openid%20email'
+    )
 
     def __init__(self, config: LineConfig):
         self.line_bot_api = LineBotApi(config.message_access_token)
         self.parser = WebhookParser(config.message_secret)
         self.handler = WebhookHandler(config.message_secret)
-        self.redirect_uri = config.login_redirect_uri
+        self.service_redirect_uri = config.login_redirect_uri
         self.login_client_id = config.login_client_id
         self.login_secret = config.login_secret
 
@@ -29,7 +32,7 @@ class LineHandler:
         return {
             'grant_type': 'authorization_code',
             'code': code,
-            'redirect_uri': self.redirect_uri,
+            'redirect_uri': self.service_redirect_uri,
             'client_id': self.login_client_id,
             'client_secret': self.login_secret,
         }
@@ -53,8 +56,11 @@ class LineHandler:
         return user_id
 
     def compose_redirect_uri(self, state: str):
-        return (f"https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id={self.login_client_id}"
-                f"&redirect_uri={self.redirect_uri}&state={state}&scope=profile%20openid%20email")
+        return self.redirect_uri.safe_substitute(
+            client_id=self.login_client_id,
+            redirect_uri=self.service_redirect_uri,
+            state=state,
+        )
 
 
 line_handler = LineHandler(config=line_config)

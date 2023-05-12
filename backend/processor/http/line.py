@@ -2,7 +2,7 @@ from fastapi import APIRouter, responses, Depends
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
-from config import line_config
+from config import line_config, service_config
 import exceptions as exc  # noqa
 from middleware.envelope import enveloped
 from middleware.context import request
@@ -46,5 +46,8 @@ async def connect_account_to_line():
 @router.get('/account/line')
 async def update_account_line_token(code: str, state: str):
     account = security.decode_jwt(state, request.time)
+    if not account.id:
+        raise exc.NoPermission
     user_id = await line_handler.login(code)
     await db.account.update_line_token(account_id=account.id, token=user_id)
+    return RedirectResponse(f"{service_config.url}/settings")  # TODO: use this endpoint?
