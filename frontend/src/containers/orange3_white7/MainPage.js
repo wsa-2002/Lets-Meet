@@ -293,7 +293,7 @@ const Mainpage = () => {
           form={form}
           open={guestCreateModalOpen}
           setOpen={setGuestCreateModalOpen}
-          handleModalOk={handleOk}
+          onOk={handleOk}
           handleFormChange={handleFormChange}
         />
       </Base>

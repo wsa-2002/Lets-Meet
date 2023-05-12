@@ -1,10 +1,11 @@
+import { InfoCircleFilled } from "@ant-design/icons";
 import { Modal, Form } from "antd";
 import React, { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import Button from "./Button";
 import Input from "./Input";
 import { RWD } from "../constant";
-const ModalButton = Button("modal");
 const RectButton = Button("rect");
 const MainInput = Input("main");
 const MainPassword = Input.Password("main");
@@ -25,6 +26,13 @@ const ContentContainer = Object.assign(
     `,
     Time: styled.div`
       font-weight: 500;
+    `,
+    Footer: styled.div`
+      margin: 0;
+      align-self: flex-end;
+      display: flex;
+      column-gap: ${RWDWidth(18)};
+      margin-top: ${RWDHeight(24)};
     `,
   }
 );
@@ -65,7 +73,7 @@ const CellHoverContainer = Object.assign(
   }
 );
 
-const MODALTYPE = ["guestName", "confirm", "info"];
+const MODALTYPE = ["guestName", "confirm", "info", "leave"];
 
 export default (type) => {
   if (!MODALTYPE.includes(type)) {
@@ -74,7 +82,9 @@ export default (type) => {
     );
   }
 
-  return ({ open, setOpen, handleModalOk, onCancel, ...prop }) => {
+  return ({ open, setOpen, onOk, onCancel, ...prop }) => {
+    const { t } = useTranslation();
+
     let Component;
     switch (type) {
       case "info":
@@ -84,7 +94,7 @@ export default (type) => {
             <CellHoverContainer.CellHoverInfo style={{ gridColumn: "1/2" }}>
               <div
                 style={{
-                  fontWeight: "bold",
+                  fontWeight: 700,
                   textDecoration: "underline",
                 }}
               >
@@ -97,7 +107,7 @@ export default (type) => {
             <CellHoverContainer.CellHoverInfo style={{ gridColumn: "2/3" }}>
               <div
                 style={{
-                  fontWeight: "bold",
+                  fontWeight: 700,
                   textDecoration: "underline",
                 }}
               >
@@ -109,7 +119,6 @@ export default (type) => {
             </CellHoverContainer.CellHoverInfo>
           </CellHoverContainer>
         );
-
       case "guestName":
         const { handleFormChange, form } = prop;
         Component = (
@@ -144,17 +153,17 @@ export default (type) => {
               <MainPassword placeholder="Password (optional)" />
             </Form.Item>
             <Form.Item style={{ margin: 0, alignSelf: "flex-end" }}>
-              <ModalButton
+              <RectButton
                 htmlType="submit"
                 buttonTheme="#B8D8BA"
                 variant="solid"
-                onClick={handleModalOk}
+                onClick={onOk}
                 disabled={
                   !form.username || !/^[^#$%&*/?@]*$/.test(form.username)
                 }
               >
                 OK
-              </ModalButton>
+              </RectButton>
             </Form.Item>
           </ContentContainer>
         );
@@ -167,15 +176,7 @@ export default (type) => {
               {`Time of ${meetName} is`}
             </ContentContainer.Title>
             <ContentContainer.Time>{time}</ContentContainer.Time>
-            <div
-              style={{
-                margin: 0,
-                alignSelf: "flex-end",
-                display: "flex",
-                columnGap: RWDWidth(18),
-                marginTop: RWDHeight(24),
-              }}
-            >
+            <ContentContainer.Footer>
               <RectButton
                 buttonTheme="#D8D8D8"
                 variant="hollow"
@@ -183,16 +184,46 @@ export default (type) => {
               >
                 Cancel
               </RectButton>
-              <RectButton
-                buttonTheme="#DB8600"
-                variant="solid"
-                onClick={handleModalOk}
-              >
+              <RectButton buttonTheme="#DB8600" variant="solid" onClick={onOk}>
                 Confirm
               </RectButton>
-            </div>
+            </ContentContainer.Footer>
           </ContentContainer>
         );
+      case "leave":
+        const { host } = prop;
+        Component = (
+          <ContentContainer>
+            <ContentContainer.Title
+              style={{
+                display: "flex",
+                alignItems: "center",
+                columnGap: RWDWidth(12),
+              }}
+            >
+              <InfoCircleFilled style={{ color: "#FAAD14" }} />
+              <span>{host ? t("deleteConfirm") : t("leaveConfirm")}</span>
+            </ContentContainer.Title>
+            <ContentContainer.Footer style={{ marginTop: RWDHeight(47) }}>
+              <RectButton
+                buttonTheme="#B8D8BA"
+                variant="solid"
+                onClick={
+                  onCancel ??
+                  (() => {
+                    setOpen(false);
+                  })
+                }
+              >
+                {t("no")}
+              </RectButton>
+              <RectButton buttonTheme="#B8D8BA" variant="hollow" onClick={onOk}>
+                {t("yes")}
+              </RectButton>
+            </ContentContainer.Footer>
+          </ContentContainer>
+        );
+        break;
       default:
         break;
     }
