@@ -1,11 +1,5 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
-import {
-  Input as AntdInput,
-  DatePicker,
-  TimePicker,
-  Switch,
-  Tooltip,
-} from "antd";
+import { Input as AntdInput, DatePicker, TimePicker, Tooltip } from "antd";
 import dayjs from "dayjs";
 import moment from "moment";
 import { range } from "lodash";
@@ -14,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import styled, { css } from "styled-components";
 import Member from "./Member";
 import Input from "../Input";
+import Switch from "../Switch";
 import { RWD } from "../../constant";
 import slotIDProcessing from "../../util/slotIDProcessing";
 const ThinnerInput = Input("thinner");
@@ -199,6 +194,7 @@ const MeetInfo = ({
         }}
       >
         <Switch
+          switchTheme="#5A8EA4"
           onChange={() => {
             setVotingddl((prev) => !prev);
           }}
@@ -263,6 +259,7 @@ const MeetInfo = ({
     "Invitation URL": null,
     "Google Meet URL": (
       <Switch
+        switchTheme="#5A8EA4"
         data-info={login !== "google"}
         disabled={login !== "google"}
         onChange={handleMeetDataChange((i) => i, "gen_meet_url")}
