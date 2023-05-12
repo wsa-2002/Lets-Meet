@@ -63,11 +63,20 @@ const MeetContainer = styled.div`
     color: #7a3e00 !important;
     border-bottom: 1px solid #7a3e00 !important;
   }
-  tbody .icon {
+
+  thead .ant-table-cell-scrollbar {
+    background-color: #fdf3d1 !important;
+    border-bottom: 1px solid #7a3e00 !important;
+  }
+
+  tbody .meetTableColumn {
+    overflow-x: auto;
+  }
+  /* tbody .icon {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-  }
+  } */
 `;
 
 const CONFIRMTAG = ["Confirming", "Confirmed", "Need Confirmation"];
@@ -134,6 +143,11 @@ const Meets = () => {
                   : "",
                 url: curr.meet_url,
               };
+              // for (let i = 0; i < 10; i++) {
+              //   acc[
+              //     CONFIRMTAG.includes(curr.status) ? "Ended Votes" : "Voting"
+              //   ].push(target);
+              // }
               acc[
                 CONFIRMTAG.includes(curr.status) ? "Ended Votes" : "Voting"
               ].push(target);
@@ -154,26 +168,28 @@ const Meets = () => {
       title: t("name"),
       dataIndex: "name",
       key: "name",
-      width: RWDWidth(200),
+      // width: RWDWidth(200),
+      render: (i) => <div style={{ overflowX: "auto" }}>{i}</div>,
     },
     {
       title: t("host"),
       dataIndex: "host",
       key: "host",
-      width: RWDWidth(150),
+      // width: RWDWidth(150),
       render: (tag) => <MemberTag>{tag}</MemberTag>,
     },
     {
       title: t("votingPeriod"),
       dataIndex: "votingPeriod",
       key: "votingPeriod",
-      width: "fit-content",
+      // width: "600px",
+      render: (i) => <div style={{ overflowX: "auto" }}>{i}</div>,
     },
     {
       title: t("status"),
       dataIndex: "status",
       key: "status",
-      width: RWDWidth(200),
+      // width: RWDWidth(200),
       render: (tag) => (
         <StatusTag key={tag} style={tagMap[tag]}>
           {tagLangMapping(tag)}
@@ -184,13 +200,13 @@ const Meets = () => {
       title: view === "Voting" ? t("votingDeadline") : t("meetingTime"),
       dataIndex: view === "Voting" ? "votingDeadline" : "meetingTime",
       key: view === "Voting" ? "votingDeadline" : "meetingTime",
-      width: RWDWidth(200),
+      // width: RWDWidth(200),
     },
     {
       title: t("url"),
       dataIndex: "url",
       key: "url",
-      width: "fit-content",
+      // width: "fit-content",
       render: (url) =>
         url ? (
           <a
@@ -212,9 +228,11 @@ const Meets = () => {
       title: "",
       dataIndex: "action",
       align: "right",
+      fixed: "right",
+      width: 70,
       render: () => (
         <RoundButton
-          variant="icon"
+          variant="text"
           buttonTheme="#D8D8D8"
           icon={<ArrowRightOutlined />}
           // onClick={handleMeetInfoClick}
@@ -223,7 +241,7 @@ const Meets = () => {
     },
   ].map((m) => ({
     ...m,
-    className: m ? "meetTableColumn" : "meetTableColumn icon",
+    className: m.title ? "meetTableColumn" : "meetTableColumn icon",
   }));
 
   return (
@@ -288,6 +306,10 @@ const Meets = () => {
               style={{ width: "100%", overflowX: "auto" }}
               dataSource={meetsData[view]}
               columns={columns}
+              scroll={{
+                y: 400,
+                x: 1200,
+              }}
               onRow={(record) => {
                 return {
                   onMouseEnter: (e) => {

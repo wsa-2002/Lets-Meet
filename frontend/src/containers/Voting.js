@@ -27,6 +27,7 @@ import {
 } from "../middleware";
 const getMeetInfo = meet("read");
 const BackButton = Button("back");
+const PillButton = Button("pill");
 const { ContentContainer } = Base.FullContainer;
 const { RWDWidth } = RWD;
 const DraggableCell = TimeCell("draggable");
@@ -43,6 +44,7 @@ const Voting = () => {
   const [ROUTINE, setROUTINE] = useState("");
   const [undo, setUndo] = useState([]);
   const [redo, setRedo] = useState([]);
+  const [initialCell, setInitialCell] = useState([]);
 
   /*可拖曳 time cell 套組*/
   const [cell, setCell] = useState([]);
@@ -123,21 +125,21 @@ const Voting = () => {
           setExist(false);
           return;
         }
-        setCell(
-          DATERANGE.map((w) =>
-            TIMESLOTIDS.map((t) =>
-              myAvailability.find((d) => d.date === w && d.time_slot_id === t)
-                ? true
-                : ROUTINE.find(
-                    (r) =>
-                      r.weekday === moment(w).format("ddd").toUpperCase() &&
-                      r.time_slot_id === t
-                  )
-                ? null
-                : false
-            )
+        const temp = DATERANGE.map((w) =>
+          TIMESLOTIDS.map((t) =>
+            myAvailability.find((d) => d.date === w && d.time_slot_id === t)
+              ? true
+              : ROUTINE.find(
+                  (r) =>
+                    r.weekday === moment(w).format("ddd").toUpperCase() &&
+                    r.time_slot_id === t
+                )
+              ? null
+              : false
           )
         );
+        setInitialCell(temp);
+        setCell(temp);
         setLoading(false);
       }
     })();
@@ -315,6 +317,56 @@ const Voting = () => {
     };
   }, [undo, redo, loading]);
 
+  const handleReset = async () => {
+    setLoading(true);
+    let add = [];
+    let del = [];
+    for (const d in cell) {
+      for (const t in cell[d]) {
+        if (cell[d][t] && !initialCell[d][t]) {
+          del.push([d, t]);
+        }
+        if (!cell[d][t] && initialCell[d][t]) {
+          add.push([d, t]);
+        }
+      }
+    }
+    console.log(add, del);
+    await deleteMyAvailability(
+      code,
+      {
+        time_slots: del.map((u) => ({
+          date: DATERANGE[u[0]],
+          time_slot_id: TIMESLOTIDS[u[1]],
+        })),
+        name: location?.state?.guestName ?? null,
+        password: location?.state?.guestPassword ?? null,
+      },
+      cookies.token
+    );
+    await addMyAvailability(
+      code,
+      {
+        time_slots: add.map((u) => ({
+          date: DATERANGE[u[0]],
+          time_slot_id: TIMESLOTIDS[u[1]],
+        })),
+        name: location?.state?.guestName ?? null,
+        password: location?.state?.guestPassword ?? null,
+      },
+      cookies.token
+    );
+    const { data: votingData } = await getGroupAvailability(
+      code,
+      cookies.token
+    );
+    setVOTINGINFO(votingData.data);
+    setUndo([]);
+    setRedo([]);
+    setCell(initialCell);
+    setLoading(false);
+  };
+
   return (
     exist !== undefined &&
     (error ? (
@@ -339,8 +391,17 @@ const Voting = () => {
                     ></BackButton>
                     {title}
                   </ContentContainer.Title>
-                  <ContentContainer.MyAvailability>
+                  <ContentContainer.MyAvailability
+                    style={{ columnGap: RWDWidth(10) }}
+                  >
                     {t("myAva")}
+                    <PillButton
+                      variant="hollow"
+                      buttonTheme="#D8D8D8"
+                      onClick={handleReset}
+                    >
+                      Reset
+                    </PillButton>
                   </ContentContainer.MyAvailability>
                   <ContentContainer.GroupAvailability>
                     {t("groupAva")}

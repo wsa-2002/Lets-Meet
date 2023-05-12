@@ -273,7 +273,7 @@ const Voting = () => {
                 meetName={title}
                 time={time}
                 onCancel={handleCancel}
-                handleModalOk={handleConfirm}
+                onOk={handleConfirm}
               />
             </Base.FullContainer>
           </Base>

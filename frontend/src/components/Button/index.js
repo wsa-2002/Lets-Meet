@@ -10,7 +10,7 @@ import { RWD } from "../../constant";
 import { googleLogin } from "../../middleware";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 
-const BUTTONTYPE = ["primary", "google", "back", "modal", "rect", "round"];
+const BUTTONTYPE = ["primary", "google", "back", "rect", "round", "pill"];
 
 const BaseButton = styled(AntdButton)`
   display: flex;
@@ -21,22 +21,22 @@ const BaseButton = styled(AntdButton)`
   }
 `;
 
-const PrimaryButton = styled(BaseButton)`
+const PillButton = styled(BaseButton)`
   border-radius: ${RWDRadius(50)};
+  /* min-width: ${RWDWidth(55)}; */
+  height: ${RWDHeight(25)};
+  width: fit-content;
+  font-size: ${RWDFontSize(12)};
+`;
+
+const PrimaryButton = styled(PillButton)`
   font-weight: 800;
   font-size: ${RWDFontSize(20)};
   min-width: ${RWDWidth(130)};
   height: ${RWDHeight(55)};
-  width: fit-content;
-
-  /* color: "#000000"; */
-  /* &:disabled {
-    cursor: default;
-    pointer-events: all !important;
-  } */
 `;
 
-const GoogleButton = styled(BaseButton)`
+const LongButton = styled(BaseButton)`
   width: 100%;
   height: ${RWDHeight(70)};
   background: white;
@@ -54,20 +54,24 @@ const RoundButton = styled(BaseButton)`
   border-radius: 50%;
 `;
 
-const ModalButton = styled(BaseButton)`
+const RectButton = styled(BaseButton)`
   border-radius: ${RWDRadius(5)};
   width: ${RWDWidth(42)};
   height: ${RWDHeight(32)};
   font-size: ${RWDFontSize(14)};
-`;
-
-const RectButton = styled(ModalButton)`
   width: fit-content;
   height: fit-content;
   font-weight: 700;
 `;
 
 export default (type = "primary") => {
+  if (!BUTTONTYPE.includes(type)) {
+    throw new Error(
+      `請定義 Button 種類，有以下可以選擇：\n${BUTTONTYPE.join(
+        ", "
+      )}\ncurrent: ${type}`
+    );
+  }
   let tempTheme;
   let tempVariant;
   switch (type) {
@@ -77,16 +81,17 @@ export default (type = "primary") => {
       break;
     case "back":
       tempTheme = "#D8D8D8";
-      tempVariant = "icon";
+      tempVariant = "text";
       break;
     default:
-      tempVariant = "hollow";
       break;
   }
   return ({ buttonTheme = tempTheme, variant = tempVariant, ...prop }) => {
-    if (!BUTTONTYPE.includes(type)) {
+    if (type !== "google" && !Object.keys(BUTTONTHEME).includes(variant)) {
       throw new Error(
-        `請定義 Button 種類，有以下可以選擇：\n${BUTTONTYPE.join(", ")}`
+        `請定義 Button variant，有以下可以選擇：\n${Object.keys(
+          BUTTONTHEME
+        ).join(", ")}`
       );
     }
     if (
@@ -129,8 +134,6 @@ export default (type = "primary") => {
       setDown(false);
     };
 
-    // window.addEventListener("mouseup", mouseup);
-
     useEffect(() => {
       window.addEventListener("mouseup", mouseup);
       return () => {
@@ -159,7 +162,7 @@ export default (type = "primary") => {
     switch (type) {
       case "google":
         return (
-          <GoogleButton
+          <LongButton
             {...prop}
             onClick={() => {
               googleLogin();
@@ -171,36 +174,23 @@ export default (type = "primary") => {
               preview={false}
             />
             {prop.children}
-          </GoogleButton>
+          </LongButton>
         );
       case "primary":
-        Component = (
-          <PrimaryButton {...prop} type="primary">
-            {prop.children}
-          </PrimaryButton>
-        );
+        Component = PrimaryButton;
         break;
       case "back":
-        Component = (
-          <RoundButton type="primary" icon={<ArrowLeftOutlined />} {...prop} />
-        );
-        break;
-      case "modal":
-        Component = (
-          <ModalButton type="primary" {...prop}>
-            {prop.children}
-          </ModalButton>
-        );
+        Component = RoundButton;
+        prop.icon = <ArrowLeftOutlined />;
         break;
       case "rect":
-        Component = (
-          <RectButton type="primary" {...prop}>
-            {prop.children}
-          </RectButton>
-        );
+        Component = RectButton;
         break;
       case "round":
-        Component = <RoundButton type="primary" {...prop} />;
+        Component = RoundButton;
+        break;
+      case "pill":
+        Component = PillButton;
         break;
       default:
         break;
@@ -220,7 +210,9 @@ export default (type = "primary") => {
           },
         }}
       >
-        {Component}
+        <Component type="primary" {...prop}>
+          {prop.children}
+        </Component>
       </ConfigProvider>
     );
   };

@@ -1,8 +1,9 @@
 /*TODO:********************************************************************************************
   1. 更新時 voting end time 和 description 的資料型態
 **************************************************************************************************/
-import { InfoCircleFilled, EditFilled } from "@ant-design/icons";
-import { Modal, Form } from "antd";
+import { EditFilled, CopyOutlined } from "@ant-design/icons";
+import { Tooltip } from "antd";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import { motion } from "framer-motion";
 import _ from "lodash";
 import Moment from "moment";
@@ -15,22 +16,23 @@ import { useMeet } from "./hooks/useMeet";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import MeetInfoEdit from "../components/MeetInfo";
-import Test from "../components/Modal";
+import Modal from "../components/Modal";
 import Notification from "../components/Notification";
 import Tag from "../components/Tag";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
 import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
 import Error from "./Error";
 import { meet, getGroupAvailability } from "../middleware";
+const BackButton = Button("back");
+const RectButton = Button("rect");
+const RoundButton = Button("round");
+const moment = extendMoment(Moment);
+const GuestNameModal = Modal("guestName");
+const InfoTooltip = Modal("info");
+const LeaveModal = Modal("leave");
 const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
 const MemberTag = Tag("member");
 const InfoCell = TimeCell("info");
-const moment = extendMoment(Moment);
-const BackButton = Button("back");
-const ModalButton = Button("modal");
-const RectButton = Button("rect");
-const GuestNameModal = Test("guestName");
-const InfoTooltip = Test("info");
 
 /*AXIOS 串接 API tool*/
 const getMeetInfo = meet("read");
@@ -50,47 +52,40 @@ const {
 } = ContentContainer;
 
 const MeetInfo = () => {
-  const { t } = useTranslation();
-  const [isModalLeaveOpen, setIsModalLeaveOpen] = useState(false);
-  const [isModalVoteOpen, setIsModalVoteOpen] = useState(false);
-  const ref = useRef(); //偵測星期三的高度與寬度
-  const [DATERANGE, setDATERANGE] = useState([]);
-  const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
-  const [groupAvailabilityInfo, setGroupAvailabilityInfo] = useState([]);
-  const [CELLCOLOR, setCELLCOLOR] = useState([]);
-  const [notification, setNotification] = useState({});
-
-  const [elementMeetInfo, setElementMeetInfo] = useState({
-    "Meet Name": "",
-    "Start / End Date": "",
-    "Start / End Time": "",
-    Host: "",
-    Member: "",
-    Description: "",
-    "Voting Deadline": "",
-    "Invitation URL": "",
-    "Google Meet URL": "",
-  });
-  const [rawMeetInfo, setRawMeetInfo] = useState({});
-  const [forMemberDataFormat, setForMemberDataFormat] = useState([]);
-  const [host, setHost] = useState(false); //是否為 host
-  const [confirmed, setConfirmed] = useState(false); // meet 的狀態 (Confirmed)
-  const [confirmedTime, setConfirmedTime] = useState({ date: "", timeID: [] });
-  const [editMode, setEditMode] = useState(false); //是否為編輯模式
-
-  const { login, cookies, setLoading } = useMeet();
-  const navigate = useNavigate();
   const location = useLocation();
-  const { code } = useParams();
+  const { login, cookies, setLoading, ID, error, setError } = useMeet();
   // const oriRawMeetInfo = useMemo(() => rawMeetInfo, [editMode]);
+  const navigate = useNavigate();
+  const { code } = useParams();
+  const ref = useRef(); //偵測星期三的高度與寬度
+  const { t } = useTranslation();
 
-  /*調整 guest name 套組*/
-  const [form, setForm] = useState({ username: "", password: "" });
-  const handleFormChange = (name) => (e) => {
-    setForm((prev) => ({ ...prev, [name]: e.target.value }));
-  };
+  /*檢驗身分*/
+  const [exist, setExist] = useState(undefined); // meet是否存在
+  useEffect(() => {
+    (async () => {
+      if (exist === undefined) {
+        const { error } = await getMeetInfo(code, cookies.token);
+        if (error) {
+          setError(error);
+          setExist(false);
+          return;
+        }
+        setError("");
+        setExist(true);
+      }
+    })();
+  }, []);
   /******************************************************/
 
+  /*main: get meet info and vote info*/
+  const [CELLCOLOR, setCELLCOLOR] = useState([]); //vote info color
+  const [confirmed, setConfirmed] = useState(false); //meet 的狀態 (Confirmed)
+  const [confirmedTime, setConfirmedTime] = useState({ date: "", timeID: [] }); //confirmed 的時間
+  const [DATERANGE, setDATERANGE] = useState([]); //meet 天數範圍
+  const [groupAvailabilityInfo, setGroupAvailabilityInfo] = useState([]); //vote info
+  const [host, setHost] = useState(false); //是否為 host
+  const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]); //meet 時間範圍
   const handleMeetInfo = async () => {
     try {
       setLoading(true);
@@ -174,9 +169,40 @@ const MeetInfo = () => {
         "Voting Deadline": voting_end_time
           ? moment(voting_end_time).format("YYYY/MM/DD HH:mm:ss")
           : "None",
-        "Invitation URL": `${
-          process.env.REACT_APP_SERVER_USE_HTTPS === "true" ? "https" : "http"
-        }://${process.env.REACT_APP_SERVER_DOMAIN}/meets/${invite_code}`,
+        "Invitation URL": (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              columnGap: RWDWidth(8),
+            }}
+          >
+            <div>
+              {process.env.REACT_APP_SERVER_USE_HTTPS === "true"
+                ? "https"
+                : "http"}
+              ://{process.env.REACT_APP_SERVER_DOMAIN}/meets/{invite_code}
+            </div>
+            <CopyToClipboard
+              text={`${
+                process.env.REACT_APP_SERVER_USE_HTTPS === "true"
+                  ? "https"
+                  : "http"
+              }://${process.env.REACT_APP_SERVER_DOMAIN}/meets/${invite_code}`}
+            >
+              <Tooltip title="copy to clipboard" open={copy}>
+                <RoundButton
+                  variant="text"
+                  buttonTheme="#D8D8D8"
+                  icon={<CopyOutlined />}
+                  onClick={() => {
+                    setCopy(true);
+                  }}
+                />
+              </Tooltip>
+            </CopyToClipboard>
+          </div>
+        ),
         "Google Meet URL": meet_url ? (
           <a
             target="_blank"
@@ -218,37 +244,6 @@ const MeetInfo = () => {
       //console.log(error);
     }
   };
-
-  /*檢驗身分*/
-  const [exist, setExist] = useState(undefined); // meet是否存在
-  const { ID, error, setError } = useMeet();
-
-  useEffect(() => {
-    (async () => {
-      if (code && exist) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        await handleMeetInfo();
-        setLoading(false);
-      }
-    })();
-  }, [code, ID, exist]);
-
-  useEffect(() => {
-    (async () => {
-      if (exist === undefined) {
-        const { error } = await getMeetInfo(code, cookies.token);
-        if (error) {
-          setError(error);
-          setExist(false);
-          return;
-        }
-        setError("");
-        setExist(true);
-      }
-    })();
-  }, []);
-  /******************************************************/
-
   useEffect(() => {
     if (groupAvailabilityInfo.length) {
       const allMembersNum =
@@ -263,7 +258,100 @@ const MeetInfo = () => {
       );
     }
   }, [groupAvailabilityInfo]); //設定 time cell 顏色
+  /******************************************************/
 
+  /*edit meet 套組*/
+  const [editMode, setEditMode] = useState(false); //是否為編輯模式
+  const [elementMeetInfo, setElementMeetInfo] = useState({
+    "Meet Name": "",
+    "Start / End Date": "",
+    "Start / End Time": "",
+    Host: "",
+    Member: "",
+    Description: "",
+    "Voting Deadline": "",
+    "Invitation URL": "",
+    "Google Meet URL": "",
+  }); //非編輯模式下的資料
+  const [copy, setCopy] = useState(false); //非編輯模式下複製 invite code
+  const [forMemberDataFormat, setForMemberDataFormat] = useState([]); //編輯模式下已存在 member 的資料
+  const [rawMeetInfo, setRawMeetInfo] = useState({}); //編輯模式的資料
+  const handleMeetDataChange =
+    (func, ...name) =>
+    (e) => {
+      //console.log(e);
+      if (name.length === 1) {
+        setRawMeetInfo((prev) => ({ ...prev, [name[0]]: func(e) }));
+      } else {
+        setRawMeetInfo((prev) => ({
+          ...prev,
+          [name[0]]: e ? func(e[0], 1) : null,
+          [name[1]]: e ? func(e[1], 0) : null,
+        }));
+      }
+    };
+  const handleEditDone = async () => {
+    try {
+      await editMeet(code, cookies.token, rawMeetInfo);
+      await handleMeetInfo();
+      setLoading(false);
+      setEditMode(false);
+    } catch (error) {
+      //console.log(error);
+    }
+  };
+  useEffect(() => {
+    (async () => {
+      if (code && exist) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await handleMeetInfo();
+        setLoading(false);
+      }
+    })();
+  }, [code, ID, exist]); //頁面 render 時 get meet info
+  useEffect(() => {
+    const url = `${
+      process.env.REACT_APP_SERVER_USE_HTTPS === "true" ? "https" : "http"
+    }://${process.env.REACT_APP_SERVER_DOMAIN}/meets/${code}`;
+    setElementMeetInfo((prev) => ({
+      ...prev,
+      "Invitation URL": (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            columnGap: RWDWidth(8),
+          }}
+        >
+          <div>{url}</div>
+          <CopyToClipboard text={url}>
+            <Tooltip title="copy to clipboard" open={copy}>
+              <RoundButton
+                variant="text"
+                buttonTheme="#D8D8D8"
+                icon={<CopyOutlined />}
+                onClick={() => {
+                  setCopy(true);
+                }}
+              />
+            </Tooltip>
+          </CopyToClipboard>
+        </div>
+      ),
+    }));
+    if (copy) {
+      const timer = setTimeout(() => {
+        setCopy(false);
+      }, 1000);
+      return () => {
+        clearInterval(timer);
+      };
+    }
+  }, [copy]); //copy 轉換時重新設定非編輯模式下的資料
+  /******************************************************/
+
+  /*leave meet 套組*/
+  const [leaveOpen, setLeaveOpen] = useState(false);
   const handleLeaveYes = async () => {
     try {
       setLoading(true);
@@ -276,21 +364,16 @@ const MeetInfo = () => {
       throw error;
     }
   };
+  /******************************************************/
 
-  const handleVote = () => {
-    if (!login && !location?.state?.guestName) {
-      setIsModalVoteOpen(true);
-      return;
-    }
-    navigate(`/voting/${code}`, {
-      state: {
-        guestName: location?.state?.guestName,
-        guestPassword: location?.state?.guestPassword,
-      },
-    });
+  /*guest name 套組*/
+  const [form, setForm] = useState({ username: "", password: "" });
+  const [guestNameOpen, setGuestNameOpen] = useState(false);
+  const [notification, setNotification] = useState({}); //guest name 輸入失敗提示
+  const handleFormChange = (name) => (e) => {
+    setForm((prev) => ({ ...prev, [name]: e.target.value }));
   };
-
-  const handleModalOk = async () => {
+  const handleGuestVote = async () => {
     const { username, password } = form;
     const { error } = await joinMeet(code, cookies.token, {
       name: username,
@@ -309,35 +392,22 @@ const MeetInfo = () => {
           guestPassword: password,
         },
       });
-      setIsModalVoteOpen(false);
+      setGuestNameOpen(false);
     }
   };
+  /******************************************************/
 
-  const handleMeetDataChange =
-    (func, ...name) =>
-    (e) => {
-      //console.log(e);
-      if (name.length === 1) {
-        setRawMeetInfo((prev) => ({ ...prev, [name[0]]: func(e) }));
-      } else {
-        setRawMeetInfo((prev) => ({
-          ...prev,
-          [name[0]]: e ? func(e[0], 1) : null,
-          [name[1]]: e ? func(e[1], 0) : null,
-        }));
-      }
-    };
-
-  const handleEditDone = async () => {
-    try {
-      const data = await editMeet(code, cookies.token, rawMeetInfo);
-      //console.log(data);
-      await handleMeetInfo();
-      setLoading(false);
-      setEditMode(false);
-    } catch (error) {
-      //console.log(error);
+  const handleVote = () => {
+    if (!login && !location?.state?.guestName) {
+      setGuestNameOpen(true);
+      return;
     }
+    navigate(`/voting/${code}`, {
+      state: {
+        guestName: location?.state?.guestName,
+        guestPassword: location?.state?.guestPassword,
+      },
+    });
   };
 
   return (
@@ -458,7 +528,7 @@ const MeetInfo = () => {
                             if (!login) {
                               navigate("/");
                             }
-                            setIsModalLeaveOpen(true);
+                            setLeaveOpen(true);
                           }}
                         >
                           {host ? t("deleteMeet") : t("leaveMeet")}
@@ -561,58 +631,17 @@ const MeetInfo = () => {
                 )}
               </Base.FullContainer.ContentContainer>
             )}
-            <Modal
-              bodyStyle={{ height: RWDHeight(30) }}
-              centered
-              closable={false}
-              footer={
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    alignItems: "center",
-                  }}
-                >
-                  <ModalButton
-                    buttonTheme="#B8D8BA"
-                    variant="solid"
-                    onClick={() => {
-                      setIsModalLeaveOpen(false);
-                    }}
-                  >
-                    {t("no")}
-                  </ModalButton>
-                  <ModalButton
-                    buttonTheme="#B8D8BA"
-                    variant="hollow"
-                    onClick={handleLeaveYes}
-                  >
-                    {t("yes")}
-                  </ModalButton>
-                </div>
-              }
-              onCancel={() => {
-                setIsModalLeaveOpen(false);
-              }}
-              open={isModalLeaveOpen}
-              title={
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    columnGap: RWDWidth(12),
-                  }}
-                >
-                  <InfoCircleFilled style={{ color: "#FAAD14" }} />
-                  <span>{host ? t("deleteConfirm") : t("leaveConfirm")}</span>
-                </div>
-              }
+            <LeaveModal
+              open={leaveOpen}
+              setOpen={setLeaveOpen}
+              onOk={handleLeaveYes}
+              host={host}
             />
             <GuestNameModal
               form={form}
-              open={isModalVoteOpen}
-              setOpen={setIsModalVoteOpen}
-              handleModalOk={handleModalOk}
+              open={guestNameOpen}
+              setOpen={setGuestNameOpen}
+              onOk={handleGuestVote}
               handleFormChange={handleFormChange}
             />
           </Base.FullContainer>
