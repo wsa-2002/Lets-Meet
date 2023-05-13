@@ -1,11 +1,11 @@
 import datetime
 import typing
-from typing import Tuple, Any, Optional
+from typing import Tuple, Optional
 
 import pydantic
 
 from base import model, enums
-from base.enums import FilterOperator, SortOrder
+from base.enums import FilterOperator
 import persistence.database as db
 import exceptions as exc  # noqa
 
@@ -17,7 +17,7 @@ class MemberInfo(pydantic.BaseModel):
 
 
 def timezone_validate(time: datetime.datetime) -> datetime.datetime:
-    converted = pydantic.datetime_parse.parse_datetime(time)
+    converted = pydantic.datetime_parse.parse_datetime(time)  # noqa
 
     if converted.tzinfo is not None:
         # Convert to server time
@@ -30,7 +30,8 @@ def time_to_time_slot(time: datetime.time) -> int:
     return time.hour * 2 + int(time.minute >= 30) + 1
 
 
-def parse_filter(column_types: dict[str, type], filters: typing.Optional[pydantic.Json] = None) -> typing.Sequence[model.Filter]:
+def parse_filter(column_types: dict[str, type], filters: typing.Optional[pydantic.Json] = None) \
+        -> typing.Sequence[model.Filter]:
     filters: list[model.Filter] = pydantic.parse_obj_as(list[model.Filter], filters or [])
     for i, filter_ in enumerate(filters):
         try:
@@ -98,9 +99,8 @@ async def update_status(meet_id: int, meet, now: datetime.datetime, account_id: 
         meet.status = enums.StatusType.waiting_for_confirm
     elif member and member.has_voted:
         meet.status = enums.StatusType.voted
-    if account_id and meet.status is enums.StatusType.waiting_for_confirm and await db.meet.is_authed(meet_id=meet_id,
-                                                                                                      member_id=account_id,
-                                                                                                      only_host=True):
+    if account_id and meet.status is enums.StatusType.waiting_for_confirm \
+            and await db.meet.is_authed(meet_id=meet_id, member_id=account_id, only_host=True):
         meet.status = enums.StatusType.need_confirm
     return MEET_STATUS_MAPPING[meet.status]
 
