@@ -1,5 +1,5 @@
 from base import do, enums
-from typing import Tuple, Sequence
+from typing import Tuple, Sequence, Optional
 import exceptions as exc  # noqa
 from datetime import datetime
 
@@ -86,6 +86,22 @@ async def read_by_username_or_email(identifier: str, is_google_login: bool = Fal
             fr"    OR email = %(email)s"
             fr"   AND email IS NOT NULL",
         username=identifier, email=identifier, is_google_login=is_google_login
+    )
+    try:
+        id_, pass_hash, is_google_login = await pool_handler.pool.fetchrow(sql, *params)
+    except TypeError:
+        raise exc.NotFound
+    return id_, pass_hash, is_google_login
+
+
+async def read_passhash(account_id: int, include_deleted: bool = False) -> Tuple[int, str, bool]:
+    sql, params = pyformat2psql(
+        sql=fr"SELECT id, pass_hash, is_google_login"
+            fr"  FROM account"
+            fr" WHERE id = %(account_id)s"
+            fr"   AND email IS NOT NULL"
+            fr"   {'AND NOT is_deleted' if not include_deleted else ''}",
+        account_id=account_id,
     )
     try:
         id_, pass_hash, is_google_login = await pool_handler.pool.fetchrow(sql, *params)
@@ -261,3 +277,33 @@ async def update_line_token(account_id: int, token: str) -> None:
         token=token, account_id=account_id,
     )
     await pool_handler.pool.execute(sql, *params)
+
+
+async def edit_notification_preference(account_id: int, preference: enums.NotificationPreference) -> None:
+    sql, params = pyformat2psql(
+        sql=fr"UPDATE account"
+            fr"   SET notification_preference = %(preference)s"
+            fr" WHERE id = %(account_id)s",
+        preference=preference, account_id=account_id,
+    )
+    await pool_handler.pool.execute(sql, params)
+
+
+async def edit(account_id: int, username: Optional[str] = None, pass_hash: Optional[str] = None):
+    update_params = {}
+    if username is not None:
+        update_params['username'] = username
+    if pass_hash is not None:
+        update_params['pass_hash'] = pass_hash
+    if not update_params:
+        return
+
+    set_sql = ', '.join(fr"{field_name} = %({field_name})s" for field_name in update_params)
+
+    sql, params = pyformat2psql(
+        sql=fr"UPDATE account"
+            fr"   SET {set_sql}"
+            fr" WHERE id = %(account_id)s",
+        account_id=account_id, **update_params,
+    )
+    await pool_handler.pool.execute(sql, params)

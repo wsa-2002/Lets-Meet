@@ -5,7 +5,10 @@ from uuid import uuid4
 from fastapi import APIRouter, responses, Depends, Response
 from pydantic import BaseModel
 
+from base.enums import NotificationPreference
+from base import do
 from security import encode_jwt, verify_password, hash_password
+from middleware.context import request
 from middleware.envelope import enveloped
 from middleware.headers import get_auth_token
 import persistence.database as db
@@ -107,3 +110,70 @@ async def search_account(identifier: str) -> SearchAccountOutput:
     return SearchAccountOutput(
         accounts=[AccountInfo(id=account.id, username=account.username, email=account.email)
                   for account in accounts])
+
+
+class EditAccountInput(BaseModel):
+    username: Optional[str] = None
+    old_password: Optional[str] = None
+    new_password: Optional[str] = None
+    email: Optional[str] = None
+
+
+@router.patch('/account')
+@enveloped
+async def edit_account(data: EditAccountInput) -> None:
+    if not request.account.id:
+        raise exc.NoPermission
+
+    if data.username and not await db.account.is_valid_username(data.username):
+        raise exc.UsernameExists
+
+    account_id, pass_hash, _ = await db.account.read_passhash(account_id=request.account.id)
+    if not verify_password(password=data.old_password, pass_hash=pass_hash):
+        raise exc.NoPermission
+
+    if not data.old_password and not data.new_password:
+        raise exc.IllegalInput
+
+    try:
+        if account := await db.account.read_by_email(data.email):
+            if account.is_google_login:
+                raise exc.EmailRegisteredByGoogle
+            raise exc.EmailExist
+    except exc.NotFound:
+        pass
+
+    verification_code = str(uuid4())
+    await db.email_verification.add(code=verification_code, account_id=account_id, email=data.email)
+    await verification.send(to=data.email, code=verification_code, username=data.username)
+
+    await db.account.edit(account_id=account_id,
+                          username=data.username,
+                          pass_hash=hash_password(data.new_password) if data.new_password else None)
+
+
+class EditAccountNotificationPreferenceInput(BaseModel):
+    preference: NotificationPreference
+
+
+@router.patch('/account/notification-preference')
+@enveloped
+async def edit_account_notification_preference(data: EditAccountNotificationPreferenceInput) -> None:
+    if not request.account.id:
+        raise exc.NoPermission
+
+    account_id = request.account.id
+    account = await db.account.read(account_id=account_id)
+    if data.preference is NotificationPreference.line and not account.line_token:
+        raise exc.LineAccountNotConnected
+    await db.account.edit_notification_preference(account_id=account_id, preference=data.preference)
+
+
+@router.get('/account/{account_id}')
+@enveloped
+async def read_account(account_id: int) -> do.Account:
+    if account_id is not request.account.id:
+        raise exc.NoPermission
+
+    account = await db.account.read(account_id=account_id)
+    return account
