@@ -50,4 +50,4 @@ async def update_account_line_token(code: str, state: str):
         raise exc.NoPermission
     user_id = await line_handler.login(code)
     await db.account.update_line_token(account_id=account.id, token=user_id)
-    return RedirectResponse(f"{service_config.url}/settings")  # TODO: use this endpoint?
+    return RedirectResponse(line_config.line_bot_url)  # TODO: use this endpoint?
