@@ -73,7 +73,7 @@ const CellHoverContainer = Object.assign(
   }
 );
 
-const MODALTYPE = ["guestName", "confirm", "info", "leave"];
+const MODALTYPE = ["guestName", "confirm", "info", "leave", "calendar"];
 
 export default (type) => {
   if (!MODALTYPE.includes(type)) {
@@ -191,6 +191,7 @@ export default (type) => {
           </ContentContainer>
         );
       case "leave":
+      case "calendar":
         const { host } = prop;
         Component = (
           <ContentContainer>

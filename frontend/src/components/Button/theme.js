@@ -195,11 +195,11 @@ export default {
   text: {
     "#D8D8D8": {
       default: {
-        backgroundColor: "none",
+        backgroundColor: "transparent",
         color: "#D8D8D8",
       },
       hover: {
-        backgroundColor: "none",
+        backgroundColor: "transparent",
         color: "#808080",
       },
       active: {
