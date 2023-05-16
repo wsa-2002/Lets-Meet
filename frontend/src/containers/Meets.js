@@ -72,11 +72,6 @@ const MeetContainer = styled.div`
   tbody .meetTableColumn {
     overflow-x: auto;
   }
-  /* tbody .icon {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-  } */
 `;
 
 const CONFIRMTAG = ["Confirming", "Confirmed", "Need Confirmation"];
@@ -143,11 +138,6 @@ const Meets = () => {
                   : "",
                 url: curr.meet_url,
               };
-              // for (let i = 0; i < 10; i++) {
-              //   acc[
-              //     CONFIRMTAG.includes(curr.status) ? "Ended Votes" : "Voting"
-              //   ].push(target);
-              // }
               acc[
                 CONFIRMTAG.includes(curr.status) ? "Ended Votes" : "Voting"
               ].push(target);
@@ -168,28 +158,28 @@ const Meets = () => {
       title: t("name"),
       dataIndex: "name",
       key: "name",
-      // width: RWDWidth(200),
+      width: 150,
       render: (i) => <div style={{ overflowX: "auto" }}>{i}</div>,
     },
     {
       title: t("host"),
       dataIndex: "host",
       key: "host",
-      // width: RWDWidth(150),
+      width: 150,
       render: (tag) => <MemberTag>{tag}</MemberTag>,
     },
     {
       title: t("votingPeriod"),
       dataIndex: "votingPeriod",
       key: "votingPeriod",
-      // width: "600px",
+      width: 220,
       render: (i) => <div style={{ overflowX: "auto" }}>{i}</div>,
     },
     {
       title: t("status"),
       dataIndex: "status",
       key: "status",
-      // width: RWDWidth(200),
+      width: 150,
       render: (tag) => (
         <StatusTag key={tag} style={tagMap[tag]}>
           {tagLangMapping(tag)}
@@ -197,15 +187,16 @@ const Meets = () => {
       ),
     },
     {
+      width: 200,
       title: view === "Voting" ? t("votingDeadline") : t("meetingTime"),
       dataIndex: view === "Voting" ? "votingDeadline" : "meetingTime",
       key: view === "Voting" ? "votingDeadline" : "meetingTime",
-      // width: RWDWidth(200),
     },
     {
       title: t("url"),
       dataIndex: "url",
       key: "url",
+      width: 250,
       // width: "fit-content",
       render: (url) =>
         url ? (
@@ -308,7 +299,7 @@ const Meets = () => {
               columns={columns}
               scroll={{
                 y: 400,
-                x: 1200,
+                x: 1000,
               }}
               onRow={(record) => {
                 return {
@@ -318,7 +309,7 @@ const Meets = () => {
                   onClick: handleMeetInfoClick(record.code),
                 };
               }}
-            ></Table>
+            />
           </ConfigProvider>
         </MeetContainer>
       </Base.FullContainer>

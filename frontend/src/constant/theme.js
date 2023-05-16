@@ -57,6 +57,16 @@ export const ANIME = {
     animation-iteration-count: infinite;
     animation-timing-function: linear;
   `,
+  Float: css`
+    animation-name: ${keyframes`
+      0% { transform: translate(0,  0px); }
+      50% { transform: translate(0, -8px); }
+      100% { transform: translate(0, -0px); }
+    `};
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+  `,
 };
 
 export const PAGE_TRANSITION = {

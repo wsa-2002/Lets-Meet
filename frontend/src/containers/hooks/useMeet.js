@@ -10,7 +10,7 @@ const MeetContext = createContext({
 
 const MeetProvider = (props) => {
   const [cookies, setCookie, removeCookie] = useCookies(["token"]);
-  const [login, setLogin] = useState(cookies.token ?? false);
+  const [login, setLogin] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [ID, setID] = useState(0);
