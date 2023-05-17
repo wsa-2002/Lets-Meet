@@ -90,9 +90,11 @@ class AccountMail:
 
 
 @dataclass
-class MeetAndAccountMail:
+class MeetAndAccountPreference:
     meet_title: str
     username: str
     email: str
     time: time
     meet_code: str
+    line_token: str
+    notification_preference: enums.NotificationPreference

@@ -1,7 +1,7 @@
 from base import do, enums
 from typing import Tuple, Sequence, Optional
 import exceptions as exc  # noqa
-from datetime import datetime
+from datetime import datetime, date, time
 
 import asyncpg
 
@@ -203,10 +203,10 @@ async def get_email(member_id: int) -> do.AccountMail:
     return do.AccountMail(email=email, username=username)
 
 
-async def get_not_yet_vote_emails(start_time: datetime, end_time: datetime) -> Sequence[do.MeetAndAccountMail]:
+async def get_not_yet_vote_emails(start_time: datetime, end_time: datetime) -> Sequence[do.MeetAndAccountPreference]:
     sql, params = pyformat2psql(
         sql=fr"SELECT DISTINCT meet.title, account.email, account.username, CAST(meet.voting_end_time AS DATE), "
-            fr"                meet.invite_code"
+            fr"                meet.invite_code, account.line_token, account.notification_preference"
             fr"           FROM meet"
             fr"     INNER JOIN meet_member"
             fr"             ON meet.id = meet_member.meet_id"
@@ -215,7 +215,7 @@ async def get_not_yet_vote_emails(start_time: datetime, end_time: datetime) -> S
             fr"          WHERE meet.voting_end_time BETWEEN %(start_time)s AND %(end_time)s"
             fr"         EXCEPT ("
             fr"SELECT DISTINCT meet.title, account.email, account.username, CAST(meet.voting_end_time AS DATE), "
-            fr"                meet.invite_code"
+            fr"                meet.invite_code, account.line_token, account.notification_preference"
             fr"           FROM meet"
             fr"     INNER JOIN meet_member"
             fr"             ON meet.id = meet_member.meet_id"
@@ -230,14 +230,17 @@ async def get_not_yet_vote_emails(start_time: datetime, end_time: datetime) -> S
         records = await pool_handler.pool.fetch(sql, *params)
     except TypeError:
         raise exc.NotFound
-    return [do.MeetAndAccountMail(meet_title=title, username=username, email=email, time=voting_end_time,
-                                  meet_code=invite_code)
-            for title, email, username, voting_end_time, invite_code in records]
+    return [do.MeetAndAccountPreference(meet_title=title, username=username, email=email, time=voting_end_time,
+                                        meet_code=invite_code, line_token=line_token,
+                                        notification_preference=preference)
+            for title, email, username, voting_end_time, invite_code, line_token, preference in records]
 
 
-async def get_event_member_emails(start_time: str, end_time: str, start_date: str) -> Sequence[do.MeetAndAccountMail]:
+async def get_event_member_emails(start_time: time, end_time: time, start_date: date)\
+        -> Sequence[do.MeetAndAccountPreference]:
     sql, params = pyformat2psql(
-        sql=fr"SELECT DISTINCT meet.title, account.email, account.username, time_slot.start_time, meet.invite_code"
+        sql=fr"SELECT DISTINCT meet.title, account.email, account.username, time_slot.start_time, meet.invite_code,"
+            fr"                account.line_token, account.notification_preference"
             fr"           FROM event"
             fr"     INNER JOIN meet"
             fr"             ON meet.id = event.meet_id"
@@ -253,9 +256,10 @@ async def get_event_member_emails(start_time: str, end_time: str, start_date: st
         records = await pool_handler.pool.fetch(sql, *params)
     except TypeError:
         raise exc.NotFound
-    return [do.MeetAndAccountMail(meet_title=title, username=username, email=email, time=start_time,
-                                  meet_code=invite_code)
-            for title, email, username, start_time, invite_code in records]
+    return [do.MeetAndAccountPreference(meet_title=title, username=username, email=email, time=start_time,
+                                        meet_code=invite_code, line_token=line_token,
+                                        notification_preference=preference)
+            for title, email, username, start_time, invite_code, line_token, preference in records]
 
 
 async def is_valid_username(username: str) -> bool:
@@ -286,7 +290,7 @@ async def edit_notification_preference(account_id: int, preference: enums.Notifi
             fr" WHERE id = %(account_id)s",
         preference=preference, account_id=account_id,
     )
-    await pool_handler.pool.execute(sql, params)
+    await pool_handler.pool.execute(sql, *params)
 
 
 async def edit(account_id: int, username: Optional[str] = None, pass_hash: Optional[str] = None):
