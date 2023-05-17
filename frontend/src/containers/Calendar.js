@@ -1,31 +1,63 @@
-import React, { useEffect, useState, useRef } from "react";
-import Base from "../components/Base/145MeetRelated";
-import Moment from "moment";
-
-import { extendMoment } from "moment-range";
-import Link from "../components/Link";
-import { useMeet } from "./hooks/useMeet";
-import styled from "styled-components";
-import { RWD, ANIME } from "../constant";
-import { getCalendar, googleLogin } from "../middleware";
 import {
+  CopyOutlined,
   CaretLeftOutlined,
   CaretRightOutlined,
   InfoCircleOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import "@toast-ui/calendar/dist/toastui-calendar.min.css";
 import Calendar from "@toast-ui/react-calendar";
+import { Tooltip } from "antd";
+import _ from "lodash";
+import Moment from "moment";
+import { extendMoment } from "moment-range";
+import React, { useEffect, useState, useRef } from "react";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import { useMeet } from "./hooks/useMeet";
+import { RWD, ANIME } from "../constant";
+import Base from "../components/Base/145MeetRelated";
+import Link from "../components/Link";
+import Tag from "../components/Tag";
+import {
+  getCalendar,
+  googleLogin,
+  meet,
+  getGoogleCalendar,
+} from "../middleware";
+import slotIDProcessing from "../util/slotIDProcessing";
 import { Radio } from "antd";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 const RoundButton = Button("round");
-const Test = Modal("calendar");
 const moment = extendMoment(Moment);
+const getMeetInfo = meet("read");
+const CalendarModal = Modal("calendar");
 const { RWDHeight, RWDWidth, RWDFontSize, RWDRadius } = RWD;
-// import {} from
+const MemberTag = Tag("member");
+
+function hexToRgbA(hex) {
+  var c;
+  if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+    c = hex.substring(1).split("");
+    if (c.length == 3) {
+      c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+    }
+    c = "0x" + c.join("");
+    return (
+      "rgba(" + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(",") + ",0.2)"
+    );
+  }
+  throw new Error("Bad Hex");
+}
 
 const Floating = styled.div`
   ${ANIME.Float}
+`;
+
+const FadeIn = styled.div`
+  ${ANIME.FadeIn}
 `;
 
 const ContentContainer = styled.div`
@@ -49,13 +81,52 @@ const CalendarContainer = styled.div`
     scrollbar-width: none;
   }
   border: 2px solid #808080;
-  border-radius: 10px;
+  border-radius: ${RWDRadius(10)};
   height: ${RWDHeight(780)};
   width: 100%;
+  .toastui-calendar-layout.toastui-calendar-month,
+  .toastui-calendar-floating-layer {
+    .toastui-calendar-weekday-event-dot {
+      display: none;
+    }
+    .toastui-calendar-weekday-events {
+      top: ${RWDHeight(10)} !important;
+    }
+    .toastui-calendar-weekday-event {
+      height: fit-content !important;
+      border: none !important;
+      line-height: normal !important;
+      background-color: transparent !important;
+      .toastui-calendar-weekday-event-title {
+        overflow: auto !important;
+        padding: 0;
+      }
+    }
+
+    .toastui-calendar-see-more-container {
+      left: ${({ seeMorePosition: { left } }) =>
+        `calc(${left}px - 10vw - calc(25vw / 3))`};
+      top: ${({ seeMorePosition: { top } }) =>
+        `calc(${top}px - 7.5vh - ${RWDHeight(60)})`} !important;
+      .toastui-calendar-see-more {
+        border-radius: ${RWDRadius(10)};
+        .toastui-calendar-see-more-header {
+          height: fit-content !important;
+          margin-bottom: ${RWDHeight(20)} !important;
+          background-color: transparent !important;
+        }
+        .toastui-calendar-month-more-list {
+          padding: 0 !important;
+          padding-bottom: ${RWDHeight(16)} !important;
+          max-height: ${RWDHeight(100)};
+        }
+      }
+    }
+  }
   .toastui-calendar-day-names.toastui-calendar-month,
   .toastui-calendar-day-names.toastui-calendar-week {
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-top-left-radius: ${RWDRadius(10)};
+    border-top-right-radius: ${RWDRadius(10)};
     padding: 0;
   }
   .toastui-calendar-grid-cell-header {
@@ -80,43 +151,14 @@ const CalendarContainer = styled.div`
       &:active,
       &:focus {
         background-color: #f0f0f0;
-        border-radius: 5px !important;
+        border-radius: ${RWDRadius(5)} !important;
       }
     }
     .toastui-calendar-grid-cell-date {
       display: none;
     }
   }
-  .toastui-calendar-weekday-event {
-    margin: 0 !important;
-    border-radius: 5px !important;
-    .toastui-calendar-weekday-event-title {
-      overflow: auto !important;
-    }
-  }
-  .toastui-calendar-see-more-header {
-  }
-  .toastui-calendar-see-more-container {
-    left: ${({ seeMorePosition: { left } }) =>
-      `calc(${left}px - 10vw - calc(26.7vw / 3))`};
-    top: ${({ seeMorePosition: { top } }) =>
-      `calc(${top}px - 7.5vh - ${RWDHeight(60)})`} !important;
-    .toastui-calendar-see-more {
-      border: none !important;
-      padding: 0 !important;
-      border-radius: ${RWDRadius(10)};
-      .toastui-calendar-see-more-header {
-        height: fit-content !important;
-        margin-bottom: ${RWDHeight(20)} !important;
-        background-color: transparent !important;
-      }
-      .toastui-calendar-month-more-list {
-        padding: 0 !important;
-        padding-bottom: ${RWDHeight(16)} !important;
-        max-height: ${RWDHeight(100)};
-      }
-    }
-  }
+
   .toastui-calendar-week-view {
     .toastui-calendar-week-view-day-names {
       border-bottom: none !important;
@@ -130,7 +172,7 @@ const CalendarContainer = styled.div`
   .mymore {
     width: calc(${RWDWidth(1260)} / 7 - 16px);
     border-radius: ${RWDRadius(5)} !important;
-    padding-left: 3px;
+    padding: 0 ${RWDWidth(12)};
   }
 `;
 
@@ -155,15 +197,74 @@ const MenuContainer = Object.assign(
 );
 
 export default () => {
-  const { login, cookies } = useMeet();
-  const [events, setEvents] = useState([]);
-
+  const navigate = useNavigate();
+  const { login, cookies, loading, setLoading } = useMeet();
+  const [initial, setInitial] = useState(true);
   const calendarInstRef = useRef(null);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [month, setMonth] = useState(moment().format("YYYY MMMM"));
-  const [timeRange, setTimeRange] = useState([]);
-  const [mode, setMode] = useState("month");
+  const [events, setEvents] = useState([]);
+  const [mode, setMode] = useState("month"); //month or week
+  const [month, setMonth] = useState(moment().format("YYYY MMMM")); //標題月份
+  const [timeRange, setTimeRange] = useState([]); //整個日曆的範圍
+
+  /*resize seeMore 套組*/
   const [seeMorePosition, setSeeMorePosition] = useState({ left: 0, top: 0 });
+  const [seeMoreMode, setSeeMoreMode] = useState(false);
+  const seeMoreRef = useRef(null);
+
+  const throttledHandleResize = _.throttle(() => {
+    if (seeMoreRef?.current) {
+      const { left, top } = seeMoreRef.current.getBoundingClientRect();
+      setSeeMorePosition({
+        left,
+        top,
+      });
+    }
+    if (!seeMoreMode) {
+      setEvents((prev) => [...prev]);
+    }
+  }, 100);
+
+  useEffect(() => {
+    window.addEventListener("resize", throttledHandleResize);
+    return () => {
+      window.removeEventListener("resize", throttledHandleResize);
+    };
+  }, []); //resize 時 see more 改變位置
+
+  const handleCloseSeeMore = (e) => {
+    if (
+      seeMoreMode &&
+      document.querySelector(".toastui-calendar-see-more-container")
+    ) {
+      if (
+        (!document
+          .querySelector(".toastui-calendar-see-more-container")
+          ?.contains(e.target) &&
+          !document
+            .querySelector(".ant-modal-wrap.ant-modal-centered")
+            ?.contains(e.target) &&
+          document
+            .querySelector(".toastui-calendar-popup-overlay")
+            ?.contains(e.target)) ||
+        document
+          .querySelector(".toastui-calendar-template-monthMoreClose")
+          .contains(e.target)
+      ) {
+        setSeeMoreMode(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleCloseSeeMore, { capture: true });
+    return () => {
+      document.removeEventListener("click", handleCloseSeeMore, {
+        capture: true,
+      });
+    };
+  }, [seeMoreMode]); // 取消 see more mode
+  /******************************************************/
 
   const TimeProcessing = () => {
     const start_date = moment(
@@ -203,7 +304,46 @@ export default () => {
 
   const EventTemplate = (event) => {
     if (mode === "month") {
-      return <div style={{ color: event.color }}>{event.title}</div>;
+      if (!event.raw.isGoogle) {
+        return (
+          <div
+            style={{
+              color: "#935000",
+              fontSize: RWDFontSize(12),
+              fontWeight: 500,
+              border: "1px solid #B39559",
+              borderRadius: RWDRadius(5),
+              backgroundColor: "#FFD466",
+              padding: `0 ${RWDWidth(12)}`,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {event.title}
+          </div>
+        );
+      } else {
+        return (
+          <div
+            className="google"
+            style={{
+              cursor: "default",
+              color: event.color,
+              fontSize: RWDFontSize(12),
+              fontWeight: 500,
+              borderRadius: RWDRadius(5),
+              backgroundColor: hexToRgbA(event.color),
+              padding: `0 ${RWDWidth(12)}`,
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {event.title}
+          </div>
+        );
+      }
     }
   };
   const [calendarOption, setCalendarOption] = useState({
@@ -263,12 +403,15 @@ export default () => {
           <div
             className="mymore"
             onMouseEnter={(e) => {
-              const { left, top } = e.target.getBoundingClientRect();
-              console.log(left, top);
-              setSeeMorePosition({
-                left,
-                top,
-              });
+              if (!seeMoreMode) {
+                const { left, top } =
+                  e.target.parentNode.parentNode.parentNode.getBoundingClientRect();
+                setSeeMorePosition({
+                  left,
+                  top,
+                });
+                seeMoreRef.current = e.target.parentNode.parentNode.parentNode;
+              }
             }}
           >
             {hiddenSchedules} more
@@ -314,6 +457,9 @@ export default () => {
       time: (event) => {
         return EventTemplate(event);
       },
+      allday: (event) => {
+        return EventTemplate(event);
+      },
       weekDayName: (model) => (
         <div
           style={{
@@ -332,37 +478,212 @@ export default () => {
     },
   });
 
+  /*meet info 套組*/
+  const [elementMeetInfo, setElementMeetInfo] = useState({
+    "Meet Name": "",
+    "Start / End Date": "",
+    "Start / End Time": "",
+    Host: "",
+    Member: "",
+    Description: "",
+    "Voting Deadline": "",
+    "Invitation URL": "",
+    "Google Meet URL": "",
+  }); //非編輯模式下的資料
+  const [copy, setCopy] = useState(false); //非編輯模式下複製 invite code
+  const [code, setCode] = useState("");
+  const handleEventClick = async (e) => {
+    if (e.event.raw.isGoogle) {
+      return;
+    }
+    const {
+      data: {
+        meet_name,
+        finalized_start_date,
+        finalized_start_time_slot_id,
+        host_info,
+        member_infos,
+        description,
+        invite_code,
+        meet_url,
+      },
+    } = await getMeetInfo(e.event.raw.invite_code, cookies.token);
+    setCode(e.event.raw.invite_code);
+    setElementMeetInfo({
+      "Meet Time":
+        `${finalized_start_date} ` +
+        slotIDProcessing(finalized_start_time_slot_id),
+      "Meet Name": meet_name,
+
+      Host: (
+        <MemberTag style={{ fontSize: RWDFontSize(16) }}>
+          {host_info?.name}
+        </MemberTag>
+      ),
+      Member: member_infos.length ? (
+        <div
+          style={{
+            display: "flex",
+            gap: `${RWDFontSize(8)} ${RWDFontSize(8)}`,
+            flexWrap: "wrap",
+            width: RWDWidth(590),
+            alignContent: "flex-start",
+          }}
+        >
+          {member_infos.map((m, index) => (
+            <MemberTag key={index}>{m.name}</MemberTag>
+          ))}
+        </div>
+      ) : (
+        "None"
+      ),
+      Description: description ? description : "None",
+      "Invitation URL": (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            columnGap: RWDWidth(8),
+          }}
+        >
+          <div>
+            {process.env.REACT_APP_SERVER_USE_HTTPS === "true"
+              ? "https"
+              : "http"}
+            ://{process.env.REACT_APP_SERVER_DOMAIN}/meets/{invite_code}
+          </div>
+          <CopyToClipboard
+            text={`${
+              process.env.REACT_APP_SERVER_USE_HTTPS === "true"
+                ? "https"
+                : "http"
+            }://${process.env.REACT_APP_SERVER_DOMAIN}/meets/${invite_code}`}
+          >
+            <Tooltip title="copy to clipboard" open={copy}>
+              <RoundButton
+                variant="text"
+                buttonTheme="#D8D8D8"
+                icon={<CopyOutlined />}
+                onClick={() => {
+                  setCopy(true);
+                }}
+              />
+            </Tooltip>
+          </CopyToClipboard>
+        </div>
+      ),
+      "Google Meet URL": meet_url ? (
+        <a
+          target="_blank"
+          href={meet_url}
+          style={{ color: "#000000", textDecoration: "underline" }}
+          rel="noreferrer"
+        >
+          {meet_url}
+        </a>
+      ) : (
+        "None"
+      ),
+    });
+    setDetailOpen(true);
+  };
+  /******************************************************/
+
+  /*get calendar events 套組*/ //每更新一次 date range 會敲一次
   useEffect(() => {
     TimeProcessing();
   }, [calendarOption.view]);
 
-  const handleEventClick = (e) => {
-    console.log(e.event);
-    setDetailOpen(true);
-  };
-  useEffect(() => {
-    if (calendarInstRef.current) {
-      calendarInstRef.current?.getInstance().on("clickEvent", handleEventClick);
-      return () => {
-        calendarInstRef.current
-          ?.getInstance()
-          .off("clickEvent", handleEventClick);
-      };
-    }
-  }, [calendarInstRef.current]);
-
-  const handleGetEvent = (start_date, end_date) => async () => {
-    return await getCalendar({ start_date, end_date }, cookies.token);
-  };
-
   useEffect(() => {
     (async () => {
       if (login && timeRange.length) {
-        const { data } = await handleGetEvent(timeRange[0], timeRange[1])();
-        console.log(data);
+        if (initial) {
+          setLoading(true);
+          setInitial(false);
+        }
+        try {
+          const { data } = await getCalendar(
+            { start_date: timeRange[0], end_date: timeRange[1] },
+            cookies.token
+          );
+          setEvents(
+            [...data, ...data, ...data, ...data, ...data].map((e, id) => ({
+              id,
+              title: e.title,
+              start: moment(e.start_date),
+              end: moment(e.end_date).add(1, "days"),
+              category: e.start_time_slot_id ? "time" : "allday",
+              isReadOnly: true,
+              raw: { ...e, isGoogle: false },
+            }))
+          );
+          if (login === "google") {
+            const { data: googleEvent } = await getGoogleCalendar(
+              { start_date: timeRange[0], end_date: timeRange[1] },
+              cookies.token
+            );
+            setEvents((prev) => [
+              ...prev,
+              ...googleEvent.map((e, id) => ({
+                id: id + prev.length,
+                title: e.title,
+                start: moment(e.start_date),
+                end: moment(e.end_date),
+                category: "time",
+                isReadOnly: true,
+                color: e.color,
+                raw: { ...e, isGoogle: true },
+              })),
+            ]);
+          }
+          setLoading(false);
+        } catch (error) {
+          throw error;
+        }
       }
     })();
   }, [login, timeRange]);
+  /******************************************************/
+
+  useEffect(() => {
+    const url = `${
+      process.env.REACT_APP_SERVER_USE_HTTPS === "true" ? "https" : "http"
+    }://${process.env.REACT_APP_SERVER_DOMAIN}/meets/${code}`;
+    setElementMeetInfo((prev) => ({
+      ...prev,
+      "Invitation URL": (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            columnGap: RWDWidth(8),
+          }}
+        >
+          <div>{url}</div>
+          <CopyToClipboard text={url}>
+            <Tooltip title="copy to clipboard" open={copy}>
+              <RoundButton
+                variant="text"
+                buttonTheme="#D8D8D8"
+                icon={<CopyOutlined />}
+                onClick={() => {
+                  setCopy(true);
+                }}
+              />
+            </Tooltip>
+          </CopyToClipboard>
+        </div>
+      ),
+    }));
+    if (copy) {
+      const timer = setTimeout(() => {
+        setCopy(false);
+      }, 1000);
+      return () => {
+        clearInterval(timer);
+      };
+    }
+  }, [copy]); //copy 轉換時重新設定非編輯模式下的資料
 
   return (
     <Base login={login}>
@@ -410,85 +731,60 @@ export default () => {
               ref={calendarInstRef}
               height="100%"
               {...calendarOption}
-              events={[
-                {
-                  id: "1",
-                  calendarId: "cal1",
-                  title: "SDM Meeting",
-                  body: "TOAST UI Calendar",
-                  start: "2023-05-26T10:00:00",
-                  end: "2023-05-26T11:00:00",
-                  location: "Meeting Room A",
-                  attendees: ["A", "B", "C"],
-                  category: "allday",
-                  state: "Free",
-                  isReadOnly: true,
-                  color: "#935000",
-                  borderColor: "none",
-                  backgroundColor: "transparent",
-                  customStyle: {
-                    borderLeft: "none",
-                    fontSize: RWDFontSize(12),
-                    fontWeight: 500,
-                    border: "1px solid #B39559",
-                    marginLeft: "8px",
-                    marginRight: "8px",
-                    // width: `calc(${RWDWidth(1260)} / 7 - 16px)`,
-                    borderRadius: "5px",
-                    backgroundColor: "#FFD466",
-                  },
-                },
-              ].concat(
-                ...new Array(6).fill({
-                  id: "1",
-                  calendarId: "cal1",
-                  title: "SDM Meeting",
-                  body: "TOAST UI Calendar",
-                  start: "2023-05-26T10:00:00",
-                  end: "2023-05-26T11:00:00",
-                  location: "Meeting Room A",
-                  attendees: ["A", "B", "C"],
-                  category: "time",
-                  state: "Free",
-                  isReadOnly: true,
-                  color: "#935000",
-                  borderColor: "none",
-                  backgroundColor: "transparent",
-                  customStyle: {
-                    borderLeft: "none",
-                    fontSize: RWDFontSize(12),
-                    fontWeight: 500,
-                    border: "1px solid #B39559",
-                    marginLeft: "8px",
-                    marginRight: "8px",
-                    marginTop: RWDHeight(6),
-                    // width: `calc(${RWDWidth(1260)} / 7 - 16px)`,
-                    borderRadius: "5px",
-                    backgroundColor: "#FFD466",
-                  },
-                })
-              )}
+              events={events}
+              onClickEvent={handleEventClick}
+              onClickMoreEventsBtn={() => {
+                setSeeMoreMode(true);
+              }}
             />
-            <Test open={detailOpen} setOpen={setDetailOpen}></Test>
+            <CalendarModal
+              open={detailOpen}
+              setOpen={setDetailOpen}
+              elementMeetInfo={elementMeetInfo}
+              onOk={() => {
+                navigate(`/meets/${code}`);
+              }}
+            />
           </CalendarContainer>
-          <Link
-            linkTheme="#DB8600"
-            onClick={() => {
-              googleLogin();
-            }}
-          >
-            <Floating
+          {!loading && (
+            <Link
+              linkTheme={login === "google" ? "#5C9B6B" : "#DB8600"}
+              onClick={() => {
+                if (login !== "google") {
+                  googleLogin();
+                }
+              }}
               style={{
-                fontSize: RWDFontSize(12),
-                display: "flex",
-                columnGap: RWDWidth(6),
-                alignItems: "center",
+                cursor: login === "google" ? "default" : "pointer",
               }}
             >
-              <div>Link to Google Calendar</div>
-              <InfoCircleOutlined />
-            </Floating>
-          </Link>
+              {login === "google" ? (
+                <FadeIn
+                  style={{
+                    fontSize: RWDFontSize(12),
+                    display: "flex",
+                    columnGap: RWDWidth(6),
+                    alignItems: "center",
+                  }}
+                >
+                  <div>Linked to Google Calendar</div>
+                  <CheckCircleOutlined />
+                </FadeIn>
+              ) : (
+                <Floating
+                  style={{
+                    fontSize: RWDFontSize(12),
+                    display: "flex",
+                    columnGap: RWDWidth(6),
+                    alignItems: "center",
+                  }}
+                >
+                  <div>Link to Google Calendar</div>
+                  <InfoCircleOutlined />
+                </Floating>
+              )}
+            </Link>
+          )}
         </ContentContainer>
       </Base.FullContainer>
     </Base>

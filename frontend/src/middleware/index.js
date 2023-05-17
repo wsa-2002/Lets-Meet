@@ -17,6 +17,7 @@ export const {
   emailVerification,
   getRoutine,
   getCalendar,
+  getGoogleCalendar,
 } = GET;
 export const { deleteRoutine } = DELETE;
 export { googleLogin } from "./google";

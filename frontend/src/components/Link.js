@@ -12,6 +12,11 @@ const LINKTHEME = {
     hover: "#808080",
     active: "#808080",
   },
+  "#5C9B6B": {
+    default: "#5C9B6B",
+    hover: "#5C9B6B",
+    active: "#5C9B6B",
+  },
 };
 
 const Link = ({ linkTheme, ...prop }) => {
@@ -30,7 +35,7 @@ const Link = ({ linkTheme, ...prop }) => {
       hover: LINKTHEME[linkTheme].hover,
       active: LINKTHEME[linkTheme].active,
     });
-  }, [LINKTHEME]);
+  }, [linkTheme]);
 
   return (
     <ConfigProvider
