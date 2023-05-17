@@ -5,6 +5,7 @@ const URL = {
   emailVerification: "/email-verification",
   getRoutine: "/routine",
   getCalendar: "/meet-calendar",
+  getGoogleCalendar: "/google-calendar",
 };
 
 export default Object.keys(URL).reduce((acc, curr) => {

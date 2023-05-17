@@ -88,7 +88,7 @@ const MeetInfoContainer = Object.assign(
 const MeetInfo = ({
   columnGap,
   rowGap,
-  handleMeetDataChange,
+  handleMeetDataChange = () => {},
   login,
   setMeetData,
   ElementMeetInfo,
@@ -101,14 +101,15 @@ const MeetInfo = ({
   const { t } = useTranslation();
 
   const [votingddl, setVotingddl] = useState(
-    rawMeetInfo.voting_end_time ? true : false
+    rawMeetInfo?.voting_end_time ? true : false
   );
   const CONTENTMENU = {
+    "Meet Time": null,
     "Meet Name": (
       <ThinnerInput
         onChange={handleMeetDataChange((i) => i.target.value, "meet_name")}
         data-required={true}
-        value={rawMeetInfo.meet_name}
+        value={rawMeetInfo?.meet_name}
       />
     ),
     "Start / End Date": (
@@ -122,8 +123,8 @@ const MeetInfo = ({
         data-required={true}
         // value={[undefined, undefined]}
         value={
-          rawMeetInfo.start_date
-            ? [dayjs(rawMeetInfo.start_date), dayjs(rawMeetInfo.end_date)]
+          rawMeetInfo?.start_date
+            ? [dayjs(rawMeetInfo?.start_date), dayjs(rawMeetInfo?.end_date)]
             : undefined
         }
         disabledDate={(current) =>
@@ -152,14 +153,14 @@ const MeetInfo = ({
         format={"HH:mm"}
         data-required={true}
         value={
-          rawMeetInfo.start_time_slot_id
+          rawMeetInfo?.start_time_slot_id
             ? [
                 dayjs(
-                  slotIDProcessing(rawMeetInfo.start_time_slot_id),
+                  slotIDProcessing(rawMeetInfo?.start_time_slot_id),
                   "HH-mm"
                 ),
                 dayjs(
-                  slotIDProcessing(rawMeetInfo.end_time_slot_id + 1),
+                  slotIDProcessing(rawMeetInfo?.end_time_slot_id + 1),
                   "HH-mm"
                 ),
               ]
@@ -179,7 +180,7 @@ const MeetInfo = ({
     Description: (
       <MeetInfoContainer.Content.TextArea
         onChange={handleMeetDataChange((i) => i.target.value, "description")}
-        value={rawMeetInfo.description}
+        value={rawMeetInfo?.description}
       />
     ),
     "Voting Deadline": (
@@ -207,11 +208,11 @@ const MeetInfo = ({
               onChange={handleMeetDataChange(
                 (i) =>
                   i
-                    ? rawMeetInfo.voting_end_time
+                    ? rawMeetInfo?.voting_end_time
                       ? moment(
                           `${moment(i.toISOString()).format(
                             "YYYY-MM-DD"
-                          )} ${moment(rawMeetInfo.voting_end_time).format(
+                          )} ${moment(rawMeetInfo?.voting_end_time).format(
                             "HH-mm-ss"
                           )}`,
                           "YYYY-MM-DD HH-mm-ss"
@@ -221,8 +222,8 @@ const MeetInfo = ({
                 "voting_end_time"
               )}
               value={
-                rawMeetInfo.voting_end_time
-                  ? dayjs(rawMeetInfo.voting_end_time)
+                rawMeetInfo?.voting_end_time
+                  ? dayjs(rawMeetInfo?.voting_end_time)
                   : undefined
               }
               disabledDate={(current) =>
@@ -235,9 +236,9 @@ const MeetInfo = ({
               onChange={handleMeetDataChange(
                 (i) =>
                   i
-                    ? rawMeetInfo.voting_end_time
+                    ? rawMeetInfo?.voting_end_time
                       ? moment(
-                          `${moment(rawMeetInfo.voting_end_time).format(
+                          `${moment(rawMeetInfo?.voting_end_time).format(
                             "YYYY-MM-DD"
                           )} ${moment(i.toISOString()).format("HH-mm-ss")}`,
                           "YYYY-MM-DD HH-mm-ss"
@@ -247,8 +248,8 @@ const MeetInfo = ({
                 "voting_end_time"
               )}
               value={
-                rawMeetInfo.voting_end_time
-                  ? dayjs(rawMeetInfo.voting_end_time)
+                rawMeetInfo?.voting_end_time
+                  ? dayjs(rawMeetInfo?.voting_end_time)
                   : undefined
               }
             />
@@ -263,7 +264,7 @@ const MeetInfo = ({
         data-info={login !== "google"}
         disabled={login !== "google"}
         onChange={handleMeetDataChange((i) => i, "gen_meet_url")}
-        checked={rawMeetInfo.gen_meet_url}
+        checked={rawMeetInfo?.gen_meet_url}
       />
     ),
   };
@@ -283,7 +284,9 @@ const MeetInfo = ({
   return (
     <MeetInfoContainer columnGap={columnGap} rowGap={rowGap} {...prop}>
       {Object.keys(CONTENTMENU)
-        .filter((m) => (reviseMode ? CONTENTMENU[m] : m !== "Meet Name"))
+        .filter((m) =>
+          reviseMode ? CONTENTMENU[m] : m !== "Meet Name" && ElementMeetInfo[m]
+        )
         .map((title, index) => (
           <Fragment key={index}>
             <MeetInfoContainer.Content

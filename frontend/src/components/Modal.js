@@ -1,15 +1,15 @@
 import { InfoCircleFilled } from "@ant-design/icons";
 import { Modal, Form } from "antd";
-import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import Button from "./Button";
 import Input from "./Input";
+import MeetInfo from "./MeetInfo";
 import { RWD } from "../constant";
 const RectButton = Button("rect");
 const MainInput = Input("main");
 const MainPassword = Input.Password("main");
-const { RWDWidth, RWDHeight } = RWD;
+const { RWDWidth, RWDHeight, RWDFontSize } = RWD;
 
 const ContentContainer = Object.assign(
   styled(Form)`
@@ -190,8 +190,31 @@ export default (type) => {
             </ContentContainer.Footer>
           </ContentContainer>
         );
-      case "leave":
       case "calendar":
+        const { elementMeetInfo } = prop;
+        Component = (
+          <ContentContainer style={{ width: RWDWidth(650) }}>
+            <ContentContainer.Title
+              style={{ marginBottom: RWDHeight(30), fontSize: RWDFontSize(30) }}
+            >
+              {elementMeetInfo["Meet Name"]}
+            </ContentContainer.Title>
+            <MeetInfo
+              columnGap={60}
+              rowGap={20}
+              ElementMeetInfo={elementMeetInfo}
+              reviseMode={false}
+              style={{ width: "600px" }}
+            />
+            <ContentContainer.Footer style={{ marginTop: RWDHeight(30) }}>
+              <RectButton buttonTheme="#DB8600" variant="solid" onClick={onOk}>
+                Go to Meet Detail
+              </RectButton>
+            </ContentContainer.Footer>
+          </ContentContainer>
+        );
+        break;
+      case "leave":
         const { host } = prop;
         Component = (
           <ContentContainer>

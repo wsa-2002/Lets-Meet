@@ -196,7 +196,7 @@ const Meets = () => {
       title: t("url"),
       dataIndex: "url",
       key: "url",
-      width: 250,
+      width: 280,
       // width: "fit-content",
       render: (url) =>
         url ? (
