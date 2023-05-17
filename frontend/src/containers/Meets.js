@@ -72,6 +72,10 @@ const MeetContainer = styled.div`
   tbody .meetTableColumn {
     overflow-x: auto;
   }
+
+  .ant-table-body {
+    overflow: auto auto !important;
+  }
 `;
 
 const CONFIRMTAG = ["Confirming", "Confirmed", "Need Confirmation"];
