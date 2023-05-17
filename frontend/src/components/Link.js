@@ -1,4 +1,5 @@
 import { Typography, ConfigProvider } from "antd";
+import { useState, useEffect } from "react";
 
 const LINKTHEME = {
   "#DB8600": {
@@ -21,6 +22,16 @@ const Link = ({ linkTheme, ...prop }) => {
       )}`
     );
   }
+  const [theme, setTheme] = useState({ default: "", hover: "", active: "" });
+
+  useEffect(() => {
+    setTheme({
+      default: LINKTHEME[linkTheme].default,
+      hover: LINKTHEME[linkTheme].hover,
+      active: LINKTHEME[linkTheme].active,
+    });
+  }, [LINKTHEME]);
+
   return (
     <ConfigProvider
       theme={{
@@ -28,9 +39,9 @@ const Link = ({ linkTheme, ...prop }) => {
           Typography: {
             controlTmpOutline: "rgba(0, 0, 0, 0)",
             controlOutline: "rgba(0, 0, 0, 0)",
-            colorLink: LINKTHEME[linkTheme].default,
-            colorLinkHover: LINKTHEME[linkTheme].hover,
-            colorLinkActive: LINKTHEME[linkTheme].active,
+            colorLink: theme.default,
+            colorLinkHover: theme.hover,
+            colorLinkActive: theme.active,
           },
         },
       }}

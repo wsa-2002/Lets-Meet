@@ -50,6 +50,7 @@ class MeetMember:
     id: int
     meet_id: int
     is_host: bool
+    has_voted: bool
     name: Optional[str] = None
     member_id: Optional[int] = None
 

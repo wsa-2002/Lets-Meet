@@ -63,7 +63,7 @@ const LogIn = () => {
               break;
           }
         } else {
-          console.log(data);
+          //console.log(data);
           GLOBAL_LOGIN(data.token);
         }
       }

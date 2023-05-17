@@ -14,10 +14,25 @@ import { getRoutine, addRoutine, deleteRoutine } from "../../middleware";
 const { RWDHeight, RWDFontSize, RWDWidth } = RWD;
 const DraggableCell = TimeCell("draggable");
 
+const InstructionContainer = Object.assign(
+  styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  `,
+  {
+    Item: styled.div`
+      font-size: ${RWDFontSize(20)};
+      color: #db8600;
+      font-weight: 700;
+    `,
+  }
+);
+
 const InfoContainer = Object.assign(
   styled.div`
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     flex-direction: column;
   `,
   {
@@ -26,7 +41,7 @@ const InfoContainer = Object.assign(
         display: flex;
         justify-content: flex-end;
         column-gap: ${RWDWidth(24)};
-        width: ${RWDWidth(600)};
+        /* width: ${RWDWidth(600)}; */
         padding-top: ${RWDHeight(11)};
         max-height: 80vh;
         overflow-y: scroll;
@@ -47,8 +62,9 @@ const InfoContainer = Object.assign(
           {
             TimeContainer: styled.div`
               position: absolute;
-              left: min(${RWDWidth(-45)}, -50px);
-              top: ${RWDHeight(-12)};
+              right: 100%;
+              margin-right: ${RWDWidth(12)};
+              top: ${RWDHeight(-12.5)};
             `,
           }
         ),
@@ -60,7 +76,7 @@ const InfoContainer = Object.assign(
         align-items: center;
         column-gap: ${RWDWidth(24)};
         justify-content: flex-end;
-        width: ${RWDWidth(600)};
+        /* width: ${RWDWidth(600)}; */
       `,
       {
         WeekDayContainer: styled.div`
@@ -80,6 +96,7 @@ const Routine = () => {
   const { cookies, login, setLoading } = useMeet();
   const navigate = useNavigate();
 
+  /*可拖曳 time cell 套組*/
   const [cell, setCell] = useState([]);
   const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
   const [startIndex, setStartIndex] = useState([]); //選取方塊位置
@@ -98,6 +115,36 @@ const Routine = () => {
     setUpdatedCell,
     oriCell,
   };
+  /******************************************************/
+
+  /*調整 TimeCellsContainer 寬度*/
+  const [width, setWidth] = useState(0); //TimeCellsContainer 寬度
+  const WeekdayRef = useRef(null);
+  const TimeRef = useRef(null);
+  const throttledHandleResizeFORTimeCellsContainerWidth = _.throttle(() => {
+    if (WeekdayRef?.current && TimeRef?.current) {
+      console.log(TimeRef);
+      setWidth(WeekdayRef?.current.offsetWidth - TimeRef?.current.offsetLeft);
+    }
+  }, 100);
+
+  useEffect(() => {
+    if (WeekdayRef?.current && TimeRef?.current) {
+      setWidth(WeekdayRef?.current.offsetWidth - TimeRef?.current.offsetLeft);
+    } //load 時
+
+    window.addEventListener(
+      "resize",
+      throttledHandleResizeFORTimeCellsContainerWidth
+    );
+    return () => {
+      window.removeEventListener(
+        "resize",
+        throttledHandleResizeFORTimeCellsContainerWidth
+      );
+    };
+  }, [cell]);
+  /******************************************************/
 
   useEffect(() => {
     (async () => {
@@ -121,10 +168,32 @@ const Routine = () => {
           setLoading(false);
         }
       } catch (error) {
-        console.log(error);
+        //console.log(error);
       }
     })();
   }, [login]);
+
+  /*調整 Routine 文字 套組*/
+  const RoutineRef = useRef(null);
+  const [top, setTop] = useState(0);
+  const throttledHandleResize = _.throttle(() => {
+    if (RoutineRef?.current) {
+      // setTimeTop(RoutineRef.current.offsetHeight);
+      setTop(RoutineRef?.current.offsetTop);
+    }
+  }, 100);
+
+  useEffect(() => {
+    if (RoutineRef?.current) {
+      setTop(RoutineRef?.current.offsetTop);
+    } //load 時
+
+    window.addEventListener("resize", throttledHandleResize);
+    return () => {
+      window.removeEventListener("resize", throttledHandleResize);
+    };
+  }, []);
+  /******************************************************/
 
   const ref = useRef(null); //讓頁面自動滾
   // useEffect(() => {
@@ -167,31 +236,46 @@ const Routine = () => {
           flexDirection: "column",
           alignItems: "flex-end",
           justifyContent: "center",
+          paddingRight: RWDWidth(18),
         }}
       >
         <p
           style={{
-            fontSize: "3vmin",
+            fontSize: RWDFontSize(32),
             color: "#B76A00",
             margin: 0,
-            fontWeight: 600,
+            fontWeight: 800,
             letterSpacing: "1px",
           }}
+          ref={RoutineRef}
         >
           How does routine work?
         </p>
+        <InstructionContainer
+          style={{ position: "absolute", top, marginTop: RWDHeight(80) }}
+        >
+          <InstructionContainer.Item style={{ marginBottom: RWDHeight(20) }}>
+            Mark your unavailable time
+          </InstructionContainer.Item>
+          <InstructionContainer.Item>
+            Your unavailable time will be shown as blocked
+          </InstructionContainer.Item>
+          <InstructionContainer.Item>
+            when you are invited to a meeting
+          </InstructionContainer.Item>
+        </InstructionContainer>
       </Base.LeftContainer>
       <Base.RightContainer style={{ gridRow: "2/3", position: "relative" }}>
         {cell.length > 0 && (
           <InfoContainer>
-            <InfoContainer.WeekContainer>
+            <InfoContainer.WeekContainer ref={WeekdayRef}>
               {WEEKDAYS.map((w, w_index) => (
                 <InfoContainer.WeekContainer.WeekDayContainer key={w_index}>
                   {w}
                 </InfoContainer.WeekContainer.WeekDayContainer>
               ))}
             </InfoContainer.WeekContainer>
-            <InfoContainer.TimeCellsContainer>
+            <InfoContainer.TimeCellsContainer style={{ width: `${width}px` }}>
               {WEEKDAYS.map((_, w_index) => (
                 <InfoContainer.TimeCellsContainer.DayColumn key={w_index}>
                   {TIMESLOTIDS.map((t, t_index) => (
@@ -205,7 +289,9 @@ const Routine = () => {
                       }}
                     >
                       {w_index === 0 && (
-                        <InfoContainer.TimeCellsContainer.DayColumn.TimeContainer>
+                        <InfoContainer.TimeCellsContainer.DayColumn.TimeContainer
+                          ref={TimeRef}
+                        >
                           {slotIDProcessing(t)}
                         </InfoContainer.TimeCellsContainer.DayColumn.TimeContainer>
                       )}

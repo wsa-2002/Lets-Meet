@@ -13,6 +13,7 @@ import MeetInfo from "./containers/MeetInfo";
 import Voting from "./containers/Voting";
 import Confirm from "./containers/Confirm";
 import Routine from "./containers/orange3_white7/Routine";
+import Calendar from "./containers/Calendar";
 import Error from "./containers/Error";
 import Test from "./test/Calendar";
 function App() {
@@ -39,10 +40,7 @@ function App() {
           <Routes>
             <Route element={<Main />} path="/" />
             <Route element={<Meets />} path="/meets" />
-            <Route
-              element={error ? <Error /> : <MeetInfo />}
-              path="/meets/:code"
-            />
+            <Route element={<MeetInfo />} path="/meets/:code" />
             <Route element={<Login />} path="/login" />
             <Route element={<Signup />} path="/signup" />
             <Route element={<Reset />} path="/reset" />
@@ -56,6 +54,7 @@ function App() {
               path="/confirm/:code"
             />
             <Route element={<Routine />} path="/routine" />
+            <Route element={<Calendar />} path="/calendar" />
             <Route element={<Test />} path="/test" />
             <Route element={<Error />} path="*" />
           </Routes>

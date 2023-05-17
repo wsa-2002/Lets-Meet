@@ -10,23 +10,22 @@ const MeetContext = createContext({
 
 const MeetProvider = (props) => {
   const [cookies, setCookie, removeCookie] = useCookies(["token"]);
-  const [login, setLogin] = useState(cookies.token ?? false);
+  const [login, setLogin] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [ID, setID] = useState(0);
 
   const GLOBAL_LOGIN = (token) => {
     const decoded = jwt(token);
-    console.log(decoded);
+    //console.log(decoded);
     setCookie("token", token, { path: "/", expires: new Date(decoded.expire) });
-    setLogin(true);
+    setLogin(decoded.is_google_login ? "google" : "notGoogle");
     setID(decoded.account_id);
   };
 
   useEffect(() => {
     if (cookies.token) {
-      setLogin(true);
-      console.log(jwt(cookies.token).account_id);
+      setLogin(jwt(cookies.token).is_google_login ? "google" : "notGoogle");
       setID(jwt(cookies.token).account_id);
     }
   }, [cookies]);

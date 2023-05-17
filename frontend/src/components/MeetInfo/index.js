@@ -1,11 +1,5 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
-import {
-  Input as AntdInput,
-  DatePicker,
-  TimePicker,
-  Switch,
-  Tooltip,
-} from "antd";
+import { Input as AntdInput, DatePicker, TimePicker, Tooltip } from "antd";
 import dayjs from "dayjs";
 import moment from "moment";
 import { range } from "lodash";
@@ -14,10 +8,17 @@ import { useTranslation } from "react-i18next";
 import styled, { css } from "styled-components";
 import Member from "./Member";
 import Input from "../Input";
+import Switch from "../Switch";
 import { RWD } from "../../constant";
 import slotIDProcessing from "../../util/slotIDProcessing";
 const ThinnerInput = Input("thinner");
 const { RWDWidth, RWDHeight, RWDFontSize, RWDRadius } = RWD;
+
+const CONFIRM_INEDITABLE = [
+  "Start / End Date",
+  "Start / End Time",
+  "Voting Deadline",
+];
 
 const RangeStyle = css`
   width: ${RWDWidth(350)};
@@ -93,6 +94,7 @@ const MeetInfo = ({
   ElementMeetInfo,
   rawMeetInfo,
   reviseMode = true,
+  confirmed = false,
   member,
   ...prop
 }) => {
@@ -111,6 +113,7 @@ const MeetInfo = ({
     ),
     "Start / End Date": (
       <MeetInfoContainer.Content.DateRangePicker
+        placeholder={[t("startDate"), t("endDate")]}
         onChange={handleMeetDataChange(
           (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
           "start_date",
@@ -123,10 +126,15 @@ const MeetInfo = ({
             ? [dayjs(rawMeetInfo.start_date), dayjs(rawMeetInfo.end_date)]
             : undefined
         }
+        disabledDate={(current) =>
+          // Can not select days before today and today
+          current && current < moment().subtract(1, "days").endOf("day")
+        }
       />
     ),
     "Start / End Time": (
       <MeetInfoContainer.Content.TimeRangePicker
+        placeholder={[t("startTime"), t("endTime")]}
         onChange={handleMeetDataChange(
           (i, plus) =>
             i.minute() === 59 ? 48 : (i.hour() * 60 + i.minute()) / 30 + plus,
@@ -180,9 +188,13 @@ const MeetInfo = ({
           display: "flex",
           columnGap: RWDWidth(20),
           alignItems: "center",
+          height: RWDHeight(32),
+          width: RWDWidth(400),
+          justifyContent: "space-between",
         }}
       >
         <Switch
+          switchTheme="#5A8EA4"
           onChange={() => {
             setVotingddl((prev) => !prev);
           }}
@@ -191,6 +203,7 @@ const MeetInfo = ({
         {votingddl && (
           <>
             <MeetInfoContainer.Content.DatePicker
+              placeholder={t("selectDate")}
               onChange={handleMeetDataChange(
                 (i) =>
                   i
@@ -212,8 +225,13 @@ const MeetInfo = ({
                   ? dayjs(rawMeetInfo.voting_end_time)
                   : undefined
               }
+              disabledDate={(current) =>
+                // Can not select days before today and today
+                current && current < moment().subtract(1, "days").endOf("day")
+              }
             />
             <MeetInfoContainer.Content.TimePicker
+              placeholder={t("selectTime")}
               onChange={handleMeetDataChange(
                 (i) =>
                   i
@@ -241,8 +259,9 @@ const MeetInfo = ({
     "Invitation URL": null,
     "Google Meet URL": (
       <Switch
-        data-info={!login}
-        disabled={!login}
+        switchTheme="#5A8EA4"
+        data-info={login !== "google"}
+        disabled={login !== "google"}
         onChange={handleMeetDataChange((i) => i, "gen_meet_url")}
         checked={rawMeetInfo.gen_meet_url}
       />
@@ -253,9 +272,11 @@ const MeetInfo = ({
     "Meet Name": t("meetName"),
     "Start / End Date": t("startDate"),
     "Start / End Time": t("startTime"),
+    Host: t("host"),
     Member: t("member"),
     Description: t("description"),
     "Voting Deadline": t("votingDeadline"),
+    "Invitation URL": t("invitationURL"),
     "Google Meet URL": t("url"),
   };
 
@@ -288,7 +309,7 @@ const MeetInfo = ({
               )}
               {reviseMode && CONTENTMENU[title]?.props["data-info"] && (
                 <Tooltip
-                  title="Registered users only"
+                  title="Connect with Google to enable"
                   color="#FFFFFF"
                   overlayInnerStyle={{
                     color: "#000000",
@@ -312,7 +333,9 @@ const MeetInfo = ({
                 fontWeight: "normal",
               }}
             >
-              {reviseMode ? CONTENTMENU[title] : ElementMeetInfo[title]}
+              {reviseMode && (!confirmed || !CONFIRM_INEDITABLE.includes(title))
+                ? CONTENTMENU[title]
+                : ElementMeetInfo[title]}
             </MeetInfoContainer.Content>
           </Fragment>
         ))}

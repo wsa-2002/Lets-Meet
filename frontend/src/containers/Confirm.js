@@ -16,6 +16,7 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Vote from "../components/Vote";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
+import Error from "./Error";
 import { getGroupAvailability, meet, confirmMeet } from "../middleware";
 const getMeetInfo = meet("read");
 const BackButton = Button("back");
@@ -88,7 +89,7 @@ const Voting = () => {
         _.range(data.start_time_slot_id, data.end_time_slot_id + +2)
       );
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
@@ -101,14 +102,35 @@ const Voting = () => {
     })();
   }, [DATERANGE, TIMESLOTIDS]);
 
+  /*檢驗身分*/
+  const [exist, setExist] = useState(undefined); // meet是否存在
+  const { ID, error, setError } = useMeet();
+
   useEffect(() => {
     (async () => {
-      if (code) {
+      if (code && exist) {
         await new Promise((resolve) => setTimeout(resolve, 100));
-        handleMeetInfo();
+        await handleMeetInfo();
+        setLoading(false);
       }
     })();
-  }, [code]);
+  }, [code, ID, exist]);
+
+  useEffect(() => {
+    (async () => {
+      if (exist === undefined) {
+        const { error } = await getMeetInfo(code, cookies.token);
+        if (error) {
+          setError(error);
+          setExist(false);
+          return;
+        }
+        setError("");
+        setExist(true);
+      }
+    })();
+  }, []);
+  /******************************************************/
 
   useEffect(() => {
     if (VOTINGINFO.length) {
@@ -131,7 +153,7 @@ const Voting = () => {
       if (!updatedCell) {
         return;
       }
-      console.log(updatedCell);
+      //console.log(updatedCell);
       setTime(
         `${moment(DATERANGE[updatedCell?.[0]?.[0]], "YYYY-MM-DD").format(
           "MMM D"
@@ -143,7 +165,7 @@ const Voting = () => {
       );
       setStartDrag(false);
       setOpen(true);
-      console.log();
+      //console.log();
     } catch (error) {
       throw error;
     }
@@ -157,101 +179,107 @@ const Voting = () => {
 
   const handleConfirm = async () => {
     try {
-      console.log(updatedCell);
+      //console.log(updatedCell);
       await confirmMeet(
         code,
         {
           start_date: DATERANGE[updatedCell[0][0]],
           end_date: DATERANGE[updatedCell[0][0]],
-          start_time_slot_id: updatedCell[0][1] + 1,
-          end_time_slot_id: updatedCell[updatedCell.length - 1][1] + 1,
+          start_time_slot_id: TIMESLOTIDS[updatedCell?.[0]?.[1]],
+          end_time_slot_id:
+            TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1]],
         },
         cookies.token
       );
       navigate(`/meets/${code}`);
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
   return (
-    <ScrollSync>
-      <motion.div {...PAGE_TRANSITION.RightSlideIn}>
-        <Base login={login} onMouseUp={handleCellMouseUp}>
-          <Base.FullContainer>
-            {cell.length > 0 && (
-              <Base.FullContainer.ContentContainer
-                style={{ gridTemplateColumns: "8fr 1fr" }}
-              >
-                <ContentContainer.Title>
-                  <BackButton
-                    style={{
-                      position: "absolute",
-                      right: "100%",
-                      marginRight: RWDWidth(30),
-                    }}
-                    onClick={() => {
-                      navigate(`/meets/${code}`);
-                    }}
-                  ></BackButton>
-                  {title}
-                </ContentContainer.Title>
-                <ContentContainer.MyAvailability>
-                  {t("groupAva")}
-                </ContentContainer.MyAvailability>
-                <ContentContainer.MyAvailability.VotingArea
-                  style={{ gridColumn: "1/2" }}
+    exist !== undefined &&
+    (error ? (
+      <Error />
+    ) : (
+      <ScrollSync>
+        <motion.div {...PAGE_TRANSITION.RightSlideIn}>
+          <Base login={login} onMouseUp={handleCellMouseUp}>
+            <Base.FullContainer>
+              {cell.length > 0 && (
+                <Base.FullContainer.ContentContainer
+                  style={{ gridTemplateColumns: "8fr 1fr" }}
                 >
-                  <Vote
-                    DATERANGE={DATERANGE}
-                    TIMESLOTIDS={TIMESLOTIDS}
-                    Cells={DATERANGE.map((_, d_index) =>
-                      TIMESLOTIDS.map((_, t_index) => (
-                        <ConfirmCell
-                          drag={drag}
-                          index={[d_index, t_index]}
-                          key={t_index}
-                          style={{
-                            backgroundColor: cell[d_index][t_index]
-                              ? "#F25C54"
-                              : CELLCOLOR[
-                                  d_index * (TIMESLOTIDS.length - 1) + t_index
-                                ],
-                          }}
-                          info={
-                            <InfoTooltip
-                              available_members={
-                                VOTINGINFO?.[
-                                  d_index * (TIMESLOTIDS.length - 1) + t_index
-                                ]?.available_members
-                              }
-                              unavailable_members={
-                                VOTINGINFO?.[
-                                  d_index * (TIMESLOTIDS.length - 1) + t_index
-                                ]?.unavailable_members
-                              }
-                            />
-                          }
-                        />
-                      ))
-                    )}
-                  />
-                </ContentContainer.MyAvailability.VotingArea>
-              </Base.FullContainer.ContentContainer>
-            )}
+                  <ContentContainer.Title>
+                    <BackButton
+                      style={{
+                        position: "absolute",
+                        right: "100%",
+                        marginRight: RWDWidth(30),
+                      }}
+                      onClick={() => {
+                        navigate(`/meets/${code}`);
+                      }}
+                    ></BackButton>
+                    {title}
+                  </ContentContainer.Title>
+                  <ContentContainer.MyAvailability>
+                    {t("groupAva")}
+                  </ContentContainer.MyAvailability>
+                  <ContentContainer.MyAvailability.VotingArea
+                    style={{ gridColumn: "1/2" }}
+                  >
+                    <Vote
+                      DATERANGE={DATERANGE}
+                      TIMESLOTIDS={TIMESLOTIDS}
+                      Cells={DATERANGE.map((_, d_index) =>
+                        TIMESLOTIDS.map((_, t_index) => (
+                          <ConfirmCell
+                            drag={drag}
+                            index={[d_index, t_index]}
+                            key={t_index}
+                            style={{
+                              backgroundColor: cell[d_index][t_index]
+                                ? "#F25C54"
+                                : CELLCOLOR[
+                                    d_index * (TIMESLOTIDS.length - 1) + t_index
+                                  ],
+                            }}
+                            info={
+                              <InfoTooltip
+                                available_members={
+                                  VOTINGINFO?.[
+                                    d_index * (TIMESLOTIDS.length - 1) + t_index
+                                  ]?.available_members
+                                }
+                                unavailable_members={
+                                  VOTINGINFO?.[
+                                    d_index * (TIMESLOTIDS.length - 1) + t_index
+                                  ]?.unavailable_members
+                                }
+                              />
+                            }
+                          />
+                        ))
+                      )}
+                    />
+                  </ContentContainer.MyAvailability.VotingArea>
+                </Base.FullContainer.ContentContainer>
+              )}
 
-            <ConfirmModal
-              open={open}
-              setOpen={setOpen}
-              meetName={title}
-              time={time}
-              onCancel={handleCancel}
-              handleModalOk={handleConfirm}
-            />
-          </Base.FullContainer>
-        </Base>
-      </motion.div>
-    </ScrollSync>
+              <ConfirmModal
+                open={open}
+                setOpen={setOpen}
+                meetName={title}
+                time={time}
+                onCancel={handleCancel}
+                onOk={handleConfirm}
+              />
+            </Base.FullContainer>
+          </Base>
+        </motion.div>
+      </ScrollSync>
+    ))
   );
 };
 

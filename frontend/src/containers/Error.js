@@ -2,6 +2,7 @@ import Base from "../components/Base/145MeetRelated";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import Button from "../components/Button";
+import { useTranslation } from "react-i18next";
 import { useMeet } from "./hooks/useMeet";
 import { useNavigate } from "react-router-dom";
 import { RWD } from "../constant";
@@ -26,6 +27,7 @@ const ErrorContainer = styled.div`
 `;
 
 const Error = () => {
+  const { t } = useTranslation();
   const { login } = useMeet();
   const navigate = useNavigate();
   return (
@@ -38,14 +40,14 @@ const Error = () => {
         }}
       >
         <ErrorContainer>
-          <p>Page not exists</p>
+          <p>{t("pageNotExists")}</p>
           <PrimaryButton
             onClick={() => {
               navigate("/");
             }}
           >
             <ArrowLeftOutlined />
-            Home Page
+            {t("homePage")}
           </PrimaryButton>
         </ErrorContainer>
       </Base.FullContainer>

@@ -16,6 +16,7 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Vote from "../components/Vote";
 import TimeCell from "../components/TimeCell";
+import Error from "./Error";
 import {
   getGroupAvailability,
   getMyAvailability,
@@ -26,6 +27,7 @@ import {
 } from "../middleware";
 const getMeetInfo = meet("read");
 const BackButton = Button("back");
+const PillButton = Button("pill");
 const { ContentContainer } = Base.FullContainer;
 const { RWDWidth } = RWD;
 const DraggableCell = TimeCell("draggable");
@@ -42,6 +44,7 @@ const Voting = () => {
   const [ROUTINE, setROUTINE] = useState("");
   const [undo, setUndo] = useState([]);
   const [redo, setRedo] = useState([]);
+  const [initialCell, setInitialCell] = useState([]);
 
   /*可拖曳 time cell 套組*/
   const [cell, setCell] = useState([]);
@@ -103,7 +106,7 @@ const Voting = () => {
         _.range(data.start_time_slot_id, data.end_time_slot_id + +2)
       );
     } catch (error) {
-      console.log(error);
+      //console.log(error);
     }
   };
 
@@ -112,39 +115,35 @@ const Voting = () => {
   useEffect(() => {
     (async () => {
       if (DATERANGE.length && TIMESLOTIDS.length && ROUTINE) {
-        const { data: myAvailability } = await getMyAvailability(
+        const { data: myAvailability, error } = await getMyAvailability(
           code,
           cookies.token,
           location?.state?.guestName
         );
-        setCell(
-          DATERANGE.map((w) =>
-            TIMESLOTIDS.map((t) =>
-              myAvailability.find((d) => d.date === w && d.time_slot_id === t)
-                ? true
-                : ROUTINE.find(
-                    (r) =>
-                      r.weekday === moment(w).format("ddd").toUpperCase() &&
-                      r.time_slot_id === t
-                  )
-                ? null
-                : false
-            )
+        if (error) {
+          setError(error);
+          setExist(false);
+          return;
+        }
+        const temp = DATERANGE.map((w) =>
+          TIMESLOTIDS.map((t) =>
+            myAvailability.find((d) => d.date === w && d.time_slot_id === t)
+              ? true
+              : ROUTINE.find(
+                  (r) =>
+                    r.weekday === moment(w).format("ddd").toUpperCase() &&
+                    r.time_slot_id === t
+                )
+              ? null
+              : false
           )
         );
+        setInitialCell(temp);
+        setCell(temp);
         setLoading(false);
       }
     })();
   }, [DATERANGE, TIMESLOTIDS]);
-
-  useEffect(() => {
-    (async () => {
-      if (code) {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        handleMeetInfo();
-      }
-    })();
-  }, [code]);
 
   useEffect(() => {
     if (VOTINGINFO.length) {
@@ -161,6 +160,36 @@ const Voting = () => {
     }
   }, [VOTINGINFO]); //設定 time cell 顏色
 
+  /*檢驗身分*/
+  const [exist, setExist] = useState(undefined); // meet是否存在
+  const { ID, error, setError } = useMeet();
+
+  useEffect(() => {
+    (async () => {
+      if (code && exist) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await handleMeetInfo();
+        setLoading(false);
+      }
+    })();
+  }, [code, ID, exist]);
+
+  useEffect(() => {
+    (async () => {
+      if (exist === undefined) {
+        const { error } = await getMeetInfo(code, cookies.token);
+        if (error) {
+          setError(error);
+          setExist(false);
+          return;
+        }
+        setError("");
+        setExist(true);
+      }
+    })();
+  }, []);
+  /******************************************************/
+
   const handleCellMouseUp = async (e) => {
     e.preventDefault();
     try {
@@ -168,7 +197,7 @@ const Voting = () => {
         return;
       }
       setStartDrag(false);
-      console.log(TIMESLOTIDS, updatedCell);
+      //console.log(TIMESLOTIDS, updatedCell);
       const API = mode ? addMyAvailability : deleteMyAvailability;
       setUndo((prev) => [
         {
@@ -209,7 +238,7 @@ const Voting = () => {
   };
 
   const handleUndoRedo = async (e) => {
-    console.log(loading);
+    //console.log(loading);
     let opr;
     if (e.ctrlKey) {
       switch (e.key) {
@@ -288,96 +317,160 @@ const Voting = () => {
     };
   }, [undo, redo, loading]);
 
+  const handleReset = async () => {
+    setLoading(true);
+    let add = [];
+    let del = [];
+    for (const d in cell) {
+      for (const t in cell[d]) {
+        if (cell[d][t] && !initialCell[d][t]) {
+          del.push([d, t]);
+        }
+        if (!cell[d][t] && initialCell[d][t]) {
+          add.push([d, t]);
+        }
+      }
+    }
+    console.log(add, del);
+    await deleteMyAvailability(
+      code,
+      {
+        time_slots: del.map((u) => ({
+          date: DATERANGE[u[0]],
+          time_slot_id: TIMESLOTIDS[u[1]],
+        })),
+        name: location?.state?.guestName ?? null,
+        password: location?.state?.guestPassword ?? null,
+      },
+      cookies.token
+    );
+    await addMyAvailability(
+      code,
+      {
+        time_slots: add.map((u) => ({
+          date: DATERANGE[u[0]],
+          time_slot_id: TIMESLOTIDS[u[1]],
+        })),
+        name: location?.state?.guestName ?? null,
+        password: location?.state?.guestPassword ?? null,
+      },
+      cookies.token
+    );
+    const { data: votingData } = await getGroupAvailability(
+      code,
+      cookies.token
+    );
+    setVOTINGINFO(votingData.data);
+    setUndo([]);
+    setRedo([]);
+    setCell(initialCell);
+    setLoading(false);
+  };
+
   return (
-    <ScrollSync>
-      <motion.div {...PAGE_TRANSITION.RightSlideIn}>
-        <Base login={login} onMouseUp={handleCellMouseUp}>
-          <Base.FullContainer>
-            {cell.length > 0 && (
-              <Base.FullContainer.ContentContainer>
-                <ContentContainer.Title>
-                  <BackButton
-                    style={{
-                      position: "absolute",
-                      right: "100%",
-                      marginRight: RWDWidth(30),
-                    }}
-                    onClick={() => {
-                      navigate(`/meets/${code}`);
-                    }}
-                  ></BackButton>
-                  {title}
-                </ContentContainer.Title>
-                <ContentContainer.MyAvailability>
-                  {t("myAva")}
-                </ContentContainer.MyAvailability>
-                <ContentContainer.GroupAvailability>
-                  {t("groupAva")}
-                </ContentContainer.GroupAvailability>
-                <ContentContainer.MyAvailability.VotingArea>
-                  <Vote
-                    DATERANGE={DATERANGE}
-                    TIMESLOTIDS={TIMESLOTIDS}
-                    Cells={DATERANGE.map((_, d_index) =>
-                      TIMESLOTIDS.map((_, t_index) => (
-                        <DraggableCell
-                          style={{
-                            background:
-                              cell[d_index][t_index] === null
-                                ? "#808080"
-                                : cell[d_index][t_index]
-                                ? "#94C9CD"
-                                : "#F0F0F0",
-                          }}
-                          drag={drag}
-                          index={[d_index, t_index]}
-                          key={t_index}
-                        />
-                      ))
-                    )}
-                  />
-                </ContentContainer.MyAvailability.VotingArea>
-                <ContentContainer.MyAvailability.VotingArea
-                  style={{ gridColumn: "2/3" }}
-                >
-                  <Vote
-                    DATERANGE={DATERANGE}
-                    TIMESLOTIDS={TIMESLOTIDS}
-                    Cells={DATERANGE.map((_, d_index) =>
-                      TIMESLOTIDS.map((_, t_index) => (
-                        <InfoCell
-                          key={t_index}
-                          style={{
-                            backgroundColor:
-                              CELLCOLOR[
-                                d_index * (TIMESLOTIDS.length - 1) + t_index
-                              ],
-                          }}
-                          info={
-                            <InfoTooltip
-                              available_members={
-                                VOTINGINFO?.[
+    exist !== undefined &&
+    (error ? (
+      <Error />
+    ) : (
+      <ScrollSync>
+        <motion.div {...PAGE_TRANSITION.RightSlideIn}>
+          <Base login={login} onMouseUp={handleCellMouseUp}>
+            <Base.FullContainer>
+              {cell.length > 0 && (
+                <Base.FullContainer.ContentContainer>
+                  <ContentContainer.Title>
+                    <BackButton
+                      style={{
+                        position: "absolute",
+                        right: "100%",
+                        marginRight: RWDWidth(30),
+                      }}
+                      onClick={() => {
+                        navigate(`/meets/${code}`);
+                      }}
+                    ></BackButton>
+                    {title}
+                  </ContentContainer.Title>
+                  <ContentContainer.MyAvailability
+                    style={{ columnGap: RWDWidth(10) }}
+                  >
+                    {t("myAva")}
+                    <PillButton
+                      variant="hollow"
+                      buttonTheme="#D8D8D8"
+                      onClick={handleReset}
+                    >
+                      Reset
+                    </PillButton>
+                  </ContentContainer.MyAvailability>
+                  <ContentContainer.GroupAvailability>
+                    {t("groupAva")}
+                  </ContentContainer.GroupAvailability>
+                  <ContentContainer.MyAvailability.VotingArea>
+                    <Vote
+                      DATERANGE={DATERANGE}
+                      TIMESLOTIDS={TIMESLOTIDS}
+                      Cells={DATERANGE.map((_, d_index) =>
+                        TIMESLOTIDS.map((_, t_index) => (
+                          <DraggableCell
+                            style={{
+                              background:
+                                cell[d_index][t_index] === null
+                                  ? "#808080"
+                                  : cell[d_index][t_index]
+                                  ? "#94C9CD"
+                                  : "#F0F0F0",
+                            }}
+                            drag={drag}
+                            index={[d_index, t_index]}
+                            key={t_index}
+                          />
+                        ))
+                      )}
+                    />
+                  </ContentContainer.MyAvailability.VotingArea>
+                  <ContentContainer.MyAvailability.VotingArea
+                    style={{ gridColumn: "2/3" }}
+                  >
+                    <Vote
+                      DATERANGE={DATERANGE}
+                      TIMESLOTIDS={TIMESLOTIDS}
+                      Cells={DATERANGE.map((_, d_index) =>
+                        TIMESLOTIDS.map((_, t_index) => (
+                          <InfoCell
+                            key={t_index}
+                            style={{
+                              backgroundColor:
+                                CELLCOLOR[
                                   d_index * (TIMESLOTIDS.length - 1) + t_index
-                                ]?.available_members
-                              }
-                              unavailable_members={
-                                VOTINGINFO?.[
-                                  d_index * (TIMESLOTIDS.length - 1) + t_index
-                                ]?.unavailable_members
-                              }
-                            />
-                          }
-                        />
-                      ))
-                    )}
-                  />
-                </ContentContainer.MyAvailability.VotingArea>
-              </Base.FullContainer.ContentContainer>
-            )}
-          </Base.FullContainer>
-        </Base>
-      </motion.div>
-    </ScrollSync>
+                                ],
+                            }}
+                            info={
+                              <InfoTooltip
+                                available_members={
+                                  VOTINGINFO?.[
+                                    d_index * (TIMESLOTIDS.length - 1) + t_index
+                                  ]?.available_members
+                                }
+                                unavailable_members={
+                                  VOTINGINFO?.[
+                                    d_index * (TIMESLOTIDS.length - 1) + t_index
+                                  ]?.unavailable_members
+                                }
+                              />
+                            }
+                          />
+                        ))
+                      )}
+                    />
+                  </ContentContainer.MyAvailability.VotingArea>
+                </Base.FullContainer.ContentContainer>
+              )}
+            </Base.FullContainer>
+          </Base>
+        </motion.div>
+      </ScrollSync>
+    ))
   );
 };
 

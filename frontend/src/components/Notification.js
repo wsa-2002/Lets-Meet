@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { RWD } from "../constant";
 const { RWDFontSize } = RWD;
 
-const Notification = ({ message, notification, setNotification }) => {
+const Notification = ({ notification, setNotification }) => {
   const [api, contextHolder] = AntdNotification.useNotification();
   const [margin, setMargin] = useState(undefined);
 
@@ -15,7 +15,7 @@ const Notification = ({ message, notification, setNotification }) => {
 
   useEffect(() => {
     if (margin !== undefined) {
-      console.log(margin.number);
+      //console.log(margin.number);
       api.open({
         message: notification?.title,
         description: (

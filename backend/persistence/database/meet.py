@@ -115,7 +115,7 @@ async def read(meet_id: int, include_deleted: bool = False) -> do.Meet:
 async def is_authed(meet_id: int, member_id: int = None, name: str = None, only_host: bool = False) -> bool:
     if not member_id and not name:
         return False
-
+    name = f"guest_{name}" if name else None
     sql, params = pyformat2psql(
         sql=fr"SELECT * FROM meet_member"
             fr" WHERE meet_id = %(meet_id)s"
@@ -184,7 +184,7 @@ async def edit(meet_id: int, title: Optional[str] = None, start_date: Optional[d
                finalized_start_date: Optional[date] = None, finalized_end_date: Optional[date] = None,
                finalized_start_time_slot_id: Optional[int] = None, finalized_end_time_slot_id: Optional[int] = None) \
         -> None:
-    update_params = {}
+    update_params = {'voting_end_time': voting_end_time}
     if title:
         update_params['title'] = title
     if start_date:
@@ -197,8 +197,6 @@ async def edit(meet_id: int, title: Optional[str] = None, start_date: Optional[d
         update_params['end_time_slot_id'] = end_time_slot_id
     if description:
         update_params['description'] = description
-    if voting_end_time:
-        update_params['voting_end_time'] = voting_end_time
     if gen_meet_url is not None:
         update_params['gen_meet_url'] = gen_meet_url
     if meet_url:
@@ -248,6 +246,8 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
     sql, params = pyformat2psql(
         sql=fr"SELECT meet.id, invite_code, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,"
             fr"       voting_end_time, meet_url, tbl1.member_id, "
+            fr"       finalized_start_date, finalized_end_date,"
+            fr"       finalized_start_time_slot_id, finalized_end_time_slot_id,"
             fr"       host.username, tbl2.name"
             fr"  FROM meet"
             fr" INNER JOIN meet_member tbl1"
@@ -265,11 +265,18 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
     )
     records = await pool_handler.pool.fetch(sql, *params)
     return [vo.BrowseMeetByAccount(meet_id=meet_id, invite_code=invite_code, host_account_id=host_account_id,
-                                   host_username=host_username or guest_host_username, title=title, start_date=start_date, end_date=end_date,
+                                   host_username=host_username or guest_host_username.replace('guest_', '', 1),
+                                   start_date=start_date, end_date=end_date,
                                    start_time_slot_id=start_time_slot_id, end_time_slot_id=end_time_slot_id,
-                                   status=enums.StatusType(status), voting_end_time=voting_end_time, meet_url=meet_url)
+                                   status=enums.StatusType(status), voting_end_time=voting_end_time, meet_url=meet_url,
+                                   finalized_start_date=finalized_start_date, finalized_end_date=finalized_end_date,
+                                   finalized_start_time_slot_id=finalized_start_time_slot_id,
+                                   finalized_end_time_slot_id=finalized_end_time_slot_id, title=title)
             for meet_id, invite_code, title, start_date, end_date, status, start_time_slot_id, end_time_slot_id,
-                voting_end_time, meet_url, host_account_id, host_username, guest_host_username in records]  # noqa
+                voting_end_time, meet_url, host_account_id,
+                finalized_start_date, finalized_end_date,
+                finalized_start_time_slot_id, finalized_end_time_slot_id,
+                host_username, guest_host_username in records]  # noqa
 
 
 async def has_voted(meet_id: int, account_id: int) -> bool:
@@ -297,6 +304,7 @@ async def update_status(meet_id: int, status: enums.StatusType) -> None:
 
 async def add_member(meet_id: int, account_id: Optional[int] = None,
                      name: Optional[str] = None, pass_hash: Optional[str] = None) -> None:
+    name = f"guest_{name}" if name else None
     sql, params = pyformat2psql(
         sql=fr'INSERT INTO meet_member'
             fr'            (name, member_id, meet_id, pass_hash)'

@@ -23,6 +23,7 @@ const PrimaryButton = Button();
 const ShortInput = Input("shorter");
 const RectButton = Button("rect");
 const joinMeet = meet("join");
+const getMeetInfo = meet("read");
 const GuestNameModal = Modal("guestName");
 
 const JoinMeet = Object.assign(
@@ -71,11 +72,25 @@ const Mainpage = () => {
   const [guestCreateModalOpen, setGuestCreateModalOpen] = useState(false);
   const [notification, setNotification] = useState({});
 
-  const { login, cookies, setError } = useMeet();
+  const { login, cookies, setError, setLoading } = useMeet();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const invite = useRef(null);
-  const [form] = Form.useForm();
+
+  useEffect(() => {
+    setMeetData({
+      meet_name: "",
+      start_date: "",
+      end_date: "",
+      start_time_slot_id: 0,
+      end_time_slot_id: 0,
+      gen_meet_url: false,
+      voting_end_time: undefined,
+      description: "",
+      member_ids: [],
+      emails: [],
+    });
+  }, [login]);
 
   /*調整 invitation area 套組*/
   const ref = useRef(null); //追蹤LetMEET
@@ -93,6 +108,13 @@ const Mainpage = () => {
   }, []);
   /******************************************************/
 
+  /*調整 guest name 套組*/
+  const [form, setForm] = useState({ username: "", password: "" });
+  const handleFormChange = (name) => (e) => {
+    setForm((prev) => ({ ...prev, [name]: e.target.value }));
+  };
+  /******************************************************/
+
   const handleInvite = async (e) => {
     if (!invite?.current?.input?.value) {
       return;
@@ -108,6 +130,23 @@ const Mainpage = () => {
             title: "Invitation code error",
             message: "The invitation code is invalid.",
           });
+          return;
+        }
+        if (error && error !== "UniqueViolationError") {
+          setError(error);
+          return;
+        }
+      } else {
+        const { error } = await getMeetInfo(
+          invite.current.input.value,
+          cookies.token
+        );
+        if (error && error === "NotFound") {
+          setNotification({
+            title: "Invitation code error",
+            message: "The invitation code is invalid.",
+          });
+          return;
         }
         if (error && error !== "UniqueViolationError") {
           setError(error);
@@ -126,8 +165,8 @@ const Mainpage = () => {
       } else {
         setMeetData((prev) => ({
           ...prev,
-          [name[0]]: func(e[0], 1),
-          [name[1]]: func(e[1], 0),
+          [name[0]]: e ? func(e[0], 1) : undefined,
+          [name[1]]: e ? func(e[1], 0) : undefined,
         }));
       }
     };
@@ -138,7 +177,9 @@ const Mainpage = () => {
         setGuestCreateModalOpen(true);
         return;
       }
+      setLoading(true);
       const { data } = await addMeet(meetData, cookies.token);
+      // setLoading(false);
       navigate(`/meets/${data.invite_code}`);
     } catch (error) {
       setError(error.message);
@@ -147,9 +188,9 @@ const Mainpage = () => {
 
   const handleOk = async () => {
     try {
-      const { username: guest_name, password: guest_password } =
-        form.getFieldValue();
+      const { username: guest_name, password: guest_password } = form;
       if (!guest_name) return;
+      setLoading(true);
       const { data } = await addMeet(
         {
           ...meetData,
@@ -158,8 +199,9 @@ const Mainpage = () => {
         },
         cookies.token
       );
+      // setLoading(false);
       navigate(`/meets/${data.invite_code}`, {
-        state: { guestName: guest_name },
+        state: { guestName: guest_name, guestPassword: guest_password },
       });
     } catch (error) {
       setError(error.message);
@@ -231,10 +273,17 @@ const Mainpage = () => {
               rawMeetInfo={meetData}
             />
             <PrimaryButton
+              onClick={handleMeetCreate}
+              disabled={
+                !meetData.meet_name ||
+                !meetData.start_date ||
+                !meetData.end_date ||
+                !meetData.start_time_slot_id ||
+                !meetData.end_time_slot_id
+              }
               style={{
                 alignSelf: "flex-end",
               }}
-              onClick={handleMeetCreate}
             >
               {t("create")}
             </PrimaryButton>
@@ -244,8 +293,9 @@ const Mainpage = () => {
           form={form}
           open={guestCreateModalOpen}
           setOpen={setGuestCreateModalOpen}
-          handleModalOk={handleOk}
-        ></GuestNameModal>
+          onOk={handleOk}
+          handleFormChange={handleFormChange}
+        />
       </Base>
     </>
   );

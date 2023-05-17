@@ -4,8 +4,9 @@
 **************************************************************************************************/
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { Table, ConfigProvider } from "antd";
+import moment from "moment";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useMeet } from "./hooks/useMeet";
@@ -13,8 +14,9 @@ import { RWD } from "../constant";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import Tag from "../components/Tag";
-
+import slotIDProcessing from "../util/slotIDProcessing";
 import { browseMeet } from "../middleware";
+
 const { RWDHeight, RWDWidth } = RWD;
 const MemberTag = Tag("member");
 const StatusTag = Tag("status");
@@ -61,10 +63,14 @@ const MeetContainer = styled.div`
     color: #7a3e00 !important;
     border-bottom: 1px solid #7a3e00 !important;
   }
-  tbody .icon {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+
+  thead .ant-table-cell-scrollbar {
+    background-color: #fdf3d1 !important;
+    border-bottom: 1px solid #7a3e00 !important;
+  }
+
+  tbody .meetTableColumn {
+    overflow-x: auto;
   }
 `;
 
@@ -77,13 +83,30 @@ const Meets = () => {
   const [meetsData, setMeetsData] = useState({});
   const [view, setView] = useState("Voting");
 
+  const tagLangMapping = (status) => {
+    switch (status) {
+      case "Voted":
+        return t("voted");
+      case "Unvoted":
+        return t("unvoted");
+      case "Confirmed":
+        return t("confirmed");
+      case "Confirming":
+        return t("confirming");
+      case "Need Confirmation":
+        return t("needConfirmation");
+      default:
+        return;
+    }
+  };
+
   const customizeRenderEmpty = () => (
     <div style={{ textAlign: "center" }}>
       <p>{t("noData")}</p>
     </div>
   );
 
-  const handleMeetInfoClick = (code) => () => {
+  const handleMeetInfoClick = (code) => (e) => {
     navigate(`/meets/${code}`);
   };
 
@@ -95,7 +118,7 @@ const Meets = () => {
         setMeetsData(
           data.reduce(
             (acc, curr) => {
-              console.log();
+              //console.log();
               const target = {
                 key: curr.meet_id,
                 name: curr.title,
@@ -105,9 +128,15 @@ const Meets = () => {
                   "-",
                   "/"
                 )} ~ ${curr.end_date.replaceAll("-", "/")}`,
+                votingDeadline: curr.voting_end_time
+                  ? moment(curr.voting_end_time).format("YYYY/MM/DD HH:mm")
+                  : "",
                 status: curr.status,
-                meetingTime: "2023/04/15",
-                url: curr.meet_url ?? "https://meet.google.com/vft-xolb-mog",
+                meetingTime: curr.finalized_start_date
+                  ? `${curr.finalized_start_date} ` +
+                    slotIDProcessing(curr.finalized_start_time_slot_id)
+                  : "",
+                url: curr.meet_url,
               };
               acc[
                 CONFIRMTAG.includes(curr.status) ? "Ended Votes" : "Voting"
@@ -129,71 +158,81 @@ const Meets = () => {
       title: t("name"),
       dataIndex: "name",
       key: "name",
-      width: RWDWidth(200),
+      width: 150,
+      render: (i) => <div style={{ overflowX: "auto" }}>{i}</div>,
     },
     {
       title: t("host"),
       dataIndex: "host",
       key: "host",
-      width: RWDWidth(150),
+      width: 150,
       render: (tag) => <MemberTag>{tag}</MemberTag>,
     },
     {
       title: t("votingPeriod"),
       dataIndex: "votingPeriod",
       key: "votingPeriod",
-      width: RWDWidth(220),
+      width: 220,
+      render: (i) => <div style={{ overflowX: "auto" }}>{i}</div>,
     },
     {
       title: t("status"),
       dataIndex: "status",
       key: "status",
-      width: RWDWidth(200),
+      width: 150,
       render: (tag) => (
         <StatusTag key={tag} style={tagMap[tag]}>
-          {tag}
+          {tagLangMapping(tag)}
         </StatusTag>
       ),
     },
     {
+      width: 200,
       title: view === "Voting" ? t("votingDeadline") : t("meetingTime"),
       dataIndex: view === "Voting" ? "votingDeadline" : "meetingTime",
       key: view === "Voting" ? "votingDeadline" : "meetingTime",
-      width: RWDWidth(200),
     },
     {
       title: t("url"),
       dataIndex: "url",
       key: "url",
-      width: RWDWidth(300),
-      render: (url) => (
-        <Link
-          type="link"
-          href={url}
-          target="_blank"
-          style={{ color: "black", textDecoration: "underline" }}
-        >
-          {url}
-        </Link> // TODO: 跳轉到新的頁面
-      ),
+      width: 250,
+      // width: "fit-content",
+      render: (url) =>
+        url ? (
+          <a
+            target="_blank"
+            href={url}
+            style={{ color: "#000000", textDecoration: "underline" }}
+            rel="noreferrer"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            {url}
+          </a>
+        ) : (
+          "None"
+        ),
     },
     {
       title: "",
       dataIndex: "action",
       align: "right",
+      fixed: "right",
+      width: 70,
       render: () => (
         <RoundButton
-          variant="icon"
+          variant="text"
           buttonTheme="#D8D8D8"
           icon={<ArrowRightOutlined />}
-          style={{ position: "absolute", right: 0 }}
           // onClick={handleMeetInfoClick}
         />
       ),
     },
   ].map((m) => ({
     ...m,
-    className: m ? "meetTableColumn" : "meetTableColumn icon",
+    className: m.title ? "meetTableColumn" : "meetTableColumn icon",
   }));
 
   return (
@@ -258,15 +297,19 @@ const Meets = () => {
               style={{ width: "100%", overflowX: "auto" }}
               dataSource={meetsData[view]}
               columns={columns}
+              scroll={{
+                y: 400,
+                x: 1000,
+              }}
               onRow={(record) => {
                 return {
                   onMouseEnter: (e) => {
-                    // console.log(record);
+                    // //console.log(record);
                   },
                   onClick: handleMeetInfoClick(record.code),
                 };
               }}
-            ></Table>
+            />
           </ConfigProvider>
         </MeetContainer>
       </Base.FullContainer>
