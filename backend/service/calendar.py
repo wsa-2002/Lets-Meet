@@ -37,7 +37,6 @@ class GoogleCalendar:
         end_date = datetime.combine(end_date, datetime.min.time())
         formatted_start = start_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         formatted_end = end_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-        print(formatted_end)
         events_result = self.service.events().list(calendarId='primary', timeMin=formatted_start,
                                                    timeMax=formatted_end, singleEvents=True,
                                                    orderBy='startTime').execute()
