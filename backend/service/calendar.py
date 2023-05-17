@@ -1,5 +1,5 @@
 import persistence.database as db
-from datetime import datetime 
+from datetime import datetime, timedelta
 from base import vo
 from config import google_config
 from google.auth.transport.requests import Request
@@ -33,14 +33,14 @@ class GoogleCalendar:
 
     async def get_google_event(self, start_date, end_date):
         start_date = datetime.combine(start_date, datetime.min.time())
-        end_date = datetime.combine(end_date, datetime.max.time())
+        end_date = end_date + timedelta(days=1)
+        end_date = datetime.combine(end_date, datetime.min.time())
         formatted_start = start_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         formatted_end = end_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-
+        print(formatted_end)
         events_result = self.service.events().list(calendarId='primary', timeMin=formatted_start,
                                                    timeMax=formatted_end, singleEvents=True,
                                                    orderBy='startTime').execute()
-
         events = events_result.get('items', [])
         if not events:
             return
@@ -49,8 +49,12 @@ class GoogleCalendar:
         for event in events:
             start = event['start'].get('dateTime', event['start'].get('date'))
             end = event['end'].get('dateTime', event['end'].get('date'))
-            start = datetime.strptime(start[:-6], '%Y-%m-%dT%H:%M:%S')
-            end = datetime.strptime(end[:-6], '%Y-%m-%dT%H:%M:%S')
+            if(len(start) != 10):
+                start = datetime.strptime(start[:-6], '%Y-%m-%dT%H:%M:%S')
+                end = datetime.strptime(end[:-6], '%Y-%m-%dT%H:%M:%S')
+            else:
+                start = datetime.strptime(start, '%Y-%m-%d')
+                end = datetime.strptime(end, '%Y-%m-%d')
             color_id = event.get('colorId')
             if color_id:
                 color = self.service.colors().get().execute()['calendar'][str(color_id)]['background']

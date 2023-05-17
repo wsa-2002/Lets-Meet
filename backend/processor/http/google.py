@@ -59,6 +59,7 @@ async def auth(request: Request):
                                             access_token=token_google['access_token'], refresh_token=token_google['refresh_token'])
             await db.account.update_username(account_id=account_id, username='用戶_'+str(account_id))
         token = encode_jwt(account_id=account_id)
+        print('token is', token)
         response = RedirectResponse(url=f"{service_config.url}/login")
         response.set_cookie(key="account_id", value=str(account_id))
         response.set_cookie(key="token", value=str(token))
