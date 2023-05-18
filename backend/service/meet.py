@@ -34,10 +34,11 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
     if meet.status is enums.StatusType.confirmed and (
         meet.start_time_slot_id is not data.start_time_slot_id
         or meet.end_time_slot_id is not data.end_time_slot_id
-        or meet.start_date is not data.start_date or meet.end_date is not data.end_date
-        or meet.voting_end_time is not data.voting_end_time
+        or meet.start_date != data.start_date or meet.end_date != data.end_date
+        or meet.voting_end_time != data.voting_end_time
     ):
         raise exc.IllegalInput
+
     meet.start_date = data.start_date or meet.start_date
     meet.end_date = data.end_date or meet.end_date
     meet.start_time_slot_id = data.start_time_slot_id or meet.start_time_slot_id
