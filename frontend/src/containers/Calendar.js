@@ -11,7 +11,7 @@ import { Tooltip } from "antd";
 import _ from "lodash";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
@@ -92,16 +92,6 @@ const CalendarContainer = styled.div`
     .toastui-calendar-weekday-events {
       top: ${RWDHeight(10)} !important;
     }
-    .toastui-calendar-weekday-event {
-      height: fit-content !important;
-      border: none !important;
-      line-height: normal !important;
-      background-color: transparent !important;
-      .toastui-calendar-weekday-event-title {
-        overflow: auto !important;
-        padding: 0;
-      }
-    }
 
     .toastui-calendar-see-more-container {
       left: ${({ seeMorePosition: { left } }) =>
@@ -142,9 +132,14 @@ const CalendarContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+    * {
+      line-height: normal !important;
+    }
     button {
-      margin-top: ${RWDHeight(6)};
-      margin-bottom: ${RWDHeight(10)};
+      //see more button
+      width: 100%;
+      height: fit-content !important;
+      margin: ${RWDHeight(6)} 8px ${RWDHeight(10)} 8px;
       text-align: left !important;
       padding: 0 !important;
       &:hover,
@@ -153,8 +148,12 @@ const CalendarContainer = styled.div`
         background-color: #f0f0f0;
         border-radius: ${RWDRadius(5)} !important;
       }
+      .mymore {
+        padding: 0 ${RWDWidth(12)};
+      }
     }
     .toastui-calendar-grid-cell-date {
+      //月份底部會有時間，取消才能將 see more 放置對的位置
       display: none;
     }
   }
@@ -167,13 +166,39 @@ const CalendarContainer = styled.div`
     .toastui-calendar-panel-resizer {
       display: none;
     }
+    .toastui-calendar-events {
+      margin-left: 8px;
+      .toastui-calendar-event-time {
+        /* height: fit-content !important; */
+        background-color: transparent !important;
+        border-left: none !important;
+        .toastui-calendar-event-time-content {
+          padding: 0 !important;
+          overflow-y: auto !important;
+          border-radius: ${RWDRadius(5)};
+        }
+      }
+    }
+    .toastui-calendar-panel-allday-events {
+      .toastui-calendar-weekday-event {
+        margin: 0 !important;
+        border-radius: 0 !important;
+      }
+    }
   }
 
-  .mymore {
-    width: calc(${RWDWidth(1260)} / 7 - 16px);
-    border-radius: ${RWDRadius(5)} !important;
-    padding: 0 ${RWDWidth(12)};
+  /*common style*/
+  .toastui-calendar-weekday-event {
+    height: fit-content !important;
+    border: none !important;
+    line-height: normal !important;
+    background-color: transparent !important;
+    .toastui-calendar-weekday-event-title {
+      overflow: auto !important;
+      padding: 0;
+    }
   }
+  /******************************************************/
 `;
 
 const MenuContainer = Object.assign(
@@ -203,9 +228,14 @@ export default () => {
   const calendarInstRef = useRef(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [events, setEvents] = useState([]);
-  const [mode, setMode] = useState("month"); //month or week
+  const [mode, setMode] = useState("week"); //month or week
   const [month, setMonth] = useState(moment().format("YYYY MMMM")); //標題月份
   const [timeRange, setTimeRange] = useState([]); //整個日曆的範圍
+  const [key, setKey] = useState(0);
+
+  useEffect(() => {
+    setKey((prev) => prev + 1);
+  }, [mode, timeRange]);
 
   /*resize seeMore 套組*/
   const [seeMorePosition, setSeeMorePosition] = useState({ left: 0, top: 0 });
@@ -220,9 +250,7 @@ export default () => {
         top,
       });
     }
-    if (!seeMoreMode) {
-      setEvents((prev) => [...prev]);
-    }
+    setKey((prev) => prev + 1);
   }, 100);
 
   useEffect(() => {
@@ -303,180 +331,196 @@ export default () => {
   };
 
   const EventTemplate = (event) => {
+    //.toastui-calendar-template-time
+    let style = {
+      height: "100%",
+      fontSize: RWDFontSize(12),
+      fontWeight: 500,
+      borderRadius: RWDRadius(5),
+      display: "flex",
+      flexDirection: "column",
+    };
+    if (!event.raw.isGoogle) {
+      style = {
+        ...style,
+        color: "#935000",
+        backgroundColor: "#FFD466",
+        border: "1px solid #B39559",
+      };
+    } else {
+      style = {
+        ...style,
+        color: event.color,
+        backgroundColor: hexToRgbA(event.color),
+        cursor: "default",
+      };
+    }
     if (mode === "month") {
-      if (!event.raw.isGoogle) {
+      style = {
+        ...style,
+        padding: `${RWDHeight(2)} ${RWDWidth(12)}`,
+        width: "fit-content",
+        minWidth: "100%",
+      };
+      return <div style={style}>{event.title}</div>;
+    } else {
+      style = {
+        ...style,
+        padding: `${RWDHeight(2)} ${RWDWidth(12)}`,
+        whiteSpace: "pre-wrap",
+        wordWrap: "break-word",
+        height: "fit-content",
+        minHeight: "100%",
+      };
+      if (event.category === "time") {
         return (
-          <div
-            style={{
-              color: "#935000",
-              fontSize: RWDFontSize(12),
-              fontWeight: 500,
-              border: "1px solid #B39559",
-              borderRadius: RWDRadius(5),
-              backgroundColor: "#FFD466",
-              padding: `0 ${RWDWidth(12)}`,
-              textOverflow: "ellipsis",
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {event.title}
+          <div style={style}>
+            {`${event.title}\n${moment(new Date(event.start)).format(
+              "HH:mm"
+            )} - ${moment(new Date(event.end)).format("HH:mm")}`}
           </div>
         );
       } else {
         return (
-          <div
-            className="google"
-            style={{
-              cursor: "default",
-              color: event.color,
-              fontSize: RWDFontSize(12),
-              fontWeight: 500,
-              borderRadius: RWDRadius(5),
-              backgroundColor: hexToRgbA(event.color),
-              padding: `0 ${RWDWidth(12)}`,
-              textOverflow: "ellipsis",
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <div style={{ ...style, borderRadius: 0 }}>
             {event.title}
+            {/* {`${event.title} ${moment(event.start).format("HH:mm")}`} */}
           </div>
         );
       }
     }
   };
-  const [calendarOption, setCalendarOption] = useState({
-    view: "month",
-    isReadOnly: true,
-    theme: {
-      common: {
-        backgroundColor: "transparent",
+
+  const calendarOption = useMemo(
+    () => ({
+      view: mode,
+      isReadOnly: true,
+      theme: {
+        common: {
+          backgroundColor: "transparent",
+        },
+        month: {
+          dayName: {
+            borderLeft: "none",
+            backgroundColor: "#FDF3D1",
+          },
+          gridCell: {
+            headerHeight: 30,
+            footerHeight: 30,
+          },
+          moreView: {
+            border: "1px solid grey",
+            boxShadow: "0 2px 6px 0 grey",
+            backgroundColor: "white",
+            width: `calc(${RWDWidth(1260)} / 7)`,
+            height: "fit-content",
+          },
+        },
+        week: {
+          timeGridHourLine: {
+            borderBottom: "none",
+          },
+          dayName: {
+            borderLeft: "none",
+            borderTop: "none",
+            borderBottom: "none",
+            backgroundColor: "#FDF3D1",
+          },
+          panelResizer: {
+            border: "none",
+          },
+          today: { backgroundColor: "transparent" },
+        },
       },
+      gridSelection: false,
       month: {
-        dayName: {
-          borderLeft: "none",
-          backgroundColor: "#FDF3D1",
-        },
-        gridCell: {
-          headerHeight: 30,
-          footerHeight: 30,
-        },
-        moreView: {
-          border: "1px solid grey",
-          boxShadow: "0 2px 6px 0 grey",
-          backgroundColor: "white",
-          width: `calc(${RWDWidth(1260)} / 7)`,
-          height: "fit-content",
-        },
+        isAlways6Weeks: false,
+        visibleEventCount: 5,
       },
       week: {
-        timeGridHourLine: {
-          borderBottom: "none",
-        },
-        dayName: {
-          borderLeft: "none",
-          borderTop: "none",
-          borderBottom: "none",
-          backgroundColor: "#FDF3D1",
-        },
-        panelResizer: {
-          border: "none",
-        },
-        today: { backgroundColor: "transparent" },
+        taskView: false,
+        showNowIndicator: false,
       },
-    },
-    gridSelection: false,
-    month: {
-      isAlways6Weeks: false,
-      visibleEventCount: 5,
-    },
-    week: {
-      taskView: false,
-      showNowIndicator: false,
-    },
-    events,
-    template: {
-      monthGridHeaderExceed: () => <div></div>,
-      monthGridFooterExceed: function (hiddenSchedules) {
-        return (
-          <div
-            className="mymore"
-            onMouseEnter={(e) => {
-              if (!seeMoreMode) {
-                const { left, top } =
-                  e.target.parentNode.parentNode.parentNode.getBoundingClientRect();
-                setSeeMorePosition({
-                  left,
-                  top,
-                });
-                seeMoreRef.current = e.target.parentNode.parentNode.parentNode;
-              }
-            }}
-          >
-            {hiddenSchedules} more
-          </div>
-        );
-      },
-      monthMoreTitleDate: () => <div></div>,
-      monthMoreClose: () => <div>&times;</div>,
-
-      monthDayName: (model) => (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#575757",
-          }}
-        >
-          {model.label}
-        </div>
-      ),
-      monthGridHeader(model) {
-        let format = "D";
-        const date = parseInt(model.date.split("-")[2], 10);
-        if (date === 1) {
-          format = "MMM D";
-        }
-
-        return (
+      events,
+      template: {
+        monthGridHeaderExceed: () => <div></div>,
+        monthGridFooterExceed: function (hiddenSchedules) {
+          return (
+            <div
+              className="mymore"
+              onMouseEnter={(e) => {
+                if (!seeMoreMode) {
+                  const { left, top } =
+                    e.target.parentNode.parentNode.parentNode.getBoundingClientRect();
+                  setSeeMorePosition({
+                    left,
+                    top,
+                  });
+                  seeMoreRef.current =
+                    e.target.parentNode.parentNode.parentNode;
+                }
+              }}
+            >
+              {hiddenSchedules} more
+            </div>
+          );
+        },
+        monthMoreTitleDate: () => <div></div>,
+        monthMoreClose: () => <div>&times;</div>,
+        monthDayName: (model) => (
           <div
             style={{
               display: "flex",
-              justifyContent: "flex-end",
-              fontSize: RWDFontSize(16),
-              color: model.isToday ? "#935000" : "#808080",
-              fontWeight: model.isToday ? 800 : "normal",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#575757",
             }}
           >
-            {moment(model.date).format(format)}
+            {model.label}
           </div>
-        );
+        ),
+        monthGridHeader(model) {
+          let format = "D";
+          const date = parseInt(model.date.split("-")[2], 10);
+          if (date === 1) {
+            format = "MMM D";
+          }
+
+          return (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                fontSize: RWDFontSize(16),
+                color: model.isToday ? "#935000" : "#808080",
+                fontWeight: model.isToday ? 800 : "normal",
+              }}
+            >
+              {moment(model.date).format(format)}
+            </div>
+          );
+        },
+        time: EventTemplate,
+        allday: EventTemplate,
+        weekDayName: (model) => (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#575757",
+            }}
+          >
+            {model.dayName + " " + model.date}
+          </div>
+        ),
+        timegridDisplayPrimaryTime: () => {
+          return "";
+        },
       },
-      time: (event) => {
-        return EventTemplate(event);
-      },
-      allday: (event) => {
-        return EventTemplate(event);
-      },
-      weekDayName: (model) => (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#575757",
-          }}
-        >
-          {model.dayName + " " + model.date}
-        </div>
-      ),
-      timegridDisplayPrimaryTime: () => {
-        return "";
-      },
-    },
-  });
+    }),
+    [mode, events]
+  );
 
   /*meet info 套組*/
   const [elementMeetInfo, setElementMeetInfo] = useState({
@@ -602,30 +646,41 @@ export default () => {
           setInitial(false);
         }
         try {
-          const { data } = await getCalendar(
+          const { data: normalEvent } = await getCalendar(
             { start_date: timeRange[0], end_date: timeRange[1] },
             cookies.token
           );
-          setEvents(
-            [...data, ...data, ...data, ...data, ...data].map((e, id) => ({
-              id,
-              title: e.title,
-              start: moment(e.start_date),
-              end: moment(e.end_date).add(1, "days"),
-              category: e.start_time_slot_id ? "time" : "allday",
-              isReadOnly: true,
-              raw: { ...e, isGoogle: false },
-            }))
-          );
+          let temp = normalEvent.map((e, id) => ({
+            id,
+            title: e.title,
+            start: moment(
+              `${e.start_date} ` + slotIDProcessing(e.start_time_slot_id),
+              "YYYY-MM-DD HH:mm"
+            ),
+            end: moment(
+              `${e.end_date} ` +
+                slotIDProcessing(
+                  // e.end_time_slot_id + 1
+                  48
+                ),
+              "YYYY-MM-DD HH:mm"
+            ),
+            category:
+              e.start_time_slot_id === 1 && e.end_time_slot_id === 48
+                ? "allday"
+                : "time",
+            isReadOnly: true,
+            raw: { ...e, isGoogle: false },
+          }));
           if (login === "google") {
             const { data: googleEvent } = await getGoogleCalendar(
               { start_date: timeRange[0], end_date: timeRange[1] },
               cookies.token
             );
-            setEvents((prev) => [
-              ...prev,
+            temp = [
+              ...temp,
               ...googleEvent.map((e, id) => ({
-                id: id + prev.length,
+                id: id + temp.length,
                 title: e.title,
                 start: moment(e.start_date),
                 end: moment(e.end_date),
@@ -634,8 +689,9 @@ export default () => {
                 color: e.color,
                 raw: { ...e, isGoogle: true },
               })),
-            ]);
+            ];
           }
+          setEvents(temp);
           setLoading(false);
         } catch (error) {
           throw error;
@@ -715,10 +771,6 @@ export default () => {
             <Radio.Group
               onChange={(e) => {
                 setMode(e.target.value);
-                setCalendarOption((prev) => ({
-                  ...prev,
-                  view: e.target.value,
-                }));
               }}
               value={mode}
             >
@@ -728,10 +780,10 @@ export default () => {
           </MenuContainer>
           <CalendarContainer seeMorePosition={seeMorePosition}>
             <Calendar
+              key={String(key)}
               ref={calendarInstRef}
               height="100%"
               {...calendarOption}
-              events={events}
               onClickEvent={handleEventClick}
               onClickMoreEventsBtn={() => {
                 setSeeMoreMode(true);

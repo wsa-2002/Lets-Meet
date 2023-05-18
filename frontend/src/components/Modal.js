@@ -190,6 +190,7 @@ export default (type) => {
             </ContentContainer.Footer>
           </ContentContainer>
         );
+        break;
       case "calendar":
         const { elementMeetInfo } = prop;
         Component = (

@@ -1,7 +1,3 @@
-/*TODO:********************************************************************************************
-  1. RWD, 頁面縮過小時的錯誤
-  2. RWD, 高度縮小「有時」scrollBar 會跑出來造成頁面錯誤
-**************************************************************************************************/
 import _ from "lodash";
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -41,7 +37,6 @@ const InfoContainer = Object.assign(
         display: flex;
         justify-content: flex-end;
         column-gap: ${RWDWidth(24)};
-        /* width: ${RWDWidth(600)}; */
         padding-top: ${RWDHeight(11)};
         max-height: 80vh;
         overflow-y: scroll;
@@ -76,7 +71,6 @@ const InfoContainer = Object.assign(
         align-items: center;
         column-gap: ${RWDWidth(24)};
         justify-content: flex-end;
-        /* width: ${RWDWidth(600)}; */
       `,
       {
         WeekDayContainer: styled.div`
@@ -117,13 +111,12 @@ const Routine = () => {
   };
   /******************************************************/
 
-  /*調整 TimeCellsContainer 寬度*/
+  /*調整 TimeCellsContainer 寬度*/ //調整到最適大小讓它至中
   const [width, setWidth] = useState(0); //TimeCellsContainer 寬度
   const WeekdayRef = useRef(null);
   const TimeRef = useRef(null);
   const throttledHandleResizeFORTimeCellsContainerWidth = _.throttle(() => {
     if (WeekdayRef?.current && TimeRef?.current) {
-      console.log(TimeRef);
       setWidth(WeekdayRef?.current.offsetWidth - TimeRef?.current.offsetLeft);
     }
   }, 100);

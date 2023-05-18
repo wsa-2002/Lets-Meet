@@ -86,6 +86,7 @@ const Meets = () => {
   const { cookies, setLoading } = useMeet();
   const [meetsData, setMeetsData] = useState({});
   const [view, setView] = useState("Voting");
+  const [filter, setFilter] = useState({ Voting: [], "Ended Votes": [] });
 
   const tagLangMapping = (status) => {
     switch (status) {
@@ -157,6 +158,17 @@ const Meets = () => {
     })();
   }, [cookies]);
 
+  useEffect(() => {
+    if (meetsData.Voting) {
+      setFilter({
+        Voting: [...new Set(meetsData.Voting.map((m) => m.status))],
+        "Ended Votes": [
+          ...new Set(meetsData["Ended Votes"].map((m) => m.status)),
+        ],
+      });
+    }
+  }, [meetsData]);
+
   const columns = [
     {
       title: t("name"),
@@ -189,6 +201,8 @@ const Meets = () => {
           {tagLangMapping(tag)}
         </StatusTag>
       ),
+      filters: filter[view].map((f) => ({ text: f, value: f })),
+      onFilter: (value, { status }) => status.indexOf(value) === 0,
     },
     {
       width: 200,
