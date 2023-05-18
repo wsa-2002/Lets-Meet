@@ -15,7 +15,7 @@ import Confirm from "./containers/Confirm";
 import Routine from "./containers/orange3_white7/Routine";
 import Calendar from "./containers/Calendar";
 import Error from "./containers/Error";
-import Test from "./test/Calendar";
+// import Test from "./test/Calendar";
 function App() {
   const [messageApi, contextHolder] = message.useMessage();
   const { error, setError } = useMeet();
@@ -55,7 +55,7 @@ function App() {
             />
             <Route element={<Routine />} path="/routine" />
             <Route element={<Calendar />} path="/calendar" />
-            <Route element={<Test />} path="/test" />
+            {/* <Route element={<Test />} path="/test" /> */}
             <Route element={<Error />} path="*" />
           </Routes>
         </AnimatePresence>
