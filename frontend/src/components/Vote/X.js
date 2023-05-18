@@ -3,8 +3,8 @@ import moment from "moment";
 import { useRef, useEffect, useState } from "react";
 import { ScrollSyncPane } from "react-scroll-sync";
 import styled from "styled-components";
-import { RWD } from "../constant";
-import slotIDProcessing from "../util/slotIDProcessing";
+import { RWD } from "../../constant";
+import slotIDProcessing from "../../util/slotIDProcessing";
 const { RWDFontSize, RWDHeight, RWDWidth, RWDVmin } = RWD;
 
 const VotingContainer = Object.assign(
@@ -60,7 +60,6 @@ export default ({ DATERANGE, TIMESLOTIDS, Cells }) => {
   /*調整 time gap 套組*/
   const WeekdayRef = useRef(null); //追蹤天數高度
   const [timeTop, setTimeTop] = useState(0);
-  /******************************************************/
 
   const throttledHandleResize = _.throttle(() => {
     if (WeekdayRef?.current) {
@@ -78,6 +77,7 @@ export default ({ DATERANGE, TIMESLOTIDS, Cells }) => {
       window.removeEventListener("resize", throttledHandleResize);
     };
   }, [DATERANGE]);
+  /******************************************************/
 
   return (
     <VotingContainer>

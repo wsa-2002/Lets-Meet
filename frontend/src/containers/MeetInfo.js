@@ -3,15 +3,16 @@
 **************************************************************************************************/
 import { EditFilled, CopyOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
-import { CopyToClipboard } from "react-copy-to-clipboard";
 import { motion } from "framer-motion";
 import _ from "lodash";
 import Moment from "moment";
 import { extendMoment } from "moment-range";
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useTranslation } from "react-i18next";
-import { ScrollSync, ScrollSyncPane } from "react-scroll-sync";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { ScrollSync } from "react-scroll-sync";
+import Error from "./Error";
 import { useMeet } from "./hooks/useMeet";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
@@ -20,19 +21,22 @@ import Modal from "../components/Modal";
 import Notification from "../components/Notification";
 import Tag from "../components/Tag";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
+import Vote from "../components/Vote";
 import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
-import Error from "./Error";
-import { meet, getGroupAvailability } from "../middleware";
+import { meet, getGroupAvailability, confirmMeet } from "../middleware";
 const BackButton = Button("back");
 const RectButton = Button("rect");
 const RoundButton = Button("round");
 const moment = extendMoment(Moment);
 const GuestNameModal = Modal("guestName");
+const ConfirmModal = Modal("confirm");
 const InfoTooltip = Modal("info");
 const LeaveModal = Modal("leave");
-const { RWDHeight, RWDWidth, RWDFontSize } = RWD;
+const { RWDWidth, RWDFontSize } = RWD;
 const MemberTag = Tag("member");
+const ConfirmCell = TimeCell("confirm");
 const InfoCell = TimeCell("info");
+const VoteOverflowXY = Vote(["x", "y"]);
 
 /*AXIOS 串接 API tool*/
 const getMeetInfo = meet("read");
@@ -41,15 +45,12 @@ const leaveMeet = meet("leave");
 const editMeet = meet("update");
 /******************************************************/
 
-const { ContentContainer } = Base.FullContainer;
-
 const {
-  GroupAvailability,
-  GroupAvailability: { VotingArea, VotingContainer },
-  GroupAvailability: {
-    VotingContainer: { DayContainer },
+  ContentContainer,
+  ContentContainer: {
+    GroupAvailability: { VotingArea },
   },
-} = ContentContainer;
+} = Base.FullContainer;
 
 const MeetInfo = () => {
   const location = useLocation();
@@ -57,7 +58,6 @@ const MeetInfo = () => {
   // const oriRawMeetInfo = useMemo(() => rawMeetInfo, [editMode]);
   const navigate = useNavigate();
   const { code } = useParams();
-  const ref = useRef(); //偵測星期三的高度與寬度
   const { t } = useTranslation();
 
   /*檢驗身分*/
@@ -79,6 +79,17 @@ const MeetInfo = () => {
   /******************************************************/
 
   /*main: get meet info and vote info*/
+  const [elementMeetInfo, setElementMeetInfo] = useState({
+    "Meet Name": "",
+    "Start / End Date": "",
+    "Start / End Time": "",
+    Host: "",
+    Member: "",
+    Description: "",
+    "Voting Deadline": "",
+    "Invitation URL": "",
+    "Google Meet URL": "",
+  }); //非編輯模式下的資料
   const [CELLCOLOR, setCELLCOLOR] = useState([]); //vote info color
   const [confirmed, setConfirmed] = useState(false); //meet 的狀態 (Confirmed)
   const [confirmedTime, setConfirmedTime] = useState({ date: "", timeID: [] }); //confirmed 的時間
@@ -240,8 +251,6 @@ const MeetInfo = () => {
       setLoading(false);
     } catch (error) {
       setError(error.message);
-      // setLoading(false);
-      //console.log(error);
     }
   };
   useEffect(() => {
@@ -262,17 +271,6 @@ const MeetInfo = () => {
 
   /*edit meet 套組*/
   const [editMode, setEditMode] = useState(false); //是否為編輯模式
-  const [elementMeetInfo, setElementMeetInfo] = useState({
-    "Meet Name": "",
-    "Start / End Date": "",
-    "Start / End Time": "",
-    Host: "",
-    Member: "",
-    Description: "",
-    "Voting Deadline": "",
-    "Invitation URL": "",
-    "Google Meet URL": "",
-  }); //非編輯模式下的資料
   const [copy, setCopy] = useState(false); //非編輯模式下複製 invite code
   const [forMemberDataFormat, setForMemberDataFormat] = useState([]); //編輯模式下已存在 member 的資料
   const [rawMeetInfo, setRawMeetInfo] = useState({}); //編輯模式的資料
@@ -397,6 +395,103 @@ const MeetInfo = () => {
   };
   /******************************************************/
 
+  /*confirm meet time scroll 套組*/
+  const confirmTimeRef = useRef(null); //讓頁面自動滾
+  useEffect(() => {
+    if (confirmTimeRef?.current) {
+      confirmTimeRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+        inline: "start",
+      });
+    }
+  }, [confirmTimeRef.current, TIMESLOTIDS]);
+  /******************************************************/
+
+  /*可拖曳 time cell 套組 for edit confirmed meet*/
+  const [block, setBlock] = useState(false);
+  const [cell, setCell] = useState([]);
+  const [mode, setMode] = useState(true); //選取模式
+  const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
+  const [startIndex, setStartIndex] = useState([]); //選取方塊位置
+  const [updatedCell, setUpdatedCell] = useState("");
+  const oriCell = useMemo(() => cell, [startDrag]);
+  const drag = {
+    cell,
+    setCell,
+    startDrag,
+    setStartDrag,
+    startIndex,
+    block,
+    setBlock,
+    setStartIndex,
+    mode,
+    setMode,
+    setUpdatedCell,
+    oriCell,
+  };
+  useEffect(() => {
+    (async () => {
+      if (DATERANGE.length && TIMESLOTIDS.length) {
+        setCell(DATERANGE.map(() => TIMESLOTIDS.map(() => false)));
+        setLoading(false);
+      }
+    })();
+  }, [DATERANGE, TIMESLOTIDS]);
+
+  const [time, setTime] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const handleCellMouseUp = async (e) => {
+    e.preventDefault();
+    try {
+      if (!updatedCell || !editMode) {
+        return;
+      }
+      setTime(
+        `${moment(DATERANGE[updatedCell?.[0]?.[0]], "YYYY-MM-DD").format(
+          "MMM D"
+        )} ${slotIDProcessing(
+          TIMESLOTIDS[updatedCell?.[0]?.[1]]
+        )} ~ ${slotIDProcessing(
+          TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1] + 1]
+        )}`
+      );
+      setStartDrag(false);
+      setOpen(true);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleCancel = () => {
+    setUpdatedCell("");
+    setCell(DATERANGE.map(() => TIMESLOTIDS.map(() => false)));
+    setOpen(false);
+  };
+
+  const handleConfirm = async () => {
+    try {
+      //console.log(updatedCell);
+      await confirmMeet(
+        code,
+        {
+          start_date: DATERANGE[updatedCell[0][0]],
+          end_date: DATERANGE[updatedCell[0][0]],
+          start_time_slot_id: TIMESLOTIDS[updatedCell?.[0]?.[1]],
+          end_time_slot_id:
+            TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1]],
+        },
+        cookies.token
+      );
+      await handleEditDone();
+      setOpen(false);
+    } catch (error) {
+      //console.log(error);
+    }
+  };
+  /******************************************************/
+
   const handleVote = () => {
     if (!login && !location?.state?.guestName) {
       setGuestNameOpen(true);
@@ -422,7 +517,7 @@ const MeetInfo = () => {
           notification={notification}
           setNotification={setNotification}
         />
-        <Base login={login}>
+        <Base login={login} onMouseUp={handleCellMouseUp}>
           <Base.FullContainer>
             {elementMeetInfo?.["Meet Name"] && (
               <Base.FullContainer.ContentContainer>
@@ -552,80 +647,82 @@ const MeetInfo = () => {
                 {DATERANGE.length && TIMESLOTIDS.length && (
                   <ScrollSync>
                     <VotingArea>
-                      <GroupAvailability.VotingContainer>
-                        <ScrollSyncPane>
-                          <VotingContainer.DayContainer>
-                            <DayContainer.TimeContainer
-                              style={{ paddingTop: RWDHeight(30) }}
-                            >
-                              {slotIDProcessing(TIMESLOTIDS[0])}
-                            </DayContainer.TimeContainer>
-                            {DATERANGE.map((w, index) => (
-                              <DayContainer.CellContainer
-                                key={index}
-                                // ref={w === "WED" ? ref : null}
-                              >
-                                <div style={{ userSelect: "none" }}>
-                                  {moment(w).format("MMM DD")}
-                                </div>
-                                <div
-                                  style={{
-                                    userSelect: "none",
-                                    fontWeight: "bold",
-                                  }}
-                                >
-                                  {moment(w).format("ddd")}
-                                </div>
-                              </DayContainer.CellContainer>
-                            ))}
-                          </VotingContainer.DayContainer>
-                        </ScrollSyncPane>
-
-                        {TIMESLOTIDS.slice(1).map((t, t_index) => (
-                          <ScrollSyncPane key={t_index}>
-                            <VotingContainer.DayContainer>
-                              <DayContainer.TimeContainer>
-                                {slotIDProcessing(t)}
-                              </DayContainer.TimeContainer>
-                              {DATERANGE.map((date, w_index) => (
-                                <DayContainer.CellContainer key={w_index}>
-                                  <InfoCell
-                                    style={{
-                                      backgroundColor:
-                                        date === confirmedTime.date &&
-                                        confirmedTime.timeID.includes(t - 1)
-                                          ? "#F25C54"
-                                          : confirmed
-                                          ? "#F0F0F0"
-                                          : CELLCOLOR[
-                                              w_index *
-                                                (TIMESLOTIDS.length - 1) +
-                                                t_index
-                                            ],
-                                    }}
-                                    info={
-                                      <InfoTooltip
-                                        available_members={
-                                          groupAvailabilityInfo?.[
-                                            w_index * (TIMESLOTIDS.length - 1) +
-                                              t_index
-                                          ]?.available_members
-                                        }
-                                        unavailable_members={
-                                          groupAvailabilityInfo?.[
-                                            w_index * (TIMESLOTIDS.length - 1) +
-                                              t_index
-                                          ]?.unavailable_members
-                                        }
-                                      />
+                      <VoteOverflowXY
+                        DATERANGE={DATERANGE}
+                        TIMESLOTIDS={TIMESLOTIDS}
+                        Cells={DATERANGE.map((date, d_index) =>
+                          TIMESLOTIDS.map((t, t_index) =>
+                            editMode && confirmed ? (
+                              <ConfirmCell
+                                drag={drag}
+                                index={[d_index, t_index]}
+                                key={t_index}
+                                style={{
+                                  backgroundColor: cell[d_index][t_index]
+                                    ? "#F25C54"
+                                    : CELLCOLOR[
+                                        d_index * (TIMESLOTIDS.length - 1) +
+                                          t_index
+                                      ],
+                                }}
+                                info={
+                                  <InfoTooltip
+                                    available_members={
+                                      groupAvailabilityInfo?.[
+                                        d_index * (TIMESLOTIDS.length - 1) +
+                                          t_index
+                                      ]?.available_members
+                                    }
+                                    unavailable_members={
+                                      groupAvailabilityInfo?.[
+                                        d_index * (TIMESLOTIDS.length - 1) +
+                                          t_index
+                                      ]?.unavailable_members
                                     }
                                   />
-                                </DayContainer.CellContainer>
-                              ))}
-                            </VotingContainer.DayContainer>
-                          </ScrollSyncPane>
-                        ))}
-                      </GroupAvailability.VotingContainer>
+                                }
+                              />
+                            ) : (
+                              <InfoCell
+                                ref={
+                                  date === confirmedTime.date &&
+                                  confirmedTime.timeID.includes(t - 1)
+                                    ? confirmTimeRef
+                                    : null
+                                }
+                                style={{
+                                  backgroundColor:
+                                    date === confirmedTime.date &&
+                                    confirmedTime.timeID.includes(t)
+                                      ? "#F25C54"
+                                      : confirmed
+                                      ? "#F0F0F0"
+                                      : CELLCOLOR[
+                                          d_index * (TIMESLOTIDS.length - 1) +
+                                            t_index
+                                        ],
+                                }}
+                                info={
+                                  <InfoTooltip
+                                    available_members={
+                                      groupAvailabilityInfo?.[
+                                        d_index * (TIMESLOTIDS.length - 1) +
+                                          t_index
+                                      ]?.available_members
+                                    }
+                                    unavailable_members={
+                                      groupAvailabilityInfo?.[
+                                        d_index * (TIMESLOTIDS.length - 1) +
+                                          t_index
+                                      ]?.unavailable_members
+                                    }
+                                  />
+                                }
+                              />
+                            )
+                          )
+                        )}
+                      />
                     </VotingArea>
                   </ScrollSync>
                 )}
@@ -643,6 +740,14 @@ const MeetInfo = () => {
               setOpen={setGuestNameOpen}
               onOk={handleGuestVote}
               handleFormChange={handleFormChange}
+            />
+            <ConfirmModal
+              open={open}
+              setOpen={setOpen}
+              meetName={rawMeetInfo.meet_name}
+              time={time}
+              onCancel={handleCancel}
+              onOk={handleConfirm}
             />
           </Base.FullContainer>
         </Base>

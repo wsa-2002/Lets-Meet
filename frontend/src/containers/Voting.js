@@ -25,21 +25,22 @@ import {
   meet,
   getRoutine,
 } from "../middleware";
-const getMeetInfo = meet("read");
+const { ContentContainer } = Base.FullContainer;
 const BackButton = Button("back");
 const PillButton = Button("pill");
-const { ContentContainer } = Base.FullContainer;
+const moment = extendMoment(Moment);
+const getMeetInfo = meet("read");
+const InfoTooltip = Modal("info");
 const { RWDWidth } = RWD;
 const DraggableCell = TimeCell("draggable");
 const InfoCell = TimeCell("info");
-const moment = extendMoment(Moment);
-const InfoTooltip = Modal("info");
+const VoteOverflowX = Vote(["x"]);
 
 const Voting = () => {
   const [title, setTitle] = useState("");
   const [DATERANGE, setDATERANGE] = useState([]);
   const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
-  const [VOTINGINFO, setVOTINGINFO] = useState([]);
+  const [groupAvailabilityInfo, setGroupAvailabilityInfo] = useState([]);
   const [CELLCOLOR, setCELLCOLOR] = useState([]);
   const [ROUTINE, setROUTINE] = useState("");
   const [undo, setUndo] = useState([]);
@@ -67,7 +68,6 @@ const Voting = () => {
     setMode,
     setUpdatedCell,
     oriCell,
-    setVOTINGINFO,
   };
   /******************************************************/
 
@@ -84,7 +84,7 @@ const Voting = () => {
         code,
         cookies.token
       );
-      setVOTINGINFO(votingData.data);
+      setGroupAvailabilityInfo(votingData.data);
 
       if (cookies.token) {
         const { data: routine } = await getRoutine(undefined, cookies.token);
@@ -146,19 +146,19 @@ const Voting = () => {
   }, [DATERANGE, TIMESLOTIDS]);
 
   useEffect(() => {
-    if (VOTINGINFO.length) {
+    if (groupAvailabilityInfo.length) {
       const allMembersNum =
-        VOTINGINFO?.[0]?.available_members.length +
-        VOTINGINFO?.[0]?.unavailable_members.length;
+        groupAvailabilityInfo?.[0]?.available_members.length +
+        groupAvailabilityInfo?.[0]?.unavailable_members.length;
       const gap =
         Math.floor(allMembersNum / 5) < 1 ? 1 : Math.floor(allMembersNum / 5);
       setCELLCOLOR(
-        VOTINGINFO.map(
+        groupAvailabilityInfo.map(
           (v) => COLORS.orange[Math.ceil(v.available_members.length / gap)]
         )
       );
     }
-  }, [VOTINGINFO]); //設定 time cell 顏色
+  }, [groupAvailabilityInfo]); //設定 time cell 顏色
 
   /*檢驗身分*/
   const [exist, setExist] = useState(undefined); // meet是否存在
@@ -229,7 +229,7 @@ const Voting = () => {
         code,
         cookies.token
       );
-      setVOTINGINFO(votingData.data);
+      setGroupAvailabilityInfo(votingData.data);
     } catch (error) {
       throw error;
     } finally {
@@ -275,7 +275,7 @@ const Voting = () => {
           code,
           cookies.token
         );
-        setVOTINGINFO(votingData.data);
+        setGroupAvailabilityInfo(votingData.data);
         const { data: myAvailability } = await getMyAvailability(
           code,
           cookies.token,
@@ -360,7 +360,7 @@ const Voting = () => {
       code,
       cookies.token
     );
-    setVOTINGINFO(votingData.data);
+    setGroupAvailabilityInfo(votingData.data);
     setUndo([]);
     setRedo([]);
     setCell(initialCell);
@@ -407,7 +407,7 @@ const Voting = () => {
                     {t("groupAva")}
                   </ContentContainer.GroupAvailability>
                   <ContentContainer.MyAvailability.VotingArea>
-                    <Vote
+                    <VoteOverflowX
                       DATERANGE={DATERANGE}
                       TIMESLOTIDS={TIMESLOTIDS}
                       Cells={DATERANGE.map((_, d_index) =>
@@ -432,7 +432,7 @@ const Voting = () => {
                   <ContentContainer.MyAvailability.VotingArea
                     style={{ gridColumn: "2/3" }}
                   >
-                    <Vote
+                    <VoteOverflowX
                       DATERANGE={DATERANGE}
                       TIMESLOTIDS={TIMESLOTIDS}
                       Cells={DATERANGE.map((_, d_index) =>
@@ -448,12 +448,12 @@ const Voting = () => {
                             info={
                               <InfoTooltip
                                 available_members={
-                                  VOTINGINFO?.[
+                                  groupAvailabilityInfo?.[
                                     d_index * (TIMESLOTIDS.length - 1) + t_index
                                   ]?.available_members
                                 }
                                 unavailable_members={
-                                  VOTINGINFO?.[
+                                  groupAvailabilityInfo?.[
                                     d_index * (TIMESLOTIDS.length - 1) + t_index
                                   ]?.unavailable_members
                                 }

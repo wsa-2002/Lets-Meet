@@ -18,32 +18,33 @@ import Vote from "../components/Vote";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
 import Error from "./Error";
 import { getGroupAvailability, meet, confirmMeet } from "../middleware";
-const getMeetInfo = meet("read");
+const { ContentContainer } = Base.FullContainer;
 const BackButton = Button("back");
+const moment = extendMoment(Moment);
+const getMeetInfo = meet("read");
 const ConfirmModal = Modal("confirm");
 const InfoTooltip = Modal("info");
-const { ContentContainer } = Base.FullContainer;
 const { RWDWidth } = RWD;
 const ConfirmCell = TimeCell("confirm");
-const moment = extendMoment(Moment);
+const VoteOverflowX = Vote(["x"]);
 
 const Voting = () => {
   const [title, setTitle] = useState("");
   const [time, setTime] = useState("");
   const [DATERANGE, setDATERANGE] = useState([]);
   const [TIMESLOTIDS, setTIMESLOTIDS] = useState([]);
-  const [VOTINGINFO, setVOTINGINFO] = useState([]);
   const [CELLCOLOR, setCELLCOLOR] = useState([]);
   const [open, setOpen] = useState(false);
 
   /*可拖曳 time cell 套組*/
-  const [cell, setCell] = useState([]);
   const [block, setBlock] = useState(false);
+  const [cell, setCell] = useState([]);
+  const [mode, setMode] = useState(true); //選取模式
   const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
   const [startIndex, setStartIndex] = useState([]); //選取方塊位置
-  const oriCell = useMemo(() => cell, [startDrag]);
   const [updatedCell, setUpdatedCell] = useState("");
-  const [mode, setMode] = useState(true); //選取模式
+  const [groupAvailabilityInfo, setGroupAvailabilityInfo] = useState([]);
+  const oriCell = useMemo(() => cell, [startDrag]);
   const drag = {
     cell,
     setCell,
@@ -57,7 +58,6 @@ const Voting = () => {
     setMode,
     setUpdatedCell,
     oriCell,
-    setVOTINGINFO,
   };
   /******************************************************/
 
@@ -74,7 +74,7 @@ const Voting = () => {
         code,
         cookies.token
       );
-      setVOTINGINFO(votingData.data);
+      setGroupAvailabilityInfo(votingData.data);
 
       const { data } = await getMeetInfo(code, cookies.token);
       setTitle(data.meet_name);
@@ -133,19 +133,19 @@ const Voting = () => {
   /******************************************************/
 
   useEffect(() => {
-    if (VOTINGINFO.length) {
+    if (groupAvailabilityInfo.length) {
       const allMembersNum =
-        VOTINGINFO?.[0]?.available_members.length +
-        VOTINGINFO?.[0]?.unavailable_members.length;
+        groupAvailabilityInfo?.[0]?.available_members.length +
+        groupAvailabilityInfo?.[0]?.unavailable_members.length;
       const gap =
         Math.floor(allMembersNum / 5) < 1 ? 1 : Math.floor(allMembersNum / 5);
       setCELLCOLOR(
-        VOTINGINFO.map(
+        groupAvailabilityInfo.map(
           (v) => COLORS.orange[Math.ceil(v.available_members.length / gap)]
         )
       );
     }
-  }, [VOTINGINFO]); //設定 time cell 顏色
+  }, [groupAvailabilityInfo]); //設定 time cell 顏色
 
   const handleCellMouseUp = async (e) => {
     e.preventDefault();
@@ -229,7 +229,7 @@ const Voting = () => {
                   <ContentContainer.MyAvailability.VotingArea
                     style={{ gridColumn: "1/2" }}
                   >
-                    <Vote
+                    <VoteOverflowX
                       DATERANGE={DATERANGE}
                       TIMESLOTIDS={TIMESLOTIDS}
                       Cells={DATERANGE.map((_, d_index) =>
@@ -248,12 +248,12 @@ const Voting = () => {
                             info={
                               <InfoTooltip
                                 available_members={
-                                  VOTINGINFO?.[
+                                  groupAvailabilityInfo?.[
                                     d_index * (TIMESLOTIDS.length - 1) + t_index
                                   ]?.available_members
                                 }
                                 unavailable_members={
-                                  VOTINGINFO?.[
+                                  groupAvailabilityInfo?.[
                                     d_index * (TIMESLOTIDS.length - 1) + t_index
                                   ]?.unavailable_members
                                 }
