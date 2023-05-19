@@ -285,7 +285,7 @@ async def edit_notification_preference(account_id: int, preference: enums.Notifi
             fr" WHERE id = %(account_id)s",
         preference=preference, account_id=account_id,
     )
-    await pool_handler.pool.execute(sql, params)
+    await pool_handler.pool.execute(sql, *params)
 
 
 async def edit(account_id: int, username: Optional[str] = None, pass_hash: Optional[str] = None):
