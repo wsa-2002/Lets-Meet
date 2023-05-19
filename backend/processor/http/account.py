@@ -129,7 +129,7 @@ async def edit_account(data: EditAccountInput) -> None:
         raise exc.UsernameExists
 
     account_id, pass_hash, _ = await db.account.read_passhash(account_id=request.account.id)
-    if not verify_password(password=data.old_password, pass_hash=pass_hash):
+    if data.old_password and not verify_password(password=data.old_password, pass_hash=pass_hash):
         raise exc.NoPermission
 
     if not data.old_password and not data.new_password:
