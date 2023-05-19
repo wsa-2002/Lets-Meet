@@ -16,7 +16,7 @@ export const googleLogin = async () => {
 
 export const lineConnect = async (token) => {
   try {
-    window.open(`${baseURL}/line`, "_self");
+    window.open(`${baseURL}/line?token=${token}`, "_self");
   } catch (error) {
     throw error;
   }

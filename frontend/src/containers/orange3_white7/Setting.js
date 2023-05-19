@@ -138,8 +138,11 @@ const Setting = () => {
           const code = new URLSearchParams(search).get("code");
           const state = new URLSearchParams(search).get("state");
           if (code && state) {
-            const data = await lineToken({ code, state }, cookies.token);
-            console.log(data);
+            // const data = await lineToken({ code, state }, cookies.token);
+            window.open(
+              `http://localhost:8000/account/line?state=${state}&code=${code}`
+            );
+            // console.log("data", data);
           }
         }
       }
