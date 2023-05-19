@@ -45,9 +45,8 @@ async def connect_account_to_line():
 
 @router.get('/account/line')
 async def update_account_line_token(code: str, state: str):
-    account = security.decode_jwt(state, request.time)
-    if not account.id:
+    if not (account_id := request.account.id):
         raise exc.NoPermission
     user_id = await line_handler.login(code)
-    await db.account.update_line_token(account_id=account.id, token=user_id)
+    await db.account.update_line_token(account_id=account_id, token=user_id)
     return RedirectResponse(line_config.line_bot_url)  # TODO: use this endpoint?
