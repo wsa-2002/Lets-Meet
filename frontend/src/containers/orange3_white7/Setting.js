@@ -108,6 +108,7 @@ const Setting = () => {
   const [lineLogin, setLineLogin] = useState("");
   const search = useLocation().search;
   const [notification, setNotification] = useState({});
+  const location = useLocation();
 
   /*調整 Setting 文字 套組*/
   const RoutineRef = useRef(null);
@@ -132,6 +133,15 @@ const Setting = () => {
   /******************************************************/
 
   useEffect(() => {
+    if (location?.state?.line) {
+      setNotification({
+        title: "Connect to Line",
+        message: "請掃描 QRcode 已接收訊息",
+      });
+    }
+  }, [location?.state?.line]);
+
+  useEffect(() => {
     (async () => {
       if (login) {
         const {
@@ -146,7 +156,11 @@ const Setting = () => {
           const state = new URLSearchParams(search).get("state");
           if (code && state) {
             await lineToken(code, state);
-            navigate("/settings");
+            navigate("/settings", {
+              state: {
+                line: "initial",
+              },
+            });
           }
         }
       } else {
