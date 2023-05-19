@@ -68,7 +68,12 @@ const Header = (prop) => {
       name: t("meets"),
       //login 是 undefined 則不顯示按鈕
       to: "/meets",
-      regex: [/^\/meets$/, /^\/voting\/.*$/, /^\/meets\/.*$/],
+      regex: [
+        /^\/meets$/,
+        /^\/voting\/.*$/,
+        /^\/meets\/.*$/,
+        /^\/confirm\/.*$/,
+      ],
     },
     { name: t("calendar"), to: "/calendar", regex: [/^\/calendar$/] },
     {
@@ -188,11 +193,14 @@ const Header = (prop) => {
                 type="link"
                 style={{
                   fontSize: "2.2vmin",
-                  color: "#808080",
+                  color: pathname === "/settings" ? "#DB8600" : "#808080",
                   height: "100%",
                   fontWeight: 600,
                   padding: 0,
                   border: 0,
+                }}
+                onClick={() => {
+                  navigate("/settings");
                 }}
               >
                 {t("settings")}

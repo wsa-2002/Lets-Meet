@@ -1,5 +1,6 @@
 import POST from "./simplePost";
 import GET from "./simpleGet";
+import PATCH from "./simplePatch";
 import DELETE from "./simpleDelete";
 
 export const {
@@ -10,6 +11,7 @@ export const {
   addMeet,
   addRoutine,
 } = POST;
+export const { editAccount, editPreference } = PATCH;
 export const {
   searchMember,
   browseMeet,
@@ -18,6 +20,7 @@ export const {
   getRoutine,
   getCalendar,
   getGoogleCalendar,
+  getUserInfo,
 } = GET;
 export const { deleteRoutine } = DELETE;
 export { googleLogin } from "./google";

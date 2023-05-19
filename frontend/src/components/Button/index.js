@@ -10,7 +10,15 @@ import { RWD } from "../../constant";
 import { googleLogin } from "../../middleware";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 
-const BUTTONTYPE = ["primary", "google", "back", "rect", "round", "pill"];
+const BUTTONTYPE = [
+  "primary",
+  "google",
+  "back",
+  "rect",
+  "round",
+  "pill",
+  "line",
+];
 
 const BaseButton = styled(AntdButton)`
   display: flex;
@@ -87,7 +95,11 @@ export default (type = "primary") => {
       break;
   }
   return ({ buttonTheme = tempTheme, variant = tempVariant, ...prop }) => {
-    if (type !== "google" && !Object.keys(BUTTONTHEME).includes(variant)) {
+    if (
+      type !== "google" &&
+      type !== "line" &&
+      !Object.keys(BUTTONTHEME).includes(variant)
+    ) {
       throw new Error(
         `請定義 Button variant，有以下可以選擇：\n${Object.keys(
           BUTTONTHEME
@@ -96,6 +108,7 @@ export default (type = "primary") => {
     }
     if (
       type !== "google" &&
+      type !== "line" &&
       !Object.keys(BUTTONTHEME[variant]).includes(buttonTheme)
     ) {
       throw new Error(
@@ -171,6 +184,22 @@ export default (type = "primary") => {
             <Image
               width={RWDFontSize(30)}
               src={require("./google.png")}
+              preview={false}
+            />
+            {prop.children}
+          </LongButton>
+        );
+      case "line":
+        return (
+          <LongButton
+            {...prop}
+            // onClick={() => {
+            //   googleLogin();
+            // }}
+          >
+            <Image
+              width={RWDFontSize(40)}
+              src={require("./line.png")}
               preview={false}
             />
             {prop.children}
