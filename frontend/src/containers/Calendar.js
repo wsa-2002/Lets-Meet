@@ -235,7 +235,7 @@ export default () => {
 
   useEffect(() => {
     setKey((prev) => prev + 1);
-  }, [mode, timeRange]);
+  }, [mode]);
 
   /*resize seeMore 套組*/
   const [seeMorePosition, setSeeMorePosition] = useState({ left: 0, top: 0 });
@@ -696,6 +696,9 @@ export default () => {
         } catch (error) {
           throw error;
         }
+      }
+      if (!login) {
+        navigate("/");
       }
     })();
   }, [login, timeRange]);

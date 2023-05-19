@@ -1,17 +1,18 @@
 /*TODO:********************************************************************************************
   1. RWD, 頁面縮過小時的錯誤
 **************************************************************************************************/
-import React, { useState } from "react";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { Divider, Typography, Form } from "antd";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import * as AXIOS from "../../middleware";
-import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
-import Button from "../../components/Button";
 import Base from "../../components/Base/orange3_white7";
-import { RWD, ANIME } from "../../constant";
-import { useTranslation } from "react-i18next";
+import Button from "../../components/Button";
 import Notification from "../../components/Notification";
+import { RWD, ANIME } from "../../constant";
+import { signup } from "../../middleware";
+
 const {
   RightContainer,
   RightContainer: { InfoContainer },
@@ -60,7 +61,7 @@ const SignUp = () => {
 
   const handleSignUpClick = async () => {
     try {
-      const { error } = await AXIOS.signup({
+      const { error } = await signup({
         username: signupData.Username,
         password: signupData.Password,
         email: signupData.Email,

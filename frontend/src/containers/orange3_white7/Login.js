@@ -1,6 +1,3 @@
-/*TODO:********************************************************************************************
-  1. RWD, 頁面縮過小時的錯誤
-**************************************************************************************************/
 import { Typography, Divider } from "antd";
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";

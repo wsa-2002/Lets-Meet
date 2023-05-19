@@ -30,6 +30,7 @@ const InfoContainer = Object.assign(
     display: flex;
     align-items: flex-end;
     flex-direction: column;
+    height: ${RWDHeight(800)};
   `,
   {
     TimeCellsContainer: Object.assign(

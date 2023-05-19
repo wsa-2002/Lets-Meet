@@ -6,6 +6,7 @@ const URL = {
   getRoutine: "/routine",
   getCalendar: "/meet-calendar",
   getGoogleCalendar: "/google-calendar",
+  getUserInfo: "/account",
 };
 
 export default Object.keys(URL).reduce((acc, curr) => {
