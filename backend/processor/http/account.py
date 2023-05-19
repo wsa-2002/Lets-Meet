@@ -132,17 +132,17 @@ async def edit_account(data: EditAccountInput) -> None:
     if data.old_password and not verify_password(password=data.old_password, pass_hash=pass_hash):
         raise exc.NoPermission
 
-    try:
-        if account := await db.account.read_by_email(data.email):
-            if account.is_google_login:
-                raise exc.EmailRegisteredByGoogle
-            raise exc.EmailExist
-    except exc.NotFound:
-        pass
-
-    verification_code = str(uuid4())
-    await db.email_verification.add(code=verification_code, account_id=account_id, email=data.email)
-    await verification.send(to=data.email, code=verification_code, username=data.username)
+    account = await db.account.read(account_id)
+    if account.email != data.email:
+        try:
+            if acc := await db.account.read_by_email(data.email):
+                if acc.is_google_login:
+                    raise exc.EmailRegisteredByGoogle
+                raise exc.EmailExist
+        except exc.NotFound:
+            verification_code = str(uuid4())
+            await db.email_verification.add(code=verification_code, account_id=account_id, email=data.email)
+            await verification.send(to=data.email, code=verification_code, username=data.username)
 
     await db.account.edit(account_id=account_id,
                           username=data.username,
