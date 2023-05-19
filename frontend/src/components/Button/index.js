@@ -191,12 +191,7 @@ export default (type = "primary") => {
         );
       case "line":
         return (
-          <LongButton
-            {...prop}
-            // onClick={() => {
-            //   googleLogin();
-            // }}
-          >
+          <LongButton {...prop}>
             <Image
               width={RWDFontSize(40)}
               src={require("./line.png")}
@@ -239,7 +234,16 @@ export default (type = "primary") => {
           },
         }}
       >
-        <Component type="primary" {...prop}>
+        <Component
+          type="primary"
+          {...{
+            ...prop,
+            style: {
+              ...prop.style,
+              border: prop.disabled ? "none" : prop.style.border,
+            },
+          }}
+        >
           {prop.children}
         </Component>
       </ConfigProvider>

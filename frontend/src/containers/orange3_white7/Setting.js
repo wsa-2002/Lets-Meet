@@ -2,14 +2,20 @@ import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { Form, Radio } from "antd";
 import _ from "lodash";
 import React, { Fragment, useEffect, useRef, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useMeet } from "../hooks/useMeet";
 import Base from "../../components/Base/orange3_white7";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import { RWD, ANIME } from "../../constant";
-import { getUserInfo, editAccount, editPreference } from "../../middleware";
+import {
+  getUserInfo,
+  editAccount,
+  editPreference,
+  lineConnect,
+  lineToken,
+} from "../../middleware";
 
 const RectButton = Button("rect");
 const GoogleButton = Button("google");
@@ -28,6 +34,10 @@ const CloseCircle = styled(CloseCircleOutlined)`
   color: #ae2a39;
   font-size: ${RWDFontSize(20)};
   ${ANIME.FadeIn};
+`;
+
+const SLIDE = styled.div`
+  ${ANIME.SlideFromTop}
 `;
 
 const InstructionContainer = Object.assign(
@@ -92,6 +102,7 @@ const Setting = () => {
   const [oriUserData, setOriUserData] = useState({});
   const [changePassword, setChangePassword] = useState(false);
   const [preference, setPreference] = useState("Email");
+  const search = useLocation().search;
 
   /*調整 Setting 文字 套組*/
   const RoutineRef = useRef(null);
@@ -116,18 +127,24 @@ const Setting = () => {
   /******************************************************/
 
   useEffect(() => {
-    if (login) {
-      (async () => {
+    (async () => {
+      if (login) {
         const {
           data: { username, email },
         } = await getUserInfo(undefined, cookies.token, ID);
         setUserData({ username, email });
         setOriUserData({ username, email });
-      })();
-    } else {
-      navigate("/");
-    }
-  }, []);
+        if (search) {
+          const code = new URLSearchParams(search).get("code");
+          const state = new URLSearchParams(search).get("state");
+          if (code && state) {
+            const data = await lineToken({ code, state }, cookies.token);
+            console.log(data);
+          }
+        }
+      }
+    })();
+  }, [login]);
 
   const handleUserDataChange = (e) => {
     const { name, value } = e.target;
@@ -151,7 +168,11 @@ const Setting = () => {
         ]}
         style={{ margin: 0 }}
       >
-        <ThinnerInput onChange={handleUserDataChange} name="username" />
+        <ThinnerInput
+          onChange={handleUserDataChange}
+          name="username"
+          disabled={login === "google"}
+        />
       </Form.Item>
     ),
     Email: (
@@ -159,6 +180,7 @@ const Setting = () => {
         onChange={handleUserDataChange}
         name="email"
         value={userData.email}
+        disabled={login === "google"}
       />
     ),
     Password: (
@@ -175,41 +197,52 @@ const Setting = () => {
           onClick={() => {
             setChangePassword((prev) => !prev);
           }}
+          disabled={login === "google"}
         >
           Change Password
         </RectButton>
         {changePassword && (
-          <>
-            <ThinnerPassword
-              onChange={handleUserDataChange}
-              name="old_password"
-              placeholder="Old Password"
-            />
-            <ThinnerPassword
-              onChange={handleUserDataChange}
-              name="new_password"
-              placeholder="New Password"
-            />
-            <div
+          <div style={{ display: "relative", overflow: "hidden" }}>
+            <SLIDE
               style={{
                 display: "flex",
-                alignItems: "center",
-                columnGap: RWDWidth(10),
+                flexDirection: "column",
+                rowGap: RWDHeight(25),
+                position: "relative",
               }}
             >
               <ThinnerPassword
                 onChange={handleUserDataChange}
-                name="Confirm New Password"
-                placeholder="Confirm New Password"
+                name="old_password"
+                placeholder="Old Password"
               />
-              {userData["Confirm New Password"] &&
-                (userData.new_password === userData["Confirm New Password"] ? (
-                  <CheckCircle />
-                ) : (
-                  <CloseCircle />
-                ))}
-            </div>
-          </>
+              <ThinnerPassword
+                onChange={handleUserDataChange}
+                name="new_password"
+                placeholder="New Password"
+              />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  columnGap: RWDWidth(10),
+                }}
+              >
+                <ThinnerPassword
+                  onChange={handleUserDataChange}
+                  name="Confirm New Password"
+                  placeholder="Confirm New Password"
+                />
+                {userData["Confirm New Password"] &&
+                  (userData.new_password ===
+                  userData["Confirm New Password"] ? (
+                    <CheckCircle />
+                  ) : (
+                    <CloseCircle />
+                  ))}
+              </div>
+            </SLIDE>
+          </div>
         )}
       </div>
     ),
@@ -287,29 +320,33 @@ const Setting = () => {
                 </Fragment>
               ))}
           </InfoContainer.AccountSetting>
-          <InfoContainer.ButtonContainer style={{ marginTop: RWDHeight(50) }}>
-            <RectButton
-              variant="solid"
-              buttonTheme="#5A8EA4"
-              disabled={
-                _.isEqual(oriUserData, userData) ||
-                !userData.username ||
-                !userData.email ||
-                !/^[^#$%&*/?@]*$/.test(userData.username) ||
-                (changePassword &&
-                  (!userData.old_password ||
-                    !userData.new_password ||
-                    !userData["Confirm New Password"] ||
-                    userData.new_password !== userData["Confirm New Password"]))
-              }
-              onClick={handleAccountUpdate}
-            >
-              Update
-            </RectButton>
-            <RectButton variant="hollow" buttonTheme="#D8D8D8">
-              Reset
-            </RectButton>
-          </InfoContainer.ButtonContainer>
+          {login !== "google" && (
+            <InfoContainer.ButtonContainer style={{ marginTop: RWDHeight(50) }}>
+              <RectButton
+                variant="solid"
+                buttonTheme="#5A8EA4"
+                disabled={
+                  _.isEqual(oriUserData, userData) ||
+                  !userData.username ||
+                  !userData.email ||
+                  !/^[^#$%&*/?@]*$/.test(userData.username) ||
+                  (changePassword &&
+                    (!userData.old_password ||
+                      !userData.new_password ||
+                      !userData["Confirm New Password"] ||
+                      userData.new_password !==
+                        userData["Confirm New Password"]))
+                }
+                onClick={handleAccountUpdate}
+              >
+                Update
+              </RectButton>
+              <RectButton variant="hollow" buttonTheme="#D8D8D8">
+                Reset
+              </RectButton>
+            </InfoContainer.ButtonContainer>
+          )}
+
           <InfoContainer.Title>Third-Party Applications</InfoContainer.Title>
           <div
             style={{
@@ -326,6 +363,9 @@ const Setting = () => {
             </GoogleButton>
             <LineButton
               style={{ minWidth: "fit-content", width: RWDWidth(350) }}
+              onClick={() => {
+                lineConnect(cookies.token);
+              }}
             >
               Connect with LINE
             </LineButton>
