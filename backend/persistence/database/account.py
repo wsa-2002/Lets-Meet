@@ -94,13 +94,12 @@ async def read_by_username_or_email(identifier: str, is_google_login: bool = Fal
     return id_, pass_hash, is_google_login
 
 
-async def read_passhash(account_id: int, include_deleted: bool = False) -> Tuple[int, str, bool]:
+async def read_passhash(account_id: int) -> Tuple[int, str, bool]:
     sql, params = pyformat2psql(
         sql=fr"SELECT id, pass_hash, is_google_login"
             fr"  FROM account"
             fr" WHERE id = %(account_id)s"
-            fr"   AND email IS NOT NULL"
-            fr"   {'AND NOT is_deleted' if not include_deleted else ''}",
+            fr"   AND email IS NOT NULL",
         account_id=account_id,
     )
     try:
