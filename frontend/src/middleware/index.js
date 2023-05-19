@@ -21,10 +21,9 @@ export const {
   getCalendar,
   getGoogleCalendar,
   getUserInfo,
-  lineToken,
 } = GET;
 export const { deleteRoutine } = DELETE;
-export { googleLogin, lineConnect } from "./thirdParty";
+export { googleLogin, lineConnect, lineToken } from "./thirdParty";
 export {
   getGroupAvailability,
   getMyAvailability,
