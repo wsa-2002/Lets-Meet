@@ -16,7 +16,21 @@ export const googleLogin = async () => {
 
 export const lineConnect = async (token) => {
   try {
-    window.open(`${baseURL}/line`, "_self");
+    window.open(`${baseURL}/line?token=${token}`, "_self");
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const lineToken = async (code, state) => {
+  try {
+    var newWindow = window.open(
+      `${baseURL}/account/line?state=${state}&code=${code}`,
+      "_blank",
+      "height=500,width=500,menubar=0,status=0,toolbar=0",
+      false
+    );
+    newWindow.focus();
   } catch (error) {
     throw error;
   }

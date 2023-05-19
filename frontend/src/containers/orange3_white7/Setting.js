@@ -9,6 +9,7 @@ import Base from "../../components/Base/orange3_white7";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import { RWD, ANIME } from "../../constant";
+import Notification from "../../components/Notification";
 import {
   getUserInfo,
   editAccount,
@@ -80,9 +81,11 @@ const InfoContainer = Object.assign(
         margin-top: ${RWDHeight(20)};
       `,
       {
-        Content: styled(Form)`
+        Content: styled.div`
           font-size: ${RWDFontSize(20)};
           font-weight: bold;
+          display: flex;
+          align-items: center;
         `,
       }
     ),
@@ -101,8 +104,10 @@ const Setting = () => {
   const [userData, setUserData] = useState({});
   const [oriUserData, setOriUserData] = useState({});
   const [changePassword, setChangePassword] = useState(false);
-  const [preference, setPreference] = useState("Email");
+  const [preference, setPreference] = useState("");
+  const [lineLogin, setLineLogin] = useState("");
   const search = useLocation().search;
+  const [notification, setNotification] = useState({});
 
   /*調整 Setting 文字 套組*/
   const RoutineRef = useRef(null);
@@ -130,18 +135,22 @@ const Setting = () => {
     (async () => {
       if (login) {
         const {
-          data: { username, email },
+          data: { username, email, line_token, notification_preference },
         } = await getUserInfo(undefined, cookies.token, ID);
+        setLineLogin(line_token);
+        setPreference(notification_preference);
         setUserData({ username, email });
         setOriUserData({ username, email });
         if (search) {
           const code = new URLSearchParams(search).get("code");
           const state = new URLSearchParams(search).get("state");
           if (code && state) {
-            const data = await lineToken({ code, state }, cookies.token);
-            console.log(data);
+            await lineToken(code, state);
+            navigate("/settings");
           }
         }
+      } else {
+        // navigate("/")
       }
     })();
   }, [login]);
@@ -152,28 +161,86 @@ const Setting = () => {
   };
 
   const handleAccountUpdate = async () => {
+    setLoading(true);
     const { error } = await editAccount(userData, cookies.token);
+    setLoading(false);
+    if (error) {
+      setUserData(JSON.parse(JSON.stringify(oriUserData)));
+    }
+    setChangePassword(false);
+    switch (error) {
+      case "EmailExist":
+        setNotification({
+          title: "Update failed",
+          message: "Email has already been registered.",
+        });
+        break;
+      case "UsernameExists":
+        setNotification({
+          title: "Update failed",
+          message: "Username has already been registered.",
+        });
+        break;
+      case "NoPermission":
+        setNotification({
+          title: "Change password failed",
+          message: "Wrong password.",
+        });
+        break;
+      default:
+        if (userData.email !== oriUserData.email) {
+          setNotification({
+            title: "Verification mail sent",
+            message:
+              "Please check your mailbox. Email will be updated in the Settings page after you verify your new email.",
+          });
+        }
+        setUserData((prev) => ({
+          ...JSON.parse(JSON.stringify(oriUserData)),
+          username: JSON.parse(JSON.stringify(prev.username)),
+        }));
+        setOriUserData((prev) => ({
+          username: JSON.parse(JSON.stringify(userData.username)),
+          email: JSON.parse(JSON.stringify(prev.email)),
+        }));
+        break;
+    }
+  };
+
+  const handleEditPrefernce = async (e) => {
+    const { value } = e.target;
+    await editPreference({ preference: value }, cookies.token);
+    setPreference(value);
   };
 
   const CONTENTMENU = {
     Username: (
-      <Form.Item
-        name="username"
-        rules={[
+      <Form
+        fields={[
           {
-            pattern: /^[^#$%&*/?@]*$/,
-            validateTrigger: "onChange",
-            message: "Please avoid `#$%&*/?@",
+            name: ["username"],
+            value: userData.username,
           },
         ]}
-        style={{ margin: 0 }}
       >
-        <ThinnerInput
-          onChange={handleUserDataChange}
+        <Form.Item
           name="username"
-          disabled={login === "google"}
-        />
-      </Form.Item>
+          rules={[
+            {
+              pattern: /^[^#$%&*/?@]*$/,
+              validateTrigger: "onChange",
+              message: "Please avoid `#$%&*/?@",
+            },
+          ]}
+          style={{ margin: 0 }}
+        >
+          <ThinnerInput
+            onChange={handleUserDataChange}
+            name="username"
+            disabled={login === "google"}
+          />
+        </Form.Item>
+      </Form>
     ),
     Email: (
       <ThinnerInput
@@ -249,153 +316,164 @@ const Setting = () => {
   };
 
   return (
-    <Base login={true} title_disable={true}>
-      <Base.LeftContainer
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-end",
-          justifyContent: "center",
-          paddingRight: RWDWidth(18),
-        }}
-      >
-        <p
+    <>
+      <Notification
+        notification={notification}
+        setNotification={setNotification}
+      />
+      <Base login={true} title_disable={true}>
+        <Base.LeftContainer
           style={{
-            fontSize: RWDFontSize(32),
-            color: "#B76A00",
-            margin: 0,
-            fontWeight: 800,
-            letterSpacing: "1px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            paddingRight: RWDWidth(18),
           }}
-          ref={RoutineRef}
         >
-          Settings
-        </p>
-        <InstructionContainer
-          style={{ position: "absolute", top, marginTop: RWDHeight(80) }}
+          <p
+            style={{
+              fontSize: RWDFontSize(32),
+              color: "#B76A00",
+              margin: 0,
+              fontWeight: 800,
+              letterSpacing: "1px",
+            }}
+            ref={RoutineRef}
+          >
+            Settings
+          </p>
+          <InstructionContainer
+            style={{ position: "absolute", top, marginTop: RWDHeight(80) }}
+          >
+            <InstructionContainer.Item>
+              Set your account information
+            </InstructionContainer.Item>
+            <InstructionContainer.Item>
+              Connect to third-party applications
+            </InstructionContainer.Item>
+            <InstructionContainer.Item>
+              Change your notification preferences
+            </InstructionContainer.Item>
+          </InstructionContainer>
+        </Base.LeftContainer>
+        <Base.RightContainer
+          style={{
+            gridRow: "2/3",
+            position: "relative",
+            alignItems: "flex-start",
+          }}
         >
-          <InstructionContainer.Item>
-            Set your account information
-          </InstructionContainer.Item>
-          <InstructionContainer.Item>
-            Connect to third-party applications
-          </InstructionContainer.Item>
-          <InstructionContainer.Item>
-            Change your notification preferences
-          </InstructionContainer.Item>
-        </InstructionContainer>
-      </Base.LeftContainer>
-      <Base.RightContainer
-        style={{
-          gridRow: "2/3",
-          position: "relative",
-          alignItems: "flex-start",
-        }}
-      >
-        <InfoContainer>
-          <InfoContainer.Title>Account Settings</InfoContainer.Title>
-          <InfoContainer.AccountSetting>
-            {userData.username !== undefined &&
-              Object.keys(CONTENTMENU).map((title, index) => (
-                <Fragment key={index}>
-                  <InfoContainer.AccountSetting.Content
-                    style={{
-                      gridColumn: "1/2",
-                      gridRow: `${index + 1}/${index + 2}`,
-                      alignSelf: title === "Password" && "flex-start",
-                    }}
-                  >
-                    {title}
-                  </InfoContainer.AccountSetting.Content>
-                  <InfoContainer.AccountSetting.Content
-                    style={{
-                      gridColumn: "2/3",
-                      gridRow: `${index + 1}/${index + 2}`,
-                      fontWeight: "normal",
-                    }}
-                    initialValues={{ username: userData.username }}
-                  >
-                    {CONTENTMENU[title]}
-                  </InfoContainer.AccountSetting.Content>
-                </Fragment>
-              ))}
-          </InfoContainer.AccountSetting>
-          {login !== "google" && (
-            <InfoContainer.ButtonContainer style={{ marginTop: RWDHeight(50) }}>
-              <RectButton
-                variant="solid"
-                buttonTheme="#5A8EA4"
-                disabled={
-                  _.isEqual(oriUserData, userData) ||
-                  !userData.username ||
-                  !userData.email ||
-                  !/^[^#$%&*/?@]*$/.test(userData.username) ||
-                  (changePassword &&
-                    (!userData.old_password ||
-                      !userData.new_password ||
-                      !userData["Confirm New Password"] ||
-                      userData.new_password !==
-                        userData["Confirm New Password"]))
-                }
-                onClick={handleAccountUpdate}
+          <InfoContainer>
+            <InfoContainer.Title>Account Settings</InfoContainer.Title>
+            <InfoContainer.AccountSetting>
+              {userData.username !== undefined &&
+                Object.keys(CONTENTMENU).map((title, index) => (
+                  <Fragment key={index}>
+                    <InfoContainer.AccountSetting.Content
+                      style={{
+                        gridColumn: "1/2",
+                        gridRow: `${index + 1}/${index + 2}`,
+                        alignSelf: title === "Password" && "flex-start",
+                      }}
+                    >
+                      {title}
+                    </InfoContainer.AccountSetting.Content>
+                    <InfoContainer.AccountSetting.Content
+                      style={{
+                        gridColumn: "2/3",
+                        gridRow: `${index + 1}/${index + 2}`,
+                        fontWeight: "normal",
+                      }}
+                    >
+                      {CONTENTMENU[title]}
+                    </InfoContainer.AccountSetting.Content>
+                  </Fragment>
+                ))}
+            </InfoContainer.AccountSetting>
+            {login !== "google" && (
+              <InfoContainer.ButtonContainer
+                style={{ marginTop: RWDHeight(50) }}
               >
-                Update
-              </RectButton>
-              <RectButton variant="hollow" buttonTheme="#D8D8D8">
-                Reset
-              </RectButton>
-            </InfoContainer.ButtonContainer>
-          )}
+                <RectButton
+                  variant="solid"
+                  buttonTheme="#5A8EA4"
+                  disabled={
+                    _.isEqual(oriUserData, userData) ||
+                    !userData.username ||
+                    !userData.email ||
+                    !/^[^#$%&*/?@]*$/.test(userData.username) ||
+                    (changePassword &&
+                      (!userData.old_password ||
+                        !userData.new_password ||
+                        !userData["Confirm New Password"] ||
+                        userData.new_password !==
+                          userData["Confirm New Password"]))
+                  }
+                  onClick={handleAccountUpdate}
+                >
+                  Update
+                </RectButton>
+                <RectButton
+                  variant="hollow"
+                  buttonTheme="#D8D8D8"
+                  onClick={() => {
+                    setUserData(JSON.parse(JSON.stringify(oriUserData)));
+                    setChangePassword(false);
+                  }}
+                >
+                  Reset
+                </RectButton>
+              </InfoContainer.ButtonContainer>
+            )}
 
-          <InfoContainer.Title>Third-Party Applications</InfoContainer.Title>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              columnGap: RWDWidth(25),
-              marginTop: RWDHeight(20),
-            }}
-          >
-            <GoogleButton
-              style={{ minWidth: "fit-content", width: RWDWidth(350) }}
-            >
-              Connect with Google
-            </GoogleButton>
-            <LineButton
-              style={{ minWidth: "fit-content", width: RWDWidth(350) }}
-              onClick={() => {
-                lineConnect(cookies.token);
+            <InfoContainer.Title>Third-Party Applications</InfoContainer.Title>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                columnGap: RWDWidth(25),
+                marginTop: RWDHeight(20),
               }}
             >
-              Connect with LINE
-            </LineButton>
-          </div>
-          <InfoContainer.Title>Notification Preferences</InfoContainer.Title>
-          <div
-            style={{
-              marginTop: RWDHeight(20),
-              display: "flex",
-              flexDirection: "column",
-              rowGap: RWDHeight(15),
-            }}
-          >
-            <div>
-              If you have connected with a LINE account, you can choose either
-              LINE messages or Email as your notification preferences.
+              <GoogleButton
+                style={{ minWidth: "fit-content", width: RWDWidth(350) }}
+              >
+                Connect with Google
+              </GoogleButton>
+              <LineButton
+                style={{ minWidth: "fit-content", width: RWDWidth(350) }}
+                onClick={() => {
+                  lineConnect(cookies.token);
+                }}
+              >
+                Connect with LINE
+              </LineButton>
             </div>
-            <Radio.Group
-              value={preference}
-              onChange={(e) => {
-                setPreference(e.target.value);
+            <InfoContainer.Title>Notification Preferences</InfoContainer.Title>
+            <div
+              style={{
+                marginTop: RWDHeight(20),
+                display: "flex",
+                flexDirection: "column",
+                rowGap: RWDHeight(15),
               }}
             >
-              <Radio value={"Email"}>Email</Radio>
-              <Radio value={"Line"}>LINE messages</Radio>
-            </Radio.Group>
-          </div>
-        </InfoContainer>
-      </Base.RightContainer>
-    </Base>
+              <div>
+                If you have connected with a LINE account, you can choose either
+                LINE messages or Email as your notification preferences.
+              </div>
+              <Radio.Group value={preference} onChange={handleEditPrefernce}>
+                <Radio value={"EMAIL"}>Email</Radio>
+                <Radio value={"LINE"} disabled={!lineLogin}>
+                  LINE messages
+                </Radio>
+              </Radio.Group>
+            </div>
+          </InfoContainer>
+        </Base.RightContainer>
+      </Base>
+    </>
   );
 };
 

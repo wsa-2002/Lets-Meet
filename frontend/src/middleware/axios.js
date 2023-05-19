@@ -7,9 +7,5 @@ export default axios.create({
   }://${process.env.REACT_APP_SERVER_DOMAIN}:${
     process.env.REACT_APP_SERVER_PORT
   }`,
-  // crossDomain: true,
-  headers: {
-    "Access-Control-Allow-Origin":
-      process.env.REACT_APP_Access_Control_Allow_Origin,
-  },
+
 });
