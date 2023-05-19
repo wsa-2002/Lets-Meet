@@ -132,9 +132,6 @@ async def edit_account(data: EditAccountInput) -> None:
     if data.old_password and not verify_password(password=data.old_password, pass_hash=pass_hash):
         raise exc.NoPermission
 
-    if not data.old_password and not data.new_password:
-        raise exc.IllegalInput
-
     try:
         if account := await db.account.read_by_email(data.email):
             if account.is_google_login:
