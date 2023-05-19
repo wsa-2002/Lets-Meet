@@ -67,6 +67,15 @@ export const ANIME = {
     animation-iteration-count: infinite;
     animation-timing-function: ease-in-out;
   `,
+  SlideFromTop: css`
+    animation-name: ${keyframes`
+      from { transform: translate(0, -100px); }
+      to { transform: translate(0,  0px); }
+    `};
+    animation-duration: 0.5s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease-in-out;
+  `,
 };
 
 export const PAGE_TRANSITION = {

@@ -7,6 +7,7 @@ const URL = {
   getCalendar: "/meet-calendar",
   getGoogleCalendar: "/google-calendar",
   getUserInfo: "/account",
+  lineToken: "/account/line",
 };
 
 export default Object.keys(URL).reduce((acc, curr) => {
