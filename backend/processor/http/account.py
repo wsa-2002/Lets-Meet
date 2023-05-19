@@ -124,15 +124,16 @@ class EditAccountInput(BaseModel):
 async def edit_account(data: EditAccountInput) -> None:
     if not request.account.id:
         raise exc.NoPermission
+    account_id = request.account.id
+    account = await db.account.read(account_id)
 
-    if data.username and not await db.account.is_valid_username(data.username):
+    if data.username != account.username and not await db.account.is_valid_username(data.username):
         raise exc.UsernameExists
 
     account_id, pass_hash, _ = await db.account.read_passhash(account_id=request.account.id)
     if data.old_password and not verify_password(password=data.old_password, pass_hash=pass_hash):
         raise exc.NoPermission
 
-    account = await db.account.read(account_id)
     if account.email != data.email:
         try:
             if acc := await db.account.read_by_email(data.email):
