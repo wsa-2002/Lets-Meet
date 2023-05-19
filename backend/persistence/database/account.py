@@ -305,4 +305,4 @@ async def edit(account_id: int, username: Optional[str] = None, pass_hash: Optio
             fr" WHERE id = %(account_id)s",
         account_id=account_id, **update_params,
     )
-    await pool_handler.pool.execute(sql, params)
+    await pool_handler.pool.execute(sql, *params)
