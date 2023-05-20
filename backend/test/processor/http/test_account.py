@@ -12,11 +12,11 @@ class TestSearchAccount(unittest.IsolatedAsyncioTestCase):
             id=1, username='wsa', email='wsa@ntu.im',
             notification_preference=enums.NotificationPreference.email,
             is_google_login=False,
-            line_token=None
+            line_token=None,
         )]
         self.expect_output = {
             'data': account.SearchAccountOutput(
-                accounts=[account.AccountInfo(id=1, username='wsa', email='wsa@ntu.im')]
+                accounts=[account.AccountInfo(id=1, username='wsa', email='wsa@ntu.im')],
             ),
             'error': None,
         }
