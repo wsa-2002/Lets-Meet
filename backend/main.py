@@ -31,7 +31,7 @@ async def app_startup():
     from config import db_config
     from persistence.database import pool_handler
     await pool_handler.initialize(db_config=db_config)
-    print('fwejfwefj')
+
     from config import smtp_config
     from persistence.email import smtp_handler
     await smtp_handler.initialize(smtp_config=smtp_config)
