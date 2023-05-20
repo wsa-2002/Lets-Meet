@@ -230,14 +230,6 @@ class TestEditAccount(unittest.IsolatedAsyncioTestCase):
             'data': None,
             'error': exc.LineAccountNotConnected.__name__,
         }
-        self.read_account_success_expect_output = {
-            'data': self.account,
-            'error': None,
-        }
-        self.read_account_failed_expect_output = {
-            'data': None,
-            'error': exc.NoPermission.__name__,
-        }
 
     async def test_edit_username(self):
         @mock.patch('middleware.context.Request._context', self.context)
@@ -322,6 +314,27 @@ class TestEditAccount(unittest.IsolatedAsyncioTestCase):
 
         res = await test(self.edit_notification_preference_line_input)
         self.assertEqual(res, self.edit_notification_preference_failed_expect_output)
+
+
+class TestReadAccount(unittest.IsolatedAsyncioTestCase):
+    def setUp(self) -> None:
+        self.context = {'account': security.Account(id=1, time=datetime.now())}
+        self.account = do.Account(
+            id=1,
+            username='username',
+            email='email',
+            is_google_login=False,
+            notification_preference=enums.NotificationPreference.email,
+            line_token='test token',
+        )
+        self.read_account_success_expect_output = {
+            'data': self.account,
+            'error': None,
+        }
+        self.read_account_failed_expect_output = {
+            'data': None,
+            'error': exc.NoPermission.__name__,
+        }
 
     async def test_read_account(self):
         @mock.patch('middleware.context.Request._context', self.context)
