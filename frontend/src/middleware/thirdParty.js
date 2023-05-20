@@ -21,3 +21,17 @@ export const lineConnect = async (token) => {
     throw error;
   }
 };
+
+export const lineToken = async (code, state) => {
+  try {
+    var newWindow = window.open(
+      `${baseURL}/account/line?state=${state}&code=${code}`,
+      "_blank",
+      "height=500,width=500,menubar=0,status=0,toolbar=0",
+      false
+    );
+    newWindow.focus();
+  } catch (error) {
+    throw error;
+  }
+};
