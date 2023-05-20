@@ -31,11 +31,12 @@ async def get_line_bot_url() -> GetLineBotUrlOutput:
 
 @router.post('/line')
 @router.get('/line')
-async def connect_account_to_line():
-    if not request.account:
+async def connect_account_to_line(token: str):
+    account_id = (security.decode_jwt(token, request.time)).id
+    if not account_id:
         raise exc.NoPermission
     token = security.encode_jwt(
-        account_id=request.account.id,
+        account_id=account_id,
         is_google_login=request.account.is_google_login,
     )
     redirect_uri = line_handler.compose_redirect_uri(token)
@@ -45,7 +46,8 @@ async def connect_account_to_line():
 
 @router.get('/account/line')
 async def update_account_line_token(code: str, state: str):
-    if not (account_id := request.account.id):
+    account_id = (security.decode_jwt(state, request.time)).id
+    if not account_id:
         raise exc.NoPermission
     user_id = await line_handler.login(code)
     await db.account.update_line_token(account_id=account_id, token=user_id)
