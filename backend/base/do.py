@@ -33,10 +33,10 @@ class Meet:
     end_date: date
     start_time_slot_id: int
     end_time_slot_id: int
-    voting_end_time: datetime
     title: str
     invite_code: str
     gen_meet_url: bool
+    voting_end_time: Optional[datetime] = None
     finalized_start_date: Optional[date] = None
     finalized_end_date: Optional[date] = None
     finalized_start_time_slot_id: Optional[int] = None

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Optional
+from typing import Optional, Union
 
 from base import enums
 
@@ -16,7 +16,7 @@ class BrowseMeetByAccount:
     end_date: date
     start_time_slot_id: int
     end_time_slot_id: int
-    status: enums.StatusType
+    status: Union[enums.StatusType, str]
     voting_end_time: Optional[datetime] = None
     finalized_start_date: Optional[date] = None
     finalized_end_date: Optional[date] = None

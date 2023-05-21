@@ -16,7 +16,7 @@ import service
 from service.meet import EditMeetInput, AddMemberMeetAvailableTimeInput, \
     ConfirmMeetInput, DeleteMeetMemberAvailableTimeInput
 import exceptions as exc  # noqa
-from security import hash_password, verify_password
+from security import hash_password
 import persistence.email as email
 from service.calendar import GoogleCalendar
 from .util import parse_filter, parse_sorter, timezone_validate, update_status, compose_host_and_member_info, MemberInfo
@@ -143,54 +143,6 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
     )
 
 
-@router.get('/meet/{meet_id}')
-@enveloped
-async def read_meet(meet_id: int, name: Optional[str] = None, password: Optional[str] = None) -> ReadMeetOutput:
-    if not service.meet.is_authed(meet_id=meet_id, name=name, password=password):
-        raise exc.NoPermission
-
-    meet = await db.meet.read(meet_id=meet_id)
-    try:
-        account_id = request.account.id
-    except exc.NoPermission:
-        account_id = None
-    meet.status = await update_status(meet.id, meet, request.time, account_id)
-    host, member_infos = await compose_host_and_member_info(meet_id=meet.id)
-
-    return ReadMeetOutput(
-        id=meet.id,
-        status=meet.status,
-        start_date=meet.start_date,
-        end_date=meet.end_date,
-        start_time_slot_id=meet.start_time_slot_id,
-        end_time_slot_id=meet.end_time_slot_id,
-        voting_end_time=meet.voting_end_time,
-        meet_name=meet.title,
-        invite_code=meet.invite_code,
-        gen_meet_url=meet.gen_meet_url,
-        finalized_start_date=meet.finalized_start_date,
-        finalized_end_date=meet.finalized_end_date,
-        finalized_start_time_slot_id=meet.finalized_start_time_slot_id,
-        finalized_end_time_slot_id=meet.finalized_end_time_slot_id,
-        meet_url=meet.meet_url,
-        description=meet.description,
-        host_info=host,
-        member_infos=member_infos,
-    )
-
-
-@router.delete('/meet/{meet_id}')
-@enveloped
-async def delete_meet(meet_id: int) -> None:
-    await service.meet.delete_meet(meet_id=meet_id)
-
-
-@router.patch('/meet/{meet_id}')
-@enveloped
-async def edit_meet(meet_id: int, data: EditMeetInput) -> None:
-    await service.meet.edit_meet(meet_id=meet_id, data=data)
-
-
 BROWSE_MEET_COLUMNS = {
     'name': str,
     'host': str,
@@ -304,53 +256,6 @@ async def read_meet_by_code(code: str) -> ReadMeetOutput:
     )
 
 
-@router.get('/meet/{meet_id}/available_time')
-@enveloped
-async def browse_member_available_time_by_meet_id(meet_id: int, name: Optional[str] = None) \
-        -> Sequence[do.MeetMemberAvailableTime]:
-    account_id = request.account.id
-    if not account_id and not name:
-        raise exc.NoPermission
-
-    return await service.meet.browse_member_available_time(meet_id=meet_id, name=name)
-
-
-class DateSlotData(BaseModel):
-    date: date
-    time_slot_id: int
-    available_members: Sequence[str]
-    unavailable_members: Sequence[str]
-
-
-class BrowseAllMemberAvailableTimeOutput(BaseModel):
-    data: Sequence[DateSlotData]
-
-
-@router.get('/meet/{meet_id}/available_time/all')
-@enveloped
-async def browse_all_member_available_time(meet_id: int) \
-        -> BrowseAllMemberAvailableTimeOutput:
-    return await service.meet.browse_all_member_available_time(meet_id=meet_id)
-
-
-@router.post('/meet/{meet_id}/confirm')
-@enveloped
-async def confirm_meet(meet_id: int, data: ConfirmMeetInput) -> None:
-    account_id = request.account.id
-    if not account_id:
-        raise exc.NoPermission
-
-    if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
-        raise exc.NoPermission
-
-    if data.start_date > data.end_date:
-        raise exc.IllegalInput
-    if data.start_time_slot_id > data.end_time_slot_id:
-        raise exc.IllegalInput
-
-    await service.meet.confirm(meet_id=meet_id, data=data)
-
-
 @router.delete('/meet/code/{code}')
 @enveloped
 async def delete_meet_by_code(code: str) -> None:
@@ -367,6 +272,17 @@ async def edit_meet_by_code(code: str, data: EditMeetInput) -> None:
     if not await db.meet.is_authed(meet_id=meet_id, member_id=request.account.id, only_host=True):
         raise exc.NoPermission
     await service.meet.edit_meet(meet_id, data=data)
+
+
+class DateSlotData(BaseModel):
+    date: date
+    time_slot_id: int
+    available_members: Sequence[str]
+    unavailable_members: Sequence[str]
+
+
+class BrowseAllMemberAvailableTimeOutput(BaseModel):
+    data: Sequence[DateSlotData]
 
 
 @router.get('/meet/code/{code}/available_time/all')
@@ -408,26 +324,6 @@ async def confirm_meet_by_code(code: str, data: ConfirmMeetInput) -> None:
     await service.meet.confirm(meet_id=meet_id, data=data)
 
 
-@router.post('/meet/{meet_id}/available_time')
-@enveloped
-async def add_member_meet_available_time(meet_id: int, data: AddMemberMeetAvailableTimeInput):
-    account_id = request.account.id
-    if not account_id and not data.name:
-        raise exc.IllegalInput
-
-    if not await service.meet.is_authed(meet_id=meet_id, name=data.name, password=data.password):
-        raise exc.NoPermission
-
-    meet = await db.meet.read(meet_id=meet_id)
-    if any(not meet.start_time_slot_id <= time_slot.time_slot_id <= meet.end_time_slot_id for time_slot in
-           data.time_slots):
-        raise exc.IllegalInput
-
-    if any(not meet.start_date <= time_slot.date <= meet.end_date for time_slot in data.time_slots):
-        raise exc.IllegalInput
-    await service.meet.add_member_meet_available_time(meet_id, data=data)
-
-
 @router.post('/meet/code/{code}/available_time')
 @enveloped
 async def add_member_meet_available_time_by_code(code: str, data: AddMemberMeetAvailableTimeInput):
@@ -444,14 +340,6 @@ async def add_member_meet_available_time_by_code(code: str, data: AddMemberMeetA
     if any(not meet.start_date <= time_slot.date <= meet.end_date for time_slot in data.time_slots):
         raise exc.IllegalInput
     await service.meet.add_member_meet_available_time(meet_id=meet.id, data=data)
-
-
-@router.delete('/meet/{meet_id}/available_time')
-@enveloped
-async def delete_member_meet_available_time(meet_id: int, data: DeleteMeetMemberAvailableTimeInput):
-    if not await service.meet.is_authed(meet_id=meet_id, name=data.name, password=data.password):
-        raise exc.NoPermission
-    await service.meet.delete_meet_member_available_time(meet_id=meet_id, data=data)
 
 
 @router.delete('/meet/code/{code}/available_time')
