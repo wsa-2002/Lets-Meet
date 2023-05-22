@@ -94,6 +94,9 @@ async def edit_meet(meet_id: int, data: EditMeetInput):
 
 
 class DateSlotData(BaseModel):
+    def __hash__(self):
+        return hash((self.date, self.time_slot_id))
+
     date: date
     time_slot_id: int
     available_members: Sequence[str]
