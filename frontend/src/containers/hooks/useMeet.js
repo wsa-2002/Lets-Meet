@@ -36,26 +36,17 @@ const MeetProvider = (props) => {
     (async () => {
       if (login) {
         const {
-          data: {
-            id: ID,
-            username,
-            email,
-            line_token,
-            notification_preference,
-          },
+          data: { id: ID, ...rest },
         } = await getUserInfo(undefined, jwt(cookies.token).account_id);
         setUSERINFO({
           ID,
-          username,
-          email,
-          line_token,
-          notification_preference,
+          ...rest,
         });
       } else {
         setUSERINFO({});
       }
     })();
-  }, [login, USERINFO.ID]);
+  }, [login]);
 
   return (
     <MeetContext.Provider
@@ -68,7 +59,6 @@ const MeetProvider = (props) => {
         setLogin,
         setLoading,
         setUSERINFO,
-        setCookie,
         removeCookie,
         GLOBAL_LOGIN,
         MIDDLEWARE,

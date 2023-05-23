@@ -1,5 +1,5 @@
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
-import { Form, Radio } from "antd";
+import { Form } from "antd";
 import _ from "lodash";
 import React, { Fragment, useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -8,8 +8,9 @@ import { useMeet } from "../hooks/useMeet";
 import Base from "../../components/Base/orange3_white7";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
-import { RWD, ANIME } from "../../constant";
 import Notification from "../../components/Notification";
+import Radio from "../../components/Radio";
+import { RWD, ANIME } from "../../constant";
 const RectButton = Button("rect");
 const GoogleButton = Button("google");
 const LineButton = Button("line");
@@ -483,12 +484,19 @@ const Setting = () => {
                 If you have connected with a LINE account, you can choose either
                 LINE messages or Email as your notification preferences.
               </div>
-              <Radio.Group value={preference} onChange={handleEditPrefernce}>
-                <Radio value={"EMAIL"}>Email</Radio>
-                <Radio value={"LINE"} disabled={!lineLogin}>
-                  LINE messages
-                </Radio>
-              </Radio.Group>
+              <Radio
+                radioTheme="#DB8600"
+                value={preference}
+                elements={[
+                  { value: "EMAIL", label: "Email" },
+                  {
+                    value: "LINE",
+                    label: "LINE messages",
+                    props: { disabled: !lineLogin },
+                  },
+                ]}
+                onChange={handleEditPrefernce}
+              />
             </div>
           </InfoContainer>
         </Base.RightContainer>
