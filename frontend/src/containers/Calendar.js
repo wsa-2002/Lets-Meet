@@ -16,14 +16,14 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useMeet } from "./hooks/useMeet";
-import { RWD, ANIME } from "../constant";
 import Base from "../components/Base/145MeetRelated";
 import Link from "../components/Link";
 import Tag from "../components/Tag";
+import { RWD, ANIME } from "../constant";
 import slotIDProcessing from "../util/slotIDProcessing";
-import { Radio } from "antd";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
+import Radio from "../components/Radio";
 const RoundButton = Button("round");
 const moment = extendMoment(Moment);
 const CalendarModal = Modal("calendar");
@@ -787,16 +787,17 @@ export default () => {
                 }}
               />
             </MenuContainer.TimeOperationContainer>
-
-            <Radio.Group
+            <Radio
+              radioTheme="#DB8600"
+              value={mode}
+              elements={[
+                { value: "week", label: "Week" },
+                { value: "month", label: "Month" },
+              ]}
               onChange={(e) => {
                 setMode(e.target.value);
               }}
-              value={mode}
-            >
-              <Radio value={"week"}>Week</Radio>
-              <Radio value={"month"}>Month</Radio>
-            </Radio.Group>
+            />
           </MenuContainer>
           <CalendarContainer seeMorePosition={seeMorePosition}>
             <Calendar

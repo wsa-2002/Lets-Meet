@@ -493,16 +493,11 @@ const MeetInfo = () => {
   /******************************************************/
 
   const handleVote = () => {
-    if (!login && !location?.state?.guestName) {
+    if (!login) {
       setGuestNameOpen(true);
       return;
     }
-    navigate(`/voting/${code}`, {
-      state: {
-        guestName: location?.state?.guestName,
-        guestPassword: location?.state?.guestPassword,
-      },
-    });
+    navigate(`/voting/${code}`);
   };
 
   return (

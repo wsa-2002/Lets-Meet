@@ -21,5 +21,3 @@ export default (instance) =>
     };
     return acc;
   }, {});
-
-// await instance.post("/login", { data: { user_identifier: "", password: "" } });
