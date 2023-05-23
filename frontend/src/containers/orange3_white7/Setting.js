@@ -99,13 +99,19 @@ const InfoContainer = Object.assign(
 );
 
 const Setting = () => {
-  const { cookies, login, setLoading, ID } = useMeet();
+  const {
+    cookies,
+    login,
+    setLoading,
+    USERINFO: { ID, username, email, line_token, notification_preference },
+    setUSERINFO,
+  } = useMeet();
   const navigate = useNavigate();
-  const [userData, setUserData] = useState({});
-  const [oriUserData, setOriUserData] = useState({});
+  const [userData, setUserData] = useState({ username, email });
+  const [oriUserData, setOriUserData] = useState({ username, email });
   const [changePassword, setChangePassword] = useState(false);
-  const [preference, setPreference] = useState("");
-  const [lineLogin, setLineLogin] = useState("");
+  const [preference, setPreference] = useState(notification_preference);
+  const [lineLogin, setLineLogin] = useState(line_token ?? "");
   const search = useLocation().search;
   const [notification, setNotification] = useState({});
   const location = useLocation();
@@ -136,35 +142,27 @@ const Setting = () => {
     if (location?.state?.line) {
       setNotification({
         title: "Connect to Line",
-        message: "請掃描 QRcode 已接收訊息",
+        message: "請掃描 QRcode 以接收訊息",
       });
     }
   }, [location?.state?.line]);
 
   useEffect(() => {
     (async () => {
-      if (login) {
-        const {
-          data: { username, email, line_token, notification_preference },
-        } = await getUserInfo(undefined, cookies.token, ID);
-        setLineLogin(line_token);
-        setPreference(notification_preference);
-        setUserData({ username, email });
-        setOriUserData({ username, email });
-        if (search) {
-          const code = new URLSearchParams(search).get("code");
-          const state = new URLSearchParams(search).get("state");
-          if (code && state) {
-            await lineToken(code, state);
-            navigate("/settings", {
-              state: {
-                line: "initial",
-              },
-            });
-          }
+      if (search) {
+        const code = new URLSearchParams(search).get("code");
+        const state = new URLSearchParams(search).get("state");
+        if (code && state) {
+          await lineToken(code, state);
+          navigate("/settings", {
+            state: {
+              line: "initial",
+            },
+          });
         }
-      } else {
-        // navigate("/")
+      }
+      if (!login) {
+        navigate("/");
       }
     })();
   }, [login]);
@@ -180,6 +178,34 @@ const Setting = () => {
     setLoading(false);
     if (error) {
       setUserData(JSON.parse(JSON.stringify(oriUserData)));
+    } else {
+      const {
+        data: { username, email, line_token, notification_preference },
+        error,
+      } = await getUserInfo(undefined, cookies.token, ID);
+      console.log(error);
+      setUSERINFO((prev) => ({
+        ...prev,
+        username,
+        email,
+        line_token,
+        notification_preference,
+      }));
+      if (userData.email !== oriUserData.email) {
+        setNotification({
+          title: "Verification mail sent",
+          message:
+            "Please check your mailbox. Email will be updated in the Settings page after you verify your new email.",
+        });
+      }
+      setUserData((prev) => ({
+        ...JSON.parse(JSON.stringify(oriUserData)),
+        username: JSON.parse(JSON.stringify(prev.username)),
+      }));
+      setOriUserData((prev) => ({
+        username: JSON.parse(JSON.stringify(userData.username)),
+        email: JSON.parse(JSON.stringify(prev.email)),
+      }));
     }
     setChangePassword(false);
     switch (error) {
@@ -202,21 +228,6 @@ const Setting = () => {
         });
         break;
       default:
-        if (userData.email !== oriUserData.email) {
-          setNotification({
-            title: "Verification mail sent",
-            message:
-              "Please check your mailbox. Email will be updated in the Settings page after you verify your new email.",
-          });
-        }
-        setUserData((prev) => ({
-          ...JSON.parse(JSON.stringify(oriUserData)),
-          username: JSON.parse(JSON.stringify(prev.username)),
-        }));
-        setOriUserData((prev) => ({
-          username: JSON.parse(JSON.stringify(userData.username)),
-          email: JSON.parse(JSON.stringify(prev.email)),
-        }));
         break;
     }
   };
@@ -225,6 +236,7 @@ const Setting = () => {
     const { value } = e.target;
     await editPreference({ preference: value }, cookies.token);
     setPreference(value);
+    setUSERINFO((prev) => ({ ...prev, notification_preference: value }));
   };
 
   const CONTENTMENU = {

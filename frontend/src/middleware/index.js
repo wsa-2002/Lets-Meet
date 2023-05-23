@@ -2,6 +2,7 @@ import POST from "./simplePost";
 import GET from "./simpleGet";
 import PATCH from "./simplePatch";
 import DELETE from "./simpleDelete";
+import axios from "axios";
 
 export const {
   login,
@@ -32,3 +33,14 @@ export {
   confirmMeet,
 } from "./votingTable";
 export { default as meet } from "./meet";
+
+export default (token) => {
+  const instance = axios.create({
+    baseURL: `${
+      process.env.REACT_APP_SERVER_USE_HTTPS === "true" ? "https" : "http"
+    }://${process.env.REACT_APP_SERVER_DOMAIN}:${
+      process.env.REACT_APP_SERVER_PORT
+    }`,
+    headers: { "auth-token": token },
+  });
+};

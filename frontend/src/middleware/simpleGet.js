@@ -16,7 +16,7 @@ export default Object.keys(URL).reduce((acc, curr) => {
     route = undefined
   ) => {
     try {
-      console.log("GET", URL[curr], "req:", params ?? token ?? route);
+      console.log("GET", URL[curr], "req:", params, token, route);
       const { data: result } = await instance.get(
         `${URL[curr]}${route ? `/${route}` : ""}`,
         {

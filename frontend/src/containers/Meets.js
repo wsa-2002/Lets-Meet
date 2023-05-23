@@ -1,6 +1,5 @@
 /*TODO:********************************************************************************************
-  1.RWD, 畫面縮小到一定程度時 MEEET TABLE 會超出畫面。
-  2. Style, hover 時的特效。
+  1. Style, hover 時的特效。
 **************************************************************************************************/
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { Table, ConfigProvider } from "antd";
@@ -303,6 +302,14 @@ const Meets = () => {
           <ConfigProvider
             renderEmpty={customizeRenderEmpty}
             theme={{
+              token: {
+                colorPrimary: "#7A3E00",
+                colorLink: "#7A3E00",
+                controlItemBgActive: "#FFE699",
+                colorLinkHover: "#FFE699",
+                colorLinkActive: "#FFC340",
+                controlItemBgActiveHover: "#FFC340",
+              },
               components: {
                 Table: {
                   borderRadiusLG: 0,

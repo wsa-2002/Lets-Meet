@@ -54,7 +54,14 @@ const {
 
 const MeetInfo = () => {
   const location = useLocation();
-  const { login, cookies, setLoading, ID, error, setError } = useMeet();
+  const {
+    login,
+    cookies,
+    setLoading,
+    USERINFO: { ID },
+    error,
+    setError,
+  } = useMeet();
   // const oriRawMeetInfo = useMemo(() => rawMeetInfo, [editMode]);
   const navigate = useNavigate();
   const { code } = useParams();
