@@ -1,10 +1,11 @@
+from datetime import datetime
 import requests
 from string import Template
 
 from linebot import WebhookParser, LineBotApi, WebhookHandler
 from linebot.models import TextSendMessage
 
-from config import LineConfig, line_config
+from config import LineConfig, line_config, service_config
 import exceptions as exc  # noqa
 from security import decode_jwt_without_verification
 
@@ -61,6 +62,24 @@ class LineHandler:
             redirect_uri=self.service_redirect_uri,
             state=state,
         )
+
+    async def send_reminding_message(self, line_user_id: str, meet_title: str, username: str,
+                               meet_code: str, start_time: datetime):
+        message = f"""Hello, {username}
+Your event {meet_title} willl be held at {start_time} tommorrow, please remember to participate in the event.
+For more information about the event, click the link below.
+{service_config.url}/meets/{meet_code}
+"""
+        await self.push_message(raw_message=message, user_id=line_user_id)
+
+    async def send_voting_notification(self, line_user_id: str, meet_title: str, username: str,
+                                 meet_code: str, end_time: datetime):
+        message = f"""Hello, {username}
+The available time for you to vote for your meet {meet_title} will be ended at {end_time} tomorrow.
+Click the link to vote for your meet!
+{service_config.url}/meets/{meet_code}
+"""
+        await self.push_message(raw_message=message, user_id=line_user_id)
 
 
 line_handler = LineHandler(config=line_config)
