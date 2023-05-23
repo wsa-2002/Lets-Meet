@@ -1,5 +1,3 @@
-import instance from "./axios";
-
 const baseURL = `${
   process.env.REACT_APP_SERVER_USE_HTTPS === "true" ? "https" : "http"
 }://${process.env.REACT_APP_SERVER_DOMAIN}:${
@@ -26,9 +24,7 @@ export const lineToken = async (code, state) => {
   try {
     var newWindow = window.open(
       `${baseURL}/account/line?state=${state}&code=${code}`,
-      "_blank",
-      "height=500,width=500,menubar=0,status=0,toolbar=0",
-      false
+      "_blank"
     );
     newWindow.focus();
   } catch (error) {

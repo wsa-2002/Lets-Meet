@@ -44,7 +44,9 @@ const Member = ({ setMeetData, Input, rawMember = [] }) => {
   const [selectedKeys, setSelectedKeys] = useState([]); //MouseDown 設置
   const [open, setOpen] = useState(false); //打開 dropdown
   const [input, setInput] = useState(""); //Input 裡的文字
-  const { ID } = useMeet();
+  const {
+    USERINFO: { ID },
+  } = useMeet();
 
   const handleSearchMember = async (key) => {
     try {

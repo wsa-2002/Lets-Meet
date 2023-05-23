@@ -233,10 +233,6 @@ export default () => {
   const [timeRange, setTimeRange] = useState([]); //整個日曆的範圍
   const [key, setKey] = useState(0);
 
-  useEffect(() => {
-    setKey((prev) => prev + 1);
-  }, [mode]);
-
   /*resize seeMore 套組*/
   const [seeMorePosition, setSeeMorePosition] = useState({ left: 0, top: 0 });
   const [seeMoreMode, setSeeMoreMode] = useState(false);
@@ -327,7 +323,25 @@ export default () => {
         );
       }
     }
-    setTimeRange([start_date, end_date]);
+    setTimeRange((prev) =>
+      prev[0] ===
+        moment(start_date)
+          // .subtract(2, "months")
+          .format("YYYY-MM-DD") &&
+      prev[1] ===
+        moment(end_date)
+          // .add(2, "months")
+          .format("YYYY-MM-DD")
+        ? prev
+        : [
+            moment(start_date)
+              // .subtract(2, "months")
+              .format("YYYY-MM-DD"),
+            moment(end_date)
+              // .add(2, "months")
+              .format("YYYY-MM-DD"),
+          ]
+    );
   };
 
   const EventTemplate = (event) => {
@@ -514,9 +528,9 @@ export default () => {
             {model.dayName + " " + model.date}
           </div>
         ),
-        timegridDisplayPrimaryTime: () => {
-          return "";
-        },
+        // timegridDisplayPrimaryTime: () => {
+        //   return "";
+        // },
       },
     }),
     [mode, events]
@@ -635,8 +649,15 @@ export default () => {
 
   /*get calendar events 套組*/ //每更新一次 date range 會敲一次
   useEffect(() => {
+    setKey((prev) => prev + 1);
+  }, [mode]);
+
+  useEffect(() => {
+    if (timeRange.length) {
+      calendarInstRef.current?.getInstance().setDate(new Date(timeRange[0]));
+    }
     TimeProcessing();
-  }, [calendarOption.view]);
+  }, [key]);
 
   useEffect(() => {
     (async () => {

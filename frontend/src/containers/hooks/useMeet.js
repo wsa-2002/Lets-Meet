@@ -1,12 +1,13 @@
 import jwt from "jwt-decode";
 import { useState, useContext, createContext, useEffect } from "react";
 import { useCookies } from "react-cookie";
+import { getUserInfo } from "../../middleware";
 
 const MeetContext = createContext({
   login: false,
   error: "",
   loading: false,
-  ID: 0,
+  USERINFO: {},
 });
 
 const MeetProvider = (props) => {
@@ -14,22 +15,48 @@ const MeetProvider = (props) => {
   const [login, setLogin] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [ID, setID] = useState(0);
+  const [USERINFO, setUSERINFO] = useState({});
 
   const GLOBAL_LOGIN = (token) => {
-    const decoded = jwt(token);
-    //console.log(decoded);
-    setCookie("token", token, { path: "/", expires: new Date(decoded.expire) });
-    setLogin(decoded.is_google_login ? "google" : "notGoogle");
-    setID(decoded.account_id);
+    const { expire, is_google_login } = jwt(token);
+    setCookie("token", token, { path: "/", expires: new Date(expire) });
+    setLogin(is_google_login ? "google" : "notGoogle");
   };
 
   useEffect(() => {
     if (cookies.token) {
       setLogin(jwt(cookies.token).is_google_login ? "google" : "notGoogle");
-      setID(jwt(cookies.token).account_id);
     }
   }, [cookies]);
+
+  useEffect(() => {
+    (async () => {
+      if (login) {
+        const {
+          data: {
+            id: ID,
+            username,
+            email,
+            line_token,
+            notification_preference,
+          },
+        } = await getUserInfo(
+          undefined,
+          cookies.token,
+          jwt(cookies.token).account_id
+        );
+        setUSERINFO({
+          ID,
+          username,
+          email,
+          line_token,
+          notification_preference,
+        });
+      } else {
+        setUSERINFO({});
+      }
+    })();
+  }, [login, USERINFO.ID]);
 
   return (
     <MeetContext.Provider
@@ -38,11 +65,11 @@ const MeetProvider = (props) => {
         cookies,
         error,
         loading,
-        ID,
+        USERINFO,
         setError,
         setLogin,
         setLoading,
-        setID,
+        setUSERINFO,
         setCookie,
         removeCookie,
         GLOBAL_LOGIN,

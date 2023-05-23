@@ -104,7 +104,11 @@ const Voting = () => {
 
   /*檢驗身分*/
   const [exist, setExist] = useState(undefined); // meet是否存在
-  const { ID, error, setError } = useMeet();
+  const {
+    USERINFO: { ID },
+    error,
+    setError,
+  } = useMeet();
 
   useEffect(() => {
     (async () => {
