@@ -11,7 +11,7 @@ import Base from "../../components/Base/orange3_white7";
 import Button from "../../components/Button";
 import Notification from "../../components/Notification";
 import { RWD, ANIME } from "../../constant";
-import { signup } from "../../middleware";
+import { useMeet } from "../hooks/useMeet";
 
 const {
   RightContainer,
@@ -41,6 +41,9 @@ const SignUp = () => {
     Password: "",
     "Confirm Password": "",
   });
+  const {
+    MIDDLEWARE: { signUp },
+  } = useMeet();
   const [notification, setNotification] = useState({});
   const navigate = useNavigate();
 
@@ -61,7 +64,7 @@ const SignUp = () => {
 
   const handleSignUpClick = async () => {
     try {
-      const { error } = await signup({
+      const { error } = await signUp({
         username: signupData.Username,
         password: signupData.Password,
         email: signupData.Email,

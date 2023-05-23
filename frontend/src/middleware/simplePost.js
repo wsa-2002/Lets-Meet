@@ -1,29 +1,25 @@
-import instance from "./axios";
 const URL = {
-  login: "/login",
-  signup: "/account",
+  logIn: "/login",
+  signUp: "/account",
   forgetPassword: "/forget-password",
   resetPassword: "/reset-password",
   addMeet: "/meet",
   addRoutine: "/routine",
 };
 
-export default Object.keys(URL).reduce((acc, curr) => {
-  acc[curr] = async (data, token = undefined) => {
-    try {
-      console.log("POST", URL[curr], "req:", data);
-      const { data: result } = await instance.post(
-        URL[curr],
-        data,
-        token && { headers: { "auth-token": token } }
-      );
-      console.log("POST", URL[curr], "res", result);
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  };
-  return acc;
-}, {});
+export default (instance) =>
+  Object.keys(URL).reduce((acc, curr) => {
+    acc[curr] = async (data) => {
+      try {
+        console.log("POST", URL[curr], "req:", data);
+        const { data: result } = await instance.post(URL[curr], data);
+        console.log("POST", URL[curr], "res", result);
+        return result;
+      } catch (error) {
+        throw error;
+      }
+    };
+    return acc;
+  }, {});
 
 // await instance.post("/login", { data: { user_identifier: "", password: "" } });

@@ -9,7 +9,6 @@ import Tag from "../Tag";
 import Button from "../../components/Button";
 import { RWD } from "../../constant";
 import { useMeet } from "../../containers/hooks/useMeet";
-import { searchMember } from "../../middleware";
 const { RWDHeight, RWDFontSize, RWDWidth, RWDRadius } = RWD;
 const MemberTag = Tag("member");
 const RectButton = Button("rect");
@@ -46,6 +45,7 @@ const Member = ({ setMeetData, Input, rawMember = [] }) => {
   const [input, setInput] = useState(""); //Input 裡的文字
   const {
     USERINFO: { ID },
+    MIDDLEWARE: { searchMember },
   } = useMeet();
 
   const handleSearchMember = async (key) => {

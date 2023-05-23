@@ -2,12 +2,12 @@
   1. Button, disalbed 時的提示語
 **************************************************************************************************/
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button as AntdButton, Tooltip, Image, ConfigProvider } from "antd";
+import { Button as AntdButton, Image, ConfigProvider } from "antd";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import BUTTONTHEME from "./theme";
 import { RWD } from "../../constant";
-import { googleLogin } from "../../middleware";
+import { useMeet } from "../../containers/hooks/useMeet";
 const { RWDWidth, RWDRadius, RWDFontSize, RWDHeight } = RWD;
 
 const BUTTONTYPE = [
@@ -123,6 +123,9 @@ export default (type = "primary") => {
       borderColor: BUTTONTHEME?.[variant]?.[buttonTheme]?.default?.border,
     });
     const [down, setDown] = useState(false);
+    const {
+      MIDDLEWARE: { googleLogin },
+    } = useMeet();
 
     useEffect(() => {
       setTheme({

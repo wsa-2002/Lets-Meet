@@ -23,7 +23,6 @@ import Tag from "../components/Tag";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
 import Vote from "../components/Vote";
 import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
-import { meet, getGroupAvailability, confirmMeet } from "../middleware";
 const BackButton = Button("back");
 const RectButton = Button("rect");
 const RoundButton = Button("round");
@@ -38,13 +37,6 @@ const ConfirmCell = TimeCell("confirm");
 const InfoCell = TimeCell("info");
 const VoteOverflowXY = Vote(["x", "y"]);
 
-/*AXIOS 串接 API tool*/
-const getMeetInfo = meet("read");
-const joinMeet = meet("join");
-const leaveMeet = meet("leave");
-const editMeet = meet("update");
-/******************************************************/
-
 const {
   ContentContainer,
   ContentContainer: {
@@ -56,12 +48,24 @@ const MeetInfo = () => {
   const location = useLocation();
   const {
     login,
-    cookies,
     setLoading,
     USERINFO: { ID },
     error,
     setError,
+    MIDDLEWARE,
   } = useMeet();
+
+  /*AXIOS 串接 API tool*/
+  const {
+    getGroupAvailability,
+    confirmMeet,
+    getMeetInfo,
+    joinMeet,
+    leaveMeet,
+    editMeet,
+  } = MIDDLEWARE;
+  /******************************************************/
+
   // const oriRawMeetInfo = useMemo(() => rawMeetInfo, [editMode]);
   const navigate = useNavigate();
   const { code } = useParams();
@@ -72,7 +76,7 @@ const MeetInfo = () => {
   useEffect(() => {
     (async () => {
       if (exist === undefined) {
-        const { error } = await getMeetInfo(code, cookies.token);
+        const { error } = await getMeetInfo(code);
         if (error) {
           setError(error);
           setExist(false);
@@ -107,10 +111,7 @@ const MeetInfo = () => {
   const handleMeetInfo = async () => {
     try {
       setLoading(true);
-      const { data: votingData, error } = await getGroupAvailability(
-        code,
-        cookies.token
-      );
+      const { data: votingData, error } = await getGroupAvailability(code);
       if (error) throw new Error(error);
 
       setGroupAvailabilityInfo(votingData.data);
@@ -132,7 +133,7 @@ const MeetInfo = () => {
           finalized_start_time_slot_id,
           finalized_end_time_slot_id,
         },
-      } = await getMeetInfo(code, cookies.token);
+      } = await getMeetInfo(code);
       setHost(ID ? host_info?.account_id === ID : false);
       setConfirmed(status === "Confirmed");
       setConfirmedTime({
@@ -297,7 +298,7 @@ const MeetInfo = () => {
     };
   const handleEditDone = async () => {
     try {
-      await editMeet(code, cookies.token, rawMeetInfo);
+      await editMeet(code, rawMeetInfo);
       await handleMeetInfo();
       setLoading(false);
       setEditMode(false);
@@ -360,7 +361,7 @@ const MeetInfo = () => {
   const handleLeaveYes = async () => {
     try {
       setLoading(true);
-      const { error } = await leaveMeet(code, cookies.token);
+      const { error } = await leaveMeet(code);
       if (!error) {
         setLoading(false);
         navigate("/meets");
@@ -380,11 +381,7 @@ const MeetInfo = () => {
   };
   const handleGuestVote = async () => {
     const { username, password } = form;
-    const { error } = await joinMeet(code, cookies.token, {
-      name: username,
-      password,
-    });
-    //console.log(error);
+    const { error } = await joinMeet(code, { name: username, password });
     if (error) {
       setNotification({
         title: "Incorrect password",
@@ -480,17 +477,13 @@ const MeetInfo = () => {
   const handleConfirm = async () => {
     try {
       //console.log(updatedCell);
-      await confirmMeet(
-        code,
-        {
-          start_date: DATERANGE[updatedCell[0][0]],
-          end_date: DATERANGE[updatedCell[0][0]],
-          start_time_slot_id: TIMESLOTIDS[updatedCell?.[0]?.[1]],
-          end_time_slot_id:
-            TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1]],
-        },
-        cookies.token
-      );
+      await confirmMeet(code, {
+        start_date: DATERANGE[updatedCell[0][0]],
+        end_date: DATERANGE[updatedCell[0][0]],
+        start_time_slot_id: TIMESLOTIDS[updatedCell?.[0]?.[1]],
+        end_time_slot_id:
+          TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1]],
+      });
       await handleEditDone();
       setOpen(false);
     } catch (error) {
@@ -542,7 +535,7 @@ const MeetInfo = () => {
                           marginRight: RWDWidth(30),
                         }}
                         onClick={() => {
-                          if (cookies.token) {
+                          if (login) {
                             navigate("/meets");
                           } else {
                             navigate("/");

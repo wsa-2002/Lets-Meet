@@ -10,14 +10,6 @@ import Button from "../../components/Button";
 import Input from "../../components/Input";
 import { RWD, ANIME } from "../../constant";
 import Notification from "../../components/Notification";
-import {
-  getUserInfo,
-  editAccount,
-  editPreference,
-  lineConnect,
-  lineToken,
-} from "../../middleware";
-
 const RectButton = Button("rect");
 const GoogleButton = Button("google");
 const LineButton = Button("line");
@@ -100,12 +92,14 @@ const InfoContainer = Object.assign(
 
 const Setting = () => {
   const {
-    cookies,
     login,
     setLoading,
     USERINFO: { ID, username, email, line_token, notification_preference },
     setUSERINFO,
+    MIDDLEWARE,
   } = useMeet();
+  const { getUserInfo, editAccount, editPreference, lineConnect, lineToken } =
+    MIDDLEWARE;
   const navigate = useNavigate();
   const [userData, setUserData] = useState({ username, email });
   const [oriUserData, setOriUserData] = useState({ username, email });
@@ -174,7 +168,7 @@ const Setting = () => {
 
   const handleAccountUpdate = async () => {
     setLoading(true);
-    const { error } = await editAccount(userData, cookies.token);
+    const { error } = await editAccount(userData);
     setLoading(false);
     if (error) {
       setUserData(JSON.parse(JSON.stringify(oriUserData)));
@@ -182,7 +176,7 @@ const Setting = () => {
       const {
         data: { username, email, line_token, notification_preference },
         error,
-      } = await getUserInfo(undefined, cookies.token, ID);
+      } = await getUserInfo(undefined, ID);
       console.log(error);
       setUSERINFO((prev) => ({
         ...prev,
@@ -234,7 +228,7 @@ const Setting = () => {
 
   const handleEditPrefernce = async (e) => {
     const { value } = e.target;
-    await editPreference({ preference: value }, cookies.token);
+    await editPreference({ preference: value });
     setPreference(value);
     setUSERINFO((prev) => ({ ...prev, notification_preference: value }));
   };
@@ -470,7 +464,7 @@ const Setting = () => {
               <LineButton
                 style={{ minWidth: "fit-content", width: RWDWidth(350) }}
                 onClick={() => {
-                  lineConnect(cookies.token);
+                  lineConnect();
                 }}
               >
                 Connect with LINE

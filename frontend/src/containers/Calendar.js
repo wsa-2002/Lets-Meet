@@ -20,19 +20,12 @@ import { RWD, ANIME } from "../constant";
 import Base from "../components/Base/145MeetRelated";
 import Link from "../components/Link";
 import Tag from "../components/Tag";
-import {
-  getCalendar,
-  googleLogin,
-  meet,
-  getGoogleCalendar,
-} from "../middleware";
 import slotIDProcessing from "../util/slotIDProcessing";
 import { Radio } from "antd";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 const RoundButton = Button("round");
 const moment = extendMoment(Moment);
-const getMeetInfo = meet("read");
 const CalendarModal = Modal("calendar");
 const { RWDHeight, RWDWidth, RWDFontSize, RWDRadius } = RWD;
 const MemberTag = Tag("member");
@@ -223,7 +216,10 @@ const MenuContainer = Object.assign(
 
 export default () => {
   const navigate = useNavigate();
-  const { login, cookies, loading, setLoading } = useMeet();
+  const { login, loading, setLoading, MIDDLEWARE } = useMeet();
+  const { getCalendar, googleLogin, getGoogleCalendar, getMeetInfo } =
+    MIDDLEWARE;
+
   const [initial, setInitial] = useState(true);
   const calendarInstRef = useRef(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -565,7 +561,7 @@ export default () => {
         invite_code,
         meet_url,
       },
-    } = await getMeetInfo(e.event.raw.invite_code, cookies.token);
+    } = await getMeetInfo(e.event.raw.invite_code);
     setCode(e.event.raw.invite_code);
     setElementMeetInfo({
       "Meet Time":
@@ -667,10 +663,10 @@ export default () => {
           setInitial(false);
         }
         try {
-          const { data: normalEvent } = await getCalendar(
-            { start_date: timeRange[0], end_date: timeRange[1] },
-            cookies.token
-          );
+          const { data: normalEvent } = await getCalendar({
+            start_date: timeRange[0],
+            end_date: timeRange[1],
+          });
           let temp = normalEvent.map((e, id) => ({
             id,
             title: e.title,
@@ -694,10 +690,10 @@ export default () => {
             raw: { ...e, isGoogle: false },
           }));
           if (login === "google") {
-            const { data: googleEvent } = await getGoogleCalendar(
-              { start_date: timeRange[0], end_date: timeRange[1] },
-              cookies.token
-            );
+            const { data: googleEvent } = await getGoogleCalendar({
+              start_date: timeRange[0],
+              end_date: timeRange[1],
+            });
             temp = [
               ...temp,
               ...googleEvent.map((e, id) => ({

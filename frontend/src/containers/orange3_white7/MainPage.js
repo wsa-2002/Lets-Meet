@@ -16,14 +16,11 @@ import MeetInfo from "../../components/MeetInfo";
 import Modal from "../../components/Modal";
 import Notification from "../../components/Notification";
 import Title from "../../components/Title";
-import { addMeet, meet } from "../../middleware";
 import { RWD } from "../../constant";
 const { RWDHeight, RWDFontSize, RWDWidth, RWDRadius } = RWD;
 const PrimaryButton = Button();
 const ShortInput = Input("shorter");
 const RectButton = Button("rect");
-const joinMeet = meet("join");
-const getMeetInfo = meet("read");
 const GuestNameModal = Modal("guestName");
 
 const JoinMeet = Object.assign(
@@ -72,7 +69,9 @@ const Mainpage = () => {
   const [guestCreateModalOpen, setGuestCreateModalOpen] = useState(false);
   const [notification, setNotification] = useState({});
 
-  const { login, cookies, setError, setLoading } = useMeet();
+  const { login, setError, setLoading, MIDDLEWARE } = useMeet();
+  const { addMeet, joinMeet, getMeetInfo } = MIDDLEWARE;
+
   const navigate = useNavigate();
   const { t } = useTranslation();
   const invite = useRef(null);
@@ -120,11 +119,8 @@ const Mainpage = () => {
       return;
     }
     if (e?.key === "Enter" || !e.key) {
-      if (cookies.token) {
-        const { error } = await joinMeet(
-          invite.current.input.value,
-          cookies.token
-        );
+      if (login) {
+        const { error } = await joinMeet(invite.current.input.value);
         if (error && error === "NotFound") {
           setNotification({
             title: "Invitation code error",
@@ -137,10 +133,7 @@ const Mainpage = () => {
           return;
         }
       } else {
-        const { error } = await getMeetInfo(
-          invite.current.input.value,
-          cookies.token
-        );
+        const { error } = await getMeetInfo(invite.current.input.value);
         if (error && error === "NotFound") {
           setNotification({
             title: "Invitation code error",
@@ -178,7 +171,7 @@ const Mainpage = () => {
         return;
       }
       setLoading(true);
-      const { data } = await addMeet(meetData, cookies.token);
+      const { data } = await addMeet(meetData);
       // setLoading(false);
       navigate(`/meets/${data.invite_code}`);
     } catch (error) {
@@ -191,14 +184,11 @@ const Mainpage = () => {
       const { username: guest_name, password: guest_password } = form;
       if (!guest_name) return;
       setLoading(true);
-      const { data } = await addMeet(
-        {
-          ...meetData,
-          guest_name,
-          guest_password,
-        },
-        cookies.token
-      );
+      const { data } = await addMeet({
+        ...meetData,
+        guest_name,
+        guest_password,
+      });
       // setLoading(false);
       navigate(`/meets/${data.invite_code}`, {
         state: { guestName: guest_name, guestPassword: guest_password },

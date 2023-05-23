@@ -14,7 +14,6 @@ import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import Tag from "../components/Tag";
 import slotIDProcessing from "../util/slotIDProcessing";
-import { browseMeet } from "../middleware";
 
 const { RWDHeight, RWDWidth } = RWD;
 const MemberTag = Tag("member");
@@ -82,7 +81,11 @@ const CONFIRMTAG = ["Confirming", "Confirmed", "Need Confirmation"];
 const Meets = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { cookies, setLoading } = useMeet();
+  const {
+    login,
+    setLoading,
+    MIDDLEWARE: { browseMeet },
+  } = useMeet();
   const [meetsData, setMeetsData] = useState({});
   const [view, setView] = useState("Voting");
   const [filter, setFilter] = useState({ Voting: [], "Ended Votes": [] });
@@ -116,9 +119,9 @@ const Meets = () => {
 
   useEffect(() => {
     (async () => {
-      if (cookies.token) {
+      if (login) {
         setLoading(true);
-        const { data } = await browseMeet(undefined, cookies.token);
+        const { data } = await browseMeet();
         setMeetsData(
           data.reduce(
             (acc, curr) => {
@@ -155,7 +158,7 @@ const Meets = () => {
         navigate("/");
       }
     })();
-  }, [cookies]);
+  }, [login]);
 
   useEffect(() => {
     if (meetsData.Voting) {
