@@ -16,7 +16,7 @@ import Routine from "./containers/orange3_white7/Routine";
 import Calendar from "./containers/Calendar";
 import Error from "./containers/Error";
 import Setting from "./containers/orange3_white7/Setting.js";
-import Test from "./test";
+// import Test from "./test";
 function App() {
   const [messageApi, contextHolder] = message.useMessage();
   const { error, setError } = useMeet();
@@ -57,7 +57,7 @@ function App() {
             <Route element={<Routine />} path="/routine" />
             <Route element={<Calendar />} path="/calendar" />
             <Route element={<Setting />} path="/settings" />
-            <Route element={<Test />} path="/test" />
+            {/* <Route element={<Test />} path="/test" /> */}
             <Route element={<Error />} path="*" />
           </Routes>
         </AnimatePresence>

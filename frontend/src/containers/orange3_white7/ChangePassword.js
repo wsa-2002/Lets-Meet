@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import * as AXIOS from "../../middleware";
+import { useMeet } from "../hooks/useMeet";
 import Base from "../../components/Base/orange3_white7";
 import { RWD } from "../../constant";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,9 @@ const ChangePassword = () => {
   });
   const search = useLocation().search;
   const navigate = useNavigate();
+  const {
+    MIDDLEWARE: { resetPassword },
+  } = useMeet();
 
   const handleResetChange = (e) => {
     const { name, value } = e.target;
@@ -27,7 +30,7 @@ const ChangePassword = () => {
   const handleClick = async () => {
     try {
       //console.log(newPassword);
-      const result = await AXIOS.resetPassword({
+      const result = await resetPassword({
         password: newPassword["New Password"],
         code: new URLSearchParams(search).get("code"),
       });

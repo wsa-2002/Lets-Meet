@@ -6,7 +6,6 @@ import { useMeet } from "../hooks/useMeet";
 import Base from "../../components/Base/orange3_white7";
 import TimeCell, { slotIDProcessing } from "../../components/TimeCell";
 import { RWD } from "../../constant";
-import { getRoutine, addRoutine, deleteRoutine } from "../../middleware";
 const { RWDHeight, RWDFontSize, RWDWidth } = RWD;
 const DraggableCell = TimeCell("draggable");
 
@@ -88,7 +87,8 @@ const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const TIMESLOTIDS = _.range(1, 50); //記得加 1
 
 const Routine = () => {
-  const { cookies, login, setLoading } = useMeet();
+  const { login, setLoading, MIDDLEWARE } = useMeet();
+  const { getRoutine, addRoutine, deleteRoutine } = MIDDLEWARE;
   const navigate = useNavigate();
 
   /*可拖曳 time cell 套組*/
@@ -147,7 +147,7 @@ const Routine = () => {
           navigate("/");
         } else {
           setLoading(true);
-          const { data } = await getRoutine(undefined, cookies.token);
+          const { data } = await getRoutine();
           setCell(
             WEEKDAYS.map((w) =>
               TIMESLOTIDS.map((t) =>
@@ -212,8 +212,7 @@ const Routine = () => {
         updatedCell.map((u) => ({
           weekday: WEEKDAYS[u[0]].toUpperCase(),
           time_slot_id: TIMESLOTIDS[u[1]],
-        })),
-        cookies.token
+        }))
       );
     } catch (error) {
       throw error;

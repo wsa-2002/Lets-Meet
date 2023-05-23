@@ -7,7 +7,7 @@ import Moment from "moment";
 import { extendMoment } from "moment-range";
 import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ScrollSync } from "react-scroll-sync";
 import { useMeet } from "./hooks/useMeet";
 import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
@@ -17,11 +17,9 @@ import Modal from "../components/Modal";
 import Vote from "../components/Vote";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
 import Error from "./Error";
-import { getGroupAvailability, meet, confirmMeet } from "../middleware";
 const { ContentContainer } = Base.FullContainer;
 const BackButton = Button("back");
 const moment = extendMoment(Moment);
-const getMeetInfo = meet("read");
 const ConfirmModal = Modal("confirm");
 const InfoTooltip = Modal("info");
 const { RWDWidth } = RWD;
@@ -62,21 +60,20 @@ const Voting = () => {
   /******************************************************/
 
   const { code } = useParams();
-  const { cookies, login, setLoading } = useMeet();
-  const location = useLocation();
+
+  const { login, setLoading, MIDDLEWARE } = useMeet();
+  const { getGroupAvailability, confirmMeet, getMeetInfo } = MIDDLEWARE;
+
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   const handleMeetInfo = async () => {
     try {
       setLoading(true);
-      const { data: votingData } = await getGroupAvailability(
-        code,
-        cookies.token
-      );
+      const { data: votingData } = await getGroupAvailability(code);
       setGroupAvailabilityInfo(votingData.data);
 
-      const { data } = await getMeetInfo(code, cookies.token);
+      const { data } = await getMeetInfo(code);
       setTitle(data.meet_name);
       setDATERANGE(
         [
@@ -123,7 +120,7 @@ const Voting = () => {
   useEffect(() => {
     (async () => {
       if (exist === undefined) {
-        const { error } = await getMeetInfo(code, cookies.token);
+        const { error } = await getMeetInfo(code);
         if (error) {
           setError(error);
           setExist(false);
@@ -184,17 +181,13 @@ const Voting = () => {
   const handleConfirm = async () => {
     try {
       //console.log(updatedCell);
-      await confirmMeet(
-        code,
-        {
-          start_date: DATERANGE[updatedCell[0][0]],
-          end_date: DATERANGE[updatedCell[0][0]],
-          start_time_slot_id: TIMESLOTIDS[updatedCell?.[0]?.[1]],
-          end_time_slot_id:
-            TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1]],
-        },
-        cookies.token
-      );
+      await confirmMeet(code, {
+        start_date: DATERANGE[updatedCell[0][0]],
+        end_date: DATERANGE[updatedCell[0][0]],
+        start_time_slot_id: TIMESLOTIDS[updatedCell?.[0]?.[1]],
+        end_time_slot_id:
+          TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1]],
+      });
       navigate(`/meets/${code}`);
     } catch (error) {
       //console.log(error);

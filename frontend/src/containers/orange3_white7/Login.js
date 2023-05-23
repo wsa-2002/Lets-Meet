@@ -8,7 +8,6 @@ import Base from "../../components/Base/orange3_white7";
 import Button from "../../components/Button";
 import Link from "../../components/Link";
 import Notification from "../../components/Notification";
-import * as AXIOS from "../../middleware";
 const {
   RightContainer,
   RightContainer: { InfoContainer },
@@ -22,7 +21,8 @@ const LogIn = () => {
     password: "",
   });
   const search = useLocation().search;
-  const { login, GLOBAL_LOGIN, setError } = useMeet();
+  const { login, GLOBAL_LOGIN, setError, MIDDLEWARE } = useMeet();
+  const { emailVerification, logIn } = MIDDLEWARE;
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [notification, setNotification] = useState({});
@@ -35,7 +35,7 @@ const LogIn = () => {
     if (search) {
       const code = new URLSearchParams(search).get("code");
       if (code) {
-        AXIOS.emailVerification({ code });
+        emailVerification({ code });
       }
     }
   }, [login]);
@@ -44,7 +44,7 @@ const LogIn = () => {
     try {
       if (e?.key === "Enter" || !e.key) {
         if (!loginData.user_identifier || !loginData.password) return;
-        const { data, error } = await AXIOS.login(loginData);
+        const { data, error } = await logIn(loginData);
         if (error) {
           switch (error) {
             case "LoginFailed":

@@ -17,19 +17,10 @@ import Modal from "../components/Modal";
 import Vote from "../components/Vote";
 import TimeCell from "../components/TimeCell";
 import Error from "./Error";
-import {
-  getGroupAvailability,
-  getMyAvailability,
-  addMyAvailability,
-  deleteMyAvailability,
-  meet,
-  getRoutine,
-} from "../middleware";
 const { ContentContainer } = Base.FullContainer;
 const BackButton = Button("back");
 const PillButton = Button("pill");
 const moment = extendMoment(Moment);
-const getMeetInfo = meet("read");
 const InfoTooltip = Modal("info");
 const { RWDWidth } = RWD;
 const DraggableCell = TimeCell("draggable");
@@ -72,7 +63,17 @@ const Voting = () => {
   /******************************************************/
 
   const { code } = useParams();
-  const { cookies, login, loading, setLoading } = useMeet();
+  const { login, loading, setLoading, MIDDLEWARE } = useMeet();
+
+  const {
+    getGroupAvailability,
+    getMyAvailability,
+    addMyAvailability,
+    deleteMyAvailability,
+    getMeetInfo,
+    getRoutine,
+  } = MIDDLEWARE;
+
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -80,20 +81,17 @@ const Voting = () => {
   const handleMeetInfo = async () => {
     try {
       setLoading(true);
-      const { data: votingData } = await getGroupAvailability(
-        code,
-        cookies.token
-      );
+      const { data: votingData } = await getGroupAvailability(code);
       setGroupAvailabilityInfo(votingData.data);
 
-      if (cookies.token) {
-        const { data: routine } = await getRoutine(undefined, cookies.token);
+      if (login) {
+        const { data: routine } = await getRoutine();
         setROUTINE(routine);
       } else {
         setROUTINE([]);
       }
 
-      const { data } = await getMeetInfo(code, cookies.token);
+      const { data } = await getMeetInfo(code);
       setTitle(data.meet_name);
       setDATERANGE(
         [
@@ -117,7 +115,6 @@ const Voting = () => {
       if (DATERANGE.length && TIMESLOTIDS.length && ROUTINE) {
         const { data: myAvailability, error } = await getMyAvailability(
           code,
-          cookies.token,
           location?.state?.guestName
         );
         if (error) {
@@ -181,7 +178,7 @@ const Voting = () => {
   useEffect(() => {
     (async () => {
       if (exist === undefined) {
-        const { error } = await getMeetInfo(code, cookies.token);
+        const { error } = await getMeetInfo(code);
         if (error) {
           setError(error);
           setExist(false);
@@ -217,22 +214,15 @@ const Voting = () => {
         },
         ...prev,
       ]);
-      await API(
-        code,
-        {
-          time_slots: updatedCell.map((u) => ({
-            date: DATERANGE[u[0]],
-            time_slot_id: TIMESLOTIDS[u[1]],
-          })),
-          name: location?.state?.guestName ?? null,
-          password: location?.state?.guestPassword ?? null,
-        },
-        cookies.token
-      );
-      const { data: votingData } = await getGroupAvailability(
-        code,
-        cookies.token
-      );
+      await API(code, {
+        time_slots: updatedCell.map((u) => ({
+          date: DATERANGE[u[0]],
+          time_slot_id: TIMESLOTIDS[u[1]],
+        })),
+        name: location?.state?.guestName ?? null,
+        password: location?.state?.guestPassword ?? null,
+      });
+      const { data: votingData } = await getGroupAvailability(code);
       setGroupAvailabilityInfo(votingData.data);
     } catch (error) {
       throw error;
@@ -274,15 +264,11 @@ const Voting = () => {
         } else {
           API = api === "delete" ? deleteMyAvailability : addMyAvailability;
         }
-        await API(code, data, cookies.token);
-        const { data: votingData } = await getGroupAvailability(
-          code,
-          cookies.token
-        );
+        await API(code, data);
+        const { data: votingData } = await getGroupAvailability(code);
         setGroupAvailabilityInfo(votingData.data);
         const { data: myAvailability } = await getMyAvailability(
           code,
-          cookies.token,
           location?.state?.guestName
         );
         setCell(
@@ -336,34 +322,23 @@ const Voting = () => {
       }
     }
     console.log(add, del);
-    await deleteMyAvailability(
-      code,
-      {
-        time_slots: del.map((u) => ({
-          date: DATERANGE[u[0]],
-          time_slot_id: TIMESLOTIDS[u[1]],
-        })),
-        name: location?.state?.guestName ?? null,
-        password: location?.state?.guestPassword ?? null,
-      },
-      cookies.token
-    );
-    await addMyAvailability(
-      code,
-      {
-        time_slots: add.map((u) => ({
-          date: DATERANGE[u[0]],
-          time_slot_id: TIMESLOTIDS[u[1]],
-        })),
-        name: location?.state?.guestName ?? null,
-        password: location?.state?.guestPassword ?? null,
-      },
-      cookies.token
-    );
-    const { data: votingData } = await getGroupAvailability(
-      code,
-      cookies.token
-    );
+    await deleteMyAvailability(code, {
+      time_slots: del.map((u) => ({
+        date: DATERANGE[u[0]],
+        time_slot_id: TIMESLOTIDS[u[1]],
+      })),
+      name: location?.state?.guestName ?? null,
+      password: location?.state?.guestPassword ?? null,
+    });
+    await addMyAvailability(code, {
+      time_slots: add.map((u) => ({
+        date: DATERANGE[u[0]],
+        time_slot_id: TIMESLOTIDS[u[1]],
+      })),
+      name: location?.state?.guestName ?? null,
+      password: location?.state?.guestPassword ?? null,
+    });
+    const { data: votingData } = await getGroupAvailability(code);
     setGroupAvailabilityInfo(votingData.data);
     setUndo([]);
     setRedo([]);

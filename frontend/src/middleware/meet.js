@@ -1,27 +1,23 @@
-import instance from "./axios";
-
-const METHOD = {
-  read: instance.get,
-  join: instance.post,
-  leave: instance.delete,
-  update: instance.patch,
-};
-
-export default (method) =>
-  async (code, token, data = {}) => {
-    if (!Object.keys(METHOD).includes(method)) {
-      throw new Error(
-        `請定義 method，有以下可以選擇：\n${Object.keys(METHOD).join(", ")}`
-      );
-    }
-    instance.defaults.headers["auth-token"] = token;
-    try {
-      const route = `/meet/code/${code}`;
-      console.log(method, route, "req", data);
-      const { data: result } = await METHOD[method](route, data);
-      console.log("res", result);
-      return result;
-    } catch (error) {
-      throw error;
-    }
+export default (instance) => {
+  const METHOD = {
+    getMeetInfo: instance.get,
+    joinMeet: instance.post,
+    leaveMeet: instance.delete,
+    editMeet: instance.patch,
   };
+
+  return Object.keys(METHOD).reduce((acc, curr) => {
+    acc[curr] = async (code, data = {}) => {
+      try {
+        const route = `/meet/code/${code}`;
+        console.log(curr, route, "req", data);
+        const { data: result } = await METHOD[curr](route, data);
+        console.log("res", result);
+        return result;
+      } catch (error) {
+        throw error;
+      }
+    };
+    return acc;
+  }, {});
+};

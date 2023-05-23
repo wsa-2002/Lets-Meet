@@ -1,13 +1,14 @@
 import jwt from "jwt-decode";
-import { useState, useContext, createContext, useEffect } from "react";
+import { useState, useContext, createContext, useEffect, useMemo } from "react";
 import { useCookies } from "react-cookie";
-import { getUserInfo } from "../../middleware";
+import AXIOS from "../../middleware";
 
 const MeetContext = createContext({
   login: false,
   error: "",
   loading: false,
   USERINFO: {},
+  MIDDLEWARE: {},
 });
 
 const MeetProvider = (props) => {
@@ -16,6 +17,8 @@ const MeetProvider = (props) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [USERINFO, setUSERINFO] = useState({});
+  const MIDDLEWARE = useMemo(() => AXIOS(cookies.token), [cookies]);
+  const { getUserInfo } = MIDDLEWARE;
 
   const GLOBAL_LOGIN = (token) => {
     const { expire, is_google_login } = jwt(token);
@@ -40,11 +43,7 @@ const MeetProvider = (props) => {
             line_token,
             notification_preference,
           },
-        } = await getUserInfo(
-          undefined,
-          cookies.token,
-          jwt(cookies.token).account_id
-        );
+        } = await getUserInfo(undefined, jwt(cookies.token).account_id);
         setUSERINFO({
           ID,
           username,
@@ -62,7 +61,6 @@ const MeetProvider = (props) => {
     <MeetContext.Provider
       value={{
         login,
-        cookies,
         error,
         loading,
         USERINFO,
@@ -73,6 +71,7 @@ const MeetProvider = (props) => {
         setCookie,
         removeCookie,
         GLOBAL_LOGIN,
+        MIDDLEWARE,
       }}
       {...props}
     />
