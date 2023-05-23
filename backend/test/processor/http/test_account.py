@@ -77,6 +77,11 @@ class TestAddAccount(unittest.IsolatedAsyncioTestCase):
             'data': None,
             'error': exc.IllegalCharacter.__name__,
         }
+        self.illegal_input_guest_username = account.AddAccountInput(
+            username='guest_hello',
+            password='test',
+            email='test@gmail.com',
+        )
 
     async def test_add_account_happy_path(self):
         @mock.patch('persistence.database.account.read_by_email', mock.MagicMock(side_effect=exc.NotFound))
@@ -116,6 +121,10 @@ class TestAddAccount(unittest.IsolatedAsyncioTestCase):
 
     async def test_acc_account_illegal_input(self):
         res = await account.add_account(self.illegal_input_data)
+        self.assertEqual(res, self.illegal_char_expect_output)
+
+    async def test_account_illegal_username_guest(self):
+        res = await account.add_account(self.illegal_input_guest_username)
         self.assertEqual(res, self.illegal_char_expect_output)
 
 
@@ -230,6 +239,13 @@ class TestEditAccount(unittest.IsolatedAsyncioTestCase):
             'data': None,
             'error': exc.LineAccountNotConnected.__name__,
         }
+        self.edit_account_guest_username_input = account.EditAccountInput(
+            username='guest_wsa',
+        )
+        self.edit_account_guest_username_expect_output = {
+            'data': None,
+            'error': exc.IllegalCharacter.__name__,
+        }
 
     async def test_edit_username(self):
         @mock.patch('middleware.context.Request._context', self.context)
@@ -314,6 +330,16 @@ class TestEditAccount(unittest.IsolatedAsyncioTestCase):
 
         res = await test(self.edit_notification_preference_line_input)
         self.assertEqual(res, self.edit_notification_preference_failed_expect_output)
+
+    async def test_edit_account_guest_username(self):
+        @mock.patch('middleware.context.Request._context', self.context)
+        @mock.patch('persistence.database.account.read', mock.AsyncMock(return_value=self.account))
+        @mock.patch('persistence.database.account.is_valid_username', mock.AsyncMock(return_value=True))
+        async def test(data: account.EditAccountInput):
+            return await account.edit_account(data)
+
+        res = await test(self.edit_account_guest_username_input)
+        self.assertEqual(res, self.edit_account_guest_username_expect_output)
 
 
 class TestReadAccount(unittest.IsolatedAsyncioTestCase):

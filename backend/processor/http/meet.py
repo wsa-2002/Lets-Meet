@@ -71,6 +71,9 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
     if not host_account_id and not data.guest_name:
         raise exc.IllegalInput
 
+    if data.guest_name and data.guest_name.startswith('guest_'):
+        raise exc.IllegalCharacter
+
     if data.start_date > data.end_date or data.start_time_slot_id > data.end_time_slot_id:
         raise exc.IllegalInput
 
@@ -188,9 +191,11 @@ async def join_meet_by_invite_code(code: str, data: JoinMeetInput):
     if not account_id and not data.name:
         raise exc.IllegalInput
 
+    if data.name and data.name.startswith('guest_'):
+        raise exc.IllegalCharacter
+
     meet = await db.meet.read_meet_by_code(invite_code=code)
-    # if not await db.account.is_valid_username(data.name):
-    #     raise exc.UsernameExists
+
     members = await db.meet_member.browse_meet_members_with_names(meet_id=meet.id, replace_guest=False)
     names = [member.name for member in members]
     if f"guest_{data.name}" in names:
