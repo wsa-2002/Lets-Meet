@@ -140,6 +140,11 @@ export default (type) => {
                   validateTrigger: "onChange",
                   message: "Please avoid `#$%&*/?@",
                 },
+                {
+                  pattern: /^(?!guest_).*/,
+                  validateTrigger: "onChange",
+                  message: 'Please avoid "guest_" as initial',
+                },
               ]}
               style={{ margin: 0 }}
               onChange={handleFormChange("username")}
