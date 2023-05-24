@@ -529,6 +529,7 @@ class TestBrowseMemberAvailableTimeByCode(unittest.IsolatedAsyncioTestCase):
     async def test_browse_member_available_time_by_code_happy_path(self):
         @patch('middleware.context.Request._context', self.context)
         @patch('persistence.database.meet.read_meet_by_code', AsyncMock(return_value=self.meet))
+        @patch('service.meet.is_authed', AsyncMock(return_value=True))
         @patch('service.meet.browse_member_available_time', AsyncMock(return_value=self.available_time_output))
         async def test(code: str):
             return await meet.browse_member_available_time_by_code(code)

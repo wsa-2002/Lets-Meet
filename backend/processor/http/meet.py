@@ -300,12 +300,14 @@ async def browse_all_member_available_time_by_code(code: str) \
 
 @router.get('/meet/code/{code}/available_time')
 @enveloped
-async def browse_member_available_time_by_code(code: str, name: Optional[str] = None) \
+async def browse_member_available_time_by_code(code: str, name: Optional[str] = None, password: Optional[str] = None) \
         -> Sequence[do.MeetMemberAvailableTime]:
     account_id = request.account.id
     if not account_id and not name:
         raise exc.NoPermission
     meet_id = (await db.meet.read_meet_by_code(invite_code=code)).id
+    if not await service.meet.is_authed(meet_id=meet_id, name=name, password=password):
+        raise exc.NoPermission
 
     return await service.meet.browse_member_available_time(meet_id=meet_id, name=name)
 
