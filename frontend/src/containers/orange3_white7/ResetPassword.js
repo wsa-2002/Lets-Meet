@@ -10,17 +10,13 @@ const {
 } = Base;
 const { RWDHeight } = RWD;
 
-const ResetPassword = () => {
-  const { t } = useTranslation();
-  const [email, setEmail] = useState("");
-  const [notification, setNotification] = useState({});
+export default function ResetPassword() {
   const {
     MIDDLEWARE: { forgetPassword },
   } = useMeet();
-
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
+  const [email, setEmail] = useState("");
+  const [notification, setNotification] = useState({});
+  const { t } = useTranslation();
 
   const handleVerifyClick = async () => {
     try {
@@ -67,7 +63,9 @@ const ResetPassword = () => {
               <InfoContainer.Input
                 placeholder="Email"
                 value={email}
-                onChange={handleEmailChange}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                }}
               />
             </InfoContainer.InputContainer>
             <InfoContainer.Button disabled={!email} onClick={handleVerifyClick}>
@@ -78,6 +76,4 @@ const ResetPassword = () => {
       </Base>
     </>
   );
-};
-
-export default ResetPassword;
+}

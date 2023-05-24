@@ -58,6 +58,7 @@ const MeetInfo = () => {
   /*AXIOS 串接 API tool*/
   const {
     getGroupAvailability,
+    getMyAvailability,
     confirmMeet,
     getMeetInfo,
     joinMeet,
@@ -164,7 +165,7 @@ const MeetInfo = () => {
           slotIDProcessing(end_time_slot_id + 1),
         Host: (
           <MemberTag style={{ fontSize: RWDFontSize(16) }}>
-            {host_info?.name ?? location.state?.guestName}
+            {host_info?.name}
           </MemberTag>
         ),
         Member: member_infos.length ? (
@@ -381,21 +382,31 @@ const MeetInfo = () => {
   };
   const handleGuestVote = async () => {
     const { username, password } = form;
-    const { error } = await joinMeet(code, { name: username, password });
+    const { error } = await getMyAvailability(code, username, password);
+    console.log(error);
     if (error) {
-      setNotification({
-        title: "Incorrect password",
-        message: "The password you entered is incorrect.",
-      });
-    } else {
-      navigate(`/voting/${code}`, {
-        state: {
-          guestName: username,
-          guestPassword: password,
-        },
-      });
-      setGuestNameOpen(false);
+      const { error } = await joinMeet(code, { name: username, password });
+      if (error) {
+        switch (error) {
+          case "UsernameExists":
+            setNotification({
+              title: "Invalid username",
+              message: "The username has been used in this meet.",
+            });
+            break;
+          default:
+            break;
+        }
+        return;
+      }
     }
+    navigate(`/voting/${code}`, {
+      state: {
+        guestName: username,
+        guestPassword: password,
+      },
+    });
+    setGuestNameOpen(false);
   };
   /******************************************************/
 

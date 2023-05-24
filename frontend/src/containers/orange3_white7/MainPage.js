@@ -2,7 +2,6 @@
   1.RWD, 在頁面高度縮小時 create meet 的欄位要產生 scroll, 在小到無法容下 create button 時要浮動 button
 **************************************************************************************************/
 import { ArrowRightOutlined } from "@ant-design/icons";
-import { Form } from "antd";
 import _ from "lodash";
 import React, { useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,11 +16,11 @@ import Modal from "../../components/Modal";
 import Notification from "../../components/Notification";
 import Title from "../../components/Title";
 import { RWD } from "../../constant";
-const { RWDHeight, RWDFontSize, RWDWidth, RWDRadius } = RWD;
 const PrimaryButton = Button();
-const ShortInput = Input("shorter");
 const RectButton = Button("rect");
+const ShortInput = Input("shorter");
 const GuestNameModal = Modal("guestName");
+const { RWDHeight, RWDFontSize, RWDWidth, RWDRadius } = RWD;
 
 const JoinMeet = Object.assign(
   styled.div`
@@ -53,7 +52,15 @@ const JoinMeet = Object.assign(
   }
 );
 
-const Mainpage = () => {
+export default function Mainpage() {
+  const {
+    login,
+    setError,
+    setLoading,
+    MIDDLEWARE: { addMeet, joinMeet, getMeetInfo },
+  } = useMeet();
+  const navigate = useNavigate();
+  const [guestCreateModalOpen, setGuestCreateModalOpen] = useState(false);
   const [meetData, setMeetData] = useState({
     meet_name: "", //<String>
     start_date: "", //<String>
@@ -66,15 +73,9 @@ const Mainpage = () => {
     member_ids: [], //[Number]
     emails: [], //[String]
   });
-  const [guestCreateModalOpen, setGuestCreateModalOpen] = useState(false);
-  const [notification, setNotification] = useState({});
-
-  const { login, setError, setLoading, MIDDLEWARE } = useMeet();
-  const { addMeet, joinMeet, getMeetInfo } = MIDDLEWARE;
-
-  const navigate = useNavigate();
-  const { t } = useTranslation();
   const invite = useRef(null);
+  const [notification, setNotification] = useState({});
+  const { t } = useTranslation();
 
   useEffect(() => {
     setMeetData({
@@ -172,7 +173,6 @@ const Mainpage = () => {
       }
       setLoading(true);
       const { data } = await addMeet(meetData);
-      // setLoading(false);
       navigate(`/meets/${data.invite_code}`);
     } catch (error) {
       setError(error.message);
@@ -189,7 +189,6 @@ const Mainpage = () => {
         guest_name,
         guest_password,
       });
-      // setLoading(false);
       navigate(`/meets/${data.invite_code}`, {
         state: { guestName: guest_name, guestPassword: guest_password },
       });
@@ -209,7 +208,6 @@ const Mainpage = () => {
           style={{
             display: "flex",
             flexDirection: "column",
-            // alignItems: "center",
             paddingLeft: RWDWidth(101),
             justifyContent: "space-between",
           }}
@@ -289,6 +287,4 @@ const Mainpage = () => {
       </Base>
     </>
   );
-};
-
-export default Mainpage;
+}

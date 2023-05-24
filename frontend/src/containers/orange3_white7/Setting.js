@@ -1,7 +1,7 @@
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { Form } from "antd";
 import _ from "lodash";
-import React, { Fragment, useEffect, useRef, useState, useMemo } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useMeet } from "../hooks/useMeet";
@@ -11,9 +11,9 @@ import Input from "../../components/Input";
 import Notification from "../../components/Notification";
 import Radio from "../../components/Radio";
 import { RWD, ANIME } from "../../constant";
-const RectButton = Button("rect");
 const GoogleButton = Button("google");
 const LineButton = Button("line");
+const RectButton = Button("rect");
 const ThinnerInput = Input("thinner");
 const ThinnerPassword = Input.Password("thinner");
 const { RWDHeight, RWDFontSize, RWDWidth } = RWD;
@@ -91,32 +91,33 @@ const InfoContainer = Object.assign(
   }
 );
 
-const Setting = () => {
+export default function Setting() {
+  const { search, state } = useLocation();
   const {
     login,
     setLoading,
     USERINFO: { ID, username, email, line_token, notification_preference },
     setUSERINFO,
-    MIDDLEWARE,
+    MIDDLEWARE: {
+      getUserInfo,
+      editAccount,
+      editPreference,
+      lineConnect,
+      lineToken,
+    },
   } = useMeet();
-  const { getUserInfo, editAccount, editPreference, lineConnect, lineToken } =
-    MIDDLEWARE;
   const navigate = useNavigate();
   const [userData, setUserData] = useState({ username, email });
   const [oriUserData, setOriUserData] = useState({ username, email });
   const [changePassword, setChangePassword] = useState(false);
   const [preference, setPreference] = useState(notification_preference);
-  const [lineLogin, setLineLogin] = useState(line_token ?? "");
-  const search = useLocation().search;
   const [notification, setNotification] = useState({});
-  const location = useLocation();
 
   /*調整 Setting 文字 套組*/
   const RoutineRef = useRef(null);
   const [top, setTop] = useState(0);
   const throttledHandleResize = _.throttle(() => {
     if (RoutineRef?.current) {
-      // setTimeTop(RoutineRef.current.offsetHeight);
       setTop(RoutineRef?.current.offsetTop);
     }
   }, 100);
@@ -125,7 +126,6 @@ const Setting = () => {
     if (RoutineRef?.current) {
       setTop(RoutineRef?.current.offsetTop);
     } //load 時
-
     window.addEventListener("resize", throttledHandleResize);
     return () => {
       window.removeEventListener("resize", throttledHandleResize);
@@ -134,13 +134,13 @@ const Setting = () => {
   /******************************************************/
 
   useEffect(() => {
-    if (location?.state?.line) {
+    if (state?.line) {
       setNotification({
         title: "Connect to Line",
         message: "請掃描 QRcode 以接收訊息",
       });
     }
-  }, [location?.state?.line]);
+  }, [state?.line]);
 
   useEffect(() => {
     (async () => {
@@ -174,18 +174,9 @@ const Setting = () => {
     if (error) {
       setUserData(JSON.parse(JSON.stringify(oriUserData)));
     } else {
-      const {
-        data: { username, email, line_token, notification_preference },
-        error,
-      } = await getUserInfo(undefined, ID);
+      const { data, error } = await getUserInfo(undefined, ID);
       console.log(error);
-      setUSERINFO((prev) => ({
-        ...prev,
-        username,
-        email,
-        line_token,
-        notification_preference,
-      }));
+      setUSERINFO((prev) => ({ ...prev, ...data }));
       if (userData.email !== oriUserData.email) {
         setNotification({
           title: "Verification mail sent",
@@ -447,7 +438,6 @@ const Setting = () => {
                 </RectButton>
               </InfoContainer.ButtonContainer>
             )}
-
             <InfoContainer.Title>Third-Party Applications</InfoContainer.Title>
             <div
               style={{
@@ -492,7 +482,7 @@ const Setting = () => {
                   {
                     value: "LINE",
                     label: "LINE messages",
-                    props: { disabled: !lineLogin },
+                    props: { disabled: !line_token },
                   },
                 ]}
                 onChange={handleEditPrefernce}
@@ -503,6 +493,4 @@ const Setting = () => {
       </Base>
     </>
   );
-};
-
-export default Setting;
+}

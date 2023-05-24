@@ -86,9 +86,12 @@ const InfoContainer = Object.assign(
 const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const TIMESLOTIDS = _.range(1, 50); //記得加 1
 
-const Routine = () => {
-  const { login, setLoading, MIDDLEWARE } = useMeet();
-  const { getRoutine, addRoutine, deleteRoutine } = MIDDLEWARE;
+export default function Routine() {
+  const {
+    login,
+    setLoading,
+    MIDDLEWARE: { getRoutine, addRoutine, deleteRoutine },
+  } = useMeet();
   const navigate = useNavigate();
 
   /*可拖曳 time cell 套組*/
@@ -113,9 +116,9 @@ const Routine = () => {
   /******************************************************/
 
   /*調整 TimeCellsContainer 寬度*/ //調整到最適大小讓它至中
-  const [width, setWidth] = useState(0); //TimeCellsContainer 寬度
   const WeekdayRef = useRef(null);
   const TimeRef = useRef(null);
+  const [width, setWidth] = useState(0); //TimeCellsContainer 寬度
   const throttledHandleResizeFORTimeCellsContainerWidth = _.throttle(() => {
     if (WeekdayRef?.current && TimeRef?.current) {
       setWidth(WeekdayRef?.current.offsetWidth - TimeRef?.current.offsetLeft);
@@ -161,9 +164,7 @@ const Routine = () => {
           );
           setLoading(false);
         }
-      } catch (error) {
-        //console.log(error);
-      }
+      } catch (error) {}
     })();
   }, [login]);
 
@@ -172,7 +173,6 @@ const Routine = () => {
   const [top, setTop] = useState(0);
   const throttledHandleResize = _.throttle(() => {
     if (RoutineRef?.current) {
-      // setTimeTop(RoutineRef.current.offsetHeight);
       setTop(RoutineRef?.current.offsetTop);
     }
   }, 100);
@@ -277,7 +277,6 @@ const Routine = () => {
                       style={{
                         display: "flex",
                         justifyContent: "flex-end",
-                        // whiteSpace: "nowrap",
                         position: "relative",
                       }}
                     >
@@ -310,6 +309,4 @@ const Routine = () => {
       </Base.RightContainer>
     </Base>
   );
-};
-
-export default Routine;
+}

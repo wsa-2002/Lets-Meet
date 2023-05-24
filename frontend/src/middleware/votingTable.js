@@ -16,7 +16,7 @@ export default (instance) => ({
       throw error;
     }
   },
-  getMyAvailability: async (code, name = undefined) => {
+  getMyAvailability: async (code, name = undefined, password = undefined) => {
     try {
       console.log(
         "GET",
@@ -27,7 +27,7 @@ export default (instance) => ({
       );
       const { data: result } = await instance.get(
         `/meet/code/${code}/available_time`,
-        { params: name && { name } }
+        { params: name && password && { name, password } }
       );
       console.log("GET", `/meet/code/${code}/available_time`, "res", result);
       return result;

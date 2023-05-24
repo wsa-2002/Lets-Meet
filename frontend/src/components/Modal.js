@@ -144,7 +144,7 @@ export default (type) => {
               style={{ margin: 0 }}
               onChange={handleFormChange("username")}
             >
-              <MainInput placeholder="Your name" />
+              <MainInput addonBefore="guest_" placeholder="Your name" />
             </Form.Item>
             <Form.Item
               style={{ margin: 0 }}

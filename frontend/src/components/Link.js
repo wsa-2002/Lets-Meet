@@ -9,8 +9,8 @@ const LINKTHEME = {
   },
   "#808080": {
     default: "#808080",
-    hover: "#808080",
-    active: "#808080",
+    hover: "#D8D8D8",
+    active: "#575757",
   },
   "#5C9B6B": {
     default: "#5C9B6B",

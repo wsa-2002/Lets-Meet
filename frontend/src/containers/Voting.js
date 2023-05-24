@@ -103,19 +103,16 @@ const Voting = () => {
       setTIMESLOTIDS(
         _.range(data.start_time_slot_id, data.end_time_slot_id + +2)
       );
-    } catch (error) {
-      //console.log(error);
-    }
+    } catch (error) {}
   };
-
-  // window.addEventListener("keydown")
 
   useEffect(() => {
     (async () => {
       if (DATERANGE.length && TIMESLOTIDS.length && ROUTINE) {
         const { data: myAvailability, error } = await getMyAvailability(
           code,
-          location?.state?.guestName
+          location?.state?.guestName,
+          location?.state?.guestPassword
         );
         if (error) {
           setError(error);
@@ -269,7 +266,8 @@ const Voting = () => {
         setGroupAvailabilityInfo(votingData.data);
         const { data: myAvailability } = await getMyAvailability(
           code,
-          location?.state?.guestName
+          location?.state?.guestName,
+          location?.state?.guestPassword
         );
         setCell(
           DATERANGE.map((w) =>
