@@ -191,6 +191,23 @@ export default {
         border: "#D6F7F6",
       },
     },
+    long: {
+      default: {
+        backgroundColor: "#FFFFFF",
+        color: "#000000",
+        border: "#808080",
+      },
+      hover: {
+        backgroundColor: "#FFFFFF",
+        color: "#DB8600",
+        border: "#DB8600",
+      },
+      active: {
+        backgroundColor: "#FFFFFF",
+        color: "#FFF4CC",
+        border: "#FFF4CC",
+      },
+    },
   },
   text: {
     "#D8D8D8": {

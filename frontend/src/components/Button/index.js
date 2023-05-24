@@ -48,7 +48,7 @@ const LongButton = styled(BaseButton)`
   width: 100%;
   height: ${RWDHeight(70)};
   background: white;
-  border: ${RWDRadius(1)} solid #808080;
+  /* border: ${RWDRadius(1)} solid #808080; */
   border-radius: ${RWDRadius(15)};
   column-gap: ${RWDWidth(20)};
   font-size: ${RWDFontSize(21)};
@@ -91,26 +91,23 @@ export default (type = "primary") => {
       tempTheme = "#D8D8D8";
       tempVariant = "text";
       break;
+    case "google":
+    case "line":
+      tempTheme = "long";
+      tempVariant = "hollow";
+      break;
     default:
       break;
   }
   return ({ buttonTheme = tempTheme, variant = tempVariant, ...prop }) => {
-    if (
-      type !== "google" &&
-      type !== "line" &&
-      !Object.keys(BUTTONTHEME).includes(variant)
-    ) {
+    if (!Object.keys(BUTTONTHEME).includes(variant)) {
       throw new Error(
         `請定義 Button variant，有以下可以選擇：\n${Object.keys(
           BUTTONTHEME
         ).join(", ")}`
       );
     }
-    if (
-      type !== "google" &&
-      type !== "line" &&
-      !Object.keys(BUTTONTHEME[variant]).includes(buttonTheme)
-    ) {
+    if (!Object.keys(BUTTONTHEME[variant]).includes(buttonTheme)) {
       throw new Error(
         `請定義 ${variant} Button 主題顏色，有以下可以選擇：\n${Object.keys(
           BUTTONTHEME[variant]
@@ -177,32 +174,14 @@ export default (type = "primary") => {
     let Component;
     switch (type) {
       case "google":
-        return (
-          <LongButton
-            {...prop}
-            onClick={() => {
-              googleLogin();
-            }}
-          >
-            <Image
-              width={RWDFontSize(30)}
-              src={require("./google.png")}
-              preview={false}
-            />
-            {prop.children}
-          </LongButton>
-        );
+        Component = LongButton;
+        prop.onClick = () => {
+          googleLogin();
+        };
+        break;
       case "line":
-        return (
-          <LongButton {...prop}>
-            <Image
-              width={RWDFontSize(40)}
-              src={require("./line.png")}
-              preview={false}
-            />
-            {prop.children}
-          </LongButton>
-        );
+        Component = LongButton;
+        break;
       case "primary":
         Component = PrimaryButton;
         break;
@@ -247,6 +226,21 @@ export default (type = "primary") => {
             },
           }}
         >
+          {type === "google" ? (
+            <Image
+              width={RWDFontSize(30)}
+              src={require("./google.png")}
+              preview={false}
+            />
+          ) : (
+            type === "line" && (
+              <Image
+                width={RWDFontSize(40)}
+                src={require("./line.png")}
+                preview={false}
+              />
+            )
+          )}
           {prop.children}
         </Component>
       </ConfigProvider>
