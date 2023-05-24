@@ -32,6 +32,15 @@ html {
   font-family: "Nunito";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  .ant-picker-time-panel {
+    ::-webkit-scrollbar {
+      width: 2px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #d8d8d8;
+      width: 1px;
+    }
+  }
 }
 
 code {

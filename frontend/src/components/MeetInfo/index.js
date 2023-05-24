@@ -1,44 +1,29 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { Input as AntdInput, DatePicker, TimePicker, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import dayjs from "dayjs";
-import moment from "moment";
 import { range } from "lodash";
+import moment from "moment";
 import React, { useState, Fragment } from "react";
 import { useTranslation } from "react-i18next";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import Member from "./Member";
 import Input from "../Input";
 import Switch from "../Switch";
 import { RWD } from "../../constant";
 import slotIDProcessing from "../../util/slotIDProcessing";
 const ThinnerInput = Input("thinner");
-const { RWDWidth, RWDHeight, RWDFontSize, RWDRadius } = RWD;
+const TextArea = Input.TextArea;
+const DatePicker = Input.Time("date", "picker");
+const TimePicker = Input.Time("time", "picker");
+const DateRange = Input.Time("date", "range");
+const TimeRange = Input.Time("time", "range");
+const { RWDWidth, RWDHeight, RWDFontSize } = RWD;
 
 const CONFIRM_INEDITABLE = [
   "Start / End Date",
   "Start / End Time",
   "Voting Deadline",
 ];
-
-const RangeStyle = css`
-  width: ${RWDWidth(350)};
-  height: ${RWDHeight(32)};
-  font-size: ${RWDFontSize(14)};
-  border: ${RWDRadius(1)} solid #808080;
-`;
-
-const PickerStyle = css`
-  width: ${RWDWidth(150)};
-  height: ${RWDHeight(32)};
-  font-size: ${RWDFontSize(14)};
-`;
-
-const TextAreaStyle = css`
-  width: ${RWDWidth(400)};
-  height: ${RWDHeight(106)};
-  border: ${RWDRadius(1)} solid #808080;
-  border-radius: ${RWDFontSize(15)};
-`;
 
 const MeetInfoContainer = Object.assign(
   styled.div`
@@ -49,31 +34,12 @@ const MeetInfoContainer = Object.assign(
     grid-row-gap: ${({ rowGap }) => RWDHeight(rowGap)};
   `,
   {
-    Content: Object.assign(
-      styled.div`
-        display: flex;
-        align-items: center;
-        font-size: ${RWDFontSize(20)};
-        font-weight: bold;
-      `,
-      {
-        DateRangePicker: styled(DatePicker.RangePicker)`
-          ${RangeStyle}
-        `,
-        TimeRangePicker: styled(TimePicker.RangePicker)`
-          ${RangeStyle}
-        `,
-        TextArea: styled(AntdInput.TextArea)`
-          ${TextAreaStyle}
-        `,
-        DatePicker: styled(DatePicker)`
-          ${PickerStyle}
-        `,
-        TimePicker: styled(TimePicker)`
-          ${PickerStyle}
-        `,
-      }
-    ),
+    Content: styled.div`
+      display: flex;
+      align-items: center;
+      font-size: ${RWDFontSize(20)};
+      font-weight: bold;
+    `,
   }
 );
 
@@ -113,7 +79,7 @@ const MeetInfo = ({
       />
     ),
     "Start / End Date": (
-      <MeetInfoContainer.Content.DateRangePicker
+      <DateRange
         placeholder={[t("startDate"), t("endDate")]}
         onChange={handleMeetDataChange(
           (i) => moment(i.toISOString()).format("YYYY-MM-DD"),
@@ -128,13 +94,13 @@ const MeetInfo = ({
             : undefined
         }
         disabledDate={(current) =>
-          // Can not select days before today and today
+          // Can not select days before today
           current && current < moment().subtract(1, "days").endOf("day")
         }
       />
     ),
     "Start / End Time": (
-      <MeetInfoContainer.Content.TimeRangePicker
+      <TimeRange
         placeholder={[t("startTime"), t("endTime")]}
         onChange={handleMeetDataChange(
           (i, plus) =>
@@ -173,12 +139,11 @@ const MeetInfo = ({
       <Member
         setMeetData={setMeetData}
         Input={ThinnerInput}
-        TextArea={TextAreaStyle}
         rawMember={member}
       />
     ),
     Description: (
-      <MeetInfoContainer.Content.TextArea
+      <TextArea
         onChange={handleMeetDataChange((i) => i.target.value, "description")}
         value={rawMeetInfo?.description}
       />
@@ -203,7 +168,7 @@ const MeetInfo = ({
         />
         {votingddl && (
           <>
-            <MeetInfoContainer.Content.DatePicker
+            <DatePicker
               placeholder={t("selectDate")}
               onChange={handleMeetDataChange(
                 (i) =>
@@ -231,7 +196,7 @@ const MeetInfo = ({
                 current && current < moment().subtract(1, "days").endOf("day")
               }
             />
-            <MeetInfoContainer.Content.TimePicker
+            <TimePicker
               placeholder={t("selectTime")}
               onChange={handleMeetDataChange(
                 (i) =>
