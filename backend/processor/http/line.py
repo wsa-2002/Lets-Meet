@@ -2,7 +2,7 @@ from fastapi import APIRouter, responses, Depends
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
-from config import line_config, service_config
+from config import line_config
 import exceptions as exc  # noqa
 from middleware.envelope import enveloped
 from middleware.context import request

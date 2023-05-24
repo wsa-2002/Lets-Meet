@@ -48,7 +48,7 @@ class GoogleCalendar:
         for event in events:
             start = event['start'].get('dateTime', event['start'].get('date'))
             end = event['end'].get('dateTime', event['end'].get('date'))
-            if(len(start) != 10):
+            if len(start) != 10:
                 start = datetime.strptime(start[:-6], '%Y-%m-%dT%H:%M:%S')
                 end = datetime.strptime(end[:-6], '%Y-%m-%dT%H:%M:%S')
             else:

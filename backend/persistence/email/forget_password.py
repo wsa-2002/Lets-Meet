@@ -21,6 +21,6 @@ async def send(to: str, code: str, subject="Let's meet Email Verification"):
                 </body>
             </html>
             """
-      # link to FE reset password page, not BE
+    # link to FE reset password page, not BE
     message.attach(MIMEText(body, 'html'))
     await smtp_handler.send_message(message)
