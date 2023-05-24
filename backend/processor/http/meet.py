@@ -112,8 +112,8 @@ async def add_meet(data: AddMeetInput) -> ReadMeetOutput:
         guest_passhash=hash_password(data.guest_password) if data.guest_password else None,
     )
     if data.member_ids:
-        for _, id in enumerate(set(data.member_ids)):
-            account = await db.account.get_email(member_id=id)
+        for _, member_id in enumerate(set(data.member_ids)):
+            account = await db.account.get_email(member_id=member_id)
             await email.invite_to_meet.send(to=account.email, meet_code=invite_code)
     if data.emails:
         for _,  user_email in enumerate(set(data.emails)):
@@ -196,7 +196,7 @@ async def join_meet_by_invite_code(code: str, data: JoinMeetInput):
 
     meet = await db.meet.read_meet_by_code(invite_code=code)
 
-    members = await db.meet_member.browse_meet_members_with_names(meet_id=meet.id, replace_guest=False)
+    members = await db.meet_member.browse_meet_members_with_names(meet_id=meet.id)
     names = [member.name for member in members]
     if f"guest_{data.name}" in names:
         raise exc.UsernameExists

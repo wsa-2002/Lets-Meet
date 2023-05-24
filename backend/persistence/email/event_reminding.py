@@ -4,7 +4,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import time
 
-async def send(to: str, meet_code: str, meet_title: str, user_name: str, start_time: time, subject="Remember to participate in your event"):
+
+async def send(to: str, meet_code: str, meet_title: str, user_name: str, start_time: time,
+               subject="Remember to participate in your event"):
     message = MIMEMultipart()
     message["From"] = f"{smtp_config.username}@{smtp_config.host}"
     message["To"] = to

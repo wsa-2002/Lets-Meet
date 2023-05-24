@@ -1,5 +1,3 @@
-from email.message import EmailMessage
-
 from config import smtp_config, service_config
 from persistence.email import smtp_handler
 from email.mime.multipart import MIMEMultipart
@@ -16,8 +14,8 @@ async def send(to: str, code: str, username: str, subject="Let's meet Email Veri
                     <body>
                         <p style="color: black;">Hello, {username}</p>
                         <p style="color: black;">Thanks for registering for our application.</p>
-                        <p style="color: black;">Please click on the following link to verificate!</p>
-                        <a href="{service_config.url}/login?code={code}">Click here to verficate</a>
+                        <p style="color: black;">Please click on the following link to verify!</p>
+                        <a href="{service_config.url}/login?code={code}">Click here to verify</a>
                     </body>
                 </html>
             """
