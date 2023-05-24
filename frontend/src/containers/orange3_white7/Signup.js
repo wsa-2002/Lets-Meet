@@ -7,11 +7,12 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { useMeet } from "../hooks/useMeet";
 import Base from "../../components/Base/orange3_white7";
 import Button from "../../components/Button";
+import Link from "../../components/Link";
 import Notification from "../../components/Notification";
 import { RWD, ANIME } from "../../constant";
-import { useMeet } from "../hooks/useMeet";
 
 const {
   RightContainer,
@@ -19,7 +20,6 @@ const {
 } = Base;
 const GoogleButton = Button("google");
 const { RWDWidth, RWDHeight, RWDFontSize } = RWD;
-const { Text, Link } = Typography;
 
 const CheckCircle = styled(CheckCircleOutlined)`
   color: #5c9b6b;
@@ -34,18 +34,18 @@ const CloseCircle = styled(CloseCircleOutlined)`
 `;
 
 const SignUp = () => {
-  const { t } = useTranslation();
+  const {
+    MIDDLEWARE: { signUp },
+  } = useMeet();
+  const navigate = useNavigate();
+  const [notification, setNotification] = useState({});
   const [signupData, setSignupData] = useState({
     Email: "",
     Username: "",
     Password: "",
     "Confirm Password": "",
   });
-  const {
-    MIDDLEWARE: { signUp },
-  } = useMeet();
-  const [notification, setNotification] = useState({});
-  const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const CONTENTNAME = {
     Email: t("email"),
@@ -200,18 +200,20 @@ const SignUp = () => {
                 justifyContent: "center",
               }}
             >
-              <Text type="secondary">
-                {t("already")}
+              <Typography.Text type="secondary">
+                {t("already") + " "}
                 <Link
                   onClick={() => {
                     navigate("/login");
                   }}
-                  style={{ color: "#B76A00", fontSize: RWDFontSize(16) }}
+                  style={{
+                    fontSize: RWDFontSize(16),
+                  }}
+                  linkTheme="#DB8600"
                 >
-                  {" "}
                   {t("login")}
                 </Link>
-              </Text>
+              </Typography.Text>
             </InfoContainer.InputContainer>
           </RightContainer.InfoContainer>
         </Base.RightContainer>

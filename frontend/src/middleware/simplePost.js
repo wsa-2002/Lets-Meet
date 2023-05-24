@@ -7,8 +7,8 @@ const URL = {
   addRoutine: "/routine",
 };
 
-export default (instance) =>
-  Object.keys(URL).reduce((acc, curr) => {
+export default function POST(instance) {
+  return Object.keys(URL).reduce((acc, curr) => {
     acc[curr] = async (data) => {
       try {
         console.log("POST", URL[curr], "req:", data);
@@ -21,3 +21,4 @@ export default (instance) =>
     };
     return acc;
   }, {});
+}

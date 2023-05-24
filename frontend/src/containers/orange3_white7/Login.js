@@ -3,11 +3,11 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useMeet } from "../hooks/useMeet";
-import { RWD } from "../../constant";
 import Base from "../../components/Base/orange3_white7";
 import Button from "../../components/Button";
 import Link from "../../components/Link";
 import Notification from "../../components/Notification";
+import { RWD } from "../../constant";
 const {
   RightContainer,
   RightContainer: { InfoContainer },
@@ -15,17 +15,21 @@ const {
 const GoogleButton = Button("google");
 const { RWDHeight, RWDFontSize } = RWD;
 
-const LogIn = () => {
+export default function Login() {
+  const search = useLocation().search;
+  const {
+    login,
+    GLOBAL_LOGIN,
+    setError,
+    MIDDLEWARE: { emailVerification, logIn },
+  } = useMeet();
+  const navigate = useNavigate();
   const [loginData, setLoginData] = useState({
     user_identifier: "",
     password: "",
   });
-  const search = useLocation().search;
-  const { login, GLOBAL_LOGIN, setError, MIDDLEWARE } = useMeet();
-  const { emailVerification, logIn } = MIDDLEWARE;
-  const { t } = useTranslation();
-  const navigate = useNavigate();
   const [notification, setNotification] = useState({});
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (login) {
@@ -60,7 +64,6 @@ const LogIn = () => {
               break;
           }
         } else {
-          //console.log(data);
           GLOBAL_LOGIN(data.token);
         }
       }
@@ -134,7 +137,6 @@ const LogIn = () => {
                   {t("forgot")}
                 </Link>
               </div>
-
               <InfoContainer.Button
                 disabled={!loginData.user_identifier || !loginData.password}
                 onClick={handleLoginClick}
@@ -177,6 +179,4 @@ const LogIn = () => {
       </Base>
     </>
   );
-};
-
-export default LogIn;
+}

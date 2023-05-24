@@ -13,7 +13,7 @@ const baseURL = `${
   process.env.REACT_APP_SERVER_PORT
 }`;
 
-export default (token) => {
+export default function middleware(token) {
   const instance = axios.create({
     baseURL,
     headers: { "auth-token": token },
@@ -27,4 +27,4 @@ export default (token) => {
     ...THIRDPARTY(baseURL, token),
     ...MEET(instance),
   };
-};
+}
