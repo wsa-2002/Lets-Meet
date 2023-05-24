@@ -42,6 +42,9 @@ async def add_account(data: AddAccountInput) -> AddAccountOutput:
     if any(char in data.username for char in USERNAME_PROHIBITED_CHARS):
         raise exc.IllegalCharacter
 
+    if data.username.startswith('guest_'):
+        raise exc.IllegalCharacter
+
     try:
         if account := await db.account.read_by_email(data.email):
             if account.is_google_login:
@@ -129,6 +132,9 @@ async def edit_account(data: EditAccountInput) -> None:
 
     if data.username != account.username and not await db.account.is_valid_username(data.username):
         raise exc.UsernameExists
+
+    if data.username and data.username.startswith('guest_'):
+        raise exc.IllegalCharacter
 
     account_id, pass_hash, _ = await db.account.read_passhash(account_id=request.account.id)
     if data.old_password and not verify_password(password=data.old_password, pass_hash=pass_hash):

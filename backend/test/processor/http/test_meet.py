@@ -74,6 +74,25 @@ class TestAddMeet(unittest.IsolatedAsyncioTestCase):
             'data': None,
             'error': exc.IllegalInput.__name__,
         }
+        self.guest_context = {'account': security.Account(id=None, time=datetime.now())}
+        self.add_meet_illegal_character_input = meet.AddMeetInput(
+            meet_name='test',
+            start_date='2023-08-16',
+            end_date='2023-08-20',
+            start_time_slot_id=5,
+            end_time_slot_id=15,
+            gen_meet_url=False,
+            guest_name='guest_wsa',
+            guest_password=None,
+            voting_end_time=None,
+            description=None,
+            member_ids=None,
+            email=None,
+        )
+        self.illegal_character_expect_output = {
+            'data': None,
+            'error': exc.IllegalCharacter.__name__,
+        }
 
     async def test_add_meet_happy_flow(self):
         @patch('middleware.context.Request._context', self.context)
@@ -123,6 +142,14 @@ class TestAddMeet(unittest.IsolatedAsyncioTestCase):
         for testcase in testcases:
             res = await test(data=testcase)
             self.assertEqual(res, self.illegal_input_expect_output)
+
+    async def test_add_meet_illegal_character(self):
+        @patch('middleware.context.Request._context', self.guest_context)
+        async def test(data: meet.AddMeetInput):
+            return await meet.add_meet(data=data)
+
+        res = await test(self.add_meet_illegal_character_input)
+        self.assertEqual(res, self.illegal_character_expect_output)
 
 
 class TestBrowseMeet(unittest.IsolatedAsyncioTestCase):
