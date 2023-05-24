@@ -227,6 +227,7 @@ export default () => {
   const [mode, setMode] = useState("week"); //month or week
   const [month, setMonth] = useState(moment().format("YYYY MMMM")); //標題月份
   const [timeRange, setTimeRange] = useState([]); //整個日曆的範圍
+  const [baseTime, setBaseTime] = useState("");
   const [key, setKey] = useState(0);
 
   /*resize seeMore 套組*/
@@ -287,6 +288,11 @@ export default () => {
   /******************************************************/
 
   const TimeProcessing = () => {
+    setBaseTime(
+      moment(calendarInstRef.current.getInstance().getDate().d.d).format(
+        "YYYY-MM-DD"
+      )
+    );
     const start_date = moment(
       calendarInstRef.current.getInstance().getDateRangeStart().d.d
     ).format("YYYY-MM-DD");
@@ -649,8 +655,8 @@ export default () => {
   }, [mode]);
 
   useEffect(() => {
-    if (timeRange.length) {
-      calendarInstRef.current?.getInstance().setDate(new Date(timeRange[0]));
+    if (baseTime) {
+      calendarInstRef.current?.getInstance().setDate(new Date(baseTime));
     }
     TimeProcessing();
   }, [key]);
