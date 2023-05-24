@@ -265,7 +265,7 @@ async def browse_by_account_id(account_id: int, filters: Sequence[model.Filter],
     )
     records = await pool_handler.pool.fetch(sql, *params)
     return [vo.BrowseMeetByAccount(meet_id=meet_id, invite_code=invite_code, host_account_id=host_account_id,
-                                   host_username=host_username or guest_host_username.replace('guest_', '', 1),
+                                   host_username=host_username or guest_host_username,
                                    start_date=start_date, end_date=end_date,
                                    start_time_slot_id=start_time_slot_id, end_time_slot_id=end_time_slot_id,
                                    status=enums.StatusType(status), voting_end_time=voting_end_time, meet_url=meet_url,
