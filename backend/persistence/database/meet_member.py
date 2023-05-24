@@ -39,7 +39,7 @@ async def browse_meet_members_with_names(meet_id: int, replace_guest: bool = Tru
                 id=id_,
                 meet_id=meet_id,
                 is_host=is_host,
-                name=name.replace('guest_', '') if name and replace_guest else username,
+                name=name.replace('guest_', '') if name and replace_guest else name if name else username,
                 member_id=member_id,
                 has_voted=has_voted,
             )
