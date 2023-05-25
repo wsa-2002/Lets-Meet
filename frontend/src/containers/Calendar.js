@@ -204,8 +204,11 @@ const MenuContainer = Object.assign(
   {
     TimeOperationContainer: styled.div`
       display: flex;
-      column-gap: ${RWDWidth(20)};
+      width: ${RWDWidth(400)};
+      min-width: 350px;
+      /* column-gap: ${RWDWidth(20)}; */
       align-items: center;
+      justify-content: space-between;
       font-size: ${RWDFontSize(24)};
       button {
         font-size: ${RWDFontSize(28)};
@@ -700,19 +703,20 @@ export default () => {
               start_date: timeRange[0],
               end_date: timeRange[1],
             });
-            temp = [
-              ...temp,
-              ...googleEvent.map((e, id) => ({
-                id: id + temp.length,
-                title: e.title,
-                start: moment(e.start_date),
-                end: moment(e.end_date),
-                category: "time",
-                isReadOnly: true,
-                color: e.color,
-                raw: { ...e, isGoogle: true },
-              })),
-            ];
+            if (googleEvent)
+              temp = [
+                ...temp,
+                ...googleEvent.map((e, id) => ({
+                  id: id + temp.length,
+                  title: e.title,
+                  start: moment(e.start_date),
+                  end: moment(e.end_date),
+                  category: "time",
+                  isReadOnly: true,
+                  color: e.color,
+                  raw: { ...e, isGoogle: true },
+                })),
+              ];
           }
           setEvents(temp);
           setLoading(false);
