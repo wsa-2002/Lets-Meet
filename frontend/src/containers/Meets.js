@@ -123,15 +123,7 @@ const Meets = () => {
         setLoading(true);
         const { data } = await browseMeet();
         setMeetsData(
-          [
-            ...data,
-            ...data,
-            ...data,
-            ...data,
-            ...data,
-            ...data,
-            ...data,
-          ].reduce(
+          data.reduce(
             (acc, curr) => {
               const target = {
                 key: curr.meet_id,
