@@ -24,6 +24,7 @@ import slotIDProcessing from "../util/slotIDProcessing";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Radio from "../components/Radio";
+const RectButton = Button("rect");
 const RoundButton = Button("round");
 const moment = extendMoment(Moment);
 const CalendarModal = Modal("calendar");
@@ -57,6 +58,7 @@ const ContentContainer = styled.div`
   position: relative;
   height: ${RWDHeight(840)};
   width: ${RWDWidth(1260)};
+  /* min-width: 600px; */
   left: calc(25vw / 3);
   margin-top: ${RWDHeight(60)};
   display: flex;
@@ -206,7 +208,6 @@ const MenuContainer = Object.assign(
       display: flex;
       width: ${RWDWidth(400)};
       min-width: 350px;
-      /* column-gap: ${RWDWidth(20)}; */
       align-items: center;
       justify-content: space-between;
       font-size: ${RWDFontSize(24)};
@@ -776,27 +777,41 @@ export default () => {
       <Base.FullContainer>
         <ContentContainer>
           <MenuContainer>
-            <MenuContainer.TimeOperationContainer>
-              <RoundButton
-                variant="text"
-                buttonTheme="#D8D8D8"
-                icon={<CaretLeftOutlined />}
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <MenuContainer.TimeOperationContainer>
+                <RoundButton
+                  variant="text"
+                  buttonTheme="#D8D8D8"
+                  icon={<CaretLeftOutlined />}
+                  onClick={() => {
+                    calendarInstRef.current?.getInstance().prev();
+                    TimeProcessing();
+                  }}
+                />
+                <div>{month}</div>
+                <RoundButton
+                  variant="text"
+                  buttonTheme="#D8D8D8"
+                  icon={<CaretRightOutlined />}
+                  onClick={() => {
+                    calendarInstRef.current?.getInstance().next();
+                    TimeProcessing();
+                  }}
+                />
+              </MenuContainer.TimeOperationContainer>
+              <RectButton
+                variant="hollow"
+                buttonTheme="#7A3E00"
+                style={{ justifySelf: "flex-start" }}
                 onClick={() => {
-                  calendarInstRef.current?.getInstance().prev();
+                  calendarInstRef.current?.getInstance().today();
                   TimeProcessing();
                 }}
-              />
-              <div>{month}</div>
-              <RoundButton
-                variant="text"
-                buttonTheme="#D8D8D8"
-                icon={<CaretRightOutlined />}
-                onClick={() => {
-                  calendarInstRef.current?.getInstance().next();
-                  TimeProcessing();
-                }}
-              />
-            </MenuContainer.TimeOperationContainer>
+              >
+                Today
+              </RectButton>
+            </div>
+
             <Radio
               radioTheme="#DB8600"
               value={mode}
