@@ -143,7 +143,7 @@ export default (type) => {
                 {
                   pattern: /^(?!guest_).*/,
                   validateTrigger: "onChange",
-                  message: 'Please avoid "guest_" as initial',
+                  message: "Please avoid using guest_ as prefix.",
                 },
               ]}
               style={{ margin: 0 }}
@@ -164,7 +164,9 @@ export default (type) => {
                 variant="solid"
                 onClick={onOk}
                 disabled={
-                  !form.username || !/^[^#$%&*/?@]*$/.test(form.username)
+                  !form.username ||
+                  !/^[^#$%&*/?@]*$/.test(form.username) ||
+                  !/^(?!guest_).*/.test(form.username)
                 }
               >
                 OK

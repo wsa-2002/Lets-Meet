@@ -123,6 +123,11 @@ const SignUp = () => {
                           validateTrigger: "onChange",
                           message: "Please avoid `#$%&*/?@",
                         },
+                        {
+                          pattern: /^(?!guest_).*/,
+                          validateTrigger: "onChange",
+                          message: "Please avoid using guest_ as prefix.",
+                        },
                       ]}
                       style={{ margin: 0 }}
                     >
@@ -180,7 +185,8 @@ const SignUp = () => {
                   !signupData.Email ||
                   !signupData["Confirm Password"] ||
                   signupData.Password !== signupData["Confirm Password"] ||
-                  !/^[^#$%&*/?@]*$/.test(signupData.Username)
+                  !/^[^#$%&*/?@]*$/.test(signupData.Username) ||
+                  !/^(?!guest_).*/.test(signupData.Username)
                 }
                 onClick={handleSignUpClick}
               >
