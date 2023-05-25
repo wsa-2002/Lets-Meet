@@ -96,6 +96,7 @@ export default function Setting() {
   const {
     login,
     setLoading,
+    USERINFO,
     USERINFO: { ID, username, email, line_token, notification_preference },
     setUSERINFO,
     MIDDLEWARE: {
@@ -175,18 +176,13 @@ export default function Setting() {
     if (error) {
       setUserData(JSON.parse(JSON.stringify(oriUserData)));
     } else {
-      const {
-        data,
-        data: { username, email },
-      } = await getUserInfo(undefined, ID);
+      const { data } = await getUserInfo(undefined, ID);
       setNotification({
         title: "Update successfully",
         message: "",
       });
       setUSERINFO((prev) => ({ ...prev, ...data }));
       if (userData.email !== oriUserData.email) setChangeEmail(userData.email);
-      setUserData({ username, email });
-      setOriUserData({ username, email });
     }
     setChangePassword(false);
     switch (error) {
@@ -212,6 +208,14 @@ export default function Setting() {
         break;
     }
   };
+
+  useEffect(() => {
+    if (USERINFO) {
+      const { username, email } = USERINFO;
+      setUserData({ username, email });
+      setOriUserData({ username, email });
+    }
+  }, [USERINFO]);
 
   const handleEditPrefernce = async (e) => {
     const { value } = e.target;
