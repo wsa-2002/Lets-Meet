@@ -1,16 +1,25 @@
+import print from "./test";
+
 export default (instance) => ({
   getGroupAvailability: async (code) => {
     try {
-      console.log("GET", `/meet/code/${code}/available_time/all`, "req:", code);
+      if (print)
+        console.log(
+          "GET",
+          `/meet/code/${code}/available_time/all`,
+          "req:",
+          code
+        );
       const { data: result } = await instance.get(
         `/meet/code/${code}/available_time/all`
       );
-      console.log(
-        "GET",
-        `/meet/code/${code}/available_time/all`,
-        "res",
-        result
-      );
+      if (print)
+        console.log(
+          "GET",
+          `/meet/code/${code}/available_time/all`,
+          "res",
+          result
+        );
       return result;
     } catch (error) {
       throw error;
@@ -18,18 +27,20 @@ export default (instance) => ({
   },
   getMyAvailability: async (code, name = undefined, password = undefined) => {
     try {
-      console.log(
-        "GET",
-        `/meet/code/${code}/available_time`,
-        "req:",
-        code,
-        name
-      );
+      if (print)
+        console.log(
+          "GET",
+          `/meet/code/${code}/available_time`,
+          "req:",
+          code,
+          name
+        );
       const { data: result } = await instance.get(
         `/meet/code/${code}/available_time`,
         { params: name && password && { name, password } }
       );
-      console.log("GET", `/meet/code/${code}/available_time`, "res", result);
+      if (print)
+        console.log("GET", `/meet/code/${code}/available_time`, "res", result);
       return result;
     } catch (error) {
       throw error;
@@ -37,12 +48,14 @@ export default (instance) => ({
   },
   addMyAvailability: async (code, data) => {
     try {
-      console.log("POST", `/meet/code/${code}/available_time`, "req:", data);
+      if (print)
+        console.log("POST", `/meet/code/${code}/available_time`, "req:", data);
       const { data: result } = await instance.post(
         `/meet/code/${code}/available_time`,
         data
       );
-      console.log("POST", `/meet/code/${code}/available_time`, "res", result);
+      if (print)
+        console.log("POST", `/meet/code/${code}/available_time`, "res", result);
       return result;
     } catch (error) {
       throw error;
@@ -50,12 +63,24 @@ export default (instance) => ({
   },
   deleteMyAvailability: async (code, data) => {
     try {
-      console.log("DELETE", `/meet/code/${code}/available_time`, "req:", data);
+      if (print)
+        console.log(
+          "DELETE",
+          `/meet/code/${code}/available_time`,
+          "req:",
+          data
+        );
       const { data: result } = await instance.delete(
         `/meet/code/${code}/available_time`,
         { data }
       );
-      console.log("DELETE", `/meet/code/${code}/available_time`, "res", result);
+      if (print)
+        console.log(
+          "DELETE",
+          `/meet/code/${code}/available_time`,
+          "res",
+          result
+        );
       return result;
     } catch (error) {
       throw error;
@@ -63,12 +88,14 @@ export default (instance) => ({
   },
   confirmMeet: async (code, data) => {
     try {
-      console.log("POST", `/meet/code/${code}/confirm`, "req:", data);
+      if (print)
+        console.log("POST", `/meet/code/${code}/confirm`, "req:", data);
       const { data: result } = await instance.post(
         `/meet/code/${code}/confirm`,
         data
       );
-      console.log("POST", `/meet/code/${code}/confirm`, "res", result);
+      if (print)
+        console.log("POST", `/meet/code/${code}/confirm`, "res", result);
       return result;
     } catch (error) {
       throw error;

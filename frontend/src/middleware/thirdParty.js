@@ -6,7 +6,7 @@ export default (baseURL, token) => ({
       throw error;
     }
   },
-  lineConnect: async (token) => {
+  lineConnect: async () => {
     try {
       window.open(`${baseURL}/line?token=${token}`, "_self");
     } catch (error) {

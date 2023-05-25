@@ -1,3 +1,5 @@
+import print from "./test";
+
 export default (instance) => {
   const METHOD = {
     getMeetInfo: instance.get,
@@ -10,9 +12,9 @@ export default (instance) => {
     acc[curr] = async (code, data = {}) => {
       try {
         const route = `/meet/code/${code}`;
-        console.log(curr, route, "req", data);
+        if (print) console.log(curr, route, "req", data);
         const { data: result } = await METHOD[curr](route, data);
-        console.log("res", result);
+        if (print) console.log("res", result);
         return result;
       } catch (error) {
         throw error;
