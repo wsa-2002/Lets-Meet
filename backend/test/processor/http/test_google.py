@@ -4,7 +4,6 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from config import service_config
 from base import do, enums
-from security import encode_jwt
 import exceptions as exc  # noqa
 import processor.http.google as google
 
@@ -19,6 +18,7 @@ class TestGoogleLogin(unittest.IsolatedAsyncioTestCase):
         }
         query_string = 'state=sRCWEguBv3Pj19yEqzMMt9kg7UwjJ0&code=4%2F0AbUR2VPuytINU3Hd5Ey1hZm8xRCyhstkw9bQ8e0ZO6_jAj3dlmNwxIGFeAk8hf1RPYqwrQ&scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcalendar+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&authuser=1&prompt=consent'
         query_string_denided = 'error=access_denied&state=bqA3HXNmHrk8wrkbiR0InAqLdjINGL'
+        
         self.input_data = Request(scope={'type': 'http', 'path': '/', 'query_string': query_string.encode('utf-8')})
         
         self.normal_account = do.Account(
@@ -29,7 +29,7 @@ class TestGoogleLogin(unittest.IsolatedAsyncioTestCase):
             notification_preference=enums.NotificationPreference.email,
         )
         self.denied_input = Request(scope={'type': 'http', 'path': '/', 'query_string': query_string_denided.encode('utf-8')})
-        self.denied_output = RedirectResponse(url=f"{service_config.url}/login")
+
 
     async def test_auth_signup(self):
         @mock.patch('processor.http.google.oauth.google.authorize_access_token', mock.AsyncMock(return_value=self.token))
@@ -38,7 +38,6 @@ class TestGoogleLogin(unittest.IsolatedAsyncioTestCase):
         @mock.patch('persistence.database.account.update_username', mock.AsyncMock(return_value=None))
         async def test(input_data):
             return await google.auth(request=input_data)
-
         res = await test(self.input_data)
         self.assertEqual(res.status_code, 307)
     
@@ -48,7 +47,6 @@ class TestGoogleLogin(unittest.IsolatedAsyncioTestCase):
         @mock.patch('persistence.database.account.update_google_token', mock.AsyncMock(return_value=None))
         async def test(input_data):
             return await google.auth(request=input_data)
-
         res = await test(self.input_data)
         self.assertEqual(res.status_code, 307)
         
