@@ -1,8 +1,6 @@
 import unittest
 from unittest import mock
 from starlette.requests import Request
-from starlette.responses import RedirectResponse
-from config import service_config
 from base import do, enums
 import exceptions as exc  # noqa
 import processor.http.google as google
