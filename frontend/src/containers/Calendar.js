@@ -10,9 +10,11 @@ import Calendar from "@toast-ui/react-calendar";
 import { Tooltip } from "antd";
 import _ from "lodash";
 import Moment from "moment";
+import "moment/locale/zh-cn";
 import { extendMoment } from "moment-range";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useMeet } from "./hooks/useMeet";
@@ -30,6 +32,7 @@ const moment = extendMoment(Moment);
 const CalendarModal = Modal("calendar");
 const { RWDHeight, RWDWidth, RWDFontSize, RWDRadius } = RWD;
 const MemberTag = Tag("member");
+moment.locale("zh-cn");
 
 function hexToRgbA(hex) {
   var c;
@@ -233,6 +236,7 @@ export default () => {
   const [timeRange, setTimeRange] = useState([]); //整個日曆的範圍
   const [baseTime, setBaseTime] = useState("");
   const [key, setKey] = useState(0);
+  const { t } = useTranslation();
 
   /*resize seeMore 套組*/
   const [seeMorePosition, setSeeMorePosition] = useState({ left: 0, top: 0 });
@@ -812,8 +816,8 @@ export default () => {
               radioTheme="#DB8600"
               value={mode}
               elements={[
-                { value: "week", label: "Week" },
-                { value: "month", label: "Month" },
+                { value: "week", label: t("week") },
+                { value: "month", label: t("month") },
               ]}
               onChange={(e) => {
                 setMode(e.target.value);
@@ -861,7 +865,7 @@ export default () => {
                     alignItems: "center",
                   }}
                 >
-                  <div>Linked to Google Calendar</div>
+                  <div>{t("linkToGoogleCalendar")}</div>
                   <CheckCircleOutlined />
                 </FadeIn>
               ) : (
@@ -873,7 +877,7 @@ export default () => {
                     alignItems: "center",
                   }}
                 >
-                  <div>Link to Google Calendar</div>
+                  <div>{t("linkToGoogleCalendar")}</div>
                   <InfoCircleOutlined />
                 </Floating>
               )}
