@@ -11,6 +11,7 @@ import Input from "../../components/Input";
 import Notification from "../../components/Notification";
 import Radio from "../../components/Radio";
 import { RWD, ANIME } from "../../constant";
+import { useTranslation } from "react-i18next";
 const GoogleButton = Button("google");
 const LineButton = Button("line");
 const RectButton = Button("rect");
@@ -107,6 +108,7 @@ export default function Setting() {
     },
   } = useMeet();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [userData, setUserData] = useState({ username, email });
   const [oriUserData, setOriUserData] = useState({ username, email });
   const [changePassword, setChangePassword] = useState(false);
@@ -136,31 +138,31 @@ export default function Setting() {
   useEffect(() => {
     if (state?.line) {
       setNotification({
-        title: "Connect to Line",
-        message: "請掃描 QRcode 以接收訊息",
+        title: t('connectLine'),
+        message: t('scanQRcode'),
       });
     }
   }, [state?.line]);
 
-  useEffect(() => {
-    (async () => {
-      if (search) {
-        const code = new URLSearchParams(search).get("code");
-        const state = new URLSearchParams(search).get("state");
-        if (code && state) {
-          await lineToken(code, state);
-          navigate("/settings", {
-            state: {
-              line: "initial",
-            },
-          });
-        }
-      }
-      if (!login) {
-        navigate("/");
-      }
-    })();
-  }, [login]);
+  // useEffect(() => {
+  //   (async () => {
+  //     if (search) {
+  //       const code = new URLSearchParams(search).get("code");
+  //       const state = new URLSearchParams(search).get("state");
+  //       if (code && state) {
+  //         await lineToken(code, state);
+  //         navigate("/settings", {
+  //           state: {
+  //             line: "initial",
+  //           },
+  //         });
+  //       }
+  //     }
+  //     if (!login) {
+  //       navigate("/");
+  //     }
+  //   })();
+  // }, [login]);
 
   const handleUserDataChange = (e) => {
     const { name, value } = e.target;
@@ -179,9 +181,9 @@ export default function Setting() {
       setUSERINFO((prev) => ({ ...prev, ...data }));
       if (userData.email !== oriUserData.email) {
         setNotification({
-          title: "Verification mail sent",
+          title: t('verSent'),
           message:
-            "Please check your mailbox. Email will be updated in the Settings page after you verify your new email.",
+            t('emailUpdated'),
         });
       }
       setUserData((prev) => ({
@@ -197,20 +199,20 @@ export default function Setting() {
     switch (error) {
       case "EmailExist":
         setNotification({
-          title: "Update failed",
-          message: "Email has already been registered.",
+          title: t('updateFailed'),
+          message: t('emailExist'),
         });
         break;
       case "UsernameExists":
         setNotification({
-          title: "Update failed",
-          message: "Username has already been registered.",
+          title: t('updateFailed'),
+          message: t('usernameExists'),
         });
         break;
       case "NoPermission":
         setNotification({
-          title: "Change password failed",
-          message: "Wrong password.",
+          title: t('changePwdFailed'),
+          message: t('wrongPwd'),
         });
         break;
       default:
@@ -278,7 +280,7 @@ export default function Setting() {
           }}
           disabled={login === "google"}
         >
-          Change Password
+          {t('changePwd')}
         </RectButton>
         {changePassword && (
           <div style={{ display: "relative", overflow: "hidden" }}>
@@ -293,12 +295,12 @@ export default function Setting() {
               <ThinnerPassword
                 onChange={handleUserDataChange}
                 name="old_password"
-                placeholder="Old Password"
+                placeholder={t("oldPwd")}
               />
               <ThinnerPassword
                 onChange={handleUserDataChange}
                 name="new_password"
-                placeholder="New Password"
+                placeholder={t("newPwd")}
               />
               <div
                 style={{
@@ -310,7 +312,7 @@ export default function Setting() {
                 <ThinnerPassword
                   onChange={handleUserDataChange}
                   name="Confirm New Password"
-                  placeholder="Confirm New Password"
+                  placeholder={t('confirmNewPwd')}
                 />
                 {userData["Confirm New Password"] &&
                   (userData.new_password ===
@@ -353,19 +355,19 @@ export default function Setting() {
             }}
             ref={RoutineRef}
           >
-            Settings
+            {t('settings')}
           </p>
           <InstructionContainer
             style={{ position: "absolute", top, marginTop: RWDHeight(80) }}
           >
             <InstructionContainer.Item>
-              Set your account information
+              {t('setInfo')}
             </InstructionContainer.Item>
             <InstructionContainer.Item>
-              Connect to third-party applications
+              {t('connect3')}
             </InstructionContainer.Item>
             <InstructionContainer.Item>
-              Change your notification preferences
+              {t('changePreferences')}
             </InstructionContainer.Item>
           </InstructionContainer>
         </Base.LeftContainer>
@@ -377,7 +379,7 @@ export default function Setting() {
           }}
         >
           <InfoContainer>
-            <InfoContainer.Title>Account Settings</InfoContainer.Title>
+            <InfoContainer.Title>{t('accountSet')}</InfoContainer.Title>
             <InfoContainer.AccountSetting>
               {userData.username !== undefined &&
                 Object.keys(CONTENTMENU).map((title, index) => (
@@ -424,7 +426,7 @@ export default function Setting() {
                   }
                   onClick={handleAccountUpdate}
                 >
-                  Update
+                  {t('update')}
                 </RectButton>
                 <RectButton
                   variant="hollow"
@@ -434,11 +436,11 @@ export default function Setting() {
                     setChangePassword(false);
                   }}
                 >
-                  Reset
+                  {t('reset')}
                 </RectButton>
               </InfoContainer.ButtonContainer>
             )}
-            <InfoContainer.Title>Third-Party Applications</InfoContainer.Title>
+            <InfoContainer.Title>{t('thirdParty')}</InfoContainer.Title>
             <div
               style={{
                 display: "flex",
@@ -450,7 +452,7 @@ export default function Setting() {
               <GoogleButton
                 style={{ minWidth: "fit-content", width: RWDWidth(350) }}
               >
-                Connect with Google
+                {t('connectGoogle')}
               </GoogleButton>
               <LineButton
                 style={{ minWidth: "fit-content", width: RWDWidth(350) }}
@@ -458,10 +460,10 @@ export default function Setting() {
                   lineConnect();
                 }}
               >
-                Connect with LINE
+                {t('connectLine')}
               </LineButton>
             </div>
-            <InfoContainer.Title>Notification Preferences</InfoContainer.Title>
+            <InfoContainer.Title>{t('notificationPreferences')}</InfoContainer.Title>
             <div
               style={{
                 marginTop: RWDHeight(20),
@@ -471,17 +473,16 @@ export default function Setting() {
               }}
             >
               <div>
-                If you have connected with a LINE account, you can choose either
-                LINE messages or Email as your notification preferences.
+                {t('connectLineEmail')}
               </div>
               <Radio
                 radioTheme="#DB8600"
                 value={preference}
                 elements={[
-                  { value: "EMAIL", label: "Email" },
+                  { value: "EMAIL", label: t('email') },
                   {
                     value: "LINE",
-                    label: "LINE messages",
+                    label: t("lineMessage"),
                     props: { disabled: !line_token },
                   },
                 ]}

@@ -24,8 +24,12 @@ import slotIDProcessing from "../util/slotIDProcessing";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Radio from "../components/Radio";
+import { useTranslation } from "react-i18next";
+import 'moment/locale/zh-cn';
+
 const RoundButton = Button("round");
 const moment = extendMoment(Moment);
+moment.locale('zh-cn');
 const CalendarModal = Modal("calendar");
 const { RWDHeight, RWDWidth, RWDFontSize, RWDRadius } = RWD;
 const MemberTag = Tag("member");
@@ -234,6 +238,8 @@ export default () => {
   const [seeMorePosition, setSeeMorePosition] = useState({ left: 0, top: 0 });
   const [seeMoreMode, setSeeMoreMode] = useState(false);
   const seeMoreRef = useRef(null);
+  
+  const { t } = useTranslation();
 
   const throttledHandleResize = _.throttle(() => {
     if (seeMoreRef?.current) {
@@ -654,78 +660,78 @@ export default () => {
     setKey((prev) => prev + 1);
   }, [mode]);
 
-  useEffect(() => {
-    if (baseTime) {
-      calendarInstRef.current?.getInstance().setDate(new Date(baseTime));
-    }
-    TimeProcessing();
-  }, [key]);
+  // useEffect(() => {
+  //   if (baseTime) {
+  //     calendarInstRef.current?.getInstance().setDate(new Date(baseTime));
+  //   }
+  //   TimeProcessing();
+  // }, [key]);
 
-  useEffect(() => {
-    (async () => {
-      if (login && timeRange.length) {
-        if (initial) {
-          setLoading(true);
-          setInitial(false);
-        }
-        try {
-          const { data: normalEvent } = await getCalendar({
-            start_date: timeRange[0],
-            end_date: timeRange[1],
-          });
-          let temp = normalEvent.map((e, id) => ({
-            id,
-            title: e.title,
-            start: moment(
-              `${e.start_date} ` + slotIDProcessing(e.start_time_slot_id),
-              "YYYY-MM-DD HH:mm"
-            ),
-            end: moment(
-              `${e.end_date} ` +
-                slotIDProcessing(
-                  // e.end_time_slot_id + 1
-                  48
-                ),
-              "YYYY-MM-DD HH:mm"
-            ),
-            category:
-              e.start_time_slot_id === 1 && e.end_time_slot_id === 48
-                ? "allday"
-                : "time",
-            isReadOnly: true,
-            raw: { ...e, isGoogle: false },
-          }));
-          if (login === "google") {
-            const { data: googleEvent } = await getGoogleCalendar({
-              start_date: timeRange[0],
-              end_date: timeRange[1],
-            });
-            temp = [
-              ...temp,
-              ...googleEvent.map((e, id) => ({
-                id: id + temp.length,
-                title: e.title,
-                start: moment(e.start_date),
-                end: moment(e.end_date),
-                category: "time",
-                isReadOnly: true,
-                color: e.color,
-                raw: { ...e, isGoogle: true },
-              })),
-            ];
-          }
-          setEvents(temp);
-          setLoading(false);
-        } catch (error) {
-          throw error;
-        }
-      }
-      if (!login) {
-        navigate("/");
-      }
-    })();
-  }, [login, timeRange]);
-  /******************************************************/
+  // useEffect(() => {
+  //   (async () => {
+  //     if (login && timeRange.length) {
+  //       if (initial) {
+  //         setLoading(true);
+  //         setInitial(false);
+  //       }
+  //       try {
+  //         const { data: normalEvent } = await getCalendar({
+  //           start_date: timeRange[0],
+  //           end_date: timeRange[1],
+  //         });
+  //         let temp = normalEvent.map((e, id) => ({
+  //           id,
+  //           title: e.title,
+  //           start: moment(
+  //             `${e.start_date} ` + slotIDProcessing(e.start_time_slot_id),
+  //             "YYYY-MM-DD HH:mm"
+  //           ),
+  //           end: moment(
+  //             `${e.end_date} ` +
+  //               slotIDProcessing(
+  //                 // e.end_time_slot_id + 1
+  //                 48
+  //               ),
+  //             "YYYY-MM-DD HH:mm"
+  //           ),
+  //           category:
+  //             e.start_time_slot_id === 1 && e.end_time_slot_id === 48
+  //               ? "allday"
+  //               : "time",
+  //           isReadOnly: true,
+  //           raw: { ...e, isGoogle: false },
+  //         }));
+  //         if (login === "google") {
+  //           const { data: googleEvent } = await getGoogleCalendar({
+  //             start_date: timeRange[0],
+  //             end_date: timeRange[1],
+  //           });
+  //           temp = [
+  //             ...temp,
+  //             ...googleEvent.map((e, id) => ({
+  //               id: id + temp.length,
+  //               title: e.title,
+  //               start: moment(e.start_date),
+  //               end: moment(e.end_date),
+  //               category: "time",
+  //               isReadOnly: true,
+  //               color: e.color,
+  //               raw: { ...e, isGoogle: true },
+  //             })),
+  //           ];
+  //         }
+  //         setEvents(temp);
+  //         setLoading(false);
+  //       } catch (error) {
+  //         throw error;
+  //       }
+  //     }
+  //     if (!login) {
+  //       navigate("/");
+  //     }
+  //   })();
+  // }, [login, timeRange]);
+  // /******************************************************/
 
   useEffect(() => {
     const url = `${
@@ -797,8 +803,8 @@ export default () => {
               radioTheme="#DB8600"
               value={mode}
               elements={[
-                { value: "week", label: "Week" },
-                { value: "month", label: "Month" },
+                { value: "week", label: t("week") },
+                { value: "month", label: t("month") },
               ]}
               onChange={(e) => {
                 setMode(e.target.value);
@@ -846,7 +852,7 @@ export default () => {
                     alignItems: "center",
                   }}
                 >
-                  <div>Linked to Google Calendar</div>
+                  <div>{t('linkToGoogleCalendar')}</div>
                   <CheckCircleOutlined />
                 </FadeIn>
               ) : (
@@ -858,7 +864,7 @@ export default () => {
                     alignItems: "center",
                   }}
                 >
-                  <div>Link to Google Calendar</div>
+                  <div>{t('linkToGoogleCalendar')}</div>
                   <InfoCircleOutlined />
                 </Floating>
               )}
