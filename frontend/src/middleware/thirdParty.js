@@ -6,7 +6,7 @@ export default (baseURL, token) => ({
       throw error;
     }
   },
-  lineConnect: async (token) => {
+  lineConnect: async () => {
     try {
       window.open(`${baseURL}/line?token=${token}`, "_self");
     } catch (error) {
@@ -15,11 +15,12 @@ export default (baseURL, token) => ({
   },
   lineToken: async (code, state) => {
     try {
-      var newWindow = window.open(
+      let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=0,height=0,left=-1000,top=-1000`;
+      window.open(
         `${baseURL}/account/line?state=${state}&code=${code}`,
-        "_blank"
+        "test",
+        params
       );
-      newWindow.focus();
     } catch (error) {
       throw error;
     }

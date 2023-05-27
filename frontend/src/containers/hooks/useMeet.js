@@ -13,7 +13,7 @@ const MeetContext = createContext({
 
 const MeetProvider = (props) => {
   const [cookies, setCookie, removeCookie] = useCookies(["token"]);
-  const [login, setLogin] = useState(false);
+  const [login, setLogin] = useState(undefined);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [USERINFO, setUSERINFO] = useState({});
@@ -29,6 +29,8 @@ const MeetProvider = (props) => {
   useEffect(() => {
     if (cookies.token) {
       setLogin(jwt(cookies.token).is_google_login ? "google" : "notGoogle");
+    } else {
+      setLogin(false);
     }
   }, [cookies]);
 

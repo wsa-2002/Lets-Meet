@@ -1,5 +1,5 @@
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
-import { Form } from "antd";
+import { Form, Popconfirm, message } from "antd";
 import _ from "lodash";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -97,6 +97,7 @@ export default function Setting() {
   const {
     login,
     setLoading,
+    USERINFO,
     USERINFO: { ID, username, email, line_token, notification_preference },
     setUSERINFO,
     MIDDLEWARE: {
@@ -114,6 +115,7 @@ export default function Setting() {
   const [changePassword, setChangePassword] = useState(false);
   const [preference, setPreference] = useState(notification_preference);
   const [notification, setNotification] = useState({});
+  const [changeEmail, setChangeEmail] = useState("");
 
   /*調整 Setting 文字 套組*/
   const RoutineRef = useRef(null);
@@ -144,25 +146,25 @@ export default function Setting() {
     }
   }, [state?.line]);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     if (search) {
-  //       const code = new URLSearchParams(search).get("code");
-  //       const state = new URLSearchParams(search).get("state");
-  //       if (code && state) {
-  //         await lineToken(code, state);
-  //         navigate("/settings", {
-  //           state: {
-  //             line: "initial",
-  //           },
-  //         });
-  //       }
-  //     }
-  //     if (!login) {
-  //       navigate("/");
-  //     }
-  //   })();
-  // }, [login]);
+  useEffect(() => {
+    (async () => {
+      if (search) {
+        const code = new URLSearchParams(search).get("code");
+        const state = new URLSearchParams(search).get("state");
+        if (code && state) {
+          await lineToken(code, state);
+          navigate("/settings", {
+            state: {
+              line: "initial",
+            },
+          });
+        }
+      }
+      if (!login) {
+        navigate("/");
+      }
+    })();
+  }, [login]);
 
   const handleUserDataChange = (e) => {
     const { name, value } = e.target;
@@ -176,24 +178,13 @@ export default function Setting() {
     if (error) {
       setUserData(JSON.parse(JSON.stringify(oriUserData)));
     } else {
-      const { data, error } = await getUserInfo(undefined, ID);
-      console.log(error);
+      const { data } = await getUserInfo(undefined, ID);
+      setNotification({
+        title: "Update successfully",
+        message: "",
+      });
       setUSERINFO((prev) => ({ ...prev, ...data }));
-      if (userData.email !== oriUserData.email) {
-        setNotification({
-          title: t('verSent'),
-          message:
-            t('emailUpdated'),
-        });
-      }
-      setUserData((prev) => ({
-        ...JSON.parse(JSON.stringify(oriUserData)),
-        username: JSON.parse(JSON.stringify(prev.username)),
-      }));
-      setOriUserData((prev) => ({
-        username: JSON.parse(JSON.stringify(userData.username)),
-        email: JSON.parse(JSON.stringify(prev.email)),
-      }));
+      if (userData.email !== oriUserData.email) setChangeEmail(userData.email);
     }
     setChangePassword(false);
     switch (error) {
@@ -220,6 +211,14 @@ export default function Setting() {
     }
   };
 
+  useEffect(() => {
+    if (USERINFO) {
+      const { username, email } = USERINFO;
+      setUserData({ username, email });
+      setOriUserData({ username, email });
+    }
+  }, [USERINFO]);
+
   const handleEditPrefernce = async (e) => {
     const { value } = e.target;
     await editPreference({ preference: value });
@@ -245,6 +244,11 @@ export default function Setting() {
               validateTrigger: "onChange",
               message: "Please avoid `#$%&*/?@",
             },
+            {
+              pattern: /^(?!guest_).*/,
+              validateTrigger: "onChange",
+              message: "Please avoid using guest_ as prefix.",
+            },
           ]}
           style={{ margin: 0 }}
         >
@@ -257,12 +261,30 @@ export default function Setting() {
       </Form>
     ),
     Email: (
-      <ThinnerInput
-        onChange={handleUserDataChange}
-        name="email"
-        value={userData.email}
-        disabled={login === "google"}
-      />
+      <Popconfirm
+        title="Verification mail sent"
+        description={
+          <div style={{ width: RWDWidth(350) }}>
+            Please check your mailbox.{" "}
+            <div style={{ fontWeight: 700, margin: "2px 0" }}>
+              {changeEmail}
+            </div>{" "}
+            Email will be updated in the Settings page after you verify your new
+            email.
+          </div>
+        }
+        cancelButtonProps={{ style: { display: "none" } }}
+        okButtonProps={{ style: { display: "none" } }}
+        placement="bottomLeft"
+        open={Boolean(changeEmail)}
+      >
+        <ThinnerInput
+          onChange={handleUserDataChange}
+          name="email"
+          value={userData.email}
+          disabled={login === "google"}
+        />
+      </Popconfirm>
     ),
     Password: (
       <div
@@ -335,7 +357,13 @@ export default function Setting() {
         notification={notification}
         setNotification={setNotification}
       />
-      <Base login={true} title_disable={true}>
+      <Base
+        login={true}
+        title_disable={true}
+        onMouseDown={() => {
+          setChangeEmail("");
+        }}
+      >
         <Base.LeftContainer
           style={{
             display: "flex",
@@ -417,6 +445,7 @@ export default function Setting() {
                     !userData.username ||
                     !userData.email ||
                     !/^[^#$%&*/?@]*$/.test(userData.username) ||
+                    !/^(?!guest_).*/.test(userData.username) ||
                     (changePassword &&
                       (!userData.old_password ||
                         !userData.new_password ||

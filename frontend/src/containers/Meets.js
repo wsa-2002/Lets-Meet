@@ -71,9 +71,9 @@ const MeetContainer = styled.div`
     overflow-x: auto;
   }
 
-  .ant-table-body {
+  /* .ant-table-body {
     overflow: auto auto !important;
-  }
+  } */
 `;
 
 const CONFIRMTAG = ["Confirming", "Confirmed", "Need Confirmation"];
@@ -125,7 +125,6 @@ const Meets = () => {
         setMeetsData(
           data.reduce(
             (acc, curr) => {
-              //console.log();
               const target = {
                 key: curr.meet_id,
                 name: curr.title,
@@ -240,7 +239,7 @@ const Meets = () => {
       dataIndex: "action",
       align: "right",
       fixed: "right",
-      width: 70,
+      width: 80,
       render: () => (
         <RoundButton
           variant="text"
@@ -326,7 +325,7 @@ const Meets = () => {
               dataSource={meetsData[view]}
               columns={columns}
               scroll={{
-                y: 400,
+                // y: 400,
                 x: 1000,
               }}
               onRow={(record) => {
@@ -337,6 +336,7 @@ const Meets = () => {
                   onClick: handleMeetInfoClick(record.code),
                 };
               }}
+              pagination={{ hideOnSinglePage: true }}
             />
           </ConfigProvider>
         </MeetContainer>

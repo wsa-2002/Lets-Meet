@@ -26,7 +26,7 @@ import Modal from "../components/Modal";
 import Radio from "../components/Radio";
 import { useTranslation } from "react-i18next";
 import 'moment/locale/zh-cn';
-
+const RectButton = Button("rect");
 const RoundButton = Button("round");
 const moment = extendMoment(Moment);
 moment.locale('zh-cn');
@@ -61,6 +61,7 @@ const ContentContainer = styled.div`
   position: relative;
   height: ${RWDHeight(840)};
   width: ${RWDWidth(1260)};
+  /* min-width: 600px; */
   left: calc(25vw / 3);
   margin-top: ${RWDHeight(60)};
   display: flex;
@@ -208,8 +209,10 @@ const MenuContainer = Object.assign(
   {
     TimeOperationContainer: styled.div`
       display: flex;
-      column-gap: ${RWDWidth(20)};
+      width: ${RWDWidth(400)};
+      min-width: 350px;
       align-items: center;
+      justify-content: space-between;
       font-size: ${RWDFontSize(24)};
       button {
         font-size: ${RWDFontSize(28)};
@@ -667,71 +670,71 @@ export default () => {
   //   TimeProcessing();
   // }, [key]);
 
-  // useEffect(() => {
-  //   (async () => {
-  //     if (login && timeRange.length) {
-  //       if (initial) {
-  //         setLoading(true);
-  //         setInitial(false);
-  //       }
-  //       try {
-  //         const { data: normalEvent } = await getCalendar({
-  //           start_date: timeRange[0],
-  //           end_date: timeRange[1],
-  //         });
-  //         let temp = normalEvent.map((e, id) => ({
-  //           id,
-  //           title: e.title,
-  //           start: moment(
-  //             `${e.start_date} ` + slotIDProcessing(e.start_time_slot_id),
-  //             "YYYY-MM-DD HH:mm"
-  //           ),
-  //           end: moment(
-  //             `${e.end_date} ` +
-  //               slotIDProcessing(
-  //                 // e.end_time_slot_id + 1
-  //                 48
-  //               ),
-  //             "YYYY-MM-DD HH:mm"
-  //           ),
-  //           category:
-  //             e.start_time_slot_id === 1 && e.end_time_slot_id === 48
-  //               ? "allday"
-  //               : "time",
-  //           isReadOnly: true,
-  //           raw: { ...e, isGoogle: false },
-  //         }));
-  //         if (login === "google") {
-  //           const { data: googleEvent } = await getGoogleCalendar({
-  //             start_date: timeRange[0],
-  //             end_date: timeRange[1],
-  //           });
-  //           temp = [
-  //             ...temp,
-  //             ...googleEvent.map((e, id) => ({
-  //               id: id + temp.length,
-  //               title: e.title,
-  //               start: moment(e.start_date),
-  //               end: moment(e.end_date),
-  //               category: "time",
-  //               isReadOnly: true,
-  //               color: e.color,
-  //               raw: { ...e, isGoogle: true },
-  //             })),
-  //           ];
-  //         }
-  //         setEvents(temp);
-  //         setLoading(false);
-  //       } catch (error) {
-  //         throw error;
-  //       }
-  //     }
-  //     if (!login) {
-  //       navigate("/");
-  //     }
-  //   })();
-  // }, [login, timeRange]);
-  // /******************************************************/
+  useEffect(() => {
+    (async () => {
+      if (login && timeRange.length) {
+        if (initial) {
+          setLoading(true);
+          setInitial(false);
+        }
+        try {
+          const { data: normalEvent } = await getCalendar({
+            start_date: timeRange[0],
+            end_date: timeRange[1],
+          });
+          let temp = normalEvent.map((e, id) => ({
+            id,
+            title: e.title,
+            start: moment(
+              `${e.start_date} ` + slotIDProcessing(e.start_time_slot_id),
+              "YYYY-MM-DD HH:mm"
+            ),
+            end: moment(
+              `${e.end_date} ` +
+                slotIDProcessing(
+                  // e.end_time_slot_id + 1
+                  48
+                ),
+              "YYYY-MM-DD HH:mm"
+            ),
+            category:
+              e.start_time_slot_id === 1 && e.end_time_slot_id === 48
+                ? "allday"
+                : "time",
+            isReadOnly: true,
+            raw: { ...e, isGoogle: false },
+          }));
+          if (login === "google") {
+            const { data: googleEvent } = await getGoogleCalendar({
+              start_date: timeRange[0],
+              end_date: timeRange[1],
+            });
+            temp = [
+              ...temp,
+              ...googleEvent.map((e, id) => ({
+                id: id + temp.length,
+                title: e.title,
+                start: moment(e.start_date),
+                end: moment(e.end_date),
+                category: "time",
+                isReadOnly: true,
+                color: e.color,
+                raw: { ...e, isGoogle: true },
+              })),
+            ];
+          }
+          setEvents(temp);
+          setLoading(false);
+        } catch (error) {
+          throw error;
+        }
+      }
+      if (!login) {
+        navigate("/");
+      }
+    })();
+  }, [login, timeRange]);
+  /******************************************************/
 
   useEffect(() => {
     const url = `${
@@ -778,27 +781,41 @@ export default () => {
       <Base.FullContainer>
         <ContentContainer>
           <MenuContainer>
-            <MenuContainer.TimeOperationContainer>
-              <RoundButton
-                variant="text"
-                buttonTheme="#D8D8D8"
-                icon={<CaretLeftOutlined />}
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <MenuContainer.TimeOperationContainer>
+                <RoundButton
+                  variant="text"
+                  buttonTheme="#D8D8D8"
+                  icon={<CaretLeftOutlined />}
+                  onClick={() => {
+                    calendarInstRef.current?.getInstance().prev();
+                    TimeProcessing();
+                  }}
+                />
+                <div>{month}</div>
+                <RoundButton
+                  variant="text"
+                  buttonTheme="#D8D8D8"
+                  icon={<CaretRightOutlined />}
+                  onClick={() => {
+                    calendarInstRef.current?.getInstance().next();
+                    TimeProcessing();
+                  }}
+                />
+              </MenuContainer.TimeOperationContainer>
+              <RectButton
+                variant="hollow"
+                buttonTheme="#7A3E00"
+                style={{ justifySelf: "flex-start" }}
                 onClick={() => {
-                  calendarInstRef.current?.getInstance().prev();
+                  calendarInstRef.current?.getInstance().today();
                   TimeProcessing();
                 }}
-              />
-              <div>{month}</div>
-              <RoundButton
-                variant="text"
-                buttonTheme="#D8D8D8"
-                icon={<CaretRightOutlined />}
-                onClick={() => {
-                  calendarInstRef.current?.getInstance().next();
-                  TimeProcessing();
-                }}
-              />
-            </MenuContainer.TimeOperationContainer>
+              >
+                Today
+              </RectButton>
+            </div>
+
             <Radio
               radioTheme="#DB8600"
               value={mode}
