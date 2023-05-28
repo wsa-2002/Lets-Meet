@@ -15,7 +15,6 @@ import Modal from "../components/Modal";
 import Vote from "../components/Vote";
 import TimeCell from "../components/TimeCell";
 import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
-import Moment, { moment } from "../util/moment";
 const { ContentContainer } = Base.FullContainer;
 const BackButton = Button("back");
 const PillButton = Button("pill");
@@ -64,7 +63,6 @@ const Voting = () => {
   const {
     login,
     loading,
-    lang,
     setLoading,
     MIDDLEWARE: {
       getGroupAvailability,
@@ -74,6 +72,7 @@ const Voting = () => {
       getMeetInfo,
       getRoutine,
     },
+    moment: { Moment, moment },
   } = useMeet();
 
   const location = useLocation();
@@ -127,7 +126,7 @@ const Voting = () => {
               ? true
               : ROUTINE.find(
                   (r) =>
-                    r.weekday === Moment(w, "ddd", lang).toUpperCase() &&
+                    r.weekday === Moment(w).format("ddd").toUpperCase() &&
                     r.time_slot_id === t
                 )
               ? null
@@ -278,7 +277,7 @@ const Voting = () => {
                 ? true
                 : ROUTINE.find(
                     (r) =>
-                      r.weekday === Moment(w, "ddd", lang).toUpperCase() &&
+                      r.weekday === Moment(w).format("ddd").toUpperCase() &&
                       r.time_slot_id === t
                   )
                 ? null

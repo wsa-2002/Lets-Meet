@@ -9,7 +9,7 @@ import Member from "./Member";
 import Input from "../Input";
 import Switch from "../Switch";
 import { RWD } from "../../constant";
-import { moment } from "../../util/moment";
+import { useMeet } from "../../containers/hooks/useMeet";
 import slotIDProcessing from "../../util/slotIDProcessing";
 const ThinnerInput = Input("thinner");
 const TextArea = Input.TextArea;
@@ -65,7 +65,9 @@ const MeetInfo = ({
   ...prop
 }) => {
   const { t } = useTranslation();
-
+  const {
+    moment: { moment },
+  } = useMeet();
   const [votingddl, setVotingddl] = useState(
     rawMeetInfo?.voting_end_time ? true : false
   );

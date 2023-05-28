@@ -12,7 +12,6 @@ import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import Tag from "../components/Tag";
 import { RWD } from "../constant";
-import { moment } from "../util/moment";
 import slotIDProcessing from "../util/slotIDProcessing";
 
 const { RWDHeight, RWDWidth } = RWD;
@@ -85,6 +84,7 @@ const Meets = () => {
     login,
     setLoading,
     MIDDLEWARE: { browseMeet },
+    moment: { moment },
   } = useMeet();
   const [meetsData, setMeetsData] = useState({});
   const [view, setView] = useState("Voting");
