@@ -14,7 +14,6 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Vote from "../components/Vote";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
-import Moment, { moment } from "../util/moment";
 import Error from "./Error";
 const { ContentContainer } = Base.FullContainer;
 const BackButton = Button("back");
@@ -64,6 +63,7 @@ const Voting = () => {
     setLoading,
     lang,
     MIDDLEWARE: { getGroupAvailability, confirmMeet, getMeetInfo },
+    moment: { Moment, moment },
   } = useMeet();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -157,11 +157,8 @@ const Voting = () => {
       }
       //console.log(updatedCell);
       setTime(
-        `${Moment(
-          DATERANGE[updatedCell?.[0]?.[0]],
-          "MMM D",
-          lang,
-          "YYYY-MM-DD"
+        `${Moment(DATERANGE[updatedCell?.[0]?.[0]], "YYYY-MM-DD").format(
+          "MMM D"
         )} ${slotIDProcessing(
           TIMESLOTIDS[updatedCell?.[0]?.[1]]
         )} ~ ${slotIDProcessing(

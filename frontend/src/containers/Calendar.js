@@ -19,7 +19,6 @@ import Base from "../components/Base/145MeetRelated";
 import Link from "../components/Link";
 import Tag from "../components/Tag";
 import { RWD, ANIME } from "../constant";
-import Moment, { moment } from "../util/moment";
 import slotIDProcessing from "../util/slotIDProcessing";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
@@ -226,7 +225,14 @@ const MenuContainer = Object.assign(
 
 export default () => {
   const navigate = useNavigate();
-  const { login, loading, lang, setLoading, MIDDLEWARE } = useMeet();
+  const {
+    login,
+    loading,
+    lang,
+    setLoading,
+    MIDDLEWARE,
+    moment: { Moment, moment },
+  } = useMeet();
   const { getCalendar, googleLogin, getGoogleCalendar, getMeetInfo } =
     MIDDLEWARE;
 
@@ -235,7 +241,7 @@ export default () => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [events, setEvents] = useState([]);
   const [mode, setMode] = useState("week"); //month or week
-  const [month, setMonth] = useState(Moment(undefined, "YYYY MMMM", lang)); //標題月份
+  const [month, setMonth] = useState(Moment().format("YYYY MMMM")); //標題月份
   const [timeRange, setTimeRange] = useState([]); //整個日曆的範圍
   const [baseTime, setBaseTime] = useState("");
   const [key, setKey] = useState(0);
@@ -319,21 +325,19 @@ export default () => {
                 moment(end_date, "YYYY-MM-DD")
               )
               .by("day"),
-          ][10],
-          "YYYY MMMM",
-          lang
-        )
+          ][10]
+        ).format("YYYY MMMM")
       );
     } else {
       if (
         moment(start_date, "YYYY-MM-DD").format("MMMM") ===
         moment(end_date, "YYYY-MM-DD").format("MMMM")
       ) {
-        setMonth(`${Moment(start_date, "YYYY MMMM", lang, "YYYY-MM-DD")}`);
+        setMonth(`${Moment(start_date, "YYYY-MM-DD").format("YYYY MMMM")}`);
       } else {
         setMonth(
-          `${Moment(start_date, "YYYY MMMM", lang, "YYYY-MM-DD")} / 
-          ${Moment(end_date, "MMMM", lang, "YYYY-MM-DD")}`
+          `${Moment(start_date, "YYYY-MM-DD").format("YYYY MMMM")} / 
+          ${Moment(end_date, "YYYY-MM-DD").format("MMMM")}`
         );
       }
     }
@@ -490,7 +494,7 @@ export default () => {
         },
         monthMoreTitleDate: () => <div></div>,
         monthMoreClose: () => <div>&times;</div>,
-        monthDayName: (model) => (
+        monthDayName: ({ day }) => (
           <div
             style={{
               display: "flex",
@@ -499,7 +503,15 @@ export default () => {
               color: "#575757",
             }}
           >
-            {Moment(model.label, "ddd", lang, "ddd")}
+            {Moment(
+              [
+                ...moment
+                  .range(moment().startOf("week"), moment().endOf("week"))
+                  .by("day"),
+              ][day]
+            ).format("ddd")}
+            {/* {Moment(model.label, "ddd").format("ddd")} */}
+            {/* {model.label} */}
           </div>
         ),
         monthGridHeader(model) {
@@ -519,7 +531,7 @@ export default () => {
                 fontWeight: model.isToday ? 800 : "normal",
               }}
             >
-              {Moment(model.date, format, lang)}
+              {Moment(model.date).format(format)}
             </div>
           );
         },
@@ -536,11 +548,9 @@ export default () => {
               height: "100%",
             }}
           >
-            {`${Moment(new Date(model.dateInstance), "ddd", lang)}\n${Moment(
-              new Date(model.dateInstance),
-              "D",
-              lang
-            )}`}
+            {`${Moment(new Date(model.dateInstance)).format("ddd")}\n${Moment(
+              new Date(model.dateInstance)
+            ).format("D")}`}
           </div>
         ),
         // timegridDisplayPrimaryTime: () => {

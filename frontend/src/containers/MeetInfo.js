@@ -8,7 +8,7 @@ import _ from "lodash";
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ScrollSync } from "react-scroll-sync";
 import Error from "./Error";
 import { useMeet } from "./hooks/useMeet";
@@ -21,7 +21,6 @@ import Tag from "../components/Tag";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
 import Vote from "../components/Vote";
 import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
-import Moment, { moment } from "../util/moment";
 const BackButton = Button("back");
 const RectButton = Button("rect");
 const RoundButton = Button("round");
@@ -43,15 +42,14 @@ const {
 } = Base.FullContainer;
 
 const MeetInfo = () => {
-  const location = useLocation();
   const {
     login,
     setLoading,
-    lang,
     USERINFO: { ID },
     error,
     setError,
     MIDDLEWARE,
+    moment: { Moment, moment },
   } = useMeet();
 
   /*AXIOS 串接 API tool*/
@@ -463,12 +461,9 @@ const MeetInfo = () => {
         return;
       }
       setTime(
-        `${Moment(
-          DATERANGE[updatedCell?.[0]?.[0]],
-          "MMM D",
-          lang,
-          "YYYY-MM-DD"
-        ).format("MMM D")} ${slotIDProcessing(
+        `${Moment(DATERANGE[updatedCell?.[0]?.[0]], "YYYY-MM-DD").format(
+          "MMM D"
+        )} ${slotIDProcessing(
           TIMESLOTIDS[updatedCell?.[0]?.[1]]
         )} ~ ${slotIDProcessing(
           TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1] + 1]
