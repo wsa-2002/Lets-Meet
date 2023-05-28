@@ -114,7 +114,8 @@ export default function Setting() {
   const [changePassword, setChangePassword] = useState(false);
   const [preference, setPreference] = useState(notification_preference);
   const [notification, setNotification] = useState({});
-  const [changeEmail, setChangeEmail] = useState("");
+  const [changeEmailReminder, setChangeEmailReminder] = useState("");
+  const [lineCodeReminder, setLineCodeReminder] = useState(false);
   const { t } = useTranslation();
 
   /*調整 Setting 文字 套組*/
@@ -139,10 +140,7 @@ export default function Setting() {
 
   useEffect(() => {
     if (state?.line) {
-      setNotification({
-        title: t("connectLine"),
-        message: t("scanQRcode"),
-      });
+      setLineCodeReminder(true);
     }
   }, [state?.line]);
 
@@ -184,7 +182,8 @@ export default function Setting() {
         message: "",
       });
       setUSERINFO((prev) => ({ ...prev, ...data }));
-      if (userData.email !== oriUserData.email) setChangeEmail(userData.email);
+      if (userData.email !== oriUserData.email)
+        setChangeEmailReminder(userData.email);
     }
     setChangePassword(false);
     switch (error) {
@@ -213,9 +212,10 @@ export default function Setting() {
 
   useEffect(() => {
     if (USERINFO) {
-      const { username, email } = USERINFO;
+      const { username, email, notification_preference } = USERINFO;
       setUserData({ username, email });
       setOriUserData({ username, email });
+      setPreference(notification_preference);
     }
   }, [USERINFO]);
 
@@ -261,10 +261,10 @@ export default function Setting() {
         title="Verification mail sent"
         description={
           <div style={{ width: RWDWidth(350) }}>
-            Please check your mailbox.{" "}
+            Please check your mailbox.
             <div style={{ fontWeight: 700, margin: "2px 0" }}>
-              {changeEmail}
-            </div>{" "}
+              {changeEmailReminder}
+            </div>
             Email will be updated in the Settings page after you verify your new
             email.
           </div>
@@ -272,7 +272,7 @@ export default function Setting() {
         cancelButtonProps={{ style: { display: "none" } }}
         okButtonProps={{ style: { display: "none" } }}
         placement="bottomLeft"
-        open={Boolean(changeEmail)}
+        open={Boolean(changeEmailReminder)}
       >
         <ThinnerInput
           onChange={handleUserDataChange}
@@ -357,7 +357,8 @@ export default function Setting() {
         login={true}
         title_disable={true}
         onMouseDown={() => {
-          setChangeEmail("");
+          setChangeEmailReminder("");
+          setLineCodeReminder(false);
         }}
       >
         <Base.LeftContainer
@@ -504,7 +505,22 @@ export default function Setting() {
                   { value: "EMAIL", label: t("email") },
                   {
                     value: "LINE",
-                    label: t("lineMessage"),
+                    label: (
+                      <Popconfirm
+                        title={t("connectLine")}
+                        description={
+                          <div style={{ width: RWDWidth(350) }}>
+                            {t("scanQRcode")}
+                          </div>
+                        }
+                        cancelButtonProps={{ style: { display: "none" } }}
+                        okButtonProps={{ style: { display: "none" } }}
+                        placement="bottomLeft"
+                        open={Boolean(lineCodeReminder)}
+                      >
+                        {t("lineMessage")}
+                      </Popconfirm>
+                    ),
                     props: { disabled: !line_token },
                   },
                 ]}
