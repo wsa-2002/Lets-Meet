@@ -310,3 +310,12 @@ async def edit(account_id: int, username: Optional[str] = None, pass_hash: Optio
         account_id=account_id, **update_params,
     )
     await pool_handler.pool.execute(sql, *params)
+
+async def max_account() -> int:
+    sql = '''
+    select id from account
+    order by id desc
+    limit 1
+    '''
+    id_, = await pool_handler.pool.fetchrow(sql)
+    return id_
