@@ -25,7 +25,7 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Radio from "../components/Radio";
 import { useTranslation } from "react-i18next";
-import 'moment/locale/zh-cn';
+// import 'moment/locale/zh-cn';
 const RectButton = Button("rect");
 const RoundButton = Button("round");
 const moment = extendMoment(Moment);
