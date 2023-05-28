@@ -1,9 +1,10 @@
 import _ from "lodash";
-import moment from "moment";
 import { useRef, useEffect, useState } from "react";
 import { ScrollSyncPane } from "react-scroll-sync";
 import styled from "styled-components";
 import { RWD } from "../../constant";
+import { useMeet } from "../../containers/hooks/useMeet";
+import Moment from "../../util/moment";
 import slotIDProcessing from "../../util/slotIDProcessing";
 const { RWDFontSize, RWDHeight, RWDWidth } = RWD;
 
@@ -99,6 +100,7 @@ const VotingContainer = Object.assign(
 const { DayContainer } = VotingContainer;
 
 export default ({ DATERANGE, TIMESLOTIDS, Cells }) => {
+  const { lang } = useMeet();
   /*first "time" padding top*/
   const WeekDayRef = useRef(); //偵測星期三的高度與寬度
   const [paddingTop, setPaddingTop] = useState(17);
@@ -140,7 +142,7 @@ export default ({ DATERANGE, TIMESLOTIDS, Cells }) => {
                 }}
                 ref={WeekDayRef}
               >
-                {moment(w).format("MMM DD")}
+                {Moment(w, "MMM D", lang)}
               </div>
               <div
                 style={{
@@ -148,7 +150,7 @@ export default ({ DATERANGE, TIMESLOTIDS, Cells }) => {
                   fontWeight: "bold",
                 }}
               >
-                {moment(w).format("ddd")}
+                {Moment(w, "ddd", lang)}
               </div>
             </DayContainer.CellContainer>
           ))}

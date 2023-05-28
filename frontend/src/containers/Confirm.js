@@ -3,8 +3,6 @@
 **************************************************************************************************/
 import { motion } from "framer-motion";
 import _ from "lodash";
-import Moment from "moment";
-import { extendMoment } from "moment-range";
 import { useState, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
@@ -16,10 +14,10 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Vote from "../components/Vote";
 import TimeCell, { slotIDProcessing } from "../components/TimeCell";
+import Moment, { moment } from "../util/moment";
 import Error from "./Error";
 const { ContentContainer } = Base.FullContainer;
 const BackButton = Button("back");
-const moment = extendMoment(Moment);
 const ConfirmModal = Modal("confirm");
 const InfoTooltip = Modal("info");
 const { RWDWidth } = RWD;
@@ -61,9 +59,12 @@ const Voting = () => {
 
   const { code } = useParams();
 
-  const { login, setLoading, MIDDLEWARE } = useMeet();
-  const { getGroupAvailability, confirmMeet, getMeetInfo } = MIDDLEWARE;
-
+  const {
+    login,
+    setLoading,
+    lang,
+    MIDDLEWARE: { getGroupAvailability, confirmMeet, getMeetInfo },
+  } = useMeet();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -156,8 +157,11 @@ const Voting = () => {
       }
       //console.log(updatedCell);
       setTime(
-        `${moment(DATERANGE[updatedCell?.[0]?.[0]], "YYYY-MM-DD").format(
-          "MMM D"
+        `${Moment(
+          DATERANGE[updatedCell?.[0]?.[0]],
+          "MMM D",
+          lang,
+          "YYYY-MM-DD"
         )} ${slotIDProcessing(
           TIMESLOTIDS[updatedCell?.[0]?.[1]]
         )} ~ ${slotIDProcessing(

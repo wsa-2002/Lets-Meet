@@ -9,9 +9,6 @@ import "@toast-ui/calendar/dist/toastui-calendar.min.css";
 import Calendar from "@toast-ui/react-calendar";
 import { Tooltip } from "antd";
 import _ from "lodash";
-import Moment from "moment";
-import "moment/locale/zh-cn";
-import { extendMoment } from "moment-range";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useTranslation } from "react-i18next";
@@ -22,17 +19,16 @@ import Base from "../components/Base/145MeetRelated";
 import Link from "../components/Link";
 import Tag from "../components/Tag";
 import { RWD, ANIME } from "../constant";
+import Moment, { moment } from "../util/moment";
 import slotIDProcessing from "../util/slotIDProcessing";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Radio from "../components/Radio";
 const RectButton = Button("rect");
 const RoundButton = Button("round");
-const moment = extendMoment(Moment);
 const CalendarModal = Modal("calendar");
 const { RWDHeight, RWDWidth, RWDFontSize, RWDRadius } = RWD;
 const MemberTag = Tag("member");
-moment.locale("zh-cn");
 
 function hexToRgbA(hex) {
   var c;
@@ -164,6 +160,13 @@ const CalendarContainer = styled.div`
     .toastui-calendar-panel-resizer {
       display: none;
     }
+    .toastui-calendar-day-name-item.toastui-calendar-week {
+      line-height: normal !important;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
     .toastui-calendar-events {
       margin-left: 8px;
       .toastui-calendar-event-time {
@@ -223,7 +226,7 @@ const MenuContainer = Object.assign(
 
 export default () => {
   const navigate = useNavigate();
-  const { login, loading, setLoading, MIDDLEWARE } = useMeet();
+  const { login, loading, lang, setLoading, MIDDLEWARE } = useMeet();
   const { getCalendar, googleLogin, getGoogleCalendar, getMeetInfo } =
     MIDDLEWARE;
 
@@ -232,7 +235,7 @@ export default () => {
   const [detailOpen, setDetailOpen] = useState(false);
   const [events, setEvents] = useState([]);
   const [mode, setMode] = useState("week"); //month or week
-  const [month, setMonth] = useState(moment().format("YYYY MMMM")); //標題月份
+  const [month, setMonth] = useState(Moment(undefined, "YYYY MMMM", lang)); //標題月份
   const [timeRange, setTimeRange] = useState([]); //整個日曆的範圍
   const [baseTime, setBaseTime] = useState("");
   const [key, setKey] = useState(0);
@@ -294,7 +297,6 @@ export default () => {
     };
   }, [seeMoreMode]); // 取消 see more mode
   /******************************************************/
-
   const TimeProcessing = () => {
     setBaseTime(
       moment(calendarInstRef.current.getInstance().getDate().d.d).format(
@@ -309,27 +311,29 @@ export default () => {
     ).format("YYYY-MM-DD");
     if (mode === "month") {
       setMonth(
-        [
-          ...moment
-            .range(
-              moment(start_date, "YYYY-MM-DD"),
-              moment(end_date, "YYYY-MM-DD")
-            )
-            .by("day"),
-        ][10].format("YYYY MMMM")
+        Moment(
+          [
+            ...moment
+              .range(
+                moment(start_date, "YYYY-MM-DD"),
+                moment(end_date, "YYYY-MM-DD")
+              )
+              .by("day"),
+          ][10],
+          "YYYY MMMM",
+          lang
+        )
       );
     } else {
       if (
         moment(start_date, "YYYY-MM-DD").format("MMMM") ===
         moment(end_date, "YYYY-MM-DD").format("MMMM")
       ) {
-        setMonth(`${moment(start_date, "YYYY-MM-DD").format("YYYY MMMM")}`);
+        setMonth(`${Moment(start_date, "YYYY MMMM", lang, "YYYY-MM-DD")}`);
       } else {
         setMonth(
-          `${moment(start_date, "YYYY-MM-DD").format("YYYY MMMM")} / ${moment(
-            end_date,
-            "YYYY-MM-DD"
-          ).format("MMMM")}`
+          `${Moment(start_date, "YYYY MMMM", lang, "YYYY-MM-DD")} / 
+          ${Moment(end_date, "MMMM", lang, "YYYY-MM-DD")}`
         );
       }
     }
@@ -405,12 +409,7 @@ export default () => {
           </div>
         );
       } else {
-        return (
-          <div style={{ ...style, borderRadius: 0 }}>
-            {event.title}
-            {/* {`${event.title} ${moment(event.start).format("HH:mm")}`} */}
-          </div>
-        );
+        return <div style={{ ...style, borderRadius: 0 }}>{event.title}</div>;
       }
     }
   };
@@ -500,7 +499,7 @@ export default () => {
               color: "#575757",
             }}
           >
-            {model.label}
+            {Moment(model.label, "ddd", lang, "ddd")}
           </div>
         ),
         monthGridHeader(model) {
@@ -520,7 +519,7 @@ export default () => {
                 fontWeight: model.isToday ? 800 : "normal",
               }}
             >
-              {moment(model.date).format(format)}
+              {Moment(model.date, format, lang)}
             </div>
           );
         },
@@ -533,9 +532,15 @@ export default () => {
               alignItems: "center",
               justifyContent: "center",
               color: "#575757",
+              whiteSpace: "pre-wrap",
+              height: "100%",
             }}
           >
-            {model.dayName + " " + model.date}
+            {`${Moment(new Date(model.dateInstance), "ddd", lang)}\n${Moment(
+              new Date(model.dateInstance),
+              "D",
+              lang
+            )}`}
           </div>
         ),
         // timegridDisplayPrimaryTime: () => {
@@ -543,7 +548,7 @@ export default () => {
         // },
       },
     }),
-    [mode, events]
+    [mode, events, lang]
   );
 
   /*meet info 套組*/
@@ -660,7 +665,7 @@ export default () => {
   /*get calendar events 套組*/ //每更新一次 date range 會敲一次
   useEffect(() => {
     setKey((prev) => prev + 1);
-  }, [mode]);
+  }, [mode, lang]);
 
   useEffect(() => {
     if (baseTime) {
@@ -668,6 +673,10 @@ export default () => {
     }
     TimeProcessing();
   }, [key]);
+
+  // useEffect(() => {
+  //   TimeProcessing();
+  // }, [lang]);
 
   useEffect(() => {
     (async () => {
