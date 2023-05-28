@@ -311,11 +311,11 @@ async def edit(account_id: int, username: Optional[str] = None, pass_hash: Optio
     )
     await pool_handler.pool.execute(sql, *params)
 
-async def max_account() -> int:
+async def get_max_account_id() -> int:
     sql = '''
-    select id from account
-    order by id desc
-    limit 1
+    SELECT id FROM account
+    ORDER BY id DESC
+    LIMIT 1
     '''
     id_, = await pool_handler.pool.fetchrow(sql)
     return id_

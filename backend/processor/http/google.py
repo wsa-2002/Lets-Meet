@@ -59,7 +59,7 @@ async def auth(request: Request):
             account_id = await db.account.add(username=str(uuid4()), email=user_email, is_google_login=True,
                                               access_token=token_google['access_token'],
                                               refresh_token=token_google['refresh_token'])
-            max_account_id = await db.account.max_account()
+            max_account_id = await db.account.get_max_account_id()
             await db.account.update_username(account_id=account_id, username='user_'+str(max_account_id+1))
         token = encode_jwt(account_id=account_id, is_google_login=True)
         response = RedirectResponse(url=f"{service_config.url}/login")
