@@ -91,6 +91,7 @@ export default function Routine() {
     login,
     setLoading,
     MIDDLEWARE: { getRoutine, addRoutine, deleteRoutine },
+    moment: { Moment, moment },
   } = useMeet();
   const navigate = useNavigate();
 
@@ -262,9 +263,13 @@ export default function Routine() {
         {cell.length > 0 && (
           <InfoContainer>
             <InfoContainer.WeekContainer ref={WeekdayRef}>
-              {WEEKDAYS.map((w, w_index) => (
+              {[
+                ...moment
+                  .range(moment().startOf("week"), moment().endOf("week"))
+                  .by("day"),
+              ].map((w, w_index) => (
                 <InfoContainer.WeekContainer.WeekDayContainer key={w_index}>
-                  {w}
+                  {Moment(w).format("ddd")}
                 </InfoContainer.WeekContainer.WeekDayContainer>
               ))}
             </InfoContainer.WeekContainer>
