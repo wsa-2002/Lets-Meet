@@ -690,11 +690,7 @@ export default () => {
               "YYYY-MM-DD HH:mm"
             ),
             end: moment(
-              `${e.end_date} ` +
-                slotIDProcessing(
-                  // e.end_time_slot_id + 1
-                  48
-                ),
+              `${e.end_date} ` + slotIDProcessing(e.end_time_slot_id + 1),
               "YYYY-MM-DD HH:mm"
             ),
             category:

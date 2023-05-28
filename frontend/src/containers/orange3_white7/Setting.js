@@ -252,11 +252,7 @@ export default function Setting() {
           ]}
           style={{ margin: 0 }}
         >
-          <ThinnerInput
-            onChange={handleUserDataChange}
-            name="username"
-            disabled={login === "google"}
-          />
+          <ThinnerInput onChange={handleUserDataChange} name="username" />
         </Form.Item>
       </Form>
     ),
@@ -433,43 +429,40 @@ export default function Setting() {
                   </Fragment>
                 ))}
             </InfoContainer.AccountSetting>
-            {login !== "google" && (
-              <InfoContainer.ButtonContainer
-                style={{ marginTop: RWDHeight(50) }}
+            <InfoContainer.ButtonContainer style={{ marginTop: RWDHeight(50) }}>
+              <RectButton
+                variant="solid"
+                buttonTheme="#5A8EA4"
+                disabled={
+                  _.isEqual(oriUserData, userData) ||
+                  !userData.username ||
+                  !userData.email ||
+                  !/^[^#$%&*/?@]*$/.test(userData.username) ||
+                  !/^(?!guest_).*/.test(userData.username) ||
+                  (changePassword &&
+                    (!userData.old_password ||
+                      !userData.new_password ||
+                      !userData["Confirm New Password"] ||
+                      userData.new_password !==
+                        userData["Confirm New Password"]))
+                }
+                onClick={handleAccountUpdate}
               >
-                <RectButton
-                  variant="solid"
-                  buttonTheme="#5A8EA4"
-                  disabled={
-                    _.isEqual(oriUserData, userData) ||
-                    !userData.username ||
-                    !userData.email ||
-                    !/^[^#$%&*/?@]*$/.test(userData.username) ||
-                    !/^(?!guest_).*/.test(userData.username) ||
-                    (changePassword &&
-                      (!userData.old_password ||
-                        !userData.new_password ||
-                        !userData["Confirm New Password"] ||
-                        userData.new_password !==
-                          userData["Confirm New Password"]))
-                  }
-                  onClick={handleAccountUpdate}
-                >
-                  {t('update')}
-                </RectButton>
-                <RectButton
-                  variant="hollow"
-                  buttonTheme="#D8D8D8"
-                  onClick={() => {
-                    setUserData(JSON.parse(JSON.stringify(oriUserData)));
-                    setChangePassword(false);
-                  }}
-                >
-                  {t('reset')}
-                </RectButton>
-              </InfoContainer.ButtonContainer>
-            )}
-            <InfoContainer.Title>{t('thirdParty')}</InfoContainer.Title>
+                {t('update')}
+              </RectButton>
+              <RectButton
+                variant="hollow"
+                buttonTheme="#D8D8D8"
+                onClick={() => {
+                  setUserData(JSON.parse(JSON.stringify(oriUserData)));
+                  setChangePassword(false);
+                }}
+              >
+                {t('reset')}
+              </RectButton>
+            </InfoContainer.ButtonContainer>
+
+            <InfoContainer.Title>Third-Party Applications</InfoContainer.Title>
             <div
               style={{
                 display: "flex",
