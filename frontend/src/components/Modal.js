@@ -212,7 +212,6 @@ export default (type) => {
               rowGap={20}
               ElementMeetInfo={elementMeetInfo}
               reviseMode={false}
-              style={{ width: "600px" }}
             />
             <ContentContainer.Footer style={{ marginTop: RWDHeight(30) }}>
               <RectButton buttonTheme="#DB8600" variant="solid" onClick={onOk}>

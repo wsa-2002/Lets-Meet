@@ -1,7 +1,8 @@
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
-import { Form, Popconfirm, message } from "antd";
+import { Form, Popconfirm } from "antd";
 import _ from "lodash";
 import React, { Fragment, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useMeet } from "../hooks/useMeet";
@@ -113,7 +114,9 @@ export default function Setting() {
   const [changePassword, setChangePassword] = useState(false);
   const [preference, setPreference] = useState(notification_preference);
   const [notification, setNotification] = useState({});
-  const [changeEmail, setChangeEmail] = useState("");
+  const [changeEmailReminder, setChangeEmailReminder] = useState("");
+  const [lineCodeReminder, setLineCodeReminder] = useState(false);
+  const { t } = useTranslation();
 
   /*調整 Setting 文字 套組*/
   const RoutineRef = useRef(null);
@@ -137,10 +140,7 @@ export default function Setting() {
 
   useEffect(() => {
     if (state?.line) {
-      setNotification({
-        title: "Connect to Line",
-        message: "請掃描 QRcode 以接收訊息",
-      });
+      setLineCodeReminder(true);
     }
   }, [state?.line]);
 
@@ -182,26 +182,27 @@ export default function Setting() {
         message: "",
       });
       setUSERINFO((prev) => ({ ...prev, ...data }));
-      if (userData.email !== oriUserData.email) setChangeEmail(userData.email);
+      if (userData.email !== oriUserData.email)
+        setChangeEmailReminder(userData.email);
     }
     setChangePassword(false);
     switch (error) {
       case "EmailExist":
         setNotification({
-          title: "Update failed",
-          message: "Email has already been registered.",
+          title: t("updateFailed"),
+          message: t("emailExist"),
         });
         break;
       case "UsernameExists":
         setNotification({
-          title: "Update failed",
-          message: "Username has already been registered.",
+          title: t("updateFailed"),
+          message: t("usernameExists"),
         });
         break;
       case "NoPermission":
         setNotification({
-          title: "Update failed",
-          message: "Wrong password.",
+          title: t("changePwdFailed"),
+          message: t("wrongPwd"),
         });
         break;
       default:
@@ -211,9 +212,10 @@ export default function Setting() {
 
   useEffect(() => {
     if (USERINFO) {
-      const { username, email } = USERINFO;
+      const { username, email, notification_preference } = USERINFO;
       setUserData({ username, email });
       setOriUserData({ username, email });
+      setPreference(notification_preference);
     }
   }, [USERINFO]);
 
@@ -259,10 +261,10 @@ export default function Setting() {
         title="Verification mail sent"
         description={
           <div style={{ width: RWDWidth(350) }}>
-            Please check your mailbox.{" "}
+            Please check your mailbox.
             <div style={{ fontWeight: 700, margin: "2px 0" }}>
-              {changeEmail}
-            </div>{" "}
+              {changeEmailReminder}
+            </div>
             Email will be updated in the Settings page after you verify your new
             email.
           </div>
@@ -270,7 +272,7 @@ export default function Setting() {
         cancelButtonProps={{ style: { display: "none" } }}
         okButtonProps={{ style: { display: "none" } }}
         placement="bottomLeft"
-        open={Boolean(changeEmail)}
+        open={Boolean(changeEmailReminder)}
       >
         <ThinnerInput
           onChange={handleUserDataChange}
@@ -296,7 +298,7 @@ export default function Setting() {
           }}
           disabled={login === "google"}
         >
-          Change Password
+          {t("changePwd")}
         </RectButton>
         {changePassword && (
           <div style={{ display: "relative", overflow: "hidden" }}>
@@ -311,12 +313,12 @@ export default function Setting() {
               <ThinnerPassword
                 onChange={handleUserDataChange}
                 name="old_password"
-                placeholder="Old Password"
+                placeholder={t("oldPwd")}
               />
               <ThinnerPassword
                 onChange={handleUserDataChange}
                 name="new_password"
-                placeholder="New Password"
+                placeholder={t("newPwd")}
               />
               <div
                 style={{
@@ -328,7 +330,7 @@ export default function Setting() {
                 <ThinnerPassword
                   onChange={handleUserDataChange}
                   name="Confirm New Password"
-                  placeholder="Confirm New Password"
+                  placeholder={t("confirmNewPwd")}
                 />
                 {userData["Confirm New Password"] &&
                   (userData.new_password ===
@@ -355,7 +357,8 @@ export default function Setting() {
         login={true}
         title_disable={true}
         onMouseDown={() => {
-          setChangeEmail("");
+          setChangeEmailReminder("");
+          setLineCodeReminder(false);
         }}
       >
         <Base.LeftContainer
@@ -377,19 +380,19 @@ export default function Setting() {
             }}
             ref={RoutineRef}
           >
-            Settings
+            {t("settings")}
           </p>
           <InstructionContainer
             style={{ position: "absolute", top, marginTop: RWDHeight(80) }}
           >
             <InstructionContainer.Item>
-              Set your account information
+              {t("setInfo")}
             </InstructionContainer.Item>
             <InstructionContainer.Item>
-              Connect to third-party applications
+              {t("connect3")}
             </InstructionContainer.Item>
             <InstructionContainer.Item>
-              Change your notification preferences
+              {t("changePreferences")}
             </InstructionContainer.Item>
           </InstructionContainer>
         </Base.LeftContainer>
@@ -401,7 +404,7 @@ export default function Setting() {
           }}
         >
           <InfoContainer>
-            <InfoContainer.Title>Account Settings</InfoContainer.Title>
+            <InfoContainer.Title>{t("accountSet")}</InfoContainer.Title>
             <InfoContainer.AccountSetting>
               {userData.username !== undefined &&
                 Object.keys(CONTENTMENU).map((title, index) => (
@@ -446,7 +449,7 @@ export default function Setting() {
                 }
                 onClick={handleAccountUpdate}
               >
-                Update
+                {t("update")}
               </RectButton>
               <RectButton
                 variant="hollow"
@@ -456,11 +459,11 @@ export default function Setting() {
                   setChangePassword(false);
                 }}
               >
-                Reset
+                {t("reset")}
               </RectButton>
             </InfoContainer.ButtonContainer>
 
-            <InfoContainer.Title>Third-Party Applications</InfoContainer.Title>
+            <InfoContainer.Title>{t("thirdParty")}</InfoContainer.Title>
             <div
               style={{
                 display: "flex",
@@ -472,7 +475,7 @@ export default function Setting() {
               <GoogleButton
                 style={{ minWidth: "fit-content", width: RWDWidth(350) }}
               >
-                Connect with Google
+                {t("connectGoogle")}
               </GoogleButton>
               <LineButton
                 style={{ minWidth: "fit-content", width: RWDWidth(350) }}
@@ -480,10 +483,12 @@ export default function Setting() {
                   lineConnect();
                 }}
               >
-                Connect with LINE
+                {t("connectLine")}
               </LineButton>
             </div>
-            <InfoContainer.Title>Notification Preferences</InfoContainer.Title>
+            <InfoContainer.Title>
+              {t("notificationPreferences")}
+            </InfoContainer.Title>
             <div
               style={{
                 marginTop: RWDHeight(20),
@@ -492,18 +497,30 @@ export default function Setting() {
                 rowGap: RWDHeight(15),
               }}
             >
-              <div>
-                If you have connected with a LINE account, you can choose either
-                LINE messages or Email as your notification preferences.
-              </div>
+              <div>{t("connectLineEmail")}</div>
               <Radio
                 radioTheme="#DB8600"
                 value={preference}
                 elements={[
-                  { value: "EMAIL", label: "Email" },
+                  { value: "EMAIL", label: t("email") },
                   {
                     value: "LINE",
-                    label: "LINE messages",
+                    label: (
+                      <Popconfirm
+                        title={t("connectLine")}
+                        description={
+                          <div style={{ width: RWDWidth(350) }}>
+                            {t("scanQRcode")}
+                          </div>
+                        }
+                        cancelButtonProps={{ style: { display: "none" } }}
+                        okButtonProps={{ style: { display: "none" } }}
+                        placement="bottomLeft"
+                        open={Boolean(lineCodeReminder)}
+                      >
+                        {t("lineMessage")}
+                      </Popconfirm>
+                    ),
                     props: { disabled: !line_token },
                   },
                 ]}

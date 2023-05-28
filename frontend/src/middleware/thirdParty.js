@@ -18,8 +18,8 @@ export default (baseURL, token) => ({
       let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=0,height=0,left=-1000,top=-1000`;
       window.open(
         `${baseURL}/account/line?state=${state}&code=${code}`,
-        "test",
-        params
+        "_blank"
+        // params
       );
     } catch (error) {
       throw error;
