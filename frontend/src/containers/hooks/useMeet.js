@@ -7,6 +7,7 @@ const MeetContext = createContext({
   login: false,
   error: "",
   loading: false,
+  lang: "en",
   USERINFO: {},
   MIDDLEWARE: {},
 });
@@ -17,6 +18,7 @@ const MeetProvider = (props) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [USERINFO, setUSERINFO] = useState({});
+  const [lang, setLang] = useState("en");
   const MIDDLEWARE = useMemo(() => AXIOS(cookies.token), [cookies]);
   const { getUserInfo } = MIDDLEWARE;
 
@@ -56,10 +58,12 @@ const MeetProvider = (props) => {
         login,
         error,
         loading,
+        lang,
         USERINFO,
         setError,
         setLogin,
         setLoading,
+        setLang,
         setUSERINFO,
         removeCookie,
         GLOBAL_LOGIN,
