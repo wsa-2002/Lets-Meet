@@ -144,10 +144,14 @@ export default function Setting() {
   /******************************************************/
 
   useEffect(() => {
-    if (state?.line) {
+    if (state?.line && USERINFO.ID) {
+      (async () => {
+        const { data } = await getUserInfo(undefined, USERINFO.ID);
+        setUSERINFO((prev) => ({ ...prev, ...data }));
+      })();
       setLineCodeReminder(true);
     }
-  }, [state?.line]);
+  }, [state?.line, USERINFO.ID]);
 
   useEffect(() => {
     (async () => {
@@ -278,6 +282,9 @@ export default function Setting() {
         okButtonProps={{ style: { display: "none" } }}
         placement="bottomLeft"
         open={Boolean(changeEmailReminder)}
+        onPopupClick={(e) => {
+          e.stopPropagation();
+        }}
       >
         <ThinnerInput
           onChange={handleUserDataChange}
@@ -407,7 +414,7 @@ export default function Setting() {
       <Base
         login={true}
         title_disable={true}
-        onMouseDown={() => {
+        onClick={() => {
           setChangeEmailReminder("");
           setLineCodeReminder(false);
         }}
@@ -562,14 +569,36 @@ export default function Setting() {
                       <Popconfirm
                         title={t("connectLine")}
                         description={
-                          <div style={{ width: RWDWidth(350) }}>
-                            {t("scanQRcode")}
-                          </div>
+                          <>
+                            <div style={{ width: RWDWidth(350) }}>
+                              {t("scanQRcode")}
+                            </div>
+                            <div style={{ marginTop: "10px" }}>
+                              <a
+                                target="_blank"
+                                href={"https://line.me/R/ti/p/@766ivmyp"}
+                                style={{
+                                  color: "#000000",
+                                  fontWeight: "bold",
+                                  textDecoration: "underline",
+                                }}
+                                rel="noreferrer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                }}
+                              >
+                                https://line.me/R/ti/p/@766ivmyp
+                              </a>
+                            </div>
+                          </>
                         }
                         cancelButtonProps={{ style: { display: "none" } }}
                         okButtonProps={{ style: { display: "none" } }}
                         placement="bottomLeft"
-                        open={Boolean(lineCodeReminder)}
+                        open={lineCodeReminder}
+                        onPopupClick={(e) => {
+                          e.stopPropagation();
+                        }}
                       >
                         {t("lineMessage")}
                       </Popconfirm>
