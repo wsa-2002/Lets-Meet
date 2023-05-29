@@ -730,8 +730,18 @@ export default () => {
                   id: id + temp.length,
                   title: e.title,
                   start: moment(e.start_date),
-                  end: moment(e.end_date),
-                  category: "time",
+                  end:
+                    moment(e.start_date).format("HH:mm") === "00:00" &&
+                    moment(e.end_date).format("HH:mm") === "00:00" &&
+                    moment(e.start_date).diff(moment(e.end_date), "days") === -1
+                      ? moment(e.end_date).subtract(1, "days")
+                      : moment(e.end_date),
+                  category:
+                    moment(e.start_date).format("HH:mm") === "00:00" &&
+                    moment(e.end_date).format("HH:mm") === "00:00" &&
+                    moment(e.start_date).diff(moment(e.end_date), "days") === -1
+                      ? "allday"
+                      : "time",
                   isReadOnly: true,
                   color: e.color,
                   raw: { ...e, isGoogle: true },
