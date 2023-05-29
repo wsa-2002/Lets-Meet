@@ -1,4 +1,9 @@
-import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  UpOutlined,
+  DownOutlined,
+} from "@ant-design/icons";
 import { Form, Popconfirm } from "antd";
 import _ from "lodash";
 import React, { Fragment, useEffect, useRef, useState } from "react";
@@ -12,7 +17,6 @@ import Input from "../../components/Input";
 import Notification from "../../components/Notification";
 import Radio from "../../components/Radio";
 import { RWD, ANIME } from "../../constant";
-import { useTranslation } from "react-i18next";
 const GoogleButton = Button("google");
 const LineButton = Button("line");
 const RectButton = Button("rect");
@@ -118,7 +122,6 @@ export default function Setting() {
   const [notification, setNotification] = useState({});
   const [changeEmailReminder, setChangeEmailReminder] = useState("");
   const [lineCodeReminder, setLineCodeReminder] = useState(false);
-  const { t } = useTranslation();
 
   /*調整 Setting 文字 套組*/
   const RoutineRef = useRef(null);
@@ -301,9 +304,16 @@ export default function Setting() {
           disabled={login === "google"}
         >
           {t("changePwd")}
+          {changePassword ? <UpOutlined /> : <DownOutlined />}
         </RectButton>
-        {changePassword && (
-          <div style={{ display: "relative", overflow: "hidden" }}>
+        <div
+          style={{
+            display: "relative",
+            overflow: "hidden",
+            visibility: changePassword ? "visible" : "hidden",
+          }}
+        >
+          {changePassword && (
             <SLIDE
               style={{
                 display: "flex",
@@ -343,8 +353,47 @@ export default function Setting() {
                   ))}
               </div>
             </SLIDE>
-          </div>
-        )}
+          )}
+          <SLIDE
+            style={{
+              display: changePassword ? "none" : "flex",
+              visibility: "hidden",
+              flexDirection: "column",
+              rowGap: RWDHeight(25),
+              position: "relative",
+            }}
+          >
+            <ThinnerPassword
+              onChange={handleUserDataChange}
+              name="old_password"
+              placeholder={t("oldPwd")}
+            />
+            <ThinnerPassword
+              onChange={handleUserDataChange}
+              name="new_password"
+              placeholder={t("newPwd")}
+            />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                columnGap: RWDWidth(10),
+              }}
+            >
+              <ThinnerPassword
+                onChange={handleUserDataChange}
+                name="Confirm New Password"
+                placeholder={t("confirmNewPwd")}
+              />
+              {userData["Confirm New Password"] &&
+                (userData.new_password === userData["Confirm New Password"] ? (
+                  <CheckCircle />
+                ) : (
+                  <CloseCircle />
+                ))}
+            </div>
+          </SLIDE>
+        </div>
       </div>
     ),
   };
@@ -432,7 +481,7 @@ export default function Setting() {
                   </Fragment>
                 ))}
             </InfoContainer.AccountSetting>
-            <InfoContainer.ButtonContainer style={{ marginTop: RWDHeight(50) }}>
+            <InfoContainer.ButtonContainer>
               <RectButton
                 variant="solid"
                 buttonTheme="#5A8EA4"
@@ -476,6 +525,7 @@ export default function Setting() {
             >
               <GoogleButton
                 style={{ minWidth: "fit-content", width: RWDWidth(350) }}
+                disabled={login === "google"}
               >
                 {t("connectGoogle")}
               </GoogleButton>
@@ -484,6 +534,7 @@ export default function Setting() {
                 onClick={() => {
                   lineConnect();
                 }}
+                disabled={line_token}
               >
                 {t("connectLine")}
               </LineButton>

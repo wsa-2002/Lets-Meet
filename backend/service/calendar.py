@@ -55,8 +55,9 @@ class GoogleCalendar:
                 start = datetime.strptime(start, '%Y-%m-%d')
                 end = datetime.strptime(end, '%Y-%m-%d')
             color_id = event.get('colorId')
+            
             if color_id:
-                color = self.service.colors().get().execute()['calendar'][str(color_id)]['background']
+                color = self.service.colors().get().execute()['event'][str(color_id)]['background']
             else:
                 color = '#039BE5'
             event_list.append(vo.GoogleCalendarEvent(title=event['summary'], start_date=start,

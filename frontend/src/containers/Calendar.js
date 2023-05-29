@@ -23,7 +23,6 @@ import slotIDProcessing from "../util/slotIDProcessing";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Radio from "../components/Radio";
-import { useTranslation } from "react-i18next";
 // import 'moment/locale/zh-cn';
 const RectButton = Button("rect");
 const RoundButton = Button("round");
@@ -253,8 +252,6 @@ export default () => {
   const [seeMorePosition, setSeeMorePosition] = useState({ left: 0, top: 0 });
   const [seeMoreMode, setSeeMoreMode] = useState(false);
   const seeMoreRef = useRef(null);
-  
-  const { t } = useTranslation();
 
   const throttledHandleResize = _.throttle(() => {
     if (seeMoreRef?.current) {
@@ -727,19 +724,30 @@ export default () => {
               start_date: timeRange[0],
               end_date: timeRange[1],
             });
-            temp = [
-              ...temp,
-              ...googleEvent.map((e, id) => ({
-                id: id + temp.length,
-                title: e.title,
-                start: moment(e.start_date),
-                end: moment(e.end_date),
-                category: "time",
-                isReadOnly: true,
-                color: e.color,
-                raw: { ...e, isGoogle: true },
-              })),
-            ];
+            if (googleEvent)
+              temp = [
+                ...temp,
+                ...googleEvent.map((e, id) => ({
+                  id: id + temp.length,
+                  title: e.title,
+                  start: moment(e.start_date),
+                  end:
+                    moment(e.start_date).format("HH:mm") === "00:00" &&
+                    moment(e.end_date).format("HH:mm") === "00:00" &&
+                    moment(e.start_date).diff(moment(e.end_date), "days") === -1
+                      ? moment(e.end_date).subtract(1, "days")
+                      : moment(e.end_date),
+                  category:
+                    moment(e.start_date).format("HH:mm") === "00:00" &&
+                    moment(e.end_date).format("HH:mm") === "00:00" &&
+                    moment(e.start_date).diff(moment(e.end_date), "days") === -1
+                      ? "allday"
+                      : "time",
+                  isReadOnly: true,
+                  color: e.color,
+                  raw: { ...e, isGoogle: true },
+                })),
+              ];
           }
           setEvents(temp);
           setLoading(false);
