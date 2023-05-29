@@ -3,16 +3,15 @@
 **************************************************************************************************/
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { Table, ConfigProvider } from "antd";
-import moment from "moment";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useMeet } from "./hooks/useMeet";
-import { RWD } from "../constant";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import Tag from "../components/Tag";
+import { RWD } from "../constant";
 import slotIDProcessing from "../util/slotIDProcessing";
 
 const { RWDHeight, RWDWidth } = RWD;
@@ -85,6 +84,7 @@ const Meets = () => {
     login,
     setLoading,
     MIDDLEWARE: { browseMeet },
+    moment: { moment },
   } = useMeet();
   const [meetsData, setMeetsData] = useState({});
   const [view, setView] = useState("Voting");

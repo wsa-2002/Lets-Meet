@@ -3,24 +3,21 @@
 **************************************************************************************************/
 import { motion } from "framer-motion";
 import _ from "lodash";
-import Moment from "moment";
-import { extendMoment } from "moment-range";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { ScrollSync } from "react-scroll-sync";
+import Error from "./Error";
 import { useMeet } from "./hooks/useMeet";
-import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Vote from "../components/Vote";
 import TimeCell from "../components/TimeCell";
-import Error from "./Error";
+import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
 const { ContentContainer } = Base.FullContainer;
 const BackButton = Button("back");
 const PillButton = Button("pill");
-const moment = extendMoment(Moment);
 const InfoTooltip = Modal("info");
 const { RWDWidth } = RWD;
 const DraggableCell = TimeCell("draggable");
@@ -63,16 +60,20 @@ const Voting = () => {
   /******************************************************/
 
   const { code } = useParams();
-  const { login, loading, setLoading, MIDDLEWARE } = useMeet();
-
   const {
-    getGroupAvailability,
-    getMyAvailability,
-    addMyAvailability,
-    deleteMyAvailability,
-    getMeetInfo,
-    getRoutine,
-  } = MIDDLEWARE;
+    login,
+    loading,
+    setLoading,
+    MIDDLEWARE: {
+      getGroupAvailability,
+      getMyAvailability,
+      addMyAvailability,
+      deleteMyAvailability,
+      getMeetInfo,
+      getRoutine,
+    },
+    moment: { Moment, moment },
+  } = useMeet();
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -125,7 +126,7 @@ const Voting = () => {
               ? true
               : ROUTINE.find(
                   (r) =>
-                    r.weekday === moment(w).format("ddd").toUpperCase() &&
+                    r.weekday === Moment(w).format("ddd").toUpperCase() &&
                     r.time_slot_id === t
                 )
               ? null
@@ -276,7 +277,7 @@ const Voting = () => {
                 ? true
                 : ROUTINE.find(
                     (r) =>
-                      r.weekday === moment(w).format("ddd").toUpperCase() &&
+                      r.weekday === Moment(w).format("ddd").toUpperCase() &&
                       r.time_slot_id === t
                   )
                 ? null

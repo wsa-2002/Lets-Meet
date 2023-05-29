@@ -2,13 +2,16 @@ import jwt from "jwt-decode";
 import { useState, useContext, createContext, useEffect, useMemo } from "react";
 import { useCookies } from "react-cookie";
 import AXIOS from "../../middleware";
+import Moment, { moment as momentUtil } from "../../util/moment";
 
 const MeetContext = createContext({
   login: false,
   error: "",
   loading: false,
+  lang: "en",
   USERINFO: {},
   MIDDLEWARE: {},
+  moment: {},
 });
 
 const MeetProvider = (props) => {
@@ -17,7 +20,15 @@ const MeetProvider = (props) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [USERINFO, setUSERINFO] = useState({});
+  const [lang, setLang] = useState("en");
   const MIDDLEWARE = useMemo(() => AXIOS(cookies.token), [cookies]);
+  const moment = useMemo(
+    () => ({
+      Moment: (time, format) => Moment(lang)(time, format),
+      moment: momentUtil,
+    }),
+    [lang]
+  );
   const { getUserInfo } = MIDDLEWARE;
 
   const GLOBAL_LOGIN = (token) => {
@@ -56,14 +67,17 @@ const MeetProvider = (props) => {
         login,
         error,
         loading,
+        lang,
         USERINFO,
         setError,
         setLogin,
         setLoading,
+        setLang,
         setUSERINFO,
         removeCookie,
         GLOBAL_LOGIN,
         MIDDLEWARE,
+        moment,
       }}
       {...props}
     />

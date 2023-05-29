@@ -1,9 +1,9 @@
 import _ from "lodash";
-import moment from "moment";
 import { useRef, useEffect, useState } from "react";
 import { ScrollSyncPane } from "react-scroll-sync";
 import styled from "styled-components";
 import { RWD } from "../../constant";
+import { useMeet } from "../../containers/hooks/useMeet";
 import slotIDProcessing from "../../util/slotIDProcessing";
 const { RWDFontSize, RWDHeight, RWDWidth, RWDVmin } = RWD;
 
@@ -57,6 +57,9 @@ const VotingContainer = Object.assign(
 );
 
 export default ({ DATERANGE, TIMESLOTIDS, Cells }) => {
+  const {
+    moment: { Moment },
+  } = useMeet();
   /*調整 time gap 套組*/
   const WeekdayRef = useRef(null); //追蹤天數高度
   const [timeTop, setTimeTop] = useState(0);
@@ -103,7 +106,7 @@ export default ({ DATERANGE, TIMESLOTIDS, Cells }) => {
                 ref={WeekdayRef}
               >
                 <div style={{ userSelect: "none" }}>
-                  {moment(m).format("MMM D")}
+                  {Moment(m).format("MMM D")}
                 </div>
                 <div
                   style={{
@@ -111,7 +114,7 @@ export default ({ DATERANGE, TIMESLOTIDS, Cells }) => {
                     fontWeight: "700",
                   }}
                 >
-                  {moment(m).format("ddd")}
+                  {Moment(m).format("ddd")}
                 </div>
               </div>
               {TIMESLOTIDS.map((_, t_index) => {

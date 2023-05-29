@@ -41,6 +41,9 @@ html {
       width: 1px;
     }
   }
+  .ant-modal-content {
+    min-width: fit-content !important;
+  }
 }
 
 code {

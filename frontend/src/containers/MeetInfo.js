@@ -5,12 +5,10 @@ import { EditFilled, CopyOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
 import { motion } from "framer-motion";
 import _ from "lodash";
-import Moment from "moment";
-import { extendMoment } from "moment-range";
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ScrollSync } from "react-scroll-sync";
 import Error from "./Error";
 import { useMeet } from "./hooks/useMeet";
@@ -26,7 +24,6 @@ import { RWD, COLORS, PAGE_TRANSITION } from "../constant";
 const BackButton = Button("back");
 const RectButton = Button("rect");
 const RoundButton = Button("round");
-const moment = extendMoment(Moment);
 const GuestNameModal = Modal("guestName");
 const ConfirmModal = Modal("confirm");
 const InfoTooltip = Modal("info");
@@ -45,7 +42,6 @@ const {
 } = Base.FullContainer;
 
 const MeetInfo = () => {
-  const location = useLocation();
   const {
     login,
     setLoading,
@@ -53,6 +49,7 @@ const MeetInfo = () => {
     error,
     setError,
     MIDDLEWARE,
+    moment: { Moment, moment },
   } = useMeet();
 
   /*AXIOS 串接 API tool*/
@@ -464,7 +461,7 @@ const MeetInfo = () => {
         return;
       }
       setTime(
-        `${moment(DATERANGE[updatedCell?.[0]?.[0]], "YYYY-MM-DD").format(
+        `${Moment(DATERANGE[updatedCell?.[0]?.[0]], "YYYY-MM-DD").format(
           "MMM D"
         )} ${slotIDProcessing(
           TIMESLOTIDS[updatedCell?.[0]?.[1]]
