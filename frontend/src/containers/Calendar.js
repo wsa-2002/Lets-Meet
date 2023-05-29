@@ -678,16 +678,16 @@ export default () => {
     setKey((prev) => prev + 1);
   }, [mode, lang]);
 
-  // useEffect(() => {
-  //   if (baseTime) {
-  //     calendarInstRef.current?.getInstance().setDate(new Date(baseTime));
-  //   }
-  //   TimeProcessing();
-  // }, [key]);
+  useEffect(() => {
+    if (baseTime) {
+      calendarInstRef.current?.getInstance().setDate(new Date(baseTime));
+    }
+    TimeProcessing();
+  }, [key]);
 
-  // useEffect(() => {
-  //   TimeProcessing();
-  // }, [lang]);
+  useEffect(() => {
+    TimeProcessing();
+  }, [lang]);
 
   useEffect(() => {
     (async () => {
