@@ -227,20 +227,14 @@ export default (type = "primary") => {
             },
           }}
         >
-          {type === "google" ? (
+          {["google", "line"].includes(type) && (
             <Image
               width={RWDFontSize(30)}
-              src={require("./google.png")}
+              src={require(`./asset/${
+                (prop.disabled ? "disable_" : "") + type
+              }.png`)}
               preview={false}
             />
-          ) : (
-            type === "line" && (
-              <Image
-                width={RWDFontSize(40)}
-                src={require("./line.png")}
-                preview={false}
-              />
-            )
           )}
           {prop.children}
         </Component>
