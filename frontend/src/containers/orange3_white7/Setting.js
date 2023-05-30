@@ -65,7 +65,7 @@ const InfoContainer = Object.assign(
     display: flex;
     flex-direction: column;
     width: ${RWDWidth(880)};
-    margin-top: ${RWDHeight(35)};
+    /* margin-top: ${RWDHeight(10)}; */
   `,
   {
     Title: styled.div`
@@ -81,7 +81,7 @@ const InfoContainer = Object.assign(
         grid-template-rows: repeat(3, max-content);
         grid-column-gap: ${RWDWidth(70)};
         grid-row-gap: ${RWDHeight(30)};
-        margin-top: ${RWDHeight(20)};
+        margin-top: ${RWDHeight(10)};
       `,
       {
         Content: styled.div`
@@ -97,6 +97,7 @@ const InfoContainer = Object.assign(
       display: flex;
       align-items: center;
       column-gap: ${RWDWidth(10)};
+      margin-top: ${RWDHeight(10)};
     `,
   }
 );
@@ -241,7 +242,11 @@ export default function Setting() {
     setUSERINFO((prev) => ({ ...prev, notification_preference: value }));
   };
 
-  const BILINGUAL = {Username: t('username'), Email: t("email"), Password: t("password")};
+  const BILINGUAL = {
+    Username: t("username"),
+    Email: t("email"),
+    Password: t("password"),
+  };
 
   const CONTENTMENU = {
     Username: (
@@ -342,11 +347,25 @@ export default function Setting() {
                 name="old_password"
                 placeholder={t("oldPwd")}
               />
-              <ThinnerPassword
-                onChange={handleUserDataChange}
-                name="new_password"
-                placeholder={t("newPwd")}
-              />
+              <Form>
+                <Form.Item
+                  name={"new_password"}
+                  rules={[
+                    {
+                      min: 8,
+                      validateTrigger: "onChange",
+                      message: "Password should contain at least 8 characters.",
+                    },
+                  ]}
+                  style={{ margin: 0 }}
+                >
+                  <ThinnerPassword
+                    onChange={handleUserDataChange}
+                    name="new_password"
+                    placeholder={t("newPwd")}
+                  />
+                </Form.Item>
+              </Form>
               <div
                 style={{
                   display: "flex",
@@ -465,8 +484,7 @@ export default function Setting() {
         <Base.RightContainer
           style={{
             gridRow: "2/3",
-            position: "relative",
-            alignItems: "flex-start",
+            marginLeft: RWDWidth(30),
           }}
         >
           <InfoContainer>

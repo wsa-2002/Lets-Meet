@@ -83,7 +83,7 @@
   "reset": "重設",
   "connectGoogle": "連結 Google",
   "connectLine": "連結 LINE",
-  "connectLineEmail": "如果你已經連接 LINE 帳號，你可以選擇 LINE 訊息或是信箱來做認證",
+  "connectLineEmail": "如果你已經連接 LINE 帳號，你可以選擇 LINE 訊息或是信箱作為接收通知的偏好",
   "lineMessage": "LINE 訊息",
   "changePwd": "更改密碼",
   "oldPwd": "舊密碼",
