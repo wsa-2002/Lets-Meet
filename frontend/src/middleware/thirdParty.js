@@ -13,16 +13,8 @@ export default (baseURL, token) => ({
       throw error;
     }
   },
-  lineToken: async (code, state) => {
-    try {
-      let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=0,height=0,left=-1000,top=-1000`;
-      window.open(
-        `${baseURL}/account/line?state=${state}&code=${code}`,
-        "_blank"
-        // params
-      );
-    } catch (error) {
-      throw error;
-    }
+  lineJoin: () => {
+    let params = `scrollbars = no, resizable = no, status = no, location = no, toolbar = no, menubar = no , width = 500 , height = 500`;
+    window.open("https://line.me/R/ti/p/@766ivmyp", "_blank", params);
   },
 });

@@ -174,13 +174,11 @@ const Member = ({ setMeetData, Input, rawMember = [] }) => {
   };
 
   const handleMemberSelect = (e) => {
-    //console.log(e);
     setSelectedKeys([e.target.dataset.username]);
   };
 
   const handleMemberClick = (e) => {
     const { username, id, email } = e.domEvent.target.dataset;
-    //console.log(username, id, email);
     setCurrentMember({ username, id: parseInt(Number(id)), email });
     setInput(username);
     setOpen(false);

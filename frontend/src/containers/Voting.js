@@ -196,7 +196,6 @@ const Voting = () => {
         return;
       }
       setStartDrag(false);
-      //console.log(TIMESLOTIDS, updatedCell);
       const API = mode ? addMyAvailability : deleteMyAvailability;
       setUndo((prev) => [
         {
@@ -230,7 +229,6 @@ const Voting = () => {
   };
 
   const handleUndoRedo = async (e) => {
-    //console.log(loading);
     let opr;
     if (e.ctrlKey) {
       switch (e.key) {
@@ -320,7 +318,6 @@ const Voting = () => {
         }
       }
     }
-    console.log(add, del);
     await deleteMyAvailability(code, {
       time_slots: del.map((u) => ({
         date: DATERANGE[u[0]],

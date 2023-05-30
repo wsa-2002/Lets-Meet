@@ -23,7 +23,7 @@ class GetLineBotUrlOutput(BaseModel):
     url: str
 
 
-@router.get("line-bot")
+@router.get("/line-bot")
 @enveloped
 async def get_line_bot_url() -> GetLineBotUrlOutput:
     return GetLineBotUrlOutput(url=line_config.line_bot_url)
@@ -45,10 +45,10 @@ async def connect_account_to_line(token: str):
 
 
 @router.get('/account/line')
+@enveloped
 async def update_account_line_token(code: str, state: str):
     account_id = (security.decode_jwt(state, request.time)).id
     if not account_id:
         raise exc.NoPermission
     user_id = await line_handler.login(code)
     await db.account.update_line_token(account_id=account_id, token=user_id)
-    return RedirectResponse(line_config.line_bot_url)  # TODO: use this endpoint?

@@ -330,9 +330,6 @@ const Meets = () => {
               }}
               onRow={(record) => {
                 return {
-                  onMouseEnter: (e) => {
-                    // //console.log(record);
-                  },
                   onClick: handleMeetInfoClick(record.code),
                 };
               }}
