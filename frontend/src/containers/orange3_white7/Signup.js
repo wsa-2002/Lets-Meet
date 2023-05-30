@@ -23,6 +23,8 @@ const { RWDWidth, RWDHeight, RWDFontSize } = RWD;
 
 const CheckCircle = styled(CheckCircleOutlined)`
   color: #5c9b6b;
+  position: absolute;
+  left: 105%;
   font-size: ${RWDFontSize(20)};
   ${ANIME.FadeIn};
 `;
@@ -30,11 +32,14 @@ const CheckCircle = styled(CheckCircleOutlined)`
 const CloseCircle = styled(CloseCircleOutlined)`
   color: #ae2a39;
   font-size: ${RWDFontSize(20)};
+  position: absolute;
+  left: 105%;
   ${ANIME.FadeIn};
 `;
 
 const SignUp = () => {
   const {
+    setLoading,
     MIDDLEWARE: { signUp },
   } = useMeet();
   const navigate = useNavigate();
@@ -64,11 +69,13 @@ const SignUp = () => {
 
   const handleSignUpClick = async () => {
     try {
+      setLoading(true);
       const { error } = await signUp({
         username: signupData.Username,
         password: signupData.Password,
         email: signupData.Email,
       });
+      setLoading(false);
       if (error) {
         switch (error) {
           case "UsernameExists":
@@ -128,6 +135,32 @@ const SignUp = () => {
                           validateTrigger: "onChange",
                           message: "Please avoid using guest_ as prefix.",
                         },
+                        {
+                          min: 8,
+                          validateTrigger: "onChange",
+                          message:
+                            "Password should contain at least 8 characters.",
+                        },
+                      ]}
+                      style={{ margin: 0 }}
+                    >
+                      <Component
+                        placeholder={CONTENTNAME[m]}
+                        name={m}
+                        onChange={handleSignupChange}
+                        key={index}
+                      />
+                    </Form.Item>
+                  ) : m === "Password" ? (
+                    <Form.Item
+                      name={"Password"}
+                      rules={[
+                        {
+                          min: 8,
+                          validateTrigger: "onChange",
+                          message:
+                            "Password should contain at least 8 characters.",
+                        },
                       ]}
                       style={{ margin: 0 }}
                     >
@@ -152,6 +185,7 @@ const SignUp = () => {
                   display: "flex",
                   alignItems: "center",
                   columnGap: RWDWidth(10),
+                  position: "relative",
                 }}
               >
                 <InfoContainer.Password
