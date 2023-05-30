@@ -511,8 +511,6 @@ export default () => {
                   .by("day"),
               ][day]
             ).format("ddd")}
-            {/* {Moment(model.label, "ddd").format("ddd")} */}
-            {/* {model.label} */}
           </div>
         ),
         monthGridHeader(model) {
@@ -538,6 +536,18 @@ export default () => {
         },
         time: EventTemplate,
         allday: EventTemplate,
+        alldayTitle: () => (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: RWDFontSize(8),
+            }}
+          >
+            {t("allday")}
+          </div>
+        ),
         weekDayName: (model) => (
           <div
             style={{
@@ -890,7 +900,7 @@ export default () => {
                     alignItems: "center",
                   }}
                 >
-                  <div>{t('linkToGoogleCalendar')}</div>
+                  <div>{t("linkToGoogleCalendar")}</div>
                   <CheckCircleOutlined />
                 </FadeIn>
               ) : (
@@ -902,7 +912,7 @@ export default () => {
                     alignItems: "center",
                   }}
                 >
-                  <div>{t('linkToGoogleCalendar')}</div>
+                  <div>{t("linkToGoogleCalendar")}</div>
                   <InfoCircleOutlined />
                 </Floating>
               )}
