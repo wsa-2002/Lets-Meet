@@ -15,7 +15,6 @@ const Notification = ({ notification, setNotification }) => {
 
   useEffect(() => {
     if (margin !== undefined) {
-      //console.log(margin.number);
       api.open({
         message: notification?.title,
         description: (

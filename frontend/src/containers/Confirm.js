@@ -86,9 +86,7 @@ const Voting = () => {
       setTIMESLOTIDS(
         _.range(data.start_time_slot_id, data.end_time_slot_id + +2)
       );
-    } catch (error) {
-      //console.log(error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -155,7 +153,6 @@ const Voting = () => {
       if (!updatedCell) {
         return;
       }
-      //console.log(updatedCell);
       setTime(
         `${Moment(DATERANGE[updatedCell?.[0]?.[0]], "YYYY-MM-DD").format(
           "MMM D"
@@ -167,7 +164,6 @@ const Voting = () => {
       );
       setStartDrag(false);
       setOpen(true);
-      //console.log();
     } catch (error) {
       throw error;
     }
@@ -181,7 +177,6 @@ const Voting = () => {
 
   const handleConfirm = async () => {
     try {
-      //console.log(updatedCell);
       await confirmMeet(code, {
         start_date: DATERANGE[updatedCell[0][0]],
         end_date: DATERANGE[updatedCell[0][0]],
@@ -190,9 +185,7 @@ const Voting = () => {
           TIMESLOTIDS[updatedCell?.[updatedCell?.length - 1]?.[1]],
       });
       navigate(`/meets/${code}`);
-    } catch (error) {
-      //console.log(error);
-    }
+    } catch (error) {}
   };
 
   return (

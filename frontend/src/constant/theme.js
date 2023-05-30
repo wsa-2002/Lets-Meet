@@ -76,6 +76,16 @@ export const ANIME = {
     animation-iteration-count: 1;
     animation-timing-function: ease-in-out;
   `,
+  ChangeColor: (from = "#000000", to = "red") => css`
+    animation-name: ${keyframes`
+      0% { color: ${from}; }
+      50% { color: ${to}; }
+      100% { color: ${from}; }
+    `};
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  `,
 };
 
 export const PAGE_TRANSITION = {
