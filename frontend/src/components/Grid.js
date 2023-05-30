@@ -12,6 +12,7 @@ const GridContainer = styled.div`
   position: relative;
   grid-template-columns: ${({ gridColumn }) => gridColumn};
   grid-template-rows: ${({ gridRow }) => gridRow};
+  width: 100%;
 `;
 
 const Loading = styled.div`

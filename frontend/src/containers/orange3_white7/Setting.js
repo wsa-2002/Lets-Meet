@@ -40,6 +40,10 @@ const SLIDE = styled.div`
   ${ANIME.SlideFromTop}
 `;
 
+const ChangeColor = styled.div`
+  ${ANIME.ChangeColor("#000000", "#DB8600")};
+`;
+
 const InstructionContainer = Object.assign(
   styled.div`
     display: flex;
@@ -111,9 +115,11 @@ export default function Setting() {
       editPreference,
       lineConnect,
       lineToken,
+      lineJoin,
     },
   } = useMeet();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [userData, setUserData] = useState({ username, email });
   const [oriUserData, setOriUserData] = useState({ username, email });
   const [changePassword, setChangePassword] = useState(false);
@@ -121,7 +127,6 @@ export default function Setting() {
   const [notification, setNotification] = useState({});
   const [changeEmailReminder, setChangeEmailReminder] = useState("");
   const [lineCodeReminder, setLineCodeReminder] = useState(false);
-  const { t } = useTranslation();
 
   /*調整 Setting 文字 套組*/
   const RoutineRef = useRef(null);
@@ -149,6 +154,7 @@ export default function Setting() {
         const { data } = await getUserInfo(undefined, USERINFO.ID);
         setUSERINFO((prev) => ({ ...prev, ...data }));
       })();
+      lineJoin();
       setLineCodeReminder(true);
     }
   }, [state?.line, USERINFO.ID]);
@@ -159,7 +165,7 @@ export default function Setting() {
         const code = new URLSearchParams(search).get("code");
         const state = new URLSearchParams(search).get("state");
         if (code && state) {
-          await lineToken(code, state);
+          await lineToken({ code, state });
           navigate("/settings", {
             state: {
               line: "initial",
@@ -234,6 +240,8 @@ export default function Setting() {
     setPreference(value);
     setUSERINFO((prev) => ({ ...prev, notification_preference: value }));
   };
+
+  const BILINGUAL = {Username: t('username'), Email: t("email"), Password: t("password")};
 
   const CONTENTMENU = {
     Username: (
@@ -474,7 +482,7 @@ export default function Setting() {
                         alignSelf: title === "Password" && "flex-start",
                       }}
                     >
-                      {title}
+                      {BILINGUAL[title]}
                     </InfoContainer.AccountSetting.Content>
                     <InfoContainer.AccountSetting.Content
                       style={{
@@ -573,23 +581,21 @@ export default function Setting() {
                             <div style={{ width: RWDWidth(350) }}>
                               {t("scanQRcode")}
                             </div>
-                            <div style={{ marginTop: "10px" }}>
-                              <a
-                                target="_blank"
-                                href={"https://line.me/R/ti/p/@766ivmyp"}
-                                style={{
-                                  color: "#000000",
-                                  fontWeight: "bold",
-                                  textDecoration: "underline",
-                                }}
-                                rel="noreferrer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                }}
-                              >
-                                https://line.me/R/ti/p/@766ivmyp
-                              </a>
-                            </div>
+                            <ChangeColor
+                              style={{
+                                marginTop: "10px",
+                                textDecoration: "underline",
+                                color: "#000000",
+                                fontWeight: "bold",
+                                cursor: "pointer",
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                lineJoin();
+                              }}
+                            >
+                              https://line.me/R/ti/p/@766ivmyp
+                            </ChangeColor>
                           </>
                         }
                         cancelButtonProps={{ style: { display: "none" } }}

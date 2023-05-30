@@ -15,7 +15,10 @@ export const RWD = {
    * @param {number} width px unit in Figma
    * @return {String}      calc(100vw * ${width} / 1920)
    */
-  RWDWidth: (width) => `calc(100vw * ${width} / 1920)`,
+  RWDWidth: (width) =>
+    `max(calc(100vw * ${width} / 1920), calc(${
+      document.querySelector("body").offsetWidth
+    }px * ${width} / 1920))`,
   /**
    * @param {number} height px unit in Figma
    * @return {String}       calc(100vh * ${height} / 1080)
@@ -75,6 +78,16 @@ export const ANIME = {
     animation-duration: 0.5s;
     animation-iteration-count: 1;
     animation-timing-function: ease-in-out;
+  `,
+  ChangeColor: (from = "#000000", to = "red") => css`
+    animation-name: ${keyframes`
+      0% { color: ${from}; }
+      50% { color: ${to}; }
+      100% { color: ${from}; }
+    `};
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
   `,
 };
 

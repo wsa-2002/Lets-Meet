@@ -180,12 +180,12 @@ const MeetInfo = () => {
             ))}
           </div>
         ) : (
-          "None"
+          t("none")
         ),
-        Description: description ? description : "None",
+        Description: description ? description : t("none"),
         "Voting Deadline": voting_end_time
           ? moment(voting_end_time).format("YYYY/MM/DD HH:mm:ss")
-          : "None",
+          : t("none"),
         "Invitation URL": (
           <div
             style={{
@@ -230,7 +230,7 @@ const MeetInfo = () => {
             {meet_url}
           </a>
         ) : (
-          "None"
+          t("none")
         ),
       });
       setRawMeetInfo({
@@ -283,7 +283,6 @@ const MeetInfo = () => {
   const handleMeetDataChange =
     (func, ...name) =>
     (e) => {
-      //console.log(e);
       if (name.length === 1) {
         setRawMeetInfo((prev) => ({ ...prev, [name[0]]: func(e) }));
       } else {
@@ -301,7 +300,7 @@ const MeetInfo = () => {
       setLoading(false);
       setEditMode(false);
     } catch (error) {
-      //console.log(error);
+      throw error;
     }
   };
   useEffect(() => {
@@ -380,7 +379,6 @@ const MeetInfo = () => {
   const handleGuestVote = async () => {
     const { username, password } = form;
     const { error } = await getMyAvailability(code, username, password);
-    console.log(error);
     if (error) {
       const { error } = await joinMeet(code, { name: username, password });
       if (error) {
@@ -484,7 +482,6 @@ const MeetInfo = () => {
 
   const handleConfirm = async () => {
     try {
-      //console.log(updatedCell);
       await confirmMeet(code, {
         start_date: DATERANGE[updatedCell[0][0]],
         end_date: DATERANGE[updatedCell[0][0]],
@@ -495,7 +492,7 @@ const MeetInfo = () => {
       await handleEditDone();
       setOpen(false);
     } catch (error) {
-      //console.log(error);
+      throw error;
     }
   };
   /******************************************************/

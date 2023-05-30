@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useMeet } from "../hooks/useMeet";
 import Base from "../../components/Base/orange3_white7";
+import { useTranslation } from "react-i18next";
 import TimeCell, { slotIDProcessing } from "../../components/TimeCell";
 import { RWD } from "../../constant";
 const { RWDHeight, RWDFontSize, RWDWidth } = RWD;
@@ -60,6 +61,7 @@ const InfoContainer = Object.assign(
               right: 100%;
               margin-right: ${RWDWidth(12)};
               top: ${RWDHeight(-12.5)};
+              font-size: ${RWDFontSize(8)};
             `,
           }
         ),
@@ -100,6 +102,7 @@ export default function Routine() {
   const [startDrag, setStartDrag] = useState(false); //啟動拖曳事件
   const [startIndex, setStartIndex] = useState([]); //選取方塊位置
   const oriCell = useMemo(() => cell, [startDrag]);
+  const { t } = useTranslation();
   const [updatedCell, setUpdatedCell] = useState("");
   const [mode, setMode] = useState(true); //選取模式
   const drag = {
@@ -243,19 +246,19 @@ export default function Routine() {
           }}
           ref={RoutineRef}
         >
-          How does routine work?
+          {t("howRoutine")}
         </p>
         <InstructionContainer
           style={{ position: "absolute", top, marginTop: RWDHeight(80) }}
         >
           <InstructionContainer.Item style={{ marginBottom: RWDHeight(20) }}>
-            Mark your unavailable time
+            {t("markAva")}
           </InstructionContainer.Item>
           <InstructionContainer.Item>
-            Your unavailable time will be shown as blocked
+            {t("unavaBlock")}
           </InstructionContainer.Item>
           <InstructionContainer.Item>
-            when you are invited to a meeting
+            {t("inviteMeet")}
           </InstructionContainer.Item>
         </InstructionContainer>
       </Base.LeftContainer>

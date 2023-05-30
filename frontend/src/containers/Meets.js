@@ -10,6 +10,7 @@ import styled from "styled-components";
 import { useMeet } from "./hooks/useMeet";
 import Base from "../components/Base/145MeetRelated";
 import Button from "../components/Button";
+import Search from "../components/Search";
 import Tag from "../components/Tag";
 import { RWD } from "../constant";
 import slotIDProcessing from "../util/slotIDProcessing";
@@ -177,6 +178,7 @@ const Meets = () => {
       key: "name",
       width: 150,
       render: (i) => <div style={{ overflowX: "auto" }}>{i}</div>,
+      ...Search("name"),
     },
     {
       title: t("host"),
@@ -184,6 +186,7 @@ const Meets = () => {
       key: "host",
       width: 150,
       render: (tag) => <MemberTag>{tag}</MemberTag>,
+      ...Search("host"),
     },
     {
       title: t("votingPeriod"),
@@ -231,7 +234,7 @@ const Meets = () => {
             {url}
           </a>
         ) : (
-          "None"
+          t("none")
         ),
     },
     {
@@ -330,9 +333,6 @@ const Meets = () => {
               }}
               onRow={(record) => {
                 return {
-                  onMouseEnter: (e) => {
-                    // //console.log(record);
-                  },
                   onClick: handleMeetInfoClick(record.code),
                 };
               }}

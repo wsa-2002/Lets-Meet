@@ -8,6 +8,7 @@ const URL = {
   getCalendar: "/meet-calendar",
   getGoogleCalendar: "/google-calendar",
   getUserInfo: "/account",
+  lineToken: "/account/line",
 };
 
 export default (instance) =>
