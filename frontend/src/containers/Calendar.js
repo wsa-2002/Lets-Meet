@@ -676,17 +676,12 @@ export default () => {
   useEffect(() => {
     setKey((prev) => prev + 1);
   }, [mode, lang]);
-
   useEffect(() => {
     if (baseTime) {
       calendarInstRef.current?.getInstance().setDate(new Date(baseTime));
     }
     TimeProcessing();
   }, [key]);
-
-  // useEffect(() => {
-  //   TimeProcessing();
-  // }, [lang]);
 
   useEffect(() => {
     (async () => {

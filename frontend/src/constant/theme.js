@@ -15,7 +15,10 @@ export const RWD = {
    * @param {number} width px unit in Figma
    * @return {String}      calc(100vw * ${width} / 1920)
    */
-  RWDWidth: (width) => `calc(100vw * ${width} / 1920)`,
+  RWDWidth: (width) =>
+    `max(calc(100vw * ${width} / 1920), calc(${
+      document.querySelector("body").offsetWidth
+    }px * ${width} / 1920))`,
   /**
    * @param {number} height px unit in Figma
    * @return {String}       calc(100vh * ${height} / 1080)
