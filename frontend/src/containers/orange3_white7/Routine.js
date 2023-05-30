@@ -146,30 +146,30 @@ export default function Routine() {
   }, [cell]);
   /******************************************************/
 
-  // useEffect(() => {
-  //   (async () => {
-  //     try {
-  //       if (!login) {
-  //         navigate("/");
-  //       } else {
-  //         setLoading(true);
-  //         const { data } = await getRoutine();
-  //         setCell(
-  //           WEEKDAYS.map((w) =>
-  //             TIMESLOTIDS.map((t) =>
-  //               Boolean(
-  //                 data.find(
-  //                   (d) => d.weekday === w.toUpperCase() && d.time_slot_id === t
-  //                 )
-  //               )
-  //             )
-  //           )
-  //         );
-  //         setLoading(false);
-  //       }
-  //     } catch (error) {}
-  //   })();
-  // }, [login]);
+  useEffect(() => {
+    (async () => {
+      try {
+        if (!login) {
+          navigate("/");
+        } else {
+          setLoading(true);
+          const { data } = await getRoutine();
+          setCell(
+            WEEKDAYS.map((w) =>
+              TIMESLOTIDS.map((t) =>
+                Boolean(
+                  data.find(
+                    (d) => d.weekday === w.toUpperCase() && d.time_slot_id === t
+                  )
+                )
+              )
+            )
+          );
+          setLoading(false);
+        }
+      } catch (error) {}
+    })();
+  }, [login]);
 
   /*調整 Routine 文字 套組*/
   const RoutineRef = useRef(null);
