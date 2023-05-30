@@ -55,6 +55,8 @@ body,
 html {
   margin: 0;
   height: auto;
+  min-width: 900px;
+  min-height: 100vh;
   font-family: "Nunito";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
