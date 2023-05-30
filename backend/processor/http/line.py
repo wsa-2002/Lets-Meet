@@ -23,7 +23,7 @@ class GetLineBotUrlOutput(BaseModel):
     url: str
 
 
-@router.get("line-bot")
+@router.get("/line-bot")
 @enveloped
 async def get_line_bot_url() -> GetLineBotUrlOutput:
     return GetLineBotUrlOutput(url=line_config.line_bot_url)
