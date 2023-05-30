@@ -23,6 +23,7 @@ import slotIDProcessing from "../util/slotIDProcessing";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Radio from "../components/Radio";
+// import 'moment/locale/zh-cn';
 const RectButton = Button("rect");
 const RoundButton = Button("round");
 const CalendarModal = Modal("calendar");
@@ -837,7 +838,7 @@ export default () => {
                   TimeProcessing();
                 }}
               >
-                Today
+                {t("today")}
               </RectButton>
             </div>
 
@@ -894,7 +895,7 @@ export default () => {
                     alignItems: "center",
                   }}
                 >
-                  <div>{t("linkToGoogleCalendar")}</div>
+                  <div>{t('linkToGoogleCalendar')}</div>
                   <CheckCircleOutlined />
                 </FadeIn>
               ) : (
@@ -906,7 +907,7 @@ export default () => {
                     alignItems: "center",
                   }}
                 >
-                  <div>{t("linkToGoogleCalendar")}</div>
+                  <div>{t('linkToGoogleCalendar')}</div>
                   <InfoCircleOutlined />
                 </Floating>
               )}

@@ -91,5 +91,11 @@
   "updateFailed": "更新失敗",
   "wrongPwd": "密碼錯誤",
   "changePwdFailed": "更改密碼失敗",
-  "scanQRcode": "請掃描 QRcode 以接收訊息"
+  "scanQRcode": "請掃描 QRcode 以接收訊息",
+  "none": "無",
+  "today": "今天",
+  "howRoutine": "例行公事是什麼？",
+  "markAva": "註記你不行的時間",
+  "unavaBlock": "你不行的時間會顯示出來",
+  "inviteMeet": "當你被邀請到一個會議"
 }

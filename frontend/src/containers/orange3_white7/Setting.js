@@ -119,6 +119,7 @@ export default function Setting() {
     },
   } = useMeet();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [userData, setUserData] = useState({ username, email });
   const [oriUserData, setOriUserData] = useState({ username, email });
   const [changePassword, setChangePassword] = useState(false);
@@ -126,7 +127,6 @@ export default function Setting() {
   const [notification, setNotification] = useState({});
   const [changeEmailReminder, setChangeEmailReminder] = useState("");
   const [lineCodeReminder, setLineCodeReminder] = useState(false);
-  const { t } = useTranslation();
 
   /*調整 Setting 文字 套組*/
   const RoutineRef = useRef(null);
@@ -240,6 +240,8 @@ export default function Setting() {
     setPreference(value);
     setUSERINFO((prev) => ({ ...prev, notification_preference: value }));
   };
+
+  const BILINGUAL = {Username: t('username'), Email: t("email"), Password: t("password")};
 
   const CONTENTMENU = {
     Username: (
@@ -480,7 +482,7 @@ export default function Setting() {
                         alignSelf: title === "Password" && "flex-start",
                       }}
                     >
-                      {title}
+                      {BILINGUAL[title]}
                     </InfoContainer.AccountSetting.Content>
                     <InfoContainer.AccountSetting.Content
                       style={{
