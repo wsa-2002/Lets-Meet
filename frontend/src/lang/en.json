@@ -97,5 +97,6 @@
   "howRoutine": "How does routine work?",
   "markAva": "Mark your unavailable time",
   "unavaBlock": "Your unavailable time will be shown as blocked",
-  "inviteMeet": "when you are invited to a meeting"
+  "inviteMeet": "when you are invited to a meeting",
+  "allday": "All Day"
 }
