@@ -125,7 +125,7 @@ const Header = (prop) => {
         style={{
           display: "flex",
           alignItems: "center",
-          width: adjusted ? "65vw" : "35vw",
+          width: RWDWidth(adjusted ? 1248 : 672),
           height: "100%",
         }}
       >

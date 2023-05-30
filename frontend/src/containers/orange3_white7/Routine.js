@@ -61,6 +61,7 @@ const InfoContainer = Object.assign(
               right: 100%;
               margin-right: ${RWDWidth(12)};
               top: ${RWDHeight(-12.5)};
+              font-size: ${RWDFontSize(8)};
             `,
           }
         ),
