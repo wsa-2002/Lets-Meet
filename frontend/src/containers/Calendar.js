@@ -685,9 +685,9 @@ export default () => {
     TimeProcessing();
   }, [key]);
 
-  useEffect(() => {
-    TimeProcessing();
-  }, [lang]);
+  // useEffect(() => {
+  //   TimeProcessing();
+  // }, [lang]);
 
   useEffect(() => {
     (async () => {
