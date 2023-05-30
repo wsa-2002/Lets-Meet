@@ -231,7 +231,7 @@ const Meets = () => {
             {url}
           </a>
         ) : (
-          "None"
+          t("none")
         ),
     },
     {

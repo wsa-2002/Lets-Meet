@@ -838,7 +838,7 @@ export default () => {
                   TimeProcessing();
                 }}
               >
-                Today
+                {t("today")}
               </RectButton>
             </div>
 

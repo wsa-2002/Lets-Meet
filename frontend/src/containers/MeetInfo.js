@@ -180,12 +180,12 @@ const MeetInfo = () => {
             ))}
           </div>
         ) : (
-          "None"
+          t("none")
         ),
-        Description: description ? description : "None",
+        Description: description ? description : t("none"),
         "Voting Deadline": voting_end_time
           ? moment(voting_end_time).format("YYYY/MM/DD HH:mm:ss")
-          : "None",
+          : t("none"),
         "Invitation URL": (
           <div
             style={{
@@ -230,7 +230,7 @@ const MeetInfo = () => {
             {meet_url}
           </a>
         ) : (
-          "None"
+          t("none")
         ),
       });
       setRawMeetInfo({

@@ -91,5 +91,11 @@
   "updateFailed": "Update failed",
   "wrongPwd": "Wrong password",
   "changePwdFailed": "Change password failed",
-  "scanQRcode": "Please scan QRcode to receive the messages."
+  "scanQRcode": "Please scan QRcode to receive the messages.",
+  "none": "None",
+  "today": "Today",
+  "howRoutine": "How does routine work?",
+  "markAva": "Mark your unavailable time",
+  "unavaBlock": "Your unavailable time will be shown as blocked",
+  "inviteMeet": "when you are invited to a meeting"
 }

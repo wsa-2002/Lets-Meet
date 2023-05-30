@@ -235,6 +235,8 @@ export default function Setting() {
     setUSERINFO((prev) => ({ ...prev, notification_preference: value }));
   };
 
+  const BILINGUAL = {Username: t('username'), Email: t("email"), Password: t("password")};
+
   const CONTENTMENU = {
     Username: (
       <Form
@@ -474,7 +476,7 @@ export default function Setting() {
                         alignSelf: title === "Password" && "flex-start",
                       }}
                     >
-                      {title}
+                      {BILINGUAL[title]}
                     </InfoContainer.AccountSetting.Content>
                     <InfoContainer.AccountSetting.Content
                       style={{
