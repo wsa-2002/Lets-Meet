@@ -82,8 +82,8 @@ async def read_by_username_or_email(identifier: str, is_google_login: bool = Fal
     sql, params = pyformat2psql(
         sql=fr"SELECT id, pass_hash, is_google_login"
             fr"  FROM account"
-            fr" WHERE username = %(username)s"
-            fr"    OR email = %(email)s"
+            fr" WHERE (username = %(username)s"
+            fr"    OR email = %(email)s)"
             fr"   AND email IS NOT NULL",
         username=identifier, email=identifier, is_google_login=is_google_login
     )
