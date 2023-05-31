@@ -187,11 +187,9 @@ export default function Mainpage() {
       const { data } = await addMeet({
         ...meetData,
         guest_name,
-        guest_password,
+        guest_password: guest_password ? guest_password : null,
       });
-      navigate(`/meets/${data.invite_code}`, {
-        state: { guestName: guest_name, guestPassword: guest_password },
-      });
+      navigate(`/meets/${data.invite_code}`);
     } catch (error) {
       setError(error.message);
     }

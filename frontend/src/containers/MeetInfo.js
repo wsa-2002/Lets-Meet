@@ -378,9 +378,16 @@ const MeetInfo = () => {
   };
   const handleGuestVote = async () => {
     const { username, password } = form;
-    const { error } = await getMyAvailability(code, username, password);
+    const { error } = await getMyAvailability(
+      code,
+      username,
+      password ? password : null
+    );
     if (error) {
-      const { error } = await joinMeet(code, { name: username, password });
+      const { error } = await joinMeet(code, {
+        name: username,
+        password: password ? password : null,
+      });
       if (error) {
         switch (error) {
           case "UsernameExists":
@@ -398,7 +405,7 @@ const MeetInfo = () => {
     navigate(`/voting/${code}`, {
       state: {
         guestName: username,
-        guestPassword: password,
+        guestPassword: password ? password : null,
       },
     });
     setGuestNameOpen(false);

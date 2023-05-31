@@ -33,11 +33,12 @@ export default (instance) => ({
           `/meet/code/${code}/available_time`,
           "req:",
           code,
-          name
+          name,
+          password
         );
       const { data: result } = await instance.get(
         `/meet/code/${code}/available_time`,
-        { params: name && password && { name, password } }
+        { params: { name, password } }
       );
       if (print)
         console.log("GET", `/meet/code/${code}/available_time`, "res", result);
