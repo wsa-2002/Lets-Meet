@@ -200,7 +200,10 @@ const Member = ({ setMeetData, Input, rawMember = [] }) => {
     } else {
       setMeetData((prev) => ({
         ...prev,
-        remove_guest_names: [...prev.remove_guest_names, item.username],
+        remove_guest_names: [
+          ...prev.remove_guest_names,
+          item.username.replace("guest_"),
+        ],
       }));
       setMember((prev) => prev.filter((m) => m.username !== item.username));
     }
