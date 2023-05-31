@@ -135,12 +135,6 @@ const SignUp = () => {
                           validateTrigger: "onChange",
                           message: "Please avoid using guest_ as prefix.",
                         },
-                        {
-                          min: 8,
-                          validateTrigger: "onChange",
-                          message:
-                            "Password should contain at least 8 characters.",
-                        },
                       ]}
                       style={{ margin: 0 }}
                     >
@@ -215,7 +209,7 @@ const SignUp = () => {
               <InfoContainer.Button
                 disabled={
                   !signupData.Username ||
-                  !signupData.Password ||
+                  !signupData.Password >= 8 ||
                   !signupData.Email ||
                   !signupData["Confirm Password"] ||
                   signupData.Password !== signupData["Confirm Password"] ||
