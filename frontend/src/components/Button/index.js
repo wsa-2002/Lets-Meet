@@ -61,6 +61,7 @@ const LongButton = styled(BaseButton)`
 const RoundButton = styled(BaseButton)`
   border-radius: 50%;
   aspect-ratio: 1;
+  width: fit-content;
 `;
 
 const RectButton = styled(BaseButton)`

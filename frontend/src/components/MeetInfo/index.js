@@ -195,7 +195,7 @@ const MeetInfo = ({
               }
               disabledDate={(current) =>
                 // Can not select days before today and today
-                current && current < moment().subtract(1, "days").endOf("day")
+                current && current < moment().endOf("day")
               }
             />
             <TimePicker
